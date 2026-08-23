@@ -7,27 +7,9 @@ import { validateUpload, assertPublicUrl, MAX_UPLOAD_BYTES } from "../lib/ingest
 import { computeFocus } from "../lib/bio-focus.js";
 import { selfCertifyBio } from "../lib/self-certify.js";
 import { diffBio } from "../lib/bio-diff.js";
-import { SCORED_PATHS } from "../lib/bio-schema.js";
+import { prepareClientBioEditPayload } from "../lib/bio-evidence.js";
 
 const app = new Hono();
-
-// SECURITY (P3 C-1): a client must NOT author the BIO's confidence/provenance
-// map — a fabricated {conf:100, source:"a".."e"} inflates avgConf + diversity,
-// drives the score to 100, and clears the self-cert floor. On a client edit we
-// discard any client-supplied confidence/missing/conflicts and stamp a uniform
-// "client-stated" provenance, so the score reflects coverage + one human-stated
-// source, never an attacker-chosen number.
-const nonEmptyVal = (v) => (Array.isArray(v) ? v.length > 0 : v != null && String(v).trim() !== "");
-function sanitizeClientPayload(payload) {
-  const p = { ...(payload || {}) };
-  delete p.confidence; delete p.missing; delete p.conflicts;
-  const confidence = {};
-  for (const [s, k] of SCORED_PATHS) {
-    if (nonEmptyVal(p?.[s]?.[k])) confidence[`${s}.${k}`] = { conf: 80, source: "client-stated" };
-  }
-  p.confidence = confidence;
-  return p;
-}
 
 /* POST /api/bios/:brandId/sources
    Body: { sources: [{ kind, bucket, src, signals? }, ...] }
@@ -184,7 +166,14 @@ app.patch("/:brandId", requireAuth, async (c) => {
 
   const body = await c.req.json().catch(() => ({}));
   if (!body.payload || typeof body.payload !== "object") return c.json({ error: "payload required" }, 400);
-  const cleanPayload = sanitizeClientPayload(body.payload); // strip client-authored confidence (P3 C-1)
+  const { data: previousBio } = await supabaseAdmin
+    .from("bios")
+    .select("payload")
+    .eq("brand_id", brandId)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const cleanPayload = prepareClientBioEditPayload(body.payload, previousBio?.payload || {});
 
   const { data: newRow, error } = await supabaseAdmin
     .rpc("append_bio_version", {

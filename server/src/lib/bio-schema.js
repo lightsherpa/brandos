@@ -85,6 +85,8 @@ export function normalizeBio(raw = {}) {
     out[section] = { ...sectionSkeleton(section), ...(isObj(src[section]) ? src[section] : {}) };
   }
   out.confidence = isObj(src.confidence) ? src.confidence : {};
+  out.evidence = isObj(src.evidence) ? src.evidence : {};
+  out.fieldStatus = isObj(src.fieldStatus) ? src.fieldStatus : {};
   out.missing = Array.isArray(src.missing) ? src.missing : [];
   out.conflicts = Array.isArray(src.conflicts) ? src.conflicts : [];
   out.schema_version = src.schema_version || SCHEMA_VERSION;

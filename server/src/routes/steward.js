@@ -22,9 +22,9 @@ import { computeFocus } from "../lib/bio-focus.js";
 import { scoreBio, scoreBioBreakdown } from "../lib/score-bio.js";
 import { evaluateCertification, DEFAULT_RUBRIC } from "../lib/evaluate-certification.js";
 import { payloadHash } from "../lib/bio-hash.js";
-import { deepMerge } from "../lib/deep-merge.js";
-import { normalizeBioEvidence } from "../lib/bio-evidence.js";
+import { prepareStewardBioPatchPayload } from "../lib/bio-evidence.js";
 import { notify, brandOwnerUserId } from "../lib/notify.js";
+import { buildStewardCopilot } from "../lib/steward-copilot.js";
 
 const app = new Hono();
 const CERT_TTL_DAYS = Number(process.env.CERT_TTL_DAYS || 180);
@@ -79,18 +79,22 @@ app.get("/jobs", requireAuth, requireSteward, async (c) => {
    pre-computed auto-signals, so the reviewer UI can render the scoring form. */
 app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
   const steward = c.get("steward");
+  const isLead = (steward.roles || []).includes("lead_steward");
   const jobId = c.req.param("id");
   const { data: job, error } = await supabaseAdmin
     .from("steward_jobs")
     .select(`
       id, bio_id, brand_id, kind, status, decision, assigned_to, override_reason, queued_at,
       lead_reviewed_by, lead_reviewed_at,
-      bio:bios ( id, version, payload, score, certified, certified_by, certified_at, self_certified, created_at ),
+      bio:bios ( id, version, payload, score, certified, certified_by, certified_at, cert_valid_until, self_certified, created_at ),
       brand:brands ( id, name, url, industry )
     `)
     .eq("id", jobId)
     .maybeSingle();
   if (error || !job) return c.json({ error: error?.message || "Not found" }, 404);
+  if (job.assigned_to && job.assigned_to !== steward.id && !isLead) {
+    return c.json({ error: "Job assigned to another Steward" }, 403);
+  }
 
   const { data: sources } = await supabaseAdmin
     .from("bio_sources")
@@ -116,6 +120,31 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
   }));
   const rubric = await loadActiveRubric();
   const autoSignals = scoreBioBreakdown(job?.bio?.payload || {});
+  const { data: previousBio } = job?.bio?.version
+    ? await supabaseAdmin
+      .from("bios")
+      .select("id, version, payload, score")
+      .eq("brand_id", job.brand_id)
+      .lt("version", job.bio.version)
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    : { data: null };
+  const { data: latestDecision } = await supabaseAdmin
+    .from("cert_decisions")
+    .select("decision, composite_score, reject_reason_code, created_at")
+    .eq("bio_id", job.bio_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const copilot = buildStewardCopilot({
+    job,
+    bio: job.bio,
+    brand: job.brand,
+    sources: reviewableSources,
+    previousBio,
+    latestDecision,
+  });
 
   return c.json({
     job,
@@ -123,6 +152,7 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
     sources: reviewableSources,
     rubric: rubric.config,
     autoSignals: { coverage: autoSignals.coverage, avgConf: autoSignals.avgConf, sourceDiversity: autoSignals.sourceDiversity },
+    copilot,
     you: { id: steward.id, name: steward.name, first_name: steward.first_name, roles: steward.roles },
   });
 });
@@ -225,7 +255,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
   // objects merge without dropping untouched evidence-backed fields.
   const hasBioPatch = body.bioPatch && typeof body.bioPatch === "object" && !Array.isArray(body.bioPatch);
   const workingPayload = hasBioPatch
-    ? normalizeBioEvidence(deepMerge(bio.payload || {}, body.bioPatch))
+    ? prepareStewardBioPatchPayload(bio.payload || {}, body.bioPatch)
     : (bio.payload || {});
   let targetBioId = bio.id;
   let targetVersion = bio.version;
