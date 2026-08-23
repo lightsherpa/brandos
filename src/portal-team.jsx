@@ -28,7 +28,7 @@ function useStewardJobs() {
 }
 
 function useStewardJob(jobId) {
-  const empty = { job: null, sources: [], you: null, focus: [], rubric: null, autoSignals: null };
+  const empty = { job: null, sources: [], you: null, focus: [], rubric: null, autoSignals: null, copilot: null };
   const [data, setData] = useTState({ ...empty, error: null, loading: true });
   const reload = async () => {
     if (!jobId) { setData({ ...empty, error: "No job id", loading: false }); return; }
@@ -39,7 +39,7 @@ function useStewardJob(jobId) {
       const json = await res.json();
       setData({
         job: json.job, sources: json.sources || [], you: json.you || null, focus: json.focus || [],
-        rubric: json.rubric || null, autoSignals: json.autoSignals || null, error: null, loading: false,
+        rubric: json.rubric || null, autoSignals: json.autoSignals || null, copilot: json.copilot || null, error: null, loading: false,
       });
     } catch (e) {
       setData({ ...empty, error: e?.message || String(e), loading: false });
@@ -56,6 +56,80 @@ function relativeTime(iso) {
   if (h < 1) return `${Math.max(1, Math.floor(ms / 60_000))}m ago`;
   if (h < 24) return `${h}h ago`;
   return `${Math.floor(h / 24)}d ago`;
+}
+
+function mergePayloadPatch(base, patch) {
+  if (!patch || typeof patch !== "object" || Array.isArray(patch)) return base;
+  const next = JSON.parse(JSON.stringify(base || {}));
+  const apply = (target, source) => {
+    for (const [key, value] of Object.entries(source || {})) {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        target[key] = apply(target[key] && typeof target[key] === "object" && !Array.isArray(target[key]) ? target[key] : {}, value);
+      } else {
+        target[key] = value;
+      }
+    }
+    return target;
+  };
+  return apply(next, patch);
+}
+
+function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
+  const caseFile = copilot?.caseFile;
+  const suggestions = (copilot?.suggestions || []).filter((s) => !dismissed?.has(s.id));
+  if (!caseFile) return null;
+  const counts = [
+    ["Risks", caseFile.risks?.length || 0],
+    ["Changes", caseFile.changes?.length || 0],
+    ["Client-stated", caseFile.claims?.clientStated?.length || 0],
+    ["Missing", caseFile.claims?.missing?.filter((c) => ["identity.positioning","voice.forbidden","audience.primary","identity.category","identity.pillars","voice.register","audience.jtbd","goals.northStar"].includes(c.field)).length || 0],
+  ];
+  const recommendation = caseFile.certificationRecommendation || {};
+  return (
+    <div style={{padding: 20, borderBottom:"1px solid var(--c-line)", background:"linear-gradient(180deg, rgba(212,175,55,0.10), transparent 72%)"}}>
+      <div className="eyebrow eyebrow--yellow" style={{marginBottom: 10}}>Steward Copilot</div>
+      <div style={{fontSize: 15, color:"var(--c-ink)", fontWeight: 650, marginBottom: 5}}>
+        {String(caseFile.readiness?.level || "draft").replace(/-/g, " ")}
+      </div>
+      <div style={{fontSize: 12, color:"var(--c-dim)", lineHeight: 1.45, marginBottom: 12}}>
+        {recommendation.rationale || "Review the BIO and source evidence before submitting."}
+      </div>
+      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap: 6, marginBottom: 12}}>
+        {counts.map(([label, value]) => (
+          <div key={label} className="card card--inset" style={{padding:"8px 9px"}}>
+            <div style={{fontSize: 17, color:"var(--c-ink)", fontWeight: 650, lineHeight: 1}}>{value}</div>
+            <div style={{fontSize: 10.5, color:"var(--c-faint)", marginTop: 3}}>{label}</div>
+          </div>
+        ))}
+      </div>
+      {(caseFile.risks || []).slice(0, 3).map((risk) => (
+        <div key={`${risk.field}-${risk.reason}`} style={{fontSize: 11.5, color:"var(--c-dim)", lineHeight: 1.4, marginBottom: 6}}>
+          <strong style={{color: risk.severity === "high" ? "var(--pink-500)" : "var(--c-ink)"}}>{risk.label}</strong> · {risk.action}
+        </div>
+      ))}
+      {suggestions.length > 0 && (
+        <div style={{marginTop: 13, display:"flex", flexDirection:"column", gap: 8}}>
+          <div className="eyebrow" style={{color:"var(--c-faint)"}}>Suggested actions · {suggestions.length}</div>
+          {suggestions.slice(0, 6).map((s) => (
+            <div key={s.id} className="card card--inset" style={{padding:"9px 10px"}}>
+              <div style={{display:"flex", alignItems:"center", gap: 6, marginBottom: 4}}>
+                <span style={{fontSize: 12.5, color:"var(--c-ink)", fontWeight: 600}}>{s.title}</span>
+                <span className="pill" style={{marginLeft:"auto", height: 17, padding:"0 6px", fontSize: 9, color:"var(--c-dim)", background:"var(--neutral-50)"}}>{String(s.type || "").replace(/_/g, " ")}</span>
+              </div>
+              <div style={{fontSize: 11.2, color:"var(--c-dim)", lineHeight: 1.35, marginBottom: 8}}>{s.reason}</div>
+              <div style={{display:"flex", gap: 6, flexWrap:"wrap"}}>
+                {s.patch?.payloadPatch && (
+                  <button type="button" className="btn btn--ghost btn--sm" style={{height: 25, fontSize: 11}} onClick={() => onAccept(s)}>Accept</button>
+                )}
+                <button type="button" className="btn btn--ghost btn--sm" style={{height: 25, fontSize: 11}} onClick={() => onAskClient(s)}>Ask client</button>
+                <button type="button" className="btn btn--link" style={{height: 25, fontSize: 11, padding:"0 4px"}} onClick={() => onReject(s)}>Reject</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* ════════════════════════════════════════════════════════════════ */
@@ -543,7 +617,7 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
    approve_with_conditions / return_changes / reject). May patch the BIO first. */
 function TeamJob({ id, go }) {
   const { t } = useLocale();
-  const { job, sources, you, focus, rubric, autoSignals, error, loading, reload } = useStewardJob(id);
+  const { job, sources, you, focus, rubric, autoSignals, copilot, error, loading, reload } = useStewardJob(id);
   const [notes, setNotes] = useTState("");
   const [edited, setEdited] = useTState(null);                /* edited BIO payload — null until job loads */
   const [scores, setScores] = useTState({});                 /* { C3: {score, confidence}, ... } */
@@ -552,6 +626,7 @@ function TeamJob({ id, go }) {
   const [submitting, setSubmitting] = useTState(false);
   const [submitErr, setSubmitErr] = useTState(null);
   const [submitInfo, setSubmitInfo] = useTState(null);
+  const [dismissedSuggestions, setDismissedSuggestions] = useTState(new Set());
 
   /* Hydrate the editable copy of the BIO payload whenever the job loads. */
   useTEffect(() => {
@@ -584,6 +659,30 @@ function TeamJob({ id, go }) {
   };
 
   const isDirty = edited && job?.bio?.payload && JSON.stringify(edited) !== JSON.stringify(job.bio.payload);
+
+  const acceptSuggestion = (suggestion) => {
+    const patch = suggestion?.patch?.payloadPatch;
+    if (!patch) return;
+    setEdited((prev) => mergePayloadPatch(prev || job?.bio?.payload || {}, patch));
+    setDismissedSuggestions((prev) => new Set([...prev, suggestion.id]));
+  };
+
+  const rejectSuggestion = (suggestion) => {
+    setDismissedSuggestions((prev) => new Set([...prev, suggestion.id]));
+  };
+
+  const askClientFromSuggestion = (suggestion) => {
+    const fallback = suggestion?.field
+      ? `Please clarify ${suggestion.field}: ${suggestion.reason || "The Steward needs a clearer source-backed answer."}`
+      : suggestion?.reason || "Please clarify this BIO item.";
+    const lines = suggestion?.patch?.requiredChangesPatch || [fallback];
+    setActionItems((prev) => {
+      const current = prev.split("\n").map((s) => s.trim()).filter(Boolean);
+      const next = [...current, ...lines].filter((line, index, arr) => arr.indexOf(line) === index);
+      return next.join("\n");
+    });
+    setDismissedSuggestions((prev) => new Set([...prev, suggestion.id]));
+  };
 
   /* Submit the rubric decision. The Steward scores criteria; the engine
      computes approve / approve_with_conditions / return_changes / reject and
@@ -777,6 +876,13 @@ function TeamJob({ id, go }) {
 
       {/* Right rail — focus list + sources + actions */}
       <aside className="tjob-right scroll" style={{borderLeft:"1px solid var(--c-line)", background:"var(--c-card)", overflowY:"auto", display:"flex", flexDirection:"column"}}>
+        <CopilotPanel
+          copilot={copilot}
+          dismissed={dismissedSuggestions}
+          onAccept={acceptSuggestion}
+          onReject={rejectSuggestion}
+          onAskClient={askClientFromSuggestion}
+        />
         {/* Focus first — where the Steward should look (ranked: gaps, then thin/low-confidence fields) */}
         <div style={{padding: 20, borderBottom:"1px solid var(--c-line)"}}>
           <div className="eyebrow eyebrow--yellow" style={{marginBottom: 12}}>{t("team.focusFirst")} · {focus.length}</div>

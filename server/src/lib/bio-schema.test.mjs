@@ -67,9 +67,23 @@ test("normalizeBio on empty gives every section + defaulted fields", () => {
   assert.deepEqual(n.visual.palette, []);
   assert.deepEqual(n.voice.forbidden, []);
   assert.deepEqual(n.confidence, {});
+  assert.deepEqual(n.evidence, {});
+  assert.deepEqual(n.fieldStatus, {});
   assert.deepEqual(n.missing, []);
   assert.deepEqual(n.conflicts, []);
   assert.equal(n.schema_version, SCHEMA_VERSION);
+});
+
+test("normalizeBio preserves provenance metadata maps", () => {
+  const n = normalizeBio({
+    confidence: { "identity.positioning": { conf: 88, source: "homepage" } },
+    evidence: { "identity.positioning": "homepage hero" },
+    fieldStatus: { "identity.positioning": "source-backed" },
+  });
+
+  assert.deepEqual(n.confidence["identity.positioning"], { conf: 88, source: "homepage" });
+  assert.equal(n.evidence["identity.positioning"], "homepage hero");
+  assert.equal(n.fieldStatus["identity.positioning"], "source-backed");
 });
 
 test("normalizeBio fills gaps without overwriting present values or extras", () => {

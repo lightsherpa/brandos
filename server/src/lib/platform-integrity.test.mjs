@@ -42,7 +42,8 @@ test("Steward submission preserves the audited rubric state machine", () => {
   assert.match(source, /evaluateCertification\(/);
   assert.match(source, /writeDecision\(/);
   assert.match(source, /rpc\("append_bio_version"/);
-  assert.match(source, /normalizeBioEvidence\(deepMerge\(/);
+  assert.match(source, /prepareStewardBioPatchPayload\(bio\.payload \|\| \{\}, body\.bioPatch\)/);
+  assert.doesNotMatch(source, /normalizeBioEvidence\(deepMerge\(/);
   assert.doesNotMatch(source, /score:\s*75/);
 });
 

@@ -18,6 +18,7 @@ import { normalizeBio } from "../lib/bio-schema.js";
 import { scoreBio } from "../lib/score-bio.js";
 import { payloadHash } from "../lib/bio-hash.js";
 import { selfCertifyBio } from "../lib/self-certify.js";
+import { prepareClientBioEditPayload } from "../lib/bio-evidence.js";
 
 const app = new Hono();
 
@@ -124,11 +125,12 @@ app.post("/session/:brandId/attest", requireAuth, async (c) => {
   let target = latestBio;
   if (!latestBio || !sameJson(latestBio.payload, draft)) {
     const nextVersion = (latestBio?.version || 0) + 1;
+    const cleanDraft = prepareClientBioEditPayload(draft, latestBio?.payload || {});
     const { data: inserted, error } = await supabaseAdmin
       .from("bios")
       .insert({
-        brand_id: brandId, version: nextVersion, payload: draft,
-        score: scoreBio(draft), certified: false, self_certified: false, created_by: userId,
+        brand_id: brandId, version: nextVersion, payload: cleanDraft,
+        score: scoreBio(cleanDraft), certified: false, self_certified: false, created_by: userId,
       })
       .select("id, version, payload").single();
     if (error) return c.json({ error: error.message }, 500);

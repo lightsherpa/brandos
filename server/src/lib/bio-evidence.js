@@ -1,3 +1,6 @@
+import { BIO_FIELDS, normalizeBio } from "./bio-schema.js";
+import { deepMerge } from "./deep-merge.js";
+
 const HIGH_IMPACT_FIELDS = [
   "identity.positioning",
   "identity.category",
@@ -19,6 +22,7 @@ const ARRAY_FIELDS = new Set([
 ]);
 
 const clone = (value) => JSON.parse(JSON.stringify(value || {}));
+const stable = (value) => JSON.stringify(value ?? null);
 
 function getPath(payload, dotted) {
   return dotted.split(".").reduce((obj, key) => obj?.[key], payload);
@@ -37,6 +41,10 @@ function setPath(payload, dotted, value) {
 
 function isEmpty(value) {
   return Array.isArray(value) ? value.length === 0 : value == null || String(value).trim() === "";
+}
+
+function sameFieldValue(a, b) {
+  return stable(a) === stable(b);
 }
 
 function uniqueMissing(missing) {
@@ -84,6 +92,13 @@ export function normalizeBioEvidence(payload = {}) {
 
     if (!next.fieldStatus[field]) {
       next.fieldStatus[field] = typeof conf === "number" && conf >= 85 ? "supported" : "inferred";
+    }
+    if (["inferred", "aspirational"].includes(next.fieldStatus[field])) {
+      if (!next.confidence[field] || typeof next.confidence[field] !== "object") next.confidence[field] = {};
+      next.confidence[field].conf = Math.min(next.confidence[field].conf ?? 70, 70);
+    } else if (next.fieldStatus[field] === "client-stated") {
+      if (!next.confidence[field] || typeof next.confidence[field] !== "object") next.confidence[field] = {};
+      next.confidence[field].conf = Math.min(next.confidence[field].conf ?? 80, 80);
     }
     if (!next.evidence[field] && source) next.evidence[field] = source;
   }
@@ -137,6 +152,88 @@ export function applyBioVerification(payload = {}, verification = {}) {
     } else if (status === "supported" && next.confidence[field].conf == null) {
       next.confidence[field].conf = 85;
     }
+  }
+
+  return normalizeBioEvidence(next);
+}
+
+export function prepareClientBioEditPayload(payload = {}, previousPayload = {}) {
+  const current = normalizeBio(payload);
+  const previous = normalizeBio(previousPayload);
+  const next = clone(current);
+  next.confidence = {};
+  next.evidence = {};
+  next.fieldStatus = {};
+  delete next.missing;
+  delete next.conflicts;
+
+  for (const field of BIO_FIELDS) {
+    const dotted = field.path.join(".");
+    const currentValue = getPath(current, dotted);
+    if (isEmpty(currentValue)) continue;
+
+    const previousValue = getPath(previous, dotted);
+    const unchanged = sameFieldValue(currentValue, previousValue);
+    const priorConfidence = previous.confidence?.[dotted];
+    const priorEvidence = previous.evidence?.[dotted];
+    const priorStatus = previous.fieldStatus?.[dotted];
+
+    if (unchanged && priorConfidence && typeof priorConfidence === "object") {
+      next.confidence[dotted] = { ...priorConfidence };
+      if (priorEvidence) next.evidence[dotted] = priorEvidence;
+      if (priorStatus) next.fieldStatus[dotted] = priorStatus;
+      continue;
+    }
+
+    next.confidence[dotted] = { conf: 80, source: "client-stated" };
+    next.evidence[dotted] = "Client edit";
+    next.fieldStatus[dotted] = "client-stated";
+  }
+
+  return normalizeBioEvidence(next);
+}
+
+export function prepareStewardBioPatchPayload(previousPayload = {}, patchPayload = {}) {
+  const patch = clone(patchPayload);
+  delete patch.confidence;
+  delete patch.evidence;
+  delete patch.missing;
+  delete patch.conflicts;
+
+  const previous = normalizeBio(previousPayload);
+  const current = normalizeBio(deepMerge(previous, patch));
+
+  const next = clone(current);
+  next.confidence = {};
+  next.evidence = {};
+  next.fieldStatus = {};
+  delete next.missing;
+  delete next.conflicts;
+
+  for (const field of BIO_FIELDS) {
+    const dotted = field.path.join(".");
+    const currentValue = getPath(current, dotted);
+    if (isEmpty(currentValue)) continue;
+
+    const previousValue = getPath(previous, dotted);
+    const unchanged = sameFieldValue(currentValue, previousValue);
+    const requestedStatus = patch.fieldStatus?.[dotted];
+
+    if (unchanged) {
+      const priorConfidence = previous.confidence?.[dotted];
+      const priorEvidence = previous.evidence?.[dotted];
+      const priorStatus = previous.fieldStatus?.[dotted];
+      if (priorConfidence && typeof priorConfidence === "object") next.confidence[dotted] = { ...priorConfidence };
+      if (priorEvidence) next.evidence[dotted] = priorEvidence;
+      if (requestedStatus || priorStatus) next.fieldStatus[dotted] = requestedStatus || priorStatus;
+      continue;
+    }
+
+    next.confidence[dotted] = { conf: 70, source: "steward edit" };
+    next.evidence[dotted] = "Steward edit";
+    next.fieldStatus[dotted] = ["inferred", "aspirational", "client-stated"].includes(requestedStatus)
+      ? requestedStatus
+      : "inferred";
   }
 
   return normalizeBioEvidence(next);
