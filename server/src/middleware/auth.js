@@ -11,6 +11,7 @@ import {
   roleRequiresMfa,
 } from "../lib/permissions.js";
 import { requestIdFrom, writeAuthorizationAudit } from "../lib/audit.js";
+import { enforceUserRateLimit } from "../lib/http-policy.js";
 
 export async function requireAuth(c, next) {
   const authz = c.req.header("authorization") || c.req.header("Authorization");
@@ -19,6 +20,14 @@ export async function requireAuth(c, next) {
 
   const { data: { user }, error } = await supabaseAdmin.auth.getUser(jwt);
   if (error || !user) return c.json({ error: `Invalid session: ${error?.message || "unknown"}` }, 401);
+
+  // Per-user abuse ceiling (CAA-50 / S1). Applied here, not at the edge, because
+  // this is the first point where the identity is *verified* — bucketing on an
+  // unvalidated `sub` claim would let a forged token drain a victim's budget.
+  // Runs before the profile/authorization queries so a throttled caller costs
+  // us no further database work.
+  const throttled = enforceUserRateLimit(c, user.id);
+  if (throttled) return throttled;
 
   // Look up the workspace_id + role for this user. The handle_new_auth_user
   // trigger ensures every auth.users row has a matching public.users row.

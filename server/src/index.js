@@ -25,22 +25,29 @@ import access from "./routes/access.js";
 import opex from "./routes/opex.js";
 import teamPortal from "./routes/team-portal.js";
 import { inngestHandler } from "./routes/inngest.js";
+import { applyPerimeter, healthPayload, resolveAllowedOrigin } from "./lib/http-policy.js";
+import { redactingLogPrinter } from "./lib/log-redact.js";
 
 const PORT = Number(process.env.PORT) || 8787;
-const CONFIGURED_ORIGINS = (process.env.ALLOWED_ORIGINS || "http://localhost:5173,http://localhost:4173")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
-const ORIGINS = [...new Set(CONFIGURED_ORIGINS.flatMap((origin) =>
-  origin.includes("localhost") ? [origin, origin.replace("localhost", "127.0.0.1")] : [origin]
-))];
 
 const app = new Hono();
-app.use("*", logger());
+// SECURITY (CAA-51 / §S2): the discovery delegation token travels in the URL
+// path, so a bare `logger()` writes a live magic link to stdout on every call.
+// The printer masks token-bearing path segments before anything reaches the
+// log sink; format and volume are otherwise unchanged.
+app.use("*", logger(redactingLogPrinter));
+
+// Perimeter: security headers, per-IP/per-class rate limits, body ceilings.
+// Installed before CORS and before any route so a rejected request never
+// reaches auth, the database, or a model provider. See lib/http-policy.js.
+const perimeter = applyPerimeter(app, process.env);
+
 app.use(
   "*",
   cors({
-    origin: (origin) => (ORIGINS.includes(origin) ? origin : ORIGINS[0]),
+    // Fail closed: an origin that is not configured gets NO
+    // Access-Control-Allow-Origin header, so the browser blocks the read.
+    origin: (origin) => resolveAllowedOrigin(origin, perimeter.allowedOrigins),
     allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: false,
@@ -48,15 +55,9 @@ app.use(
   }),
 );
 
-app.get("/healthz", (c) =>
-  c.json({
-    name: "caastoros-server",
-    status: "ok",
-    model: process.env.MODEL || "claude-sonnet-4-6",
-    hasKey: Boolean(process.env.ANTHROPIC_API_KEY),
-    allowedOrigins: ORIGINS,
-  }),
-);
+// Minimal by design (CAA-50 / S3): the health probe must not disclose the
+// selected model, whether a provider key is present, or the origin allow-list.
+app.get("/healthz", (c) => c.json(healthPayload()));
 
 app.route("/api/brandolph", brandolph);
 app.route("/api/bios", bios);

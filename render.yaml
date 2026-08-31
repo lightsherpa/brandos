@@ -16,6 +16,14 @@ services:
         value: https://app.getcaastor.co
       - key: ALLOWED_ORIGINS
         value: https://app.getcaastor.co
+      # Render terminates TLS at its edge and rewrites X-Forwarded-For, so the
+      # rate limiter may trust it. TRUSTED_PROXY_HOPS counts the proxies in
+      # front of this process — raise it to 2 if a CDN is ever put in front,
+      # otherwise the limiter buckets on the CDN's IP instead of the client's.
+      - key: TRUST_PROXY
+        value: "1"
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
       - key: DISCOVERY_V2
         value: "1"
       - key: EMAIL_FROM
@@ -43,4 +51,8 @@ services:
       - key: INNGEST_SIGNING_KEY
         sync: false
       - key: RESEND_API_KEY
+        sync: false
+      # CAA-51: pepper for the discovery delegation token digest. Rotating it
+      # revokes every pending magic link. Never reuse another key's value.
+      - key: DELEGATION_TOKEN_PEPPER
         sync: false

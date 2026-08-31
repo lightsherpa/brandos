@@ -219,7 +219,9 @@ await attemptInsertBlocked("bio_attestations", { bio_id: rnd, brand_id: rnd, pay
 await attemptInsertBlocked("cert_decisions", { bio_id: rnd, brand_id: rnd, actor_role: "steward", decision: "approve" });
 await attemptInsertBlocked("cert_rubric_versions", { version: 999999, config: { forged: true }, active: false });
 await attemptInsertBlocked("discovery_sessions", { brand_id: rnd, workspace_id: rnd, draft_payload: {} });
-await attemptInsertBlocked("discovery_delegations", { brand_id: rnd, chapter: "voice", invitee_email: "x@x.com", token: rnd });
+// token_hash, not token — CAA-51 dropped the plaintext column (see
+// supabase/migrations/20260901000000_delegation_token_hash.sql).
+await attemptInsertBlocked("discovery_delegations", { brand_id: rnd, chapter: "voice", invitee_email: "x@x.com", token_hash: rnd });
 
 // Read side: these tables have RLS enabled with NO client policy → a client
 // SELECT must return zero rows (never other tenants' cert/attestation data).

@@ -53,7 +53,10 @@ if (health.status === 0) {
   process.exit(1);
 }
 if (health.status !== 200) fail("GET /healthz", `${health.status} — expected 200`);
-else pass("GET /healthz", `200 · ${health.json?.name || "?"} · model ${health.json?.model || "?"}`);
+// The probe is deliberately minimal (CAA-50 / S3) — it must not disclose the
+// selected model, whether a provider key is present, or the origin allow-list.
+else if (health.json?.status !== "ok") fail("GET /healthz", `200 but body was ${JSON.stringify(health.json)}`);
+else pass("GET /healthz", `200 · status ok`);
 
 // ── 1 · Every route mounted and gated. Unauthenticated ⇒ 401. ──
 // 404 = route not mounted. 2xx = anyone on the internet can read it.
