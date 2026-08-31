@@ -13,7 +13,7 @@ test("browser model overrides are finite and route-priced", () => {
 });
 
 test("corrective migration removes client write authority and protects views", () => {
-  const sql = read("supabase/migrations/20260815000000_platform_integrity.sql");
+  const sql = read("supabase/migrations/20260815005000_platform_integrity.sql");
   assert.match(sql, /revoke all on table workspaces, brands, bios/);
   assert.match(sql, /grant select on table workspaces, brands, bios/);
   assert.match(sql, /with \(security_invoker = true\)/);
@@ -35,6 +35,9 @@ test("specialist execution requires a certified BIO and atomic persistence", () 
   assert.match(source, /rpc\("finalize_run_atomic"/);
   assert.match(source, /failRunAndReleaseCredits\(/);
   assert.doesNotMatch(source, /requireCertified:\s*false/);
+  assert.match(source, /select\("id,brand_id,brand:brands\(id,workspace_id\)"\)/);
+  assert.match(source, /hasPermission\(auth, "brief\.run", workspaceId\)/);
+  assert.match(source, /BRAND_SCOPE_MISMATCH/);
 });
 
 test("Steward submission preserves the audited rubric state machine", () => {
@@ -59,9 +62,9 @@ test("Discovery uploads sources before enqueue and has no demo default/results",
 test("Discovery carries an exact BIO correlation id through the worker", () => {
   const route = read("server/src/routes/discovery.js");
   const worker = read("server/src/inngest/functions/compile-bio.js");
-  const migration = read("supabase/migrations/20260815000000_platform_integrity.sql");
+  const migration = read("supabase/migrations/20260815005000_platform_integrity.sql");
   assert.match(route, /const discoveryId = crypto\.randomUUID\(\)/);
-  assert.match(route, /data: \{ brandId, url, workspaceId, instagram, discoveryId \}/);
+  assert.match(route, /data: \{[^}]*brandId[^}]*url[^}]*workspaceId[^}]*instagram[^}]*discoveryId[^}]*\}/);
   assert.match(worker, /p_discovery_id: discoveryId \|\| null/);
   assert.match(migration, /alter table bios add column if not exists discovery_id text/);
 });

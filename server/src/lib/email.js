@@ -1,4 +1,6 @@
 import { Resend } from "resend";
+import crypto from "node:crypto";
+import { recordApiUsage } from "./api-usage.js";
 
 /* Transactional email via Resend. Lazy client (constructing without a key is
    fine, but we guard sends). If RESEND_API_KEY is unset the send is skipped
@@ -9,7 +11,7 @@ function getResend() {
   return _resend;
 }
 
-export async function sendEmail({ to, subject, html }) {
+export async function sendEmail({ to, subject, html, telemetry = {} }) {
   if (!process.env.RESEND_API_KEY) {
     console.warn("[email] RESEND_API_KEY unset — skipping notification email to", to);
     return { skipped: true };
@@ -17,7 +19,13 @@ export async function sendEmail({ to, subject, html }) {
   const from = process.env.EMAIL_FROM || "CaastorOS <notifications@caastoros.com>";
   // Resend resolves { data, error } (no throw on API errors) — surface errors so
   // the Inngest function's retries:2 actually fire instead of silently dropping.
+  const requestId = crypto.randomUUID();
+  const started = Date.now();
   const { data, error } = await getResend().emails.send({ from, to, subject, html });
-  if (error) throw new Error(`Resend send failed: ${error.message || error}`);
+  if (error) {
+    await recordApiUsage({ ...telemetry, requestId, provider: "resend", service: "email", operation: "send", feature: telemetry.feature || "notification.email", status: "failed", latencyMs: Date.now() - started, costSource: "unpriced", errorCode: "PROVIDER_ERROR" });
+    throw new Error(`Resend send failed: ${error.message || error}`);
+  }
+  await recordApiUsage({ ...telemetry, requestId, provider: "resend", service: "email", operation: "send", feature: telemetry.feature || "notification.email", status: "succeeded", latencyMs: Date.now() - started, units: { email: 1 }, costSource: "unpriced" });
   return data;
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateUpload, assertPublicUrl, MAX_UPLOAD_BYTES } from "./ingest-guards.js";
+import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES } from "./ingest-guards.js";
 
 test("validateUpload accepts an allowed document", () => {
   const r = validateUpload({ mime: "application/pdf", size: 2048, filename: "brand-deck.pdf" });
@@ -28,6 +28,28 @@ test("validateUpload rejects a disallowed mime even with an ok-ish name", () => 
   const r = validateUpload({ mime: "application/x-msdownload", size: 100, filename: "a.pdf" });
   assert.equal(r.ok, false);
   assert.equal(r.code, "MIME");
+});
+
+test("validateUpload accepts licensed font binaries", () => {
+  assert.equal(validateUpload({ filename: "BrandDisplay.woff2", mime: "font/woff2", size: 2048 }).ok, true);
+  assert.equal(validateUpload({ filename: "BrandDisplay.otf", mime: "application/octet-stream", size: 2048 }).ok, true);
+});
+
+test("visual references require a role and rights confirmation", () => {
+  assert.equal(validateVisualAssetMetadata({ ext: "png", assetRole: "canonical" }).code, "RIGHTS");
+  assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true }).code, "ASSET_ROLE");
+  assert.deepEqual(
+    validateVisualAssetMetadata({ ext: "png", assetRole: "inspiration", rightsConfirmed: true }).metadata,
+    { asset_kind: "image_reference", asset_role: "inspiration", rights_confirmed: true },
+  );
+});
+
+test("font evidence requires family, licence, and rights", () => {
+  assert.equal(validateVisualAssetMetadata({ ext: "woff2", rightsConfirmed: true, licenseType: "commercial" }).code, "FONT_FAMILY");
+  assert.equal(validateVisualAssetMetadata({ ext: "woff2", rightsConfirmed: true, fontFamily: "Brand Sans" }).code, "FONT_LICENSE");
+  assert.equal(validateVisualAssetMetadata({
+    ext: "woff2", rightsConfirmed: true, fontFamily: "Brand Sans", fontUsage: "Display", licenseType: "commercial",
+  }).metadata.asset_kind, "font");
 });
 
 test("assertPublicUrl allows public http(s)", () => {

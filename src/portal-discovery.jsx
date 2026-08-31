@@ -6,7 +6,14 @@ const { BrandolphAvatar, BrandolphDot, Confidence, Counter, Icon, Reveal } = win
 /* Discovery (3-step intake) + BIO viewer. */
 
 const { useState: useDState, useEffect: useDEffect } = React;
-const SOURCE_FILE_ACCEPT = ".pdf,.doc,.docx,.txt,.md,image/*";
+const DOCUMENT_FILE_ACCEPT = ".pdf,.doc,.docx,.txt,.md";
+const SOURCE_FILE_ACCEPT = `${DOCUMENT_FILE_ACCEPT},.otf,.ttf,.woff,.woff2,image/*`;
+const FONT_FILE_EXTS = new Set(["otf", "ttf", "woff", "woff2"]);
+const fileExt = (file) => String(file?.name || "").split(".").pop().toLowerCase();
+const visualFileKey = (file) => `${file?.name}:${file?.size}:${file?.lastModified}`;
+const defaultVisualMeta = (file) => FONT_FILE_EXTS.has(fileExt(file))
+  ? { assetRole:"font", fontFamily:String(file.name || "").replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "), fontUsage:"Display", licenseType:"commercial", licenseReference:"", rightsConfirmed:false }
+  : { assetRole:"inspiration", rightsConfirmed:false };
 
 /* useLiveBio — fetches the user's first brand + latest BIO + cert state.
    Polls every `pollMs` while `pendingCert` is true (BIO not yet certified
@@ -127,7 +134,7 @@ const BUCKETS = [
   { key:"voice" },
 ];
 
-function BucketDropZone({ bucket, files, onAdd, onRemove }) {
+function BucketDropZone({ bucket, files, onAdd, onRemove, visualMeta = {}, onVisualMeta }) {
   const { t } = useLocale();
   const [over, setOver] = useDState(false);
   const inputRef = React.useRef(null);
@@ -140,43 +147,71 @@ function BucketDropZone({ bucket, files, onAdd, onRemove }) {
       onDragOver={(e) => { e.preventDefault(); setOver(true); }}
       onDragLeave={() => setOver(false)}
       onDrop={onDrop}
-      onClick={() => inputRef.current && inputRef.current.click()}
       style={{
         border: over ? "1.5px dashed var(--yellow-500)" : "1.5px dashed var(--c-line-2)",
         background: over ? "var(--yellow-50, rgba(252,211,77,0.08))" : "var(--c-bg)",
-        borderRadius: 12, padding: "16px 18px", cursor:"pointer",
+        borderRadius: 12, padding: "16px 18px",
         transition: "border-color 120ms ease, background 120ms ease",
       }}
     >
       <input
         ref={inputRef} type="file" multiple
+        accept={bucket.key === "visual" ? SOURCE_FILE_ACCEPT : DOCUMENT_FILE_ACCEPT}
         style={{display:"none"}}
         onChange={(e) => { onAdd(Array.from(e.target.files || [])); e.target.value = ""; }}
       />
-      <div style={{display:"flex", alignItems:"baseline", justifyContent:"space-between", gap:12, marginBottom:4}}>
+      <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, marginBottom:4}}>
         <div style={{fontSize:13.5, fontWeight:600, color:"var(--c-ink)"}}>{t("discovery.bucket." + bucket.key + ".label")}</div>
-        <span className="eyebrow" style={{color:"var(--c-faint)"}}>{t("discovery.bucket." + bucket.key + ".readBy")}</span>
+        <div style={{display:"flex", alignItems:"center", gap:10}}>
+          <span className="eyebrow" style={{color:"var(--c-faint)"}}>{t("discovery.bucket." + bucket.key + ".readBy")}</span>
+          <button type="button" className="btn btn--secondary" onClick={() => inputRef.current?.click()} style={{height:30, padding:"0 10px", fontSize:11}}>
+            {t("discovery.visualIntake.addFiles")}
+          </button>
+        </div>
       </div>
       <div style={{fontSize:12, color:"var(--c-dim)", lineHeight:1.45, marginBottom: files.length ? 10 : 4}}>
         {t("discovery.bucket." + bucket.key + ".help")}
-        {bucket.key === "visual" && <> Visual files are stored for Steward review; automated extraction currently reads the website only.</>}
+        {bucket.key === "visual" && <> {t("discovery.visualIntake.help")}</>}
       </div>
       {files.length > 0 && (
-        <div style={{display:"flex", flexWrap:"wrap", gap:6, marginTop: 8}}>
-          {files.map((f, i) => (
-            <span key={i} className="pill" style={{
-              display:"inline-flex", alignItems:"center", gap:6,
-              background:"var(--neutral-50)", color:"var(--c-ink)",
-              padding:"4px 6px 4px 10px", fontSize:11.5,
-            }}>
-              <span style={{maxWidth:160, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{f.name}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); onRemove(i); }}
-                aria-label={t("discovery.removeFile", { name: f.name })}
-                style={{border:"none", background:"transparent", cursor:"pointer", color:"var(--c-faint)", padding:"0 4px", lineHeight:1}}
-              >×</button>
-            </span>
-          ))}
+        <div style={{display:"flex", flexDirection:"column", gap:8, marginTop: 10}}>
+          {files.map((f, i) => {
+            const key = visualFileKey(f);
+            const meta = visualMeta[key] || defaultVisualMeta(f);
+            const isFont = FONT_FILE_EXTS.has(fileExt(f));
+            const setMeta = (patch) => onVisualMeta?.(key, { ...meta, ...patch });
+            return (
+              <div key={key} onClick={(e) => e.stopPropagation()} style={{background:"var(--neutral-50)", borderRadius:10, padding:"9px 10px"}}>
+                <div style={{display:"flex", alignItems:"center", gap:8}}>
+                  <span className="pill" style={{height:20, padding:"0 8px", fontSize:9.5}}>{isFont ? t("discovery.visualIntake.font") : bucket.key === "visual" ? t("discovery.visualIntake.reference") : t("discovery.visualIntake.source")}</span>
+                  <span style={{flex:1, minWidth:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", fontSize:12, color:"var(--c-ink)"}}>{f.name}</span>
+                  <button onClick={() => onRemove(i)} aria-label={t("discovery.removeFile", { name: f.name })} style={{border:"none", background:"transparent", cursor:"pointer", color:"var(--c-faint)", padding:"0 4px", fontSize:16}}>×</button>
+                </div>
+                {bucket.key === "visual" && (
+                  <div style={{display:"grid", gridTemplateColumns:isFont ? "repeat(auto-fit, minmax(150px, 1fr))" : "1fr", gap:7, marginTop:9}}>
+                    {isFont ? <>
+                      <input className="input" aria-label={t("discovery.visualIntake.fontFamily")} value={meta.fontFamily || ""} onChange={(e) => setMeta({fontFamily:e.target.value})} placeholder={t("discovery.visualIntake.fontFamily")} style={{height:34, fontSize:12}} />
+                      <select className="input" aria-label={t("discovery.visualIntake.fontUsage")} value={meta.fontUsage || "Display"} onChange={(e) => setMeta({fontUsage:e.target.value})} style={{height:34, fontSize:12}}>
+                        <option value="Display">{t("discovery.visualIntake.display")}</option><option value="Body">{t("discovery.visualIntake.body")}</option><option value="Both">{t("discovery.visualIntake.both")}</option>
+                      </select>
+                      <select className="input" aria-label={t("discovery.visualIntake.fontLicence")} value={meta.licenseType || "commercial"} onChange={(e) => setMeta({licenseType:e.target.value})} style={{height:34, fontSize:12}}>
+                        <option value="commercial">{t("discovery.visualIntake.commercial")}</option><option value="open_source">{t("discovery.visualIntake.openSource")}</option><option value="custom">{t("discovery.visualIntake.custom")}</option><option value="system">{t("discovery.visualIntake.system")}</option>
+                      </select>
+                      <input className="input" aria-label={t("discovery.visualIntake.licenceReference")} value={meta.licenseReference || ""} onChange={(e) => setMeta({licenseReference:e.target.value})} placeholder={t("discovery.visualIntake.licenceReferencePlaceholder")} style={{height:34, fontSize:12, gridColumn:"1 / -1"}} />
+                    </> : (
+                      <select className="input" aria-label={t("discovery.visualIntake.referenceRole")} value={meta.assetRole || "inspiration"} onChange={(e) => setMeta({assetRole:e.target.value})} style={{height:34, fontSize:12}}>
+                        <option value="canonical">{t("discovery.visualIntake.canonical")}</option><option value="inspiration">{t("discovery.visualIntake.inspiration")}</option><option value="avoid">{t("discovery.visualIntake.avoid")}</option>
+                      </select>
+                    )}
+                    <label style={{gridColumn:"1 / -1", display:"flex", alignItems:"flex-start", gap:8, fontSize:11.5, color:"var(--c-dim)", lineHeight:1.4, cursor:"pointer"}}>
+                      <input type="checkbox" checked={!!meta.rightsConfirmed} onChange={(e) => setMeta({rightsConfirmed:e.target.checked})} style={{marginTop:2}} />
+                      {t("discovery.visualIntake.rightsConfirm")}
+                    </label>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -189,6 +224,7 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
      `Start extraction` fires the compile-bio Inngest event via
      /api/discovery/start; the SPA can then poll bios for the result. */
   const [uploadsByBucket, setUploadsByBucket] = useDState({ foundations: [], visual: [], voice: [] });
+  const [visualMeta, setVisualMeta] = useDState({});
   const [brandName, setBrandName] = useDState("");
   const [url, setUrl] = useDState("");
   const [instagram, setInstagram] = useDState("");
@@ -197,13 +233,38 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
   const [uploading, setUploading] = useDState(false);
   const [createdBrandId, setCreatedBrandId] = useDState(null);
   const uploadedFilesRef = React.useRef(new Set());
-  const addToBucket = (key) => (newFiles) =>
+  const uploadedSourcesRef = React.useRef(new Map());
+  const uploadKeyFor = (bucket, file) => `${bucket}:${file.name}:${file.size}:${file.lastModified}`;
+  const addToBucket = (key) => (newFiles) => {
     setUploadsByBucket(prev => ({ ...prev, [key]: [...prev[key], ...newFiles] }));
-  const removeFromBucket = (key) => (idx) =>
+    if (key === "visual") setVisualMeta(prev => {
+      const next = { ...prev };
+      newFiles.forEach((file) => { const k = visualFileKey(file); if (!next[k]) next[k] = defaultVisualMeta(file); });
+      return next;
+    });
+  };
+  const removeFromBucket = (key) => async (idx) => {
+    const file = uploadsByBucket[key][idx];
+    const uploadKey = file ? uploadKeyFor(key, file) : null;
+    const durable = uploadKey ? uploadedSourcesRef.current.get(uploadKey) : null;
+    if (durable) {
+      const response = await apiFetch(`/api/bios/${durable.brandId}/sources/${durable.sourceId}`, { method:"DELETE" });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        setError(body.error || t("discovery.visualIntake.removeFailed"));
+        return;
+      }
+      uploadedFilesRef.current.delete(uploadKey);
+      uploadedSourcesRef.current.delete(uploadKey);
+    }
     setUploadsByBucket(prev => ({ ...prev, [key]: prev[key].filter((_, i) => i !== idx) }));
+    if (key === "visual" && file) setVisualMeta(prev => { const next = { ...prev }; delete next[visualFileKey(file)]; return next; });
+  };
+  const updateVisualMeta = (key, value) => setVisualMeta(prev => ({ ...prev, [key]: value }));
   const handleStart = async () => {
     if (newBrand && !brandName.trim()) { setError(t("discovery.step1.brandNameRequired")); return; }
     setBusy(true); setError(null);
+    const attemptUploads = [];
     try {
       const cleaned = url.trim().replace(/^https?:\/\//i, "");
       const targetUrl = cleaned.startsWith("http") ? cleaned : `https://${cleaned}`;
@@ -251,11 +312,15 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
       if (brandId && filesToUpload.length) {
         setUploading(true);
         for (const item of filesToUpload) {
-          const uploadKey = `${item.bucket}:${item.file.name}:${item.file.size}:${item.file.lastModified}`;
+          const uploadKey = uploadKeyFor(item.bucket, item.file);
           if (uploadedFilesRef.current.has(uploadKey)) continue;
           const form = new FormData();
           form.set("bucket", item.bucket);
           form.set("file", item.file);
+          if (item.bucket === "visual") {
+            const meta = visualMeta[visualFileKey(item.file)] || defaultVisualMeta(item.file);
+            Object.entries(meta).forEach(([key, value]) => form.set(key, String(value)));
+          }
           const up = await apiFetch(`/api/bios/${brandId}/sources/upload`, {
             method: "POST",
             body: form,
@@ -264,7 +329,12 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
             const err = await up.json().catch(() => ({ error: `HTTP ${up.status}` }));
             throw new Error(`Upload failed for ${item.file.name}: ${err.error || `HTTP ${up.status}`}`);
           }
+          const uploaded = await up.json();
+          const durable = { brandId, sourceId:uploaded.source?.id, uploadKey };
+          if (!durable.sourceId) throw new Error(`Upload succeeded without a source id for ${item.file.name}`);
           uploadedFilesRef.current.add(uploadKey);
+          uploadedSourcesRef.current.set(uploadKey, durable);
+          attemptUploads.push(durable);
         }
       }
       const res = await apiFetch("/api/discovery/start", {
@@ -281,6 +351,15 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
       console.log("[Discovery] fired", { discoveryId: runId, brandId, url: targetUrl });
       onNext({ discoveryId: runId, eventId, brandId, baselineVersion });
     } catch (err) {
+      await Promise.all(attemptUploads.map(async (durable) => {
+        try {
+          const response = await apiFetch(`/api/bios/${durable.brandId}/sources/${durable.sourceId}`, { method:"DELETE" });
+          if (response.ok) {
+            uploadedFilesRef.current.delete(durable.uploadKey);
+            uploadedSourcesRef.current.delete(durable.uploadKey);
+          }
+        } catch { /* keep the source tracked so the user can remove/retry */ }
+      }));
       setError(err?.message || String(err));
     } finally {
       setUploading(false);
@@ -288,6 +367,10 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
     }
   };
   const totalFiles = BUCKETS.reduce((a, b) => a + uploadsByBucket[b.key].length, 0);
+  const visualAssetsReady = uploadsByBucket.visual.every((file) => {
+    const meta = visualMeta[visualFileKey(file)] || defaultVisualMeta(file);
+    return meta.rightsConfirmed && (!FONT_FILE_EXTS.has(fileExt(file)) || (meta.fontFamily && meta.licenseType));
+  });
 
   return (
     <div style={{maxWidth: 580, margin:"40px auto 0"}}>
@@ -344,6 +427,8 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
                     files={uploadsByBucket[b.key]}
                     onAdd={addToBucket(b.key)}
                     onRemove={removeFromBucket(b.key)}
+                    visualMeta={visualMeta}
+                    onVisualMeta={updateVisualMeta}
                   />
                 ))}
               </div>
@@ -360,10 +445,11 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
                 {t("discovery.step1.timing")}{totalFiles > 0 ? t("discovery.step1.filesReady", { count: totalFiles }) : ""}
               </span>
             </div>
-            <button className="btn btn--primary" onClick={handleStart} disabled={busy || !url.trim() || (newBrand && !brandName.trim())}>
+            <button className="btn btn--primary" onClick={handleStart} disabled={busy || !url.trim() || (newBrand && !brandName.trim()) || !visualAssetsReady}>
               {uploading ? t("discovery.step1.uploading") : busy ? t("discovery.step1.starting") : <>{t("discovery.step1.startExtraction")} <Icon name="arrow" size={14} /></>}
             </button>
           </div>
+          {!visualAssetsReady && <div style={{marginTop:10, fontSize:11.5, color:"var(--c-dim)"}}>{t("discovery.visualIntake.incomplete")}</div>}
           {error && (
             <div style={{marginTop: 12, padding: "8px 12px", background: "var(--pink-50, rgba(244,143,177,0.12))", color: "var(--pink-700, var(--pink-500))", borderRadius: 8, fontSize: 12}}>
               {error}
@@ -1543,6 +1629,24 @@ const bioFieldLabel = (label) => {
   return key ? tr("discovery.bioField." + key) : label;
 };
 
+/* BIO surface lock. Kept local to this route so the document can retain its
+   editorial score treatment and remain usable on narrow screens without
+   changing the shared portal stylesheet. */
+const BIO_SURFACE_CSS = `
+  .cos-bio .bio-hero { grid-template-columns: minmax(0, 1fr) 320px; }
+  .cos-bio .bio-score { font-family: Georgia, serif !important; font-style: italic !important; font-weight: 500 !important; }
+  .cos-bio .bio-tabs { overflow-x: auto; scrollbar-width: thin; }
+  .cos-bio .bio-tabs .tab { white-space: nowrap; }
+  .cos-bio .bio-field-header, .cos-bio .bio-field-row { grid-template-columns: 180px minmax(0, 1fr) 110px; }
+  @media (max-width: 720px) {
+    .cos-bio .bio-hero { grid-template-columns: 1fr; gap: 18px; align-items: start; }
+    .cos-bio .bio-hero-actions { align-items: flex-start !important; flex-direction: row !important; flex-wrap: wrap; }
+    .cos-bio .bio-field-header { display: none !important; }
+    .cos-bio .bio-field-row { grid-template-columns: 1fr 86px !important; gap: 10px !important; }
+    .cos-bio .bio-field-row > :first-child { grid-column: 1 / -1; }
+  }
+`;
+
 function BioViewer({ go, bioScore = 91 }) {
   const { t } = useLocale();
   const [tab, setTab] = useDState("identity");
@@ -1661,7 +1765,8 @@ function BioViewer({ go, bioScore = 91 }) {
     : { color:"var(--pink-500)", word:t("discovery.bioTone.needs.word"), hint:t("discovery.bioTone.needs.hint") };
 
   return (
-    <div style={{padding:"24px 36px 60px"}}>
+    <div className="cos-page cos-bio" style={{padding:"24px 36px 60px"}}>
+      <style>{BIO_SURFACE_CSS}</style>
       {/* Live cert chip — pulls real DB state, polls every 5s */}
       {live.brandId && (
         <div className="card" style={{
@@ -1725,11 +1830,11 @@ function BioViewer({ go, bioScore = 91 }) {
       )}
 
       {/* Hero */}
-      <div style={{display:"grid", gridTemplateColumns:"1fr 320px", gap: 28, marginBottom: 28, alignItems:"end"}}>
+      <div className="bio-hero" style={{display:"grid", gridTemplateColumns:"1fr 320px", gap: 28, marginBottom: 28, alignItems:"end"}}>
         <div>
           <div className="eyebrow" style={{marginBottom: 6}}>{t("discovery.bio.eyebrow")} · {live.brandName || "Your brand"}</div>
           <div style={{display:"flex", alignItems:"baseline", gap: 14}}>
-            <span style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 88, lineHeight: 1, color: tone.color, fontWeight: 500}}>
+            <span className="bio-score" style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 88, lineHeight: 1, color: tone.color, fontWeight: 500}}>
               <Counter to={conf} />
             </span>
             <div>
@@ -1748,7 +1853,7 @@ function BioViewer({ go, bioScore = 91 }) {
             <div style={{height:"100%", width: conf + "%", background: tone.color, borderRadius:999, transition:"width 800ms ease"}} />
           </div>
         </div>
-        <div style={{display:"flex", flexDirection:"column", gap: 10, alignItems:"flex-end"}}>
+        <div className="bio-hero-actions" style={{display:"flex", flexDirection:"column", gap: 10, alignItems:"flex-end"}}>
           <button className="btn btn--primary" onClick={() => setTab("sources")} disabled={!live.brandId}>
             <Icon name="plus" size={14} /> {t("discovery.bio.feedBrandolph")}
           </button>
@@ -1819,14 +1924,14 @@ function BioViewer({ go, bioScore = 91 }) {
       {/* Tabs — only when we have a BIO */}
       {bio && (
         <div className="card" style={{padding: 0, overflow:"hidden"}}>
-          <div className="tabs">
+          <div className="tabs bio-tabs">
             {tabs.map((k) => (
               <button key={k} className={"tab" + (tab === k ? " tab--active" : "")} onClick={() => setTab(k)}>{t("discovery.tab." + k)}</button>
             ))}
           </div>
           <div style={{padding: 28}}>
             {["identity","audience","voice","goals"].includes(tab) && (
-              <div style={{display:"grid", gridTemplateColumns:"180px 1fr 110px", gap:18, paddingBottom:10, marginBottom:2, borderBottom:"1px solid var(--c-line)", alignItems:"baseline"}}>
+              <div className="bio-field-header" style={{display:"grid", gridTemplateColumns:"180px 1fr 110px", gap:18, paddingBottom:10, marginBottom:2, borderBottom:"1px solid var(--c-line)", alignItems:"baseline"}}>
                 <div className="eyebrow" style={{margin:0}}>{t("discovery.table.field")}</div>
                 <div className="eyebrow" style={{margin:0}}>{t("discovery.table.whatWeKnow")}</div>
                 <div style={{textAlign:"right"}}>
@@ -1843,7 +1948,7 @@ function BioViewer({ go, bioScore = 91 }) {
               </div>
             )}
             {tab === "voice"       && <BioFieldList items={bio.voice}       editing={editing} onChange={v => patch("voice", v)} />}
-            {tab === "visual"      && <BioVisual bio={bio} patch={patch} editing={editing} />}
+            {tab === "visual"      && <BioVisual bio={bio} patch={patch} editing={editing} brandId={live.brandId} />}
             {tab === "goals"       && <BioFieldList items={bio.goals}       editing={editing} onChange={v => patch("goals", v)} />}
             {tab === "strategic"   && <BioStrategic strat={bio.strategic} patchStrategic={patchStrategic} editing={editing} />}
             {tab === "sources"     && <BioSources brandId={live.brandId} sources={sources} setSources={setSources} feed={feed} setFeed={setFeed} reading={reading} addReference={addReference} onSourceAdded={() => setHasUnappliedSourceChanges(true)} editing={editing} go={go} />}
@@ -1909,7 +2014,7 @@ function EditableField({ f, editing, onChange, onRemove }) {
   const { t } = useLocale();
   if (!editing) {
     return (
-      <div style={{display:"grid", gridTemplateColumns: "180px 1fr 110px", gap: 18, padding:"14px 0", borderBottom:"1px solid var(--c-line)", alignItems:"start"}}>
+      <div className="bio-field-row" style={{display:"grid", gridTemplateColumns: "180px 1fr 110px", gap: 18, padding:"14px 0", borderBottom:"1px solid var(--c-line)", alignItems:"start"}}>
         <div>
           <div style={{fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-faint)", letterSpacing:"0.06em", textTransform:"uppercase"}}>{bioFieldLabel(f.label)}</div>
           {f.source && <div style={{fontSize: 11, color:"var(--c-faint)", marginTop: 4, fontStyle:"italic"}}>{t("discovery.field.from", { source: f.source })}</div>}
@@ -1924,7 +2029,7 @@ function EditableField({ f, editing, onChange, onRemove }) {
     );
   }
   return (
-    <div style={{display:"grid", gridTemplateColumns: "180px 1fr 110px", gap: 18, padding:"14px 0", borderBottom:"1px solid var(--c-line)", alignItems:"start"}}>
+    <div className="bio-field-row" style={{display:"grid", gridTemplateColumns: "180px 1fr 110px", gap: 18, padding:"14px 0", borderBottom:"1px solid var(--c-line)", alignItems:"start"}}>
       <div style={{display:"flex", flexDirection:"column", gap:6}}>
         <EditInput value={f.label} onChange={(v) => onChange({ label: v })} placeholder={t("discovery.editPrimitive.labelPlaceholder")} mono />
         <EditInput value={f.source || ""} onChange={(v) => onChange({ source: v })} placeholder={t("discovery.editPrimitive.sourcePlaceholder")} />
@@ -1975,8 +2080,37 @@ function BioSectionHead({ label, source, conf }) {
   );
 }
 
-function BioVisual({ bio, patch, editing }) {
-  const { t } = useLocale();
+function BioVisual({ bio, patch, editing, brandId }) {
+  const [loadedFonts, setLoadedFonts] = useDState({});
+  const [fontFailures, setFontFailures] = useDState({});
+  useDEffect(() => {
+    let alive = true;
+    const sourced = (bio.type || []).filter((font) => font.sourceId && font.family);
+    setLoadedFonts({});
+    setFontFailures({});
+    Promise.all(sourced.map(async (font) => {
+      try {
+        const response = await apiFetch(`/api/bios/${brandId}/sources/${font.sourceId}/url`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const { url } = await response.json();
+        const cssFamily = `CaastorAsset-${font.sourceId}`;
+        const face = new FontFace(cssFamily, `url(${url})`);
+        await face.load();
+        document.fonts.add(face);
+        return { sourceId:font.sourceId, cssFamily };
+      } catch { return { sourceId:font.sourceId, failed:true }; }
+    })).then((entries) => {
+      if (!alive) return;
+      setLoadedFonts(Object.fromEntries(entries.filter((entry) => entry.cssFamily).map((entry) => [entry.sourceId, entry.cssFamily])));
+      setFontFailures(Object.fromEntries(entries.filter((entry) => entry.failed).map((entry) => [entry.sourceId, true])));
+    });
+    return () => { alive = false; };
+  }, [brandId, JSON.stringify((bio.type || []).map((font) => [font.sourceId, font.family]))]);
+  const { t, locale } = useLocale();
+  const typeSample = locale === "ar"
+    ? "أبجد هوز حطي كلمن · ٠١٢٣٤٥٦٧٨٩"
+    : locale === "es" ? "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ · áéíóú · 0123456789" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789";
+  const typeHero = locale === "ar" ? "أب جد" : "Aa Gg";
   const dark = (hex) => {
     const n = parseInt((hex || "#000").slice(1), 16); const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
     return (0.299 * r + 0.587 * g + 0.114 * b) < 140;
@@ -2031,7 +2165,9 @@ function BioVisual({ bio, patch, editing }) {
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
           {bio.type.map((tf, i) => {
             const serif = /sectra|serif|display/i.test(tf.family) && tf.kind === "Body";
-            const ff = serif ? "Georgia, 'Times New Roman', serif" : "var(--font-sans)";
+            const ff = loadedFonts[tf.sourceId]
+              ? `'${loadedFonts[tf.sourceId]}', var(--font-sans)`
+              : serif ? "Georgia, 'Times New Roman', serif" : "var(--font-sans)";
             return (
               <div key={i} className="card" style={{padding:18}}>
                 <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8}}>
@@ -2042,8 +2178,13 @@ function BioVisual({ bio, patch, editing }) {
                     ? <button className="btn btn--link" style={{fontSize:11, color:"var(--pink-500)"}} onClick={() => patch("type", bio.type.filter((_, j) => j !== i))}>{t("discovery.common.remove")}</button>
                     : <span className="pill" style={{height:18, padding:"0 8px", fontSize:9.5}}>{tf.license}</span>}
                 </div>
-                <div style={{fontFamily:ff, fontSize:52, lineHeight:1, color:"var(--c-ink)", fontWeight:600, letterSpacing:"-0.02em"}}>Aa Gg</div>
-                <div style={{fontFamily:ff, fontSize:15, color:"var(--c-dim)", marginTop:8, lineHeight:1.4}}>ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789</div>
+                <div style={{fontFamily:ff, fontSize:52, lineHeight:1, color:"var(--c-ink)", fontWeight:600, letterSpacing:"-0.02em"}}>{typeHero}</div>
+                <div style={{fontFamily:ff, fontSize:15, color:"var(--c-dim)", marginTop:8, lineHeight:1.4}}>{typeSample}</div>
+                {tf.sourceId && (
+                  <div aria-live="polite" style={{fontSize:10.5, marginTop:8, color:loadedFonts[tf.sourceId] ? "var(--green-600)" : fontFailures[tf.sourceId] ? "var(--pink-500)" : "var(--c-faint)"}}>
+                    {loadedFonts[tf.sourceId] ? t("discovery.visualIntake.fontReady") : fontFailures[tf.sourceId] ? t("discovery.visualIntake.fontError") : t("discovery.visualIntake.fontLoading")}
+                  </div>
+                )}
                 <div style={{marginTop:14, paddingTop:12, borderTop:"1px dashed var(--c-line-2)"}}>
                   {editing
                     ? <div style={{display:"flex", flexDirection:"column", gap:6}}>

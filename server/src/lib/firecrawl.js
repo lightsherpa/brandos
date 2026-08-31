@@ -5,6 +5,8 @@
 
 const FIRECRAWL_URL = "https://api.firecrawl.dev/v1/scrape";
 const FIRECRAWL_MAP_URL = "https://api.firecrawl.dev/v1/map";
+import crypto from "node:crypto";
+import { recordApiUsage } from "./api-usage.js";
 
 // Pages worth pulling for brand synthesis (homepage is always included first).
 const HIGH_SIGNAL = /(about|story|manifesto|mission|values|product|press|brand)/i;
@@ -13,6 +15,8 @@ export async function scrape(url, opts = {}) {
   const key = process.env.FIRECRAWL_API_KEY;
   if (!key) throw new Error("FIRECRAWL_API_KEY not set");
 
+  const started = Date.now();
+  const requestId = crypto.randomUUID();
   const res = await fetch(FIRECRAWL_URL, {
     method: "POST",
     headers: {
@@ -29,10 +33,15 @@ export async function scrape(url, opts = {}) {
 
   if (!res.ok) {
     const t = await res.text().catch(() => "");
+    await recordApiUsage({ ...opts.telemetry, requestId, provider: "firecrawl", service: "scrape", operation: "scrape", feature: opts.telemetry?.feature || "discovery.scrape", status: "failed", latencyMs: Date.now() - started, costSource: "unpriced", errorCode: `HTTP_${res.status}` });
     throw new Error(`Firecrawl HTTP ${res.status}: ${t.slice(0, 300)}`);
   }
   const json = await res.json();
-  if (!json.success) throw new Error(`Firecrawl error: ${json.error || "unknown"}`);
+  if (!json.success) {
+    await recordApiUsage({ ...opts.telemetry, requestId, provider: "firecrawl", service: "scrape", operation: "scrape", feature: opts.telemetry?.feature || "discovery.scrape", status: "failed", latencyMs: Date.now() - started, costSource: "unpriced", errorCode: "PROVIDER_ERROR" });
+    throw new Error(`Firecrawl error: ${json.error || "unknown"}`);
+  }
+  await recordApiUsage({ ...opts.telemetry, requestId, provider: "firecrawl", service: "scrape", operation: "scrape", feature: opts.telemetry?.feature || "discovery.scrape", status: "succeeded", latencyMs: Date.now() - started, pages: 1, costSource: "unpriced" });
   return json.data;
 }
 
@@ -41,13 +50,15 @@ export async function scrape(url, opts = {}) {
 // to fit the Inngest step model. Tolerant — never throws on map/page failures.
 //
 // Returns: Array<{ url, markdown, title }>
-export async function mapAndScrape(url, { max = 6, formats = ["markdown"] } = {}) {
+export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telemetry = {} } = {}) {
   const key = process.env.FIRECRAWL_API_KEY;
   if (!key) throw new Error("FIRECRAWL_API_KEY not set");
 
   // 1. Discover internal links via /map. Never throw — fall back to homepage-only.
   let links = [];
   try {
+    const started = Date.now();
+    const requestId = crypto.randomUUID();
     const res = await fetch(FIRECRAWL_MAP_URL, {
       method: "POST",
       headers: {
@@ -59,6 +70,9 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"] } = {}
     if (res.ok) {
       const json = await res.json();
       links = json.links || json.data?.links || [];
+      await recordApiUsage({ ...telemetry, requestId, provider: "firecrawl", service: "map", operation: "map", feature: telemetry.feature || "discovery.map", status: "succeeded", latencyMs: Date.now() - started, costSource: "unpriced" });
+    } else {
+      await recordApiUsage({ ...telemetry, requestId, provider: "firecrawl", service: "map", operation: "map", feature: telemetry.feature || "discovery.map", status: "failed", latencyMs: Date.now() - started, costSource: "unpriced", errorCode: `HTTP_${res.status}` });
     }
   } catch {
     links = [];
@@ -83,7 +97,7 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"] } = {}
   const out = [];
   for (const link of pages) {
     try {
-      const result = await scrape(link, { formats, onlyMainContent: true });
+      const result = await scrape(link, { formats, onlyMainContent: true, telemetry });
       out.push({
         url: link,
         markdown: result.markdown,

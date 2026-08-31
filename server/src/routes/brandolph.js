@@ -6,6 +6,9 @@ import { streamCompletion, BRANDOLPH_SYNTHETIC_SPEC, isRouteAvailable } from "..
 import { loadBrandBio } from "../lib/load-brand-bio.js";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
+import { hasPermission } from "../lib/permissions.js";
+import { verifyOpexOverride } from "../lib/opex-override.js";
+import { writeAuthorizationAudit } from "../lib/audit.js";
 
 const app = new Hono();
 
@@ -29,9 +32,29 @@ app.post("/ask", requireAuth, async (c) => {
   const messages = Array.isArray(body?.messages) ? body.messages : [];
   if (messages.length === 0) return c.json({ error: "messages[] required." }, 400);
 
-  const { workspaceId } = c.get("auth");
+  const auth = c.get("auth");
+  const { userId } = auth;
+  let workspaceId = auth.workspaceId || auth.memberships?.[0]?.workspace_id || null;
   const routeId = typeof body?.routeId === "string" ? body.routeId : null;
   const brandId = typeof body?.brandId === "string" ? body.brandId : null;
+  if (brandId) {
+    const { data: scopedBrand } = await supabaseAdmin.from("brands").select("workspace_id").eq("id", brandId).maybeSingle();
+    if (!scopedBrand) return c.json({ error: "Brand not found" }, 404);
+    workspaceId = scopedBrand.workspace_id;
+  }
+  if (!workspaceId || !hasPermission(auth, "bio.read", workspaceId)) return c.json({ error: "Forbidden" }, 403);
+  if (auth.scope === "platform" && !brandId) return c.json({ error: "Internal users must select an assigned brand" }, 400);
+
+  const overrideToken = body?.guardrailOverrideToken;
+  const override = overrideToken && hasPermission(auth, "opex.override") && auth.aal === "aal2"
+    ? verifyOpexOverride(overrideToken, { userId, operationKey: "brandolph.ask" })
+    : null;
+  if (overrideToken && !override) return c.json({ error: "Guardrail override is invalid, expired, or not permitted", code: "INVALID_GUARDRAIL_OVERRIDE" }, 403);
+  if (override) await writeAuthorizationAudit(c, {
+    permission: "opex.override", action: "guardrail.override.consume", targetType: "api_operation",
+    targetId: "brandolph.ask", workspaceId, outcome: "success", reason: override.reason,
+    metadata: { nonce: override.nonce, expiresAt: new Date(override.expiresAt).toISOString() },
+  });
 
   /* Read-only Brandolph Q&A is allowed before certification — it just needs
      a BIO to read (latest version, certified or not). It never falls back to
@@ -54,11 +77,33 @@ app.post("/ask", requireAuth, async (c) => {
   });
 
   return streamSSE(c, async (stream) => {
-    for await (const ev of streamCompletion({ spec: BRANDOLPH_SYNTHETIC_SPEC, system, messages })) {
+    for await (const ev of streamCompletion({
+      spec: BRANDOLPH_SYNTHETIC_SPEC,
+      system,
+      messages,
+      telemetry: {
+        operationKey: "brandolph.ask",
+        feature: "brandolph.ask",
+        workspaceId,
+        brandId: brandBio.brand.id,
+        actorUserId: userId,
+        breakerOverride: !!override,
+      },
+    })) {
       if (ev.type === "token") {
         await stream.writeSSE({ event: "token", data: JSON.stringify({ text: ev.text }) });
       } else if (ev.type === "done") {
-        await stream.writeSSE({ event: "done", data: JSON.stringify({ stopReason: ev.stopReason, usage: ev.usage }) });
+        await stream.writeSSE({
+          event: "done",
+          data: JSON.stringify({
+            stopReason: ev.stopReason,
+            usage: ev.usage ? {
+              prompt_tokens: ev.usage.prompt_tokens,
+              completion_tokens: ev.usage.completion_tokens,
+              cached_tokens: ev.usage.cached_tokens,
+            } : null,
+          }),
+        });
       } else if (ev.type === "error") {
         await stream.writeSSE({ event: "error", data: JSON.stringify({ message: ev.message }) });
       }
@@ -71,7 +116,7 @@ app.post("/ask", requireAuth, async (c) => {
    the user can see (workspace_id match). Used by FloatingBrandolph
    to derive a context-aware greeting on each route — no LLM cost. */
 app.get("/memory", requireAuth, async (c) => {
-  const { workspaceId } = c.get("auth");
+  const auth = c.get("auth");
   const brandId = c.req.query("brandId");
   if (!brandId) return c.json({ error: "brandId required" }, 400);
 
@@ -79,7 +124,7 @@ app.get("/memory", requireAuth, async (c) => {
   const { data: brand } = await supabaseAdmin
     .from("brands").select("id, workspace_id, name")
     .eq("id", brandId).maybeSingle();
-  if (!brand || brand.workspace_id !== workspaceId) {
+  if (!brand || !hasPermission(auth, "bio.read", brand.workspace_id)) {
     return c.json({ error: "Forbidden" }, 403);
   }
 

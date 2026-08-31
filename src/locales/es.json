@@ -879,6 +879,15 @@
       }
     },
     "removeFile": "Quitar {name}",
+    "visualIntake": {
+      "help": "Las referencias se analizan e incorporan al BIO. Las fuentes permanecen privadas y requieren confirmación expresa de licencia.", "font": "Fuente", "reference": "Referencia", "source": "Origen",
+      "fontFamily": "Familia tipográfica", "fontUsage": "Uso tipográfico", "display": "Titulares", "body": "Texto", "both": "Titulares + texto",
+      "fontLicence": "Licencia de fuente", "commercial": "Licencia comercial", "openSource": "Código abierto", "custom": "Acuerdo personalizado", "system": "Fuente del sistema",
+      "licenceReference": "Referencia de licencia", "licenceReferencePlaceholder": "Referencia de licencia o pedido (opcional)", "referenceRole": "Función de la referencia",
+      "canonical": "Canónica — seguir este trabajo", "inspiration": "Inspiración — aprender sin copiar", "avoid": "Evitar — no acercarse a esto",
+      "rightsConfirm": "Confirmo que esta marca tiene derecho a usar este recurso en producción creativa.", "incomplete": "Confirma los derechos de uso y completa los datos de la fuente antes de extraer.",
+      "addFiles": "Añadir archivos", "removeFailed": "No se pudo eliminar la fuente subida.", "fontLoading": "Cargando fuente con licencia…", "fontReady": "Fuente con licencia activa", "fontError": "Vista previa no disponible"
+    },
     "step1": {
       "brandNameRequired": "El nombre de la marca es obligatorio.",
       "titleAddEm": "Añade una marca.",

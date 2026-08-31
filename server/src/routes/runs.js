@@ -32,18 +32,49 @@ import { composeImagePrompt } from "../lib/compose-image-prompt.js";
 import { voiceQa } from "../lib/qa-voice.js";
 import { visionQa } from "../lib/qa-vision.js";
 import { recordSignal } from "../lib/brandolph-memory.js";
-import { generate as generateImage, isImageRoute } from "../lib/models/fal-image.js";
+import { generate as generateImage, isImageRoute, resolveImageRequest } from "../lib/models/fal-image.js";
 import { maxTokensForDeliverables, parseDeliverables, buildDeliverableContract, falSizeForPlatform } from "../lib/deliverables.js";
 import { assertCreditsAvailable, creditErrorResponse, estimateRunCredits, reserveCredits, failRunAndReleaseCredits } from "../lib/credits.js";
+import { findEffectiveRateCard, preflightApiUsage, recordApiUsage } from "../lib/api-usage.js";
+import { verifyOpexOverride } from "../lib/opex-override.js";
+import { loadVisualAssets, pinCertifiedReferences, selectGenerationReference } from "../lib/visual-assets.js";
+import { hasPermission } from "../lib/permissions.js";
+import { writeAuthorizationAudit } from "../lib/audit.js";
 
 const app = new Hono();
 
 app.post("/stream", requireAuth, async (c) => {
-  const { workspaceId } = c.get("auth");
+  const auth = c.get("auth");
+  const { userId } = auth;
+  let workspaceId = auth.workspaceId || auth.memberships?.[0]?.workspace_id || null;
   let body;
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
-  const { specialistId, briefText, brandId, briefId: existingBriefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec } = body || {};
+  const { specialistId, briefText, brandId: requestedBrandId, briefId: existingBriefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, guardrailOverrideToken } = body || {};
+  let brandId = requestedBrandId || null;
   if (!specialistId || !briefText) return c.json({ error: "specialistId and briefText required" }, 400);
+
+  if (existingBriefId) {
+    const { data: pinnedBrief, error: briefScopeError } = await supabaseAdmin
+      .from("briefs").select("id,brand_id,brand:brands(id,workspace_id)").eq("id", existingBriefId).maybeSingle();
+    if (briefScopeError) return c.json({ error: briefScopeError.message }, 400);
+    if (!pinnedBrief?.brand) return c.json({ error: "Brief not found" }, 404);
+    if (brandId && brandId !== pinnedBrief.brand_id) return c.json({ error: "Brief belongs to a different brand", code: "BRAND_SCOPE_MISMATCH" }, 409);
+    brandId = pinnedBrief.brand_id;
+    workspaceId = pinnedBrief.brand.workspace_id;
+  }
+  if (brandId) {
+    const { data: scopedBrand, error: brandScopeError } = await supabaseAdmin
+      .from("brands").select("id,workspace_id").eq("id", brandId).maybeSingle();
+    if (brandScopeError) return c.json({ error: brandScopeError.message }, 400);
+    if (!scopedBrand) return c.json({ error: "Brand not found" }, 404);
+    workspaceId = scopedBrand.workspace_id;
+  }
+  if (!workspaceId || !hasPermission(auth, "brief.run", workspaceId)) {
+    return c.json({ error: "Forbidden", code: "PERMISSION_REQUIRED", permission: "brief.run" }, 403);
+  }
+  if (auth.scope === "platform" && !brandId) {
+    return c.json({ error: "Internal users must select an assigned brand" }, 400);
+  }
 
   /* Re-run / revise — caller can override which model handles this
      run (curated per-spec dropdown in the SPA), and/or append revision
@@ -89,6 +120,17 @@ app.post("/stream", requireAuth, async (c) => {
     ? modelOverride
     : (spec.payload?.modelRouting?.primary || "");
   const isImage = isImageRoute(route);
+  const overrideOperation = isImage ? "specialist.image" : "specialist.text";
+  const mayOverride = hasPermission(auth, "opex.override") && auth.aal === "aal2";
+  const guardrailOverride = guardrailOverrideToken && mayOverride ? verifyOpexOverride(guardrailOverrideToken,{userId,operationKey:overrideOperation}) : null;
+  if (guardrailOverrideToken && !guardrailOverride) return c.json({error:"Guardrail override is invalid, expired, or belongs to another operation",code:"INVALID_GUARDRAIL_OVERRIDE"},403);
+  if (guardrailOverride) {
+    await writeAuthorizationAudit(c, {
+      permission: "opex.override", action: "guardrail.override.consume", targetType: "api_operation",
+      targetId: overrideOperation, workspaceId, outcome: "success", reason: guardrailOverride.reason,
+      metadata: { nonce: guardrailOverride.nonce, expiresAt: new Date(guardrailOverride.expiresAt).toISOString() },
+    });
+  }
 
   /* Deliverable mode: when the caller passes a deliverableSpec, a TEXT run
      returns N structured items (one LLM call) and an IMAGE run is sized to
@@ -153,6 +195,22 @@ app.post("/stream", requireAuth, async (c) => {
         artDirection: dlv?.artDirection || null,
       })
     : null;
+  let generationReference = null;
+  if (isImage) {
+    try {
+      const certifiedReferenceRows = Array.isArray(brandBio.bio?.visual?.references) ? brandBio.bio.visual.references : [];
+      const pinnedReferences = pinCertifiedReferences(
+        (await loadVisualAssets(brandBio.brand.id, { sourceIds:certifiedReferenceRows.map((reference) => reference?.sourceId) })).references,
+        certifiedReferenceRows,
+      );
+      generationReference = selectGenerationReference(pinnedReferences);
+    } catch {
+      /* Reference conditioning is additive. A source-signing failure must not
+         block a run that can still honor the textual BIO visual system. */
+      generationReference = null;
+    }
+  }
+  const resolvedImageRequest = isImage ? resolveImageRequest({ route, referenceImageUrl:generationReference?.url || null }) : null;
 
   return streamSSE(c, async (stream) => {
     const startedIso = new Date().toISOString();
@@ -271,10 +329,28 @@ app.post("/stream", requireAuth, async (c) => {
     try {
       if (isImage) {
         /* Image pipeline — single asset, no token streaming */
+        const imageRate = await findEffectiveRateCard({ provider: "fal", service: "image", model: resolvedImageRequest?.model || route, operation: "generate" });
+        const imagePreflightCost = imageRate?.unit_cost_usd != null
+          ? Number(imageRate.unit_cost_usd) * 1.25
+          : Math.max(0.10, Number(resolvedImageRequest?.costEstimateUsd || 0) * 1.25);
+        const imagePreflight = await preflightApiUsage({ operationKey: "specialist.image", estimatedMaxCostUsd: imagePreflightCost, override:!!guardrailOverride });
+        if (!imagePreflight.allowed) {
+          await recordApiUsage({
+            requestId: crypto.randomUUID(), parentRunId: runId, workspaceId, brandId: brandBio.brand.id,
+            actorUserId: userId, specialistId, feature: "specialist.image", provider: "fal", service: "image",
+            requestedModel: route, resolvedModel:resolvedImageRequest?.model || route, operation: "specialist.image", status: "blocked", costSource: "unpriced",
+            preflightMaxCostUsd: imagePreflightCost, budgetPolicyId: imagePreflight.policyId,
+            breakerDecision: "block", errorCode: imagePreflight.code,
+          });
+          await failRun("Image request blocked by cost guardrail");
+          return;
+        }
+        const imageStarted = Date.now();
         for await (const ev of generateImage({
           route,
           prompt: imagePrompt,
           size: dlv?.platform ? falSizeForPlatform(dlv.platform) : (spec.payload?.image_size || "landscape_16_9"),
+          referenceImageUrl: generationReference?.url || null,
         })) {
           if (ev.type === "progress") {
             await stream.writeSSE({ event: "progress", data: JSON.stringify({ stage: ev.stage, pct: ev.pct }) });
@@ -302,7 +378,24 @@ app.post("/stream", requireAuth, async (c) => {
             }
             usage = { provider: "fal", model: ev.model, cost_usd: ev.cost_usd, prompt_tokens: 0, completion_tokens: 0, cached_tokens: 0 };
             modelUsed = ev.model;
+            const megapixel = Math.max(1, Math.ceil(((Number(ev.width) || 1024) * (Number(ev.height) || 1024)) / 1_000_000));
+            await recordApiUsage({
+              requestId: crypto.randomUUID(), parentRunId: runId, workspaceId, brandId: brandBio.brand.id,
+              actorUserId: userId, specialistId, feature: "specialist.image", provider: "fal", service: "image",
+              requestedModel: route, resolvedModel: ev.model, operation: "specialist.image", status: "succeeded",
+              latencyMs: Date.now() - imageStarted, images: 1, units: { megapixel }, estimatedCostUsd: ev.cost_usd,
+              costSource: "rate_card_estimate", rateCardId: imageRate?.id || null,
+              preflightMaxCostUsd: imagePreflightCost, budgetPolicyId: imagePreflight.policyId,
+              breakerDecision: imagePreflight.decision,
+            });
           } else if (ev.type === "error") {
+            await recordApiUsage({
+              requestId: crypto.randomUUID(), parentRunId: runId, workspaceId, brandId: brandBio.brand.id,
+              actorUserId: userId, specialistId, feature: "specialist.image", provider: "fal", service: "image",
+              requestedModel: route, resolvedModel:resolvedImageRequest?.model || route, operation: "specialist.image", status: "failed", latencyMs: Date.now() - imageStarted,
+              costSource: "unpriced", budgetPolicyId: imagePreflight.policyId, breakerDecision: imagePreflight.decision,
+              errorCode: "PROVIDER_ERROR",
+            });
             await failRun(ev.message);
             return;
           }
@@ -316,6 +409,16 @@ app.post("/stream", requireAuth, async (c) => {
           maxTokens: isDeliverableText
             ? maxTokensForDeliverables({ count: Number(dlv.count), baseCr: effectiveSpec.payload?.cr_estimate ?? 8 })
             : (effectiveSpec.payload?.cr_estimate ?? 8) * 100,
+          telemetry: {
+            operationKey: "specialist.text",
+            feature: "specialist.run",
+            parentRunId: runId,
+            workspaceId,
+            brandId: brandBio.brand.id,
+            actorUserId: userId,
+            specialistId,
+            breakerOverride: !!guardrailOverride,
+          },
         })) {
           if (ev.type === "token") {
             output += ev.text;
@@ -338,7 +441,11 @@ app.post("/stream", requireAuth, async (c) => {
       let qa;
       let deliverables = null;        /* set on the deliverable-text path */
       if (isImage) {
-        const v = await visionQa({ assetUrl: imageResult?.asset_url, bio: brandBio.bio });
+        const v = await visionQa({
+          assetUrl: imageResult?.asset_url,
+          bio: brandBio.bio,
+          telemetry: { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId },
+        });
         qa = { ...v, kind: "image_a24" };
       } else if (isDeliverableText) {
         /* One LLM call produced N items; QA each so a single weak post is
@@ -348,7 +455,12 @@ app.post("/stream", requireAuth, async (c) => {
            rate limit ever bites at high count, cap concurrency here.) */
         const parsed = parseDeliverables(output);
         const dqResults = await Promise.all(
-          parsed.deliverables.map((d) => voiceQa({ body: d.body, bio: brandBio.bio, refusals: brandBio.refusals }))
+          parsed.deliverables.map((d) => voiceQa({
+            body: d.body,
+            bio: brandBio.bio,
+            refusals: brandBio.refusals,
+            telemetry: { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId },
+          }))
         );
         deliverables = [];
         let passedAll = true;
@@ -357,13 +469,20 @@ app.post("/stream", requireAuth, async (c) => {
           const dq = dqResults[i];
           if (!dq.passed) passedAll = false;
           if (typeof dq.usage?.cost_usd === "number") qaUsage.cost_usd += dq.usage.cost_usd;
-          deliverables.push({ ...d, platform: dlv.platform || "generic", qa: dq, status: dq.passed ? "approved" : "flagged" });
+          const { usage: _qaUsage, ...clientDq } = dq;
+          deliverables.push({ ...d, platform: dlv.platform || "generic", qa: clientDq, status: dq.passed ? "approved" : "flagged" });
         });
         qa = { passed: passedAll, voice_match: null, violations: [], usage: qaUsage, malformed: parsed.malformed, deliverable_count: deliverables.length };
       } else {
-        qa = await voiceQa({ body: output, bio: brandBio.bio, refusals: brandBio.refusals });
+        qa = await voiceQa({
+          body: output,
+          bio: brandBio.bio,
+          refusals: brandBio.refusals,
+          telemetry: { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId },
+        });
       }
-      await stream.writeSSE({ event: "qa", data: JSON.stringify(qa) });
+      const { usage: _clientHiddenQaUsage, ...clientQa } = qa;
+      await stream.writeSSE({ event: "qa", data: JSON.stringify(clientQa) });
 
       /* 5. Prepare completion stats. Persistence is committed atomically below. */
       const endedIso = new Date().toISOString();
@@ -388,6 +507,9 @@ app.post("/stream", requireAuth, async (c) => {
             height:      imageResult?.height,
             seed:        imageResult?.seed,
             prompt_used: imageResult?.prompt_used,
+            provider_endpoint: imageResult?.endpoint || resolvedImageRequest?.endpoint || null,
+            reference_source_id: generationReference?.id || null,
+            reference_role: generationReference?.role || null,
           }
         : isDeliverableText
         ? { kind: "deliverables", type: dlv.type, part: dlv.part, platform: dlv.platform || "generic", deliverables }
@@ -414,6 +536,9 @@ app.post("/stream", requireAuth, async (c) => {
       });
       if (finalizeErr || !finalized?.output_id) {
         throw new Error(`run finalization failed: ${finalizeErr?.message || "output missing"}`);
+      }
+      if ((usage?.cache_creation_tokens ?? 0) > 0) {
+        await supabaseAdmin.from("runs").update({ cache_creation_tokens: usage.cache_creation_tokens }).eq("id", runId);
       }
       const outputRow = { id: finalized.output_id };
       creditsSettled = true;
@@ -477,7 +602,7 @@ app.post("/stream", requireAuth, async (c) => {
             completion_tokens: usage.completion_tokens,
             cached_tokens: usage.cached_tokens,
           } : null,
-          qa,
+          qa: clientQa,
           output: isImage
             ? { kind: outputKind, asset_url: imageResult?.asset_url, width: imageResult?.width, height: imageResult?.height, status: qa.passed ? "approved" : "flagged",
                 bio_visual: {

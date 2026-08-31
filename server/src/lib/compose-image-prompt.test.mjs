@@ -38,3 +38,14 @@ test("artDirection still forbids rendering text", () => {
   const p = composeImagePrompt({ ...base, artDirection: "A pastel still life." });
   assert.match(p, /do not render any text/i);
 });
+
+test("licensed typography guides composition without asking the image model to fake glyphs", () => {
+  const p = composeImagePrompt({
+    ...base,
+    bio: { visual:{ type:[{ kind:"Display", family:"Brand Display", license:"commercial" }] } },
+  });
+  assert.match(p, /Brand Display/);
+  assert.match(p, /commercial licence/);
+  assert.match(p, /exact downstream typesetting/);
+  assert.match(p, /do not imitate or render letterforms/);
+});

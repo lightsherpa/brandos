@@ -26,18 +26,18 @@ const VISUAL_VISION_SPEC = {
   },
 };
 
-const VISUAL_VISION_SYSTEM = `You are a brand visual analyst — you read a brand's homepage screenshot and describe its IMAGERY style.
+const VISUAL_VISION_SYSTEM = `You are a brand visual analyst. You read a brand's website and explicitly-labelled visual references, then describe the approved IMAGERY system.
 
 Return STRICT JSON ONLY, no preamble, no fences. Shape:
 {"imagery":string[],"avoid":string[]}
 
-- imagery: 3–6 short phrases describing the brand's imagery direction — subjects, lighting, composition. Examples: "hands + craft tools", "low-light café interiors", "no models", "warm natural daylight", "tight product close-ups".
-- avoid: 2–4 short things the brand should AVOID, grounded in the provided voice + avoid list. Examples: "stock-photo lighting", "heavy filters", "corporate suits", "neon gradients".
+- imagery: 3–6 short phrases describing the brand's imagery direction — subjects, lighting, composition. Canonical references are evidence of the existing identity. Inspiration references are directional only: learn principles, never copy distinctive content.
+- avoid: 2–4 short things the brand should AVOID. Treat references labelled AVOID as negative evidence only; never let them shape imagery.
 
 Be specific and cite what you see ("hands holding mug, warm side-lit") not what you assume. Each phrase max 8 words.`;
 
-export async function extractImageryAvoid({ screenshotUrl, voice = null, notList = [] }) {
-  if (!screenshotUrl) {
+export async function extractImageryAvoid({ screenshotUrl, referenceImages = [], voice = null, notList = [], telemetry = {} }) {
+  if (!screenshotUrl && referenceImages.length === 0) {
     return { imagery: [], avoid: [] };
   }
 
@@ -55,17 +55,26 @@ export async function extractImageryAvoid({ screenshotUrl, voice = null, notList
     {
       type: "text",
       text: [
-        `Analyze this brand's homepage screenshot.`,
+        `Analyze this brand's visual evidence.`,
         voiceLine,
         notListLine,
         ``,
+        `Reference roles are authoritative: CANONICAL means existing brand work, INSPIRATION means principles only, AVOID means negative evidence.`,
         `Describe the IMAGERY style as 3–6 short phrases (subjects, lighting, composition),`,
         `and infer 2–4 things the brand should AVOID, grounded in the voice + avoid list above.`,
         `Return the JSON only.`,
       ].filter(Boolean).join("\n"),
     },
-    { type: "image_url", image_url: { url: screenshotUrl } },
   ];
+  if (screenshotUrl) {
+    userContent.push({ type:"text", text:"WEBSITE SCREENSHOT" });
+    userContent.push({ type:"image_url", image_url:{ url:screenshotUrl } });
+  }
+  for (const reference of referenceImages.slice(0, 6)) {
+    if (!reference?.url) continue;
+    userContent.push({ type:"text", text:`${String(reference.role || "inspiration").toUpperCase()} REFERENCE — ${reference.name || "uploaded work"}` });
+    userContent.push({ type:"image_url", image_url:{ url:reference.url } });
+  }
 
   let text = "";
   try {
@@ -74,6 +83,7 @@ export async function extractImageryAvoid({ screenshotUrl, voice = null, notList
       system: VISUAL_VISION_SYSTEM,
       messages: [{ role: "user", content: userContent }],
       maxTokens: 300,
+      telemetry: { operationKey: "discovery.compile", feature: "discovery.visual", ...telemetry },
     })) {
       if (ev.type === "token")      text += ev.text;
       else if (ev.type === "error") throw new Error(ev.message);

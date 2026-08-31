@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FAL_ROUTES, isImageRoute } from "./fal-image.js";
+import { FAL_ROUTES, isImageRoute, resolveImageRequest } from "./fal-image.js";
 
 test("gpt-image-2 route is registered with the correct fal endpoint", () => {
   const r = FAL_ROUTES["vendor/fal/gpt-image-2"];
@@ -30,4 +30,22 @@ test("isImageRoute recognizes the gpt-image-2 route", () => {
 test("gpt-image-2 carries a longer per-route timeout than the 90s default", () => {
   // gpt-image-2 "high" completes in ~90-100s; the 90s default times out on it.
   assert.ok(FAL_ROUTES["vendor/fal/gpt-image-2"].timeout_ms > 90_000);
+});
+
+test("flux pro resolves references through documented ControlNet fields without dropping safety or size", () => {
+  const route = FAL_ROUTES["vendor/fal/flux-1.1-pro"];
+  assert.equal(route.referenceEndpoint, "/fal-ai/z-image/turbo/controlnet");
+  assert.equal(route.referenceModel, "vendor/fal/z-image-turbo-controlnet");
+  const body = route.referencePayload({ prompt:"new campaign", size:"portrait_4_3", referenceImageUrl:"https://example.com/reference.png" });
+  assert.equal(body.image_url, "https://example.com/reference.png");
+  assert.equal(body.image_size, "portrait_4_3");
+  assert.equal(body.enable_safety_checker, true);
+  assert.equal(body.preprocess, "none");
+  assert.ok(body.control_scale > 0 && body.control_scale < 1);
+  assert.deepEqual(resolveImageRequest({ route:"vendor/fal/flux-1.1-pro", referenceImageUrl:"https://example.com/reference.png" }), {
+    usesReference:true,
+    endpoint:"/fal-ai/z-image/turbo/controlnet",
+    model:"vendor/fal/z-image-turbo-controlnet",
+    costEstimateUsd:0.04,
+  });
 });

@@ -21,6 +21,7 @@ import { streamCompletion } from "../../lib/models/router.js";
 import { scoreBio } from "../../lib/score-bio.js";
 import { extractPalette, extractFonts } from "../../lib/extract-visual-deterministic.js";
 import { extractImageryAvoid } from "../../lib/extract-visual-vision.js";
+import { loadVisualAssets, mergeTypographyFromAssets } from "../../lib/visual-assets.js";
 
 // DISCOVERY_V2 master flag (default ON). The full pipeline — multi-page crawl,
 // upload/instagram source-gathering, and deterministic+vision visual extraction
@@ -44,6 +45,47 @@ const COMPILER_SPEC = {
     cr_estimate: 40,
   },
 };
+
+export function parseCompilerJson(text) {
+  const stripped = String(text || "")
+    .replace(/^\s*```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
+
+  try {
+    return JSON.parse(stripped);
+  } catch {}
+
+  const start = stripped.indexOf("{");
+  if (start === -1) throw new Error("Compiler returned no JSON object");
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < stripped.length; i++) {
+    const ch = stripped[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (ch === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (ch === "\"") {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "{") depth++;
+    if (ch === "}") depth--;
+    if (depth === 0) {
+      return JSON.parse(stripped.slice(start, i + 1));
+    }
+  }
+
+  throw new Error("Compiler returned incomplete JSON object");
+}
 
 const COMPILER_SYSTEM = `You are a30 BIO Compiler — a senior brand analyst who reads a brand's web presence and synthesizes a Brand Intelligence Object (BIO).
 
@@ -112,7 +154,7 @@ export const compileBio = inngest.createFunction(
     triggers: [{ event: "discovery/start" }],
   },
   async ({ event, step, logger }) => {
-    const { brandId, url, workspaceId, instagram, discoveryId } = event.data || {};
+    const { brandId, url, workspaceId, instagram, discoveryId, actorUserId, breakerOverride = false } = event.data || {};
     if (!brandId || !url) throw new Error("Event missing brandId or url");
     logger.info("BIO compile starting", { brandId, url, v2: V2 });
 
@@ -121,7 +163,11 @@ export const compileBio = inngest.createFunction(
     // OFF: exact current single-homepage-scrape behavior.
     const scraped = await step.run("scrape-primary-url", async () => {
       if (V2) {
-        const pages = await mapAndScrape(url, { max: 6, formats: ["markdown"] });
+        const pages = await mapAndScrape(url, {
+          max: 6,
+          formats: ["markdown"],
+          telemetry: { feature: "discovery.scrape", workspaceId, brandId, workflowId: discoveryId },
+        });
         // Insert one bio_sources row per crawled page (kind:url_scrape, bucket:null).
         for (const page of pages) {
           const { error } = await supabaseAdmin.from("bio_sources").insert({
@@ -147,7 +193,11 @@ export const compileBio = inngest.createFunction(
         };
       }
 
-      const result = await scrape(url, { formats: ["markdown"], onlyMainContent: true });
+      const result = await scrape(url, {
+        formats: ["markdown"],
+        onlyMainContent: true,
+        telemetry: { feature: "discovery.scrape", workspaceId, brandId, workflowId: discoveryId },
+      });
       // Persist as a bio_sources row (URL-derived, bucket=null per rev-2 §5.3)
       const { error } = await supabaseAdmin.from("bio_sources").insert({
         brand_id: brandId,
@@ -200,7 +250,10 @@ export const compileBio = inngest.createFunction(
                 if (signErr || !signed?.signedUrl) continue;
                 sourceUrl = signed.signedUrl;
               }
-              const result = await scrape(sourceUrl, { formats: ["markdown"] });
+              const result = await scrape(sourceUrl, {
+                formats: ["markdown"],
+                telemetry: { feature: "discovery.upload_extract", workspaceId, brandId, workflowId: discoveryId },
+              });
               const text = (result?.markdown || "").slice(0, 12000); // cap ~12k each
               if (text.trim()) {
                 blocks.push(`## UPLOADED FILE: ${row.src || "(file)"}\n\n${text}`);
@@ -239,6 +292,16 @@ export const compileBio = inngest.createFunction(
           { role: "user", content: `Source: ${url}\nTitle: ${scraped.title || "(none)"}\n\n--- SCRAPED MARKDOWN ---\n\n${synthInput}` },
         ],
         maxTokens: 5000,
+        telemetry: {
+          operationKey: "discovery.compile",
+          feature: "discovery.compile",
+          workspaceId,
+          brandId,
+          workflowId: discoveryId,
+          actorUserId,
+          specialistId: "a30",
+          breakerOverride,
+        },
       })) {
         if (ev.type === "token") text += ev.text;
         else if (ev.type === "done") usage = ev.usage;
@@ -255,14 +318,13 @@ export const compileBio = inngest.createFunction(
         });
       }
 
-      // Be defensive: some models wrap JSON in code fences despite instruction.
-      const stripped = text
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/\s*```\s*$/i, "")
-        .trim();
       try {
-        return JSON.parse(stripped);
+        return parseCompilerJson(text);
       } catch (err) {
+        const stripped = String(text || "")
+          .replace(/^\s*```(?:json)?\s*/i, "")
+          .replace(/\s*```\s*$/i, "")
+          .trim();
         throw new Error(`Compiler returned non-JSON: ${stripped.slice(0, 300)}`);
       }
     });
@@ -275,24 +337,33 @@ export const compileBio = inngest.createFunction(
     if (V2) {
       const visual = await step.run("extract-visual", async () => {
         try {
-          const result = await scrape(url, {
-            formats: ["rawHtml", "screenshot"],
-            onlyMainContent: false,
-          });
+          const [scrapeResult, assetsResult] = await Promise.allSettled([
+            scrape(url, {
+              formats: ["rawHtml", "screenshot"],
+              onlyMainContent: false,
+              telemetry: { feature: "discovery.visual_source", workspaceId, brandId, workflowId: discoveryId },
+            }),
+            loadVisualAssets(brandId),
+          ]);
+          const result = scrapeResult.status === "fulfilled" ? scrapeResult.value : {};
+          const assets = assetsResult.status === "fulfilled" ? assetsResult.value : { references:[], fonts:[] };
           const rawHtml = result?.rawHtml || "";
           const screenshotUrl = result?.screenshot || null;
 
           const { imagery, avoid } = await extractImageryAvoid({
             screenshotUrl,
+            referenceImages: assets.references,
             voice: bioPayload.voice,
             notList: bioPayload.strategic?.notList,
+            telemetry: { workspaceId, brandId, workflowId: discoveryId, specialistId: "a30" },
           });
 
           return {
             palette: extractPalette(rawHtml),
-            type: extractFonts(rawHtml),
+            type: mergeTypographyFromAssets(extractFonts(rawHtml), assets.fonts),
             imagery,
             avoid,
+            references: assets.references.map(({ id, name, role }) => ({ sourceId:id, name, role })),
           };
         } catch {
           // never let the visual pass invalidate the BIO

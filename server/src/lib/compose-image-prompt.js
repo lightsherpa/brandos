@@ -41,6 +41,12 @@ export function composeImagePrompt({ spec, brand, bio, refusals = [], brief, sou
   if (v.imagery?.length) {
     lines.push(`Imagery direction: ${v.imagery.join("; ")}.`);
   }
+  if (v.type?.length) {
+    const typography = v.type
+      .map((font) => `${font.kind || "Typeface"}: ${font.family}${font.license ? ` (${font.license} licence)` : ""}`)
+      .join("; ");
+    lines.push(`Typography system for composition and whitespace: ${typography}. Reserve clean space for exact downstream typesetting; do not imitate or render letterforms.`);
+  }
   if (v.avoid?.length) {
     lines.push(`AVOID at all costs: ${v.avoid.join("; ")}.`);
   }

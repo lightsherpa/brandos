@@ -11,15 +11,38 @@ import { requireAuth } from "../middleware/auth.js";
 import { loadBioForBriefing } from "../lib/load-brand-bio.js";
 import { sharpenBrief } from "../lib/sharpener.js";
 import { loadBrandMemorySummary } from "../lib/brandolph-memory.js";
+import { supabaseAdmin } from "../lib/supabase.js";
+import { hasPermission } from "../lib/permissions.js";
+import { verifyOpexOverride } from "../lib/opex-override.js";
+import { writeAuthorizationAudit } from "../lib/audit.js";
 
 const app = new Hono();
 
 app.post("/sharpen", requireAuth, async (c) => {
-  const { workspaceId } = c.get("auth");
+  const auth = c.get("auth");
+  const { userId } = auth;
+  let workspaceId = auth.workspaceId || auth.memberships?.[0]?.workspace_id || null;
   let body;
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
-  const { briefText, brandId } = body || {};
+  const { briefText, brandId, guardrailOverrideToken } = body || {};
   if (!briefText || typeof briefText !== "string") return c.json({ error: "briefText required" }, 400);
+  if (brandId) {
+    const { data: scopedBrand } = await supabaseAdmin.from("brands").select("workspace_id").eq("id", brandId).maybeSingle();
+    if (!scopedBrand) return c.json({ error: "Brand not found" }, 404);
+    workspaceId = scopedBrand.workspace_id;
+  }
+  if (!workspaceId || !hasPermission(auth, "brief.run", workspaceId)) return c.json({ error: "Forbidden" }, 403);
+  if (auth.scope === "platform" && !brandId) return c.json({ error: "Internal users must select an assigned brand" }, 400);
+
+  const override = guardrailOverrideToken && hasPermission(auth, "opex.override") && auth.aal === "aal2"
+    ? verifyOpexOverride(guardrailOverrideToken, { userId, operationKey: "brief.sharpen" })
+    : null;
+  if (guardrailOverrideToken && !override) return c.json({ error: "Guardrail override is invalid, expired, or not permitted", code: "INVALID_GUARDRAIL_OVERRIDE" }, 403);
+  if (override) await writeAuthorizationAudit(c, {
+    permission: "opex.override", action: "guardrail.override.consume", targetType: "api_operation",
+    targetId: "brief.sharpen", workspaceId, outcome: "success", reason: override.reason,
+    metadata: { nonce: override.nonce, expiresAt: new Date(override.expiresAt).toISOString() },
+  });
 
   /* BRIEFING gate — sharpening a brief requires the client to have
      self-certified the BIO. loadBioForBriefing throws NOT_SELF_CERTIFIED
@@ -54,9 +77,11 @@ app.post("/sharpen", requireAuth, async (c) => {
       bio: brandBio.bio,
       refusals: brandBio.refusals,
       memorySummary,
+      telemetry: { workspaceId, brandId: brandBio.brand.id, actorUserId: userId, breakerOverride: !!override },
     });
+    const { usage: _internalUsage, ...clientResult } = result;
     return c.json({
-      ...result,
+      ...clientResult,
       brand: { name: brandBio.brand.name, bioVersion: brandBio.bio?.version },
     });
   } catch (e) {

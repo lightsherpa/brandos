@@ -31,7 +31,12 @@ export const sendNotificationEmail = inngest.createFunction(
       ${cta}
     </div>`;
 
-    const res = await sendEmail({ to: user.email, subject: title, html });
+    const res = await sendEmail({
+      to: user.email,
+      subject: title,
+      html,
+      telemetry: { feature: "notification.email", actorUserId: recipientUserId },
+    });
     return { to: user.email, res };
   }
 );

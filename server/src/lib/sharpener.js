@@ -256,7 +256,7 @@ export function questionCitesBio(question, bio, refusals = []) {
  *   unrecognized type and was dropped) — the run engine / UX must surface that
  *   rather than running nothing silently.
  */
-export async function sharpenBrief({ briefText, brand, bio, refusals = [], memorySummary = "" }) {
+export async function sharpenBrief({ briefText, brand, bio, refusals = [], memorySummary = "", telemetry = {} }) {
   const userMsg = [
     `## RAW BRIEF`,
     String(briefText || "").trim(),
@@ -273,6 +273,7 @@ export async function sharpenBrief({ briefText, brand, bio, refusals = [], memor
     system: SHARPENER_SYSTEM,
     messages: [{ role: "user", content: userMsg }],
     maxTokens: 1600,
+    telemetry: { operationKey: "brief.sharpen", feature: "brief.sharpen", ...telemetry },
   })) {
     if (ev.type === "token")      text += ev.text;
     else if (ev.type === "done")  usage = ev.usage;

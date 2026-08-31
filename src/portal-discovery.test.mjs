@@ -47,7 +47,8 @@ test("the Discovery completion message renders without a missing component", asy
 test("the BIO evidence flow uses a real document picker and multipart upload", async () => {
   const source = await readFile(discoveryUrl, "utf8");
 
-  assert.match(source, /type="file" accept=\{SOURCE_FILE_ACCEPT\}/);
+  assert.match(source, /type="file" multiple/);
+  assert.match(source, /bucket\.key === "visual" \? SOURCE_FILE_ACCEPT : DOCUMENT_FILE_ACCEPT/);
   assert.match(source, /new FormData\(\)/);
   assert.match(source, /sources\/upload/);
   assert.match(source, /fileRef\.current\?\.click\(\)/);
@@ -61,4 +62,19 @@ test("pending evidence must be incorporated before human review", async () => {
   assert.match(source, /Update the BIO with pending evidence before requesting review/);
   assert.match(source, /Update BIO/);
   assert.match(source, /Review the changes before requesting certification/);
+});
+
+test("visual intake requires declared roles, rights, and licensed font metadata", async () => {
+  const source = await readFile(discoveryUrl, "utf8");
+
+  assert.match(source, /otf,\.ttf,\.woff,\.woff2/);
+  assert.match(source, /assetRole/);
+  assert.match(source, /rightsConfirmed/);
+  assert.match(source, /fontFamily/);
+  assert.match(source, /licenseType/);
+  assert.match(source, /visualAssetsReady/);
+  assert.match(source, /Object\.entries\(meta\).*form\.set/s);
+  assert.match(source, /type="button" className="btn btn--secondary"/);
+  assert.match(source, /method:"DELETE"/);
+  assert.match(source, /fontFailures/);
 });

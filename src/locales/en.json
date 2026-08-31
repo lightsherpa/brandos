@@ -874,6 +874,15 @@
       }
     },
     "removeFile": "Remove {name}",
+    "visualIntake": {
+      "help": "References are analyzed into the BIO. Font files stay private and require explicit licence confirmation.", "font": "Font", "reference": "Reference", "source": "Source",
+      "fontFamily": "Font family", "fontUsage": "Font usage", "display": "Display", "body": "Body", "both": "Display + body",
+      "fontLicence": "Font licence", "commercial": "Commercial licence", "openSource": "Open source", "custom": "Custom agreement", "system": "System font",
+      "licenceReference": "Licence reference", "licenceReferencePlaceholder": "Licence reference or order ID (optional)", "referenceRole": "Reference role",
+      "canonical": "Canonical — match this work", "inspiration": "Inspiration — learn, don’t copy", "avoid": "Avoid — never drift here",
+      "rightsConfirm": "I confirm this brand has the right to use this asset for creative production.", "incomplete": "Confirm usage rights and complete the font details before extraction.",
+      "addFiles": "Add files", "removeFailed": "The uploaded source could not be removed.", "fontLoading": "Loading licensed font…", "fontReady": "Licensed font active", "fontError": "Font preview unavailable"
+    },
     "step1": {
       "brandNameRequired": "Brand name is required.",
       "titleAddEm": "Add a brand.",

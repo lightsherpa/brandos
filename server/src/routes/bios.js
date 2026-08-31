@@ -3,10 +3,12 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { assignSteward } from "../lib/assign-steward.js";
 import { scoreBio } from "../lib/score-bio.js";
-import { validateUpload, assertPublicUrl, MAX_UPLOAD_BYTES } from "../lib/ingest-guards.js";
+import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
 import { selfCertifyBio } from "../lib/self-certify.js";
 import { diffBio } from "../lib/bio-diff.js";
+import { loadBioForRun } from "../lib/load-brand-bio.js";
+import { certifiedVisualSourceIds } from "../lib/visual-assets.js";
 import { prepareClientBioEditPayload } from "../lib/bio-evidence.js";
 
 const app = new Hono();
@@ -97,6 +99,23 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   if (!vUp.ok) return c.json({ error: vUp.message, code: vUp.code }, vUp.code === "TOO_LARGE" ? 413 : 400);
   const ext = vUp.ext || "bin";
   const mime = file.type || "application/octet-stream";
+  if (FONT_UPLOAD_EXTS.has(ext) && bucket !== "visual") {
+    return c.json({ error: "Font assets belong in Visual references", code: "FONT_BUCKET" }, 400);
+  }
+  let visualMetadata = {};
+  if (bucket === "visual") {
+    const metadata = validateVisualAssetMetadata({
+      ext,
+      assetRole: form.get("assetRole"),
+      rightsConfirmed: String(form.get("rightsConfirmed") || "") === "true",
+      fontFamily: form.get("fontFamily"),
+      fontUsage: form.get("fontUsage"),
+      licenseType: form.get("licenseType"),
+      licenseReference: form.get("licenseReference"),
+    });
+    if (!metadata.ok) return c.json({ error: metadata.message, code: metadata.code }, 400);
+    visualMetadata = metadata.metadata;
+  }
   const safeName = filename.replace(/[^a-z0-9._-]+/gi, "_").slice(0, 80);
   const objectPath = `${workspaceId}/${brandId}/${crypto.randomUUID()}-${safeName}`;
 
@@ -135,7 +154,14 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
       kind: "file_upload",
       bucket,
       src: filename,
-      signals: { size: file.size, mime, upload_id: uploadRow?.id, ext },
+      signals: {
+        size: file.size,
+        mime,
+        upload_id: uploadRow?.id,
+        ext,
+        ...visualMetadata,
+        ...(bucket === "visual" ? { rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() } : {}),
+      },
       raw_ref: objectPath,
     })
     .select("id, bucket, src, signals, raw_ref")
@@ -149,6 +175,62 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   }
 
   return c.json({ source: sourceRow, signedUrl: signed?.signedUrl || null });
+});
+
+/* Remove a durable upload from evidence and storage. Deleting bio_sources
+   first makes the asset ineligible for future compilation even if best-effort
+   storage cleanup later fails. */
+app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
+  const { workspaceId } = c.get("auth");
+  const brandId = c.req.param("brandId");
+  const sourceId = c.req.param("sourceId");
+  const { data:brand } = await supabaseAdmin.from("brands").select("workspace_id").eq("id", brandId).maybeSingle();
+  if (!brand || brand.workspace_id !== workspaceId) return c.json({ error:"Brand not in workspace" }, 403);
+  const { data:source } = await supabaseAdmin
+    .from("bio_sources")
+    .select("id, kind, raw_ref, signals")
+    .eq("id", sourceId)
+    .eq("brand_id", brandId)
+    .maybeSingle();
+  if (!source) return c.json({ deleted:true });
+  if (source.kind !== "file_upload") return c.json({ error:"Only uploaded sources can be removed here" }, 409);
+  let activeBio = null;
+  try {
+    activeBio = (await loadBioForRun({ workspaceId, brandId })).bio;
+  } catch (error) {
+    if (error?.code !== "BIO_NOT_CERTIFIED") return c.json({ error:"Could not verify certified source usage" }, 500);
+  }
+  if (certifiedVisualSourceIds(activeBio?.visual).has(sourceId)) {
+    return c.json({ error:"This source is pinned to the active certified BIO and cannot be removed", code:"CERTIFIED_SOURCE" }, 409);
+  }
+  const { error:deleteError } = await supabaseAdmin.from("bio_sources").delete().eq("id", sourceId).eq("brand_id", brandId);
+  if (deleteError) return c.json({ error:deleteError.message }, 500);
+  const cleanup = [];
+  if (source.signals?.upload_id) cleanup.push(supabaseAdmin.from("uploads").delete().eq("id", source.signals.upload_id));
+  if (source.raw_ref && !/^https?:\/\//i.test(source.raw_ref)) cleanup.push(supabaseAdmin.storage.from("bio-sources").remove([source.raw_ref]));
+  await Promise.allSettled(cleanup);
+  return c.json({ deleted:true });
+});
+
+/* Fresh private URL for an approved visual/font source. BIO payloads store a
+   stable source id, never an expiring signed URL. */
+app.get("/:brandId/sources/:sourceId/url", requireAuth, async (c) => {
+  const { workspaceId } = c.get("auth");
+  const brandId = c.req.param("brandId");
+  const sourceId = c.req.param("sourceId");
+  const { data: brand } = await supabaseAdmin.from("brands").select("workspace_id").eq("id", brandId).maybeSingle();
+  if (!brand || brand.workspace_id !== workspaceId) return c.json({ error:"Brand not in workspace" }, 403);
+  const { data: source } = await supabaseAdmin
+    .from("bio_sources")
+    .select("id, raw_ref, signals")
+    .eq("id", sourceId)
+    .eq("brand_id", brandId)
+    .eq("bucket", "visual")
+    .maybeSingle();
+  if (!source?.raw_ref || source.signals?.rights_confirmed !== true) return c.json({ error:"Approved source not found" }, 404);
+  const { data, error } = await supabaseAdmin.storage.from("bio-sources").createSignedUrl(source.raw_ref, 60 * 60);
+  if (error || !data?.signedUrl) return c.json({ error:"Could not sign source" }, 500);
+  return c.json({ url:data.signedUrl, family:source.signals?.font_family || null, mime:source.signals?.mime || null });
 });
 
 /* PATCH /api/bios/:brandId

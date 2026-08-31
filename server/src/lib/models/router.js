@@ -21,6 +21,13 @@
 
 import * as anthropic from "./anthropic.js";
 import * as openrouter from "./openrouter.js";
+import {
+  calculateTokenCost,
+  completionTelemetryEvent,
+  findEffectiveRateCard,
+  preflightApiUsage,
+  recordApiUsage,
+} from "../api-usage.js";
 
 /* Browser-requested overrides are deliberately finite. Specs may still use
    other routes as their server-authored primary, but clients cannot turn the
@@ -61,7 +68,7 @@ export function routeCreditMultiplier(route) {
  * @param {number} [params.maxTokens]    - max output tokens; derived from spec.payload.cr_estimate if omitted
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ spec, system, messages, maxTokens }) {
+export async function* streamCompletion({ spec, system, messages, maxTokens, telemetry = {} }) {
   const route = spec?.payload?.modelRouting?.primary;
   if (typeof route !== "string" || !route.includes("/")) {
     yield { type: "error", message: `Invalid model route: ${JSON.stringify(route)}. Expected "anthropic/<model>" or "openrouter/<model>".` };
@@ -76,15 +83,84 @@ export async function* streamCompletion({ spec, system, messages, maxTokens }) {
   const requested = maxTokens ?? Math.max(200, Math.min(4000, (spec?.payload?.cr_estimate ?? 8) * 100));
   const budget = Math.max(16, requested);
 
+  let provider;
+  let model;
+  let adapter;
   if (route.startsWith("anthropic/")) {
-    const model = route.slice("anthropic/".length);
-    yield* anthropic.streamCompletion({ model, system, messages, maxTokens: budget });
-    return;
+    provider = "anthropic";
+    model = route.slice("anthropic/".length);
+    adapter = anthropic.streamCompletion;
+  } else if (route.startsWith("openrouter/")) {
+    provider = "openrouter";
+    model = route.slice("openrouter/".length);
+    adapter = openrouter.streamCompletion;
   }
 
-  if (route.startsWith("openrouter/")) {
-    const model = route.slice("openrouter/".length);
-    yield* openrouter.streamCompletion({ model, system, messages, maxTokens: budget });
+  if (adapter) {
+    const rate = await findEffectiveRateCard({ provider, service: "messages", model, operation: "completion" });
+    const promptChars = JSON.stringify({ system, messages }).length;
+    const estimatedPromptTokens = Math.ceil(promptChars / 4);
+    const preflightMaxCostUsd = calculateTokenCost({
+      prompt_tokens: estimatedPromptTokens,
+      completion_tokens: budget,
+      cached_tokens: 0,
+      cache_creation_tokens: 0,
+    }, rate);
+    const operationKey = telemetry.operationKey || "specialist.text";
+    const preflight = await preflightApiUsage({
+      operationKey,
+      estimatedMaxCostUsd: preflightMaxCostUsd,
+      override: !!telemetry.breakerOverride,
+    });
+    const started = Date.now();
+    if (!preflight.allowed) {
+      await recordApiUsage(completionTelemetryEvent({
+        telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+        usage: {}, provider, model, status: "blocked", latencyMs: 0, rate, preflight,
+        errorCode: preflight.code,
+      }));
+      yield { type: "error", message: "API request blocked by cost guardrail", code: preflight.code };
+      return;
+    }
+
+    let recorded = false;
+    for await (const event of adapter({ model, system, messages, maxTokens: budget })) {
+      if (event.type === "done") {
+        const estimated = event.usage?.cost_usd == null ? calculateTokenCost(event.usage || {}, rate) : null;
+        event.usage = {
+          ...(event.usage || {}),
+          cost_usd: event.usage?.cost_usd ?? estimated,
+          cost_source: event.usage?.cost_usd != null ? "provider_reported" : estimated != null ? "rate_card_estimate" : "unpriced",
+          rate_card_id: rate?.id || null,
+        };
+        await recordApiUsage(completionTelemetryEvent({
+          telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+          usage: event.usage,
+          provider,
+          model,
+          status: "succeeded",
+          latencyMs: Date.now() - started,
+          rate,
+          preflight,
+        }));
+        recorded = true;
+      } else if (event.type === "error") {
+        await recordApiUsage(completionTelemetryEvent({
+          telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+          usage: {}, provider, model, status: "failed", latencyMs: Date.now() - started,
+          rate, preflight, errorCode: "PROVIDER_ERROR",
+        }));
+        recorded = true;
+      }
+      yield event;
+    }
+    if (!recorded) {
+      await recordApiUsage(completionTelemetryEvent({
+        telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+        usage: {}, provider, model, status: "failed", latencyMs: Date.now() - started,
+        rate, preflight, errorCode: "STREAM_INCOMPLETE",
+      }));
+    }
     return;
   }
 

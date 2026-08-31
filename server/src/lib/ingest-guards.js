@@ -13,13 +13,19 @@ export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB
 export const ALLOWED_UPLOAD_EXTS = new Set([
   "pdf", "txt", "md", "markdown", "doc", "docx", "rtf", "csv",
   "png", "jpg", "jpeg", "webp", "gif", "svg",
+  "otf", "ttf", "woff", "woff2",
 ]);
-const ALLOWED_MIME_PREFIXES = ["text/", "image/"];
+export const IMAGE_UPLOAD_EXTS = new Set(["png", "jpg", "jpeg", "webp", "gif", "svg"]);
+export const FONT_UPLOAD_EXTS = new Set(["otf", "ttf", "woff", "woff2"]);
+const ALLOWED_MIME_PREFIXES = ["text/", "image/", "font/"];
 const ALLOWED_MIME_EXACT = new Set([
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/rtf",
+  "application/font-woff",
+  "application/x-font-ttf",
+  "application/x-font-opentype",
   "application/octet-stream", // some browsers send this for docs; the extension is the real gate
   "",
 ]);
@@ -39,6 +45,58 @@ export function validateUpload({ mime = "", size = 0, filename = "" } = {}) {
   const mimeOk = ALLOWED_MIME_EXACT.has(m) || ALLOWED_MIME_PREFIXES.some((p) => m.startsWith(p));
   if (!mimeOk) return { ok: false, code: "MIME", message: `Unsupported content-type ${m}` };
   return { ok: true, ext };
+}
+
+const VISUAL_ROLES = new Set(["canonical", "inspiration", "avoid"]);
+const FONT_LICENSES = new Set(["commercial", "open_source", "custom", "system"]);
+
+/* Visual evidence carries intent and rights at ingest time. A file merely
+   existing in Storage must never make it eligible for model conditioning. */
+export function validateVisualAssetMetadata({
+  ext = "",
+  assetRole = "",
+  rightsConfirmed = false,
+  fontFamily = "",
+  fontUsage = "",
+  licenseType = "",
+  licenseReference = "",
+} = {}) {
+  const normalizedExt = String(ext).toLowerCase().replace(/^\./, "");
+  const isFont = FONT_UPLOAD_EXTS.has(normalizedExt);
+  const isImage = IMAGE_UPLOAD_EXTS.has(normalizedExt);
+  if (!rightsConfirmed) {
+    return { ok: false, code: "RIGHTS", message: "Confirm that this brand has the right to use this visual asset" };
+  }
+  if (isFont) {
+    const family = String(fontFamily).trim();
+    const license = String(licenseType).trim();
+    if (!family) return { ok: false, code: "FONT_FAMILY", message: "Font family name is required" };
+    if (!FONT_LICENSES.has(license)) return { ok: false, code: "FONT_LICENSE", message: "Choose a supported font licence type" };
+    return {
+      ok: true,
+      metadata: {
+        asset_kind: "font",
+        asset_role: "canonical",
+        rights_confirmed: true,
+        font_family: family,
+        font_usage: String(fontUsage || "Brand typography").trim(),
+        license_type: license,
+        license_reference: String(licenseReference).trim(),
+      },
+    };
+  }
+  const role = String(assetRole).trim();
+  if (!VISUAL_ROLES.has(role)) {
+    return { ok: false, code: "ASSET_ROLE", message: "Choose whether this reference is canonical, inspiration, or something to avoid" };
+  }
+  return {
+    ok: true,
+    metadata: {
+      asset_kind: isImage ? "image_reference" : "visual_document",
+      asset_role: role,
+      rights_confirmed: true,
+    },
+  };
 }
 
 const PRIVATE_V4 = [

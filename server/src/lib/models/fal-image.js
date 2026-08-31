@@ -29,6 +29,22 @@ export const FAL_ROUTES = {
       guidance_scale: 3.5,
       enable_safety_checker: true,
     }),
+    referenceEndpoint: "/fal-ai/z-image/turbo/controlnet",
+    referenceModel: "vendor/fal/z-image-turbo-controlnet",
+    referenceCostEstimateUsd: 0.04,
+    referencePayload: ({ prompt, size, referenceImageUrl }) => ({
+      prompt,
+      image_url: referenceImageUrl,
+      image_size: size || "landscape_16_9",
+      num_inference_steps: 8,
+      num_images: 1,
+      enable_safety_checker: true,
+      output_format: "png",
+      acceleration: "regular",
+      control_scale: 0.45,
+      control_end: 0.8,
+      preprocess: "none",
+    }),
     cost_estimate_usd: 0.04,
   },
   "vendor/fal/flux-schnell": {
@@ -72,6 +88,18 @@ export function isImageRoute(route) {
   return typeof route === "string" && route.startsWith("vendor/fal/");
 }
 
+export function resolveImageRequest({ route, referenceImageUrl = null }) {
+  const cfg = FAL_ROUTES[route];
+  if (!cfg) return null;
+  const usesReference = Boolean(referenceImageUrl && cfg.referenceEndpoint && cfg.referencePayload);
+  return {
+    usesReference,
+    endpoint: usesReference ? cfg.referenceEndpoint : cfg.endpoint,
+    model: usesReference ? (cfg.referenceModel || route) : route,
+    costEstimateUsd: usesReference ? (cfg.referenceCostEstimateUsd ?? cfg.cost_estimate_usd) : cfg.cost_estimate_usd,
+  };
+}
+
 /**
  * Generate an image via fal.ai. Async generator yielding normalized events:
  *   { type: "progress", stage, pct }   while waiting / polling
@@ -83,18 +111,25 @@ export function isImageRoute(route) {
  * @param {string} args.prompt  - composed prompt (BIO + brief + spec method)
  * @param {string} [args.size]  - "square_hd" | "landscape_16_9" | "portrait_4_3" | ...
  */
-export async function* generate({ route, prompt, size }) {
+export async function* generate({ route, prompt, size, referenceImageUrl = null }) {
   const key = process.env.FAL_API_KEY;
   if (!key) { yield { type: "error", message: "FAL_API_KEY not set" }; return; }
   const cfg = FAL_ROUTES[route];
   if (!cfg)  { yield { type: "error", message: `Unknown fal route: ${route}` }; return; }
 
-  const body = cfg.payload({ prompt, size });
+  const resolved = resolveImageRequest({ route, referenceImageUrl });
+  const useReference = resolved.usesReference;
+  const endpoint = resolved.endpoint;
+  const body = useReference
+    ? cfg.referencePayload({ prompt, size, referenceImageUrl })
+    : cfg.payload({ prompt, size });
+  const resolvedModel = resolved.model;
+  const resolvedCostUsd = resolved.costEstimateUsd;
 
   yield { type: "progress", stage: "submitting", pct: 5 };
 
   /* Submit to fal queue. Returns { request_id, status_url, response_url, cancel_url }. */
-  const submitRes = await fetch(`${QUEUE_BASE}${cfg.endpoint}`, {
+  const submitRes = await fetch(`${QUEUE_BASE}${endpoint}`, {
     method: "POST",
     headers: { "Authorization": `Key ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -150,8 +185,9 @@ export async function* generate({ route, prompt, size }) {
         width:      img.width,
         height:     img.height,
         content_type: img.content_type,
-        model:      route,
-        cost_usd:   cfg.cost_estimate_usd,
+        model:      resolvedModel || route,
+        endpoint,
+        cost_usd:   resolvedCostUsd ?? cfg.cost_estimate_usd,
         seed:       result.seed,
         prompt_used: prompt,
       };

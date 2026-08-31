@@ -37,7 +37,7 @@ Return STRICT JSON ONLY, no preamble, no fences. Shape:
 
 Be specific. Cite what you see ("hands holding mug, warm side-lit") not what you assume. Be calibrated — 65 is "ships"; 85+ is "this is on-brand without note"; below 50 is "off-brand, regenerate".`;
 
-export async function visionQa({ assetUrl, bio }) {
+export async function visionQa({ assetUrl, bio, telemetry = {} }) {
   if (!assetUrl) {
     return { passed: false, brand_match: 0, violations: ["no asset URL to evaluate"], usage: null };
   }
@@ -74,6 +74,7 @@ export async function visionQa({ assetUrl, bio }) {
       system: QA_SYSTEM,
       messages: [{ role: "user", content: userContent }],
       maxTokens: 300,
+      telemetry: { operationKey: "specialist.text", feature: "qa.vision", ...telemetry },
     })) {
       if (ev.type === "token")      text += ev.text;
       else if (ev.type === "done")  usage = ev.usage;

@@ -6,6 +6,10 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { inngest } from "../lib/inngest.js";
 import { assertPublicUrl } from "../lib/ingest-guards.js";
+import { recordApiUsage } from "../lib/api-usage.js";
+import { hasPermission } from "../lib/permissions.js";
+import { verifyOpexOverride } from "../lib/opex-override.js";
+import { writeAuthorizationAudit } from "../lib/audit.js";
 
 const app = new Hono();
 
@@ -17,7 +21,9 @@ const app = new Hono();
    Poll GET /api/bios/:brandId or subscribe via Supabase Realtime to
    see the new BIO row land.                                            */
 app.post("/start", requireAuth, async (c) => {
-  const { workspaceId } = c.get("auth");
+  const auth = c.get("auth");
+  const { userId } = auth;
+  let workspaceId = auth.workspaceId || auth.memberships?.[0]?.workspace_id || null;
   const body = await c.req.json().catch(() => ({}));
   const url = typeof body.url === "string" ? body.url.trim() : "";
   const instagram = typeof body.instagram === "string" ? body.instagram.trim() : undefined;
@@ -36,14 +42,29 @@ app.post("/start", requireAuth, async (c) => {
   if (brandId) {
     const { data: brand } = await supabaseAdmin
       .from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
-    if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
+    if (!brand) return c.json({ error: "Brand not found" }, 404);
+    workspaceId = brand.workspace_id;
+    if (!hasPermission(auth, "bio.propose", workspaceId)) return c.json({ error: "Brand not in an accessible workspace" }, 403);
   } else {
+    if (auth.scope === "platform") return c.json({ error: "Internal users must select an assigned brand" }, 400);
+    if (!workspaceId || !hasPermission(auth, "bio.propose", workspaceId)) return c.json({ error: "Forbidden" }, 403);
     const { data: brand } = await supabaseAdmin
       .from("brands").select("id").eq("workspace_id", workspaceId)
       .order("created_at", { ascending: true }).limit(1).maybeSingle();
     if (!brand) return c.json({ error: "No brand in workspace yet" }, 400);
     brandId = brand.id;
   }
+
+  const overrideToken = body.guardrailOverrideToken;
+  const override = overrideToken && hasPermission(auth, "opex.override") && auth.aal === "aal2"
+    ? verifyOpexOverride(overrideToken, { userId, operationKey: "discovery.compile" })
+    : null;
+  if (overrideToken && !override) return c.json({ error: "Guardrail override is invalid, expired, or not permitted", code: "INVALID_GUARDRAIL_OVERRIDE" }, 403);
+  if (override) await writeAuthorizationAudit(c, {
+    permission: "opex.override", action: "guardrail.override.consume", targetType: "api_operation",
+    targetId: "discovery.compile", workspaceId, outcome: "success", reason: override.reason,
+    metadata: { nonce: override.nonce, expiresAt: new Date(override.expiresAt).toISOString() },
+  });
 
   // Update brand.url if it differs (so future discoveries can default to it)
   await supabaseAdmin.from("brands").update({ url }).eq("id", brandId);
@@ -52,12 +73,24 @@ app.post("/start", requireAuth, async (c) => {
   // If the queue is unreachable (e.g. Inngest dev server not running in
   // local dev), surface a clear 503 instead of a bare 500.
   let ids;
+  const queueRequestId = crypto.randomUUID();
+  const queueStarted = Date.now();
   try {
     ({ ids } = await inngest.send({
       name: "discovery/start",
-      data: { brandId, url, workspaceId, instagram, discoveryId },
+      data: { brandId, url, workspaceId, instagram, discoveryId, actorUserId: userId, breakerOverride: !!override },
     }));
+    await recordApiUsage({
+      requestId: queueRequestId, workflowId: discoveryId, workspaceId, brandId, actorUserId: userId,
+      feature: "discovery.queue", provider: "inngest", service: "events", operation: "send",
+      status: "succeeded", latencyMs: Date.now() - queueStarted, costSource: "unpriced",
+    });
   } catch (err) {
+    await recordApiUsage({
+      requestId: queueRequestId, workflowId: discoveryId, workspaceId, brandId, actorUserId: userId,
+      feature: "discovery.queue", provider: "inngest", service: "events", operation: "send",
+      status: "failed", latencyMs: Date.now() - queueStarted, costSource: "unpriced", errorCode: "QUEUE_UNAVAILABLE",
+    });
     console.error("[discovery] inngest.send failed:", err?.message || err);
     return c.json({ error: "Discovery queue unavailable — try again shortly" }, 503);
   }

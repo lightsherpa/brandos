@@ -948,6 +948,15 @@
       }
     },
     "removeFile": "إزالة {name}",
+    "visualIntake": {
+      "help": "تُحلَّل المراجع وتُضاف إلى BIO. تبقى ملفات الخطوط خاصة وتتطلب تأكيدًا صريحًا للترخيص.", "font": "خط", "reference": "مرجع", "source": "مصدر",
+      "fontFamily": "عائلة الخط", "fontUsage": "استخدام الخط", "display": "عناوين", "body": "نصوص", "both": "عناوين + نصوص",
+      "fontLicence": "ترخيص الخط", "commercial": "ترخيص تجاري", "openSource": "مفتوح المصدر", "custom": "اتفاقية مخصصة", "system": "خط نظام",
+      "licenceReference": "مرجع الترخيص", "licenceReferencePlaceholder": "مرجع الترخيص أو رقم الطلب (اختياري)", "referenceRole": "دور المرجع",
+      "canonical": "مرجع أساسي — طابق هذا العمل", "inspiration": "إلهام — تعلّم دون نسخ", "avoid": "تجنّب — لا تقترب من هذا الاتجاه",
+      "rightsConfirm": "أؤكد أن لهذه العلامة حق استخدام هذا الأصل في الإنتاج الإبداعي.", "incomplete": "أكد حقوق الاستخدام وأكمل بيانات الخط قبل بدء الاستخراج.",
+      "addFiles": "إضافة ملفات", "removeFailed": "تعذرت إزالة المصدر المرفوع.", "fontLoading": "جارٍ تحميل الخط المرخّص…", "fontReady": "الخط المرخّص مفعّل", "fontError": "معاينة الخط غير متاحة"
+    },
     "step1": {
       "brandNameRequired": "اسم العلامة مطلوب.",
       "titleAddEm": "أضف علامة.",

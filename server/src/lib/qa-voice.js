@@ -44,7 +44,7 @@ function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export async function voiceQa({ body, bio, refusals }) {
+export async function voiceQa({ body, bio, refusals, telemetry = {} }) {
   /* 1. Local forbidden-words scan. */
   const forbidden = bio?.voice?.forbidden || [];
   const localViolations = [];
@@ -79,6 +79,7 @@ export async function voiceQa({ body, bio, refusals }) {
       system: QA_SYSTEM,
       messages: [{ role: "user", content: userMsg }],
       maxTokens: 400,
+      telemetry: { operationKey: "specialist.text", feature: "qa.voice", ...telemetry },
     })) {
       if (ev.type === "token")      text += ev.text;
       else if (ev.type === "done")  usage = ev.usage;
