@@ -6,6 +6,36 @@
 
 **Safe to continue development: yes. Safe to ship RC1 to internet users today: no.**
 
+### ELI5 version
+
+Think of CaastorOS as a house that already has good locks on the important rooms:
+
+- users must show a valid key before entering;
+- each customer is kept inside their own room;
+- the most powerful actions need an extra lock (MFA);
+- private files stay private; and
+- Stripe and background-job messages are checked to make sure they are genuine.
+
+So we can safely keep building the house. We should **not invite the public in yet**, because
+the front gate still needs three improvements:
+
+1. **Traffic limits:** stop one person or bot from hammering the doors thousands of times.
+2. **Safer shared links:** store only a scrambled fingerprint of each discovery link, so a
+   stolen database row or log line cannot be used as the key itself.
+3. **Browser safety rules:** add the standard headers that tell browsers what CaastorOS may
+   load and prevent other sites from framing or misusing it.
+
+“Hash everything” is not the goal. A hash is like turning a secret into a fingerprint: it is
+right for passwords, access links, and integrity checks, but wrong for ordinary project data
+that CaastorOS must read again. Password hashing is handled by Supabase; the application does
+not store plaintext passwords. BIO hashes are being used correctly. Discovery-link tokens are
+the one important item that still needs safer hashing and log redaction.
+
+**Plain-English release plan:** finish the database check, install those three front-gate
+protections, run the complete BIO → brief → generate → verify → canvas journey once against
+the live setup, and then make the go/no-go decision. Do not add new product features before
+that proof.
+
 The application has a credible security foundation: Supabase-validated JWTs, explicit
 workspace authorization, permission and MFA gates for privileged operations, private
 storage with signed URLs, RLS lockdown migrations, signature-verified/idempotent Stripe
@@ -152,4 +182,3 @@ Billing expansion, bundle work, redesign, new canvas features, and BIO model exp
 - **Hopper:** review the changes, enforce the cut line, and issue the final go/no-go after CAA-47.
 - **Brandolph / infra:** confirm live Supabase auth/MFA settings, confirm PAT revocation, and approve
   any production-affecting configuration or secret rotation.
-
