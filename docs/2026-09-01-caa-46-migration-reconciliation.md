@@ -69,6 +69,19 @@ window. `supabase db dump` independently reported that the Docker daemon was
 unavailable. No disposable database started and no repository schema was
 mutated.
 
+The 2026-09-01 continuation rechecked the host before attempting any reset:
+
+```text
+$ docker info --format '{{.ServerVersion}}'
+failed to connect to the docker API at
+unix:///Users/oscarmottaquintana/.docker/run/docker.sock: connect: no such file or directory
+```
+
+There is no host `postgres`, `initdb`, `createdb`, `psql`, or `pg_isready`
+binary available as a credible Docker-free fallback. Consequently, a local
+`supabase db reset` cannot run on this host until Docker's engine is available.
+No remote database was used as a disposable substitute.
+
 Unblock owner: Brandolph/operator with access to this Mac.
 
 Required action: open Docker Desktop and wait until it visibly reports
