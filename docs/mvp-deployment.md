@@ -28,6 +28,9 @@ Set these in Render:
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `OPEX_OVERRIDE_SECRET` — dedicated HMAC signing key for OPEX override tokens.
+  Generate with `openssl rand -base64 32`. Must **not** reuse `SUPABASE_SERVICE_ROLE_KEY`;
+  if unset, the server silently falls back to it (see `docs/2026-09-01-caa-52-security-operator-proof.md`).
 - `ANTHROPIC_API_KEY`
 - `OPENROUTER_API_KEY`
 - `FAL_API_KEY`
