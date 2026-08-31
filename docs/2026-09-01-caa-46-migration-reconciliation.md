@@ -15,9 +15,10 @@ production mutation was performed.
 
 ## Declared versus applied
 
-The repository declares 15 migration files. Staging reports the same 15 applied
-versions, with no local-only or remote-only version. An isolated history fetch
-also confirms that the stored migration names line up one-for-one.
+At the time of the read-only staging check, the repository declared 15
+migration files. Staging reported the same 15 applied versions, with no
+local-only or remote-only version. An isolated history fetch also confirmed
+that the stored migration names line up one-for-one.
 
 | Version | Repository and staging name |
 | --- | --- |
@@ -36,6 +37,15 @@ also confirms that the stored migration names line up one-for-one.
 | `20260816000000` | `scoped_access_and_opex` |
 | `20260816010000` | `atomic_workspace_ownership` |
 | `20260817000000` | `invitation_role_policy` |
+
+The RC branch now declares a 16th, append-only migration:
+`20260901000000_delegation_token_hash.sql` (CAA-51). It landed after the staging
+reconciliation and is therefore **repository-only / not established as applied
+on staging**. It does not rename or reorder any of the reconciled 15 versions,
+so it does not change the platform-integrity rename decision below. It must be
+included in the disposable zero-to-head run and explicitly coordinated with
+the CAA-51 application deploy: the old server writes `token`, while the new
+server writes `token_hash`, and the migration drops `token`.
 
 ## Rename finding
 
@@ -62,10 +72,11 @@ risk without changing the desired database state.
 
 ## Clean-database verification
 
-The disposable zero-to-head run is not yet complete. Docker Desktop was
-launched, but `docker info` could not connect to
-`/Users/oscarmottaquintana/.docker/run/docker.sock` after a 50-second readiness
-window. `supabase db dump` independently reported that the Docker daemon was
+The disposable zero-to-head run of all 16 current migrations is not yet
+complete. Docker Desktop was launched in two separate CAA-46 heartbeats, but
+`docker info` could not connect to
+`/Users/oscarmottaquintana/.docker/run/docker.sock` after bounded readiness
+windows. `supabase db dump` independently reported that the Docker daemon was
 unavailable. No disposable database started and no repository schema was
 mutated.
 
@@ -85,6 +96,13 @@ No remote database was used as a disposable substitute.
 Unblock owner: Brandolph/operator with access to this Mac.
 
 Required action: open Docker Desktop and wait until it visibly reports
-**Engine running**, then re-run CAA-46. Hopper should run the current migration
-chain from zero against the disposable local database and append the passing
-command/output here. No staging or production action is required.
+**Engine running**, then re-run CAA-46. Hopper should run the current 16-file
+migration chain from zero against the disposable local database and append the
+passing command/output here. No staging or production action is required for
+this verification.
+
+The eventual live rollout of `20260901000000_delegation_token_hash.sql` is a
+separate production-affecting action and was **not performed here**. It must
+follow the lockstep sequence in
+`docs/2026-09-01-caa-51-delegation-token-hardening.md` with CEO/operator
+approval; do not independently push this migration.
