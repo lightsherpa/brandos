@@ -1,4 +1,24 @@
 {
+  "drafts": {
+    "retryAnalysis": "إعادة محاولة التحليل",
+    "previousAnswers": "الإجابات السابقة",
+    "handoffError": "تم حفظ المسودة، لكن تعذر فتح اللوحة. فعّل تخزين المتصفح وحاول مرة أخرى.",
+    "loading": "جارٍ تحميل المسودات…",
+    "idle": "مسودة",
+    "unsaved": "تغييرات غير محفوظة",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم حفظ المسودة",
+    "error": "الحفظ غير متاح. أبقِ هذه الصفحة مفتوحة إذا كان الاسترداد المحلي غير متاح.",
+    "conflict": "حفظت علامة تبويب أخرى تغييرات. تم الاحتفاظ بنصك.",
+    "selectBrand": "اختر علامة تجارية لحفظ المسودات.",
+    "saveCopy": "حفظ نسختي كمسودة جديدة",
+    "retry": "إعادة محاولة الحفظ",
+    "new": "مسودة جديدة",
+    "localError": "الاسترداد المحلي غير متاح. أبقِ هذه الصفحة مفتوحة حتى يؤكد الخادم الحفظ.",
+    "hint": "تُحفظ المسودات تلقائيًا وتبقى قيد الانتظار عند استئنافها. اختر البدء عندما تكون جاهزًا.",
+    "resume": "استئناف مسودة",
+    "untitled": "مسودة بلا عنوان"
+  },
   "_notes": {
     "proper_nouns": "BIO, Brandolph, Caastor, CaastorOS and 'The Colony' are kept in Latin script as product/proper nouns.",
     "plurals": "Plural keys (notif.ariaUnread, plans.allowance) supply all 6 Arabic CLDR categories (zero/one/two/few/many/other); selection is by Intl.PluralRules('ar'), never a ternary.",
@@ -379,7 +399,7 @@
     "sharpeningEyebrow": "Brandolph · يصقل",
     "sharpeningLoading": "يقرأ الـ BIO الخاص بك. يضغط على الموجز. يختار أصغر فريق.",
     "sharpeningFailedEyebrow": "Brandolph · فشل الصقل",
-    "sharpeningFailedBody": "{error}. يمكنك تشغيل الموجز كما هو.",
+    "sharpeningFailedBody": "{error}. تم الاحتفاظ بالمسودة والإجابات السابقة. أعد محاولة التحليل قبل المتابعة.",
     "proceedRaw": "المتابعة بالموجز كما هو",
     "cmoRewrite": "كيف سيكتبها مدير التسويق",
     "answerPlaceholder": "أجب بجملة واحدة، أو تخطَّ.",

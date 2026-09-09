@@ -2,6 +2,8 @@ import React from "react";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
 import { briefProgress, daysLeftInCycle, successRate } from "./lib/home-stats.js";
+import { editBriefInput, replaceDraftAnalysis } from "./lib/brief-draft-review.js";
+import { useBriefDrafts } from "./lib/use-brief-drafts.js";
 import { handleComposerKeyDown } from "./lib/editing-shortcuts.js";
 const { BrandolphAvatar, BrandolphDot, Icon, LayerTag, Reveal, StatusPill, StreamedText, useIsTeam } = window;
 
@@ -250,20 +252,20 @@ function HomeCreate({ tweaks, go }) {
      needs the same live balance, and two hooks would mean two round-trips. */
   const stats = useHomeStats();
   const activeBrandId = window.useCurrentBrandId();
-  const [mode, setMode]   = useBState("flow");
-  const [input, setInput] = useBState(() => {
-    /* Pick up a "Reuse" prefill posted from the Library — when set,
-       the brief textarea opens with the upstream output already pasted. */
-    try {
-      const raw = sessionStorage.getItem("ci_home_prefill");
-      if (!raw) return "";
-      const parsed = JSON.parse(raw);
-      sessionStorage.removeItem("ci_home_prefill");
-      return typeof parsed?.text === "string" ? parsed.text : "";
-    } catch { return ""; }
-  });
+  const draft = useBriefDrafts(activeBrandId);
+  const { input, mode, answers, qStep } = draft.payload;
+  const setInput = (value) => {
+    draft.store.update((payload) => editBriefInput(payload, value));
+    setBriefBrandId(null);
+  };
+  const setMode = (value) => draft.store.update({ mode: value });
+  const setAnswers = (value) => draft.store.update((p) => ({ answers: typeof value === "function" ? value(p.answers) : value }));
+  const setQStep = (value) => draft.store.update({ qStep: value });
+  const currentDraftStore = useBRef(draft.store);
+  currentDraftStore.current = draft.store;
   const [phase, setPhase] = useBState("idle"); // idle | sharpening | proposing | running | done
   const reviewRef = useBRef(null);
+  const startingRef = useBRef(null);
 
   /* Wired models — text (Anthropic + OpenRouter) AND image (fal.ai).
      Other vendors (exa/v0/gamma/framer/elevenlabs) aren't dispatched
@@ -284,21 +286,37 @@ function HomeCreate({ tweaks, go }) {
   const [runErr, setRunErr] = useBState(null);
 
   /* a02 Sharpener state — real per-brief output from /api/briefs/sharpen. */
-  const [sharp, setSharp]       = useBState({ loading: false, data: null, error: null });
-  const [answers, setAnswers]   = useBState({});            /* { 0: "...", 1: "...", 2: "..." } */
-  const [qStep, setQStep]       = useBState(0);             /* sharpening wizard: current question index */
-  const [briefBrandId, setBriefBrandId] = useBState(null);  /* brand pinned when sharpening starts */
+  const [sharpStatus, setSharpStatus] = useBState({ loading: false, error: null });
+  const sharp = { ...sharpStatus, data: draft.payload.sharpData };
+  const setSharp = (value) => {
+    const next = typeof value === "function" ? value(sharp) : value;
+    setSharpStatus({ loading: next.loading, error: next.error });
+    if (next.data !== draft.store.getSnapshot().payload.sharpData) draft.store.update({ sharpData: next.data });
+  };
+  const [briefBrandId, setBriefBrandId] = useBState(null);
 
-  /* A sharpened brief belongs to the BIO that shaped it. Switching brands
-     invalidates that draft so it cannot be run against a different BIO. */
+  // Scope changes clear only runtime state. Each brand keeps its own saved work.
   useBEffect(() => {
-    if (!briefBrandId || briefBrandId === activeBrandId) return;
     setPhase("idle");
-    setSharp({ loading:false, data:null, error:null });
-    setAnswers({});
-    setQStep(0);
+    setSharpStatus({ loading: false, error: null });
     setBriefBrandId(null);
-  }, [activeBrandId, briefBrandId]);
+  }, [draft.store]);
+
+  // Library reuse becomes a new durable draft once storage is ready.
+  useBEffect(() => {
+    if (!draft.ready) return;
+    try {
+      const raw = sessionStorage.getItem("ci_home_prefill");
+      const parsed = raw && JSON.parse(raw);
+      if (typeof parsed?.text !== "string") return;
+      const store = draft.store;
+      void store.select(null).then((ok) => {
+        if (!ok || currentDraftStore.current !== store) return;
+        store.update({ input: parsed.text });
+        sessionStorage.removeItem("ci_home_prefill");
+      });
+    } catch { /* Keep the existing draft if a prefill is invalid. */ }
+  }, [draft.ready, draft.store]);
 
   /* Resolve the actual assembly — Sharpener's proposed specialists take
      precedence; fall back to the mock density-based pick filtered to
@@ -322,20 +340,22 @@ function HomeCreate({ tweaks, go }) {
   ];
 
   const handleStart = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || sharp.loading || !draft.ready || startingRef.current === draft.store) return;
     if (!activeBrandId) {
       setSharp({ loading:false, data:null, error: t("brandolph.selectBrand") + "." });
       return;
     }
-    /* Real a02 The Sharpener pass — reads the BIO + brief, returns 2–3
-       brand-aware questions + a proposed crew. If sharpening fails
-       (network, parse, etc.), skip straight to proposing with the raw
-       brief so the user is never blocked. */
+    const store = draft.store;
+    startingRef.current = store;
+    const startPayload = draft.payload;
+    if (!await store.flush() || currentDraftStore.current !== store || store.getSnapshot().payload !== startPayload) {
+      if (startingRef.current === store) startingRef.current = null;
+      return;
+    }
+    // Start is the explicit transition out of the idle draft composer.
     setPhase("sharpening");
-    setSharp({ loading: true, data: null, error: null });
-    setAnswers({});
-    setQStep(0);
-    setBriefBrandId(activeBrandId);
+    setSharpStatus({ loading: true, error: null });
+    setBriefBrandId(null);
     setTimeout(() => reviewRef.current?.scrollIntoView({ behavior:"smooth", block:"nearest" }), 80);
     try {
       const res = await apiFetch("/api/briefs/sharpen", {
@@ -344,15 +364,24 @@ function HomeCreate({ tweaks, go }) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
-      setSharp({ loading: false, data: json, error: null });
+      if (currentDraftStore.current !== store || store.getSnapshot().payload.input !== input) return;
+      store.update((payload) => replaceDraftAnalysis(payload, json));
+      setBriefBrandId(activeBrandId);
+      setSharpStatus({ loading: false, error: null });
     } catch (e) {
-      setSharp({ loading: false, data: null, error: e?.message || String(e) });
+      if (currentDraftStore.current !== store) return;
+      setSharpStatus({ loading: false, error: e?.message || String(e) });
+    } finally {
+      if (startingRef.current === store) startingRef.current = null;
     }
   };
 
   const handleKeyDown = (e) => handleComposerKeyDown(e, handleStart);
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
+    const store = draft.store;
+    const approvedPayload = draft.payload;
+    if (!await store.flush() || currentDraftStore.current !== store || store.getSnapshot().payload !== approvedPayload) return;
     if (!briefBrandId || briefBrandId !== activeBrandId) {
       setSharp((current) => ({ ...current, error: t("brandolph.brandChangedError") }));
       return;
@@ -362,6 +391,7 @@ function HomeCreate({ tweaks, go }) {
        the Canvas itself. The Canvas is the moment-of-truth UX surface;
        a flat inline grid breaks that promise. */
     const ctx = {
+      sourceDraftId: store.getSnapshot().id,
       rawBrief:      input.trim(),
       composedBrief: composeBriefText(),
       title:         sharp.data?.title || "",
@@ -381,7 +411,8 @@ function HomeCreate({ tweaks, go }) {
       brandId:       activeBrandId,
       ts:            Date.now(),
     };
-    try { sessionStorage.setItem("ci_run_context", JSON.stringify(ctx)); } catch (e) {}
+    try { sessionStorage.setItem("ci_run_context", JSON.stringify(ctx)); }
+    catch { setSharpStatus((current) => ({ ...current, error: t("drafts.handoffError") })); return; }
     go("canvas");
   };
 
@@ -475,11 +506,17 @@ function HomeCreate({ tweaks, go }) {
     setPhase("done");
   };
 
-  const handleReset = () => {
-    setPhase("idle"); setInput("");
+  const handleReset = async () => {
+    if (!await draft.store.select(null)) return;
+    setPhase("idle");
     setAgentStates({}); setAgentOutputs({}); setRunErr(null);
-    setSharp({ loading: false, data: null, error: null });
-    setAnswers({});
+    setSharpStatus({ loading: false, error: null });
+    setBriefBrandId(null);
+  };
+  const resumeDraft = async (row) => {
+    if (!await draft.store.select(row)) return;
+    setPhase("idle");
+    setSharpStatus({ loading: false, error: null });
     setBriefBrandId(null);
   };
 
@@ -524,6 +561,35 @@ function HomeCreate({ tweaks, go }) {
                 lines, and `scope` was never sent to the Sharpener — brands have
                 no sub-line model, so the control had nothing real to filter. */}
 
+            <div style={{ marginTop: 24, textAlign: "left" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
+                <span role="status" aria-live="polite">{t(`drafts.${activeBrandId ? draft.status : "selectBrand"}`)}</span>
+                {(draft.status === "error" || draft.status === "conflict") && <button className="btn btn--ghost btn--sm" onClick={() => { void (draft.status === "conflict" ? draft.store.saveCopy() : draft.store.load()); }}>{t(draft.status === "conflict" ? "drafts.saveCopy" : "drafts.retry")}</button>}
+                <button className="btn btn--ghost btn--sm" disabled={!draft.ready || sharp.loading} onClick={handleReset}>{t("drafts.new")}</button>
+              </div>
+              {draft.error && <p role="alert" style={{ fontSize: 13 }}>{draft.error}</p>}
+              {draft.localError && <p role="alert">{t("drafts.localError")}</p>}
+              <p style={{ fontSize: 13, color: "var(--c-dim)" }}>{t("drafts.hint")}</p>
+              {draft.drafts.length > 0 && <details>
+                <summary style={{ cursor: "pointer", padding: "8px 0" }}>{t("drafts.resume")}</summary>
+                <ul style={{ listStyle: "none", padding: 0 }}>
+                  {draft.drafts.map((row) => <li key={row.recoveryKey || row.id} style={{ borderTop: "1px solid var(--c-line)", padding: "8px 0" }}>
+                    <button className="btn btn--ghost" disabled={sharp.loading} onClick={() => { void resumeDraft(row); }} style={{ maxWidth: "100%", whiteSpace: "normal", textAlign: "start" }}>
+                      {row.payload.input.slice(0, 100) || t("drafts.untitled")} · {t(row.recoveryKey ? "drafts.unsaved" : "drafts.saved")}
+                    </button>
+                  </li>)}
+                </ul>
+              </details>}
+            </div>
+
+            {(draft.payload.answerHistory || []).length > 0 && <details style={{ marginTop: 12, textAlign: "start" }}>
+              <summary>{t("drafts.previousAnswers")}</summary>
+              <dl>{draft.payload.answerHistory.map((entry, index) => <React.Fragment key={index}>
+                <dt style={{ fontWeight: 500, marginTop: 12 }}>{entry.question}</dt>
+                <dd style={{ margin: "4px 0", whiteSpace: "pre-wrap" }}>{entry.answer}</dd>
+              </React.Fragment>)}</dl>
+            </details>}
+
             {/* Composer */}
             <div style={{
               marginTop: 32, background:"var(--c-card)",
@@ -542,6 +608,9 @@ function HomeCreate({ tweaks, go }) {
                 className="brandolph-composer__input"
                 aria-label={t("brandolph.composerAria")}
                 value={input}
+                maxLength={50000}
+                disabled={!draft.ready || sharp.loading}
+                onBlur={() => { void draft.store.flush(); }}
                 onChange={(e) => { setInput(e.target.value); if (phase !== "idle") setPhase("idle"); }}
                 onKeyDown={handleKeyDown}
                 placeholder={t("brandolph.composerPlaceholder")}
@@ -585,7 +654,7 @@ function HomeCreate({ tweaks, go }) {
                     <span style={{margin:"0 4px"}}>+</span>
                     <kbd style={{background:"var(--c-bg)", padding:"2px 6px", borderRadius: 4, border:"1px solid var(--c-line)"}}>↵</kbd>
                   </span>
-                  <button className="btn btn--primary" disabled={!input.trim()} onClick={handleStart}>
+                  <button className="btn btn--primary" disabled={!input.trim() || !draft.ready || sharp.loading} onClick={handleStart}>
                     {isActive ? t("brandolph.reBrief") : t("brandolph.start")} <Icon name="arrow" size={14} />
                   </button>
                 </div>
@@ -607,14 +676,14 @@ function HomeCreate({ tweaks, go }) {
           </div>
 
           {/* ── REVIEW PANEL — slides in below the composer inside the hero ── */}
-          {isActive && (
+          {(isActive || sharp.data) && (
             <div ref={reviewRef} style={{
               maxWidth: 760, margin: "28px auto 0",
               animation: "fade 200ms ease",
             }}>
 
               {/* Phase: sharpening — real a02 questions, brand-aware, with whys */}
-              {phase === "sharpening" && (
+              {(phase === "sharpening" || (phase === "idle" && sharp.data)) && (
                 <div style={{
                   background:"var(--c-card)", border:"1px solid var(--c-line)",
                   borderLeft:"3px solid var(--yellow-500)", borderRadius: 14,
@@ -634,9 +703,9 @@ function HomeCreate({ tweaks, go }) {
                     <>
                       <div className="eyebrow eyebrow--yellow" style={{marginBottom: 8}}>{t("brandolph.sharpeningFailedEyebrow")}</div>
                       <p style={{margin: 0, fontSize: 13.5, color:"var(--c-dim)", marginBottom: 14, lineHeight: 1.5}}>
-                        {t("brandolph.sharpeningFailedBody", { error: sharp.error })}
+                        {t("brandolph.sharpeningFailedBody", { error: sharp.error.replace(/[.!?]+$/, "") })}
                       </p>
-                      <button className="btn btn--primary" onClick={handleProceed}>{t("brandolph.proceedRaw")} →</button>
+                      <button className="btn btn--primary" onClick={handleStart}>{t("drafts.retryAnalysis")} →</button>
                     </>
                   )}
 
@@ -667,6 +736,9 @@ function HomeCreate({ tweaks, go }) {
                                 </div>
                               </div>
                               <textarea
+                                aria-label={q.q}
+                                onBlur={() => { void draft.store.flush(); }}
+                                maxLength={10000}
                                 value={answers[i] || ""}
                                 onChange={(e) => setAnswers((p) => ({ ...p, [i]: e.target.value }))}
                                 onKeyDown={(e) => e.stopPropagation()}
@@ -702,7 +774,7 @@ function HomeCreate({ tweaks, go }) {
 
                       <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop: 12, borderTop:"1px dashed var(--c-line)"}}>
                         <button className="btn btn--link" style={{fontSize: 12}} onClick={handleReset}>← {t("brandolph.reBrief")}</button>
-                        <button className="btn btn--primary" onClick={handleProceed}>
+                        <button className="btn btn--primary" disabled={!briefBrandId} onClick={handleProceed}>
                           {t("brandolph.proceedAssembly")} <Icon name="arrow" size={14} />
                         </button>
                       </div>

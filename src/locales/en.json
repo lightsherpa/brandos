@@ -1,4 +1,24 @@
 {
+  "drafts": {
+    "retryAnalysis": "Retry analysis",
+    "previousAnswers": "Previous answers",
+    "handoffError": "Your draft is saved, but the canvas could not be opened. Enable browser storage and try again.",
+    "loading": "Loading drafts…",
+    "idle": "Draft",
+    "unsaved": "Unsaved changes",
+    "saving": "Saving…",
+    "saved": "Draft saved",
+    "error": "Save unavailable — keep this page open if local recovery is unavailable.",
+    "conflict": "Another tab saved changes. Your text is preserved.",
+    "selectBrand": "Select a brand to save drafts.",
+    "saveCopy": "Save my version as a new draft",
+    "retry": "Retry save",
+    "new": "New draft",
+    "localError": "Local recovery is unavailable. Keep this page open until the server confirms your save.",
+    "hint": "Drafts save automatically. Resuming keeps them idle; choose Start when you are ready.",
+    "resume": "Resume a draft",
+    "untitled": "Untitled draft"
+  },
   "nav": {
     "create": "Create",
     "briefs": "Briefs",
@@ -361,7 +381,7 @@
     "sharpeningEyebrow": "Brandolph · sharpening",
     "sharpeningLoading": "Reading your BIO. Pressuring the brief. Picking the smallest crew.",
     "sharpeningFailedEyebrow": "Brandolph · sharpening failed",
-    "sharpeningFailedBody": "{error}. You can run the brief as-written.",
+    "sharpeningFailedBody": "{error}. Your draft and previous answers are preserved. Retry analysis before proceeding.",
     "proceedRaw": "Proceed with raw brief",
     "cmoRewrite": "How a CMO would write this",
     "answerPlaceholder": "Answer in a sentence — or skip.",

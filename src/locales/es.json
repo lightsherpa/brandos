@@ -1,4 +1,24 @@
 {
+  "drafts": {
+    "retryAnalysis": "Reintentar análisis",
+    "previousAnswers": "Respuestas anteriores",
+    "handoffError": "El borrador está guardado, pero no se pudo abrir el lienzo. Activa el almacenamiento del navegador y vuelve a intentarlo.",
+    "loading": "Cargando borradores…",
+    "idle": "Borrador",
+    "unsaved": "Cambios sin guardar",
+    "saving": "Guardando…",
+    "saved": "Borrador guardado",
+    "error": "No se puede guardar. Mantén esta página abierta si la recuperación local no está disponible.",
+    "conflict": "Otra pestaña guardó cambios. Tu texto se conserva.",
+    "selectBrand": "Selecciona una marca para guardar borradores.",
+    "saveCopy": "Guardar mi versión como nuevo borrador",
+    "retry": "Reintentar guardado",
+    "new": "Nuevo borrador",
+    "localError": "La recuperación local no está disponible. Mantén esta página abierta hasta que se confirme el guardado.",
+    "hint": "Los borradores se guardan automáticamente. Al retomarlos quedan en espera; elige Empezar cuando quieras continuar.",
+    "resume": "Retomar un borrador",
+    "untitled": "Borrador sin título"
+  },
   "_notes": {
     "proper_nouns": "BIO, Brandolph, Caastor, CaastorOS, SLA and 'The Colony' are kept untranslated as product/proper nouns.",
     "nav.briefs": "'Briefs' is retained as the industry loanword commonly used by Spanish-speaking creative studios.",
@@ -366,7 +386,7 @@
     "sharpeningEyebrow": "Brandolph · afinando",
     "sharpeningLoading": "Leyendo tu BIO. Presionando el brief. Eligiendo el equipo más pequeño.",
     "sharpeningFailedEyebrow": "Brandolph · falló al afinar",
-    "sharpeningFailedBody": "{error}. Puedes ejecutar el brief tal como está.",
+    "sharpeningFailedBody": "{error}. El borrador y las respuestas anteriores se conservan. Reintenta el análisis antes de continuar.",
     "proceedRaw": "Continuar con el brief sin afinar",
     "cmoRewrite": "Cómo lo escribiría un CMO",
     "answerPlaceholder": "Responde en una frase, o sáltalo.",

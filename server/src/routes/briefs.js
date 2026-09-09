@@ -16,7 +16,10 @@ import { hasPermission } from "../lib/permissions.js";
 import { verifyOpexOverride } from "../lib/opex-override.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
 
+import { createBriefDraftRoutes } from "./brief-drafts.js";
+
 const app = new Hono();
+app.route("/drafts", createBriefDraftRoutes({ db: supabaseAdmin, authenticate: requireAuth }));
 
 app.post("/sharpen", requireAuth, async (c) => {
   const auth = c.get("auth");
