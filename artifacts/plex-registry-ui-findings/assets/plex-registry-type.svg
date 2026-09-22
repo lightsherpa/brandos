@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+  <rect width="1200" height="620" fill="#FFFFFF"/>
+  <text x="64" y="76" font-family="IBM Plex Serif, Georgia, serif" font-size="42" fill="#15191F">Plex Registry type system</text>
+  <g transform="translate(64 140)">
+    <text x="0" y="42" font-family="IBM Plex Serif, Georgia, serif" font-size="54" fill="#15191F">Q3 Campaign Launch Brief</text>
+    <text x="0" y="82" font-family="IBM Plex Mono, monospace" font-size="13" fill="#697482" letter-spacing="2">EDITORIAL DISPLAY · NAMES · INSPECTOR HEADINGS</text>
+    <text x="0" y="164" font-family="IBM Plex Sans, sans-serif" font-size="27" fill="#3D4652">The interface explains what is happening before it decorates the work.</text>
+    <text x="0" y="200" font-family="IBM Plex Mono, monospace" font-size="13" fill="#697482" letter-spacing="2">UI / BODY · CONTROLS · NAVIGATION</text>
+    <text x="0" y="286" font-family="IBM Plex Mono, monospace" font-size="21" fill="#2457D6">BRF-7C91 · 12,540 / 25,000 · LIVE</text>
+    <text x="0" y="322" font-family="IBM Plex Mono, monospace" font-size="13" fill="#697482" letter-spacing="2">CODE / MEASUREMENTS · IDS · STATUS LABELS</text>
+  </g>
+  <line x1="64" y1="510" x2="1136" y2="510" stroke="#DFE3E8"/>
+  <text x="64" y="554" font-family="IBM Plex Sans, sans-serif" font-size="18" fill="#3D4652">Serif gives the work a point of view; Sans keeps it operational; Mono makes state inspectable.</text>
+</svg>

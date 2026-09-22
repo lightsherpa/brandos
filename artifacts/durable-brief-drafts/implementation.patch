@@ -1,0 +1,1385 @@
+diff --git a/docs/2026-09-10-durable-brief-drafts-implementation.md b/docs/2026-09-10-durable-brief-drafts-implementation.md
+new file mode 100644
+index 0000000..0e74e15
+--- /dev/null
++++ b/docs/2026-09-10-durable-brief-drafts-implementation.md
+@@ -0,0 +1,65 @@
++# Durable brief drafts: integrated and locally verified
++
++Date: 2026-09-10. The draft slice is now integrated into the main CaastorOS checkout on `rc/caa-44-rc1`, rather than existing only in a temporary worktree. Existing uncommitted design work is preserved and excluded from this slice's commit. The original handoff's later certification, execution-approval, sharing, output and human-service slices remain separate work.
++
++## Delivered behavior
++
++The Brandolph composer saves raw input, mode, question context, entered answers, and existing proposal/delivery-plan data into separate `brief_drafts` recovery records. The composer has no supported attachment control. Each record has a stable UUID, authenticated owner, server-derived workspace/brand association, optimistic revision, and idempotent mutation ID. Production `briefs` sharing is unchanged; this does not define the future production-brief privacy default.
++
++Edits write a local recovery copy synchronously and debounce server writes at 600 ms. Blur, navigation/unmount and hidden-page transitions flush pending writes. Server saves are serialized; acknowledgements update metadata without replacing newer text. Recovery copies are separate per editor tab. Conflicts preserve both versions and offer saving the local version as a new draft. Known validation failures allow a corrected payload to replace the rejected request; uncertain failures retain the original mutation ID for safe retries.
++
++New sessions list saved drafts. Selecting a draft restores it idle; only pending storage writes retry automatically. Start and canvas handoff wait for persistence. The canvas context includes `sourceDraftId`, which is a recovery-record ID rather than a production `briefId`. Start explicitly reanalyses the brief while exact BIO-version gating is not yet available. Drafts remain resumable after Start; archive/delete policy is not introduced.
++
++Raw edits and failed analysis preserve previous questions and answers. Successful analysis retains answers matched by question text and records unmatched entered answers in visible history. Proceed is invalidated on editing and is enabled only after successful analysis. The former raw-brief error fallback has been removed so an analysis denial cannot unlock retained stale results. A blocked canvas storage write is surfaced instead of silently navigating with missing context.
++
++Scope changes clear runtime analysis state but preserve each brand's records. Expected-owner checks prevent queued edits from being committed under a changed account. Malformed local recovery data is rejected before rendering; oversized but structurally valid text remains recoverable so the user can correct it. A delayed list response cannot replace a newer acknowledged revision. Save/retry/conflict/recovery feedback is provided in English, Spanish and Arabic.
++
++## Independent review and verification
++
++Three subagents independently reviewed lifecycle code, stress-tested the persistence controller, and audited/provisioned the database environment. Their findings were fixed and rechecked. No known blocker remains in the locally verified draft slice. This is bounded test evidence, not a claim of perfect software or production approval.
++
++| Check | Result |
++| --- | --- |
++| Full regression suite, `npm run test:units` | **298/298 passed**: 263 existing plus 35 draft route/controller/review tests |
++| Production build, `npm run build` | Passed; existing >500 kB bundle warning remains |
++| `git diff --check` | Passed |
++| Fresh real PostgreSQL migration chain | All **17 migrations applied successfully** in an isolated local Supabase stack |
++| Real auth/API/PostgREST verifier | **19/19 passed** |
++| Browser against actual product, actual backend and local Supabase | Passed scenarios below |
++
++Independent stress tests specifically caught corrupt recovery crashes, hidden alternate tab copies, delayed-list races, and corrected text being stuck behind a rejected request. Review caught answer loss and stale-analysis progression. Browser testing caught a Start click being cancelled when blur-triggered autosave disabled its button. Each issue was corrected before the final suite.
++
++Real integration checks use GoTrue password sessions and PostgreSQL, not database doubles: owner save/list/edit with a stable ID; authoring with no BIO; other-account/workspace denial; second-brand isolation; exactly one concurrent revision winner; idempotent lost-ack retry; stale-write rejection; unauthenticated API denial; direct anon/authenticated table denial; service-role persistence; unchanged runs, ledger and production briefs.
++
++Browser scenarios executed through the real UI: typing/autosave; immediate Start after typing; navigation and reload/list/resume; restored question/answer content; failed analysis retaining answers with Proceed disabled; two-tab conflict and save-as-copy; stopping the API, editing, reloading while it was unavailable, restarting it and saving the recovery; brand switching; logout; another account seeing no first-account drafts; and reauthentication restoring the original account's draft list. Credits remained 300, with zero production briefs and zero runs in the local fixture database. The two signup credit-ledger entries remained unchanged.
++
++The previously answered draft used for the failed-analysis browser case was a synthetic local fixture saved through the real API. No external model was invoked to create it. External model, email, billing and Inngest production credentials were omitted from the local runtime.
++
++## Running local verification
++
++The isolated stack is `/private/tmp/caastoros-drafts-integration`, project ID `caastoros-drafts-integration`. It does not reuse or modify existing Docker stacks. Supabase API is on loopback port 55321; PostgreSQL is on 55322. The actual product frontend is on `http://localhost:5187/`, with the actual backend on port 8887. These are local test services, not a hosted deployment.
++
++Protected files `local.env` and `users.json` in that directory contain local-only runtime configuration and dedicated test-account credentials. Both have mode 0600 and are excluded from the commit. They are temporary fixtures, not production secrets. The browser test account can continue using the local product while these services run.
++
++To rerun the real verifier against that running local backend:
++
++```sh
++node scripts/test-brief-drafts-local.mjs \
++  --api http://localhost:8887 \
++  --env /private/tmp/caastoros-drafts-integration/local.env \
++  --fixtures /private/tmp/caastoros-drafts-integration/users.json
++```
++
++The verifier rejects non-loopback endpoints and does not print credentials. It retains its local draft for inspection. Do not substitute hosted credentials or endpoints. Unit tests need no configured services.
++
++## Hosted staging and production remain unverified
++
++The configured Supabase project is named `caastor-staging`, but an independent read-only audit of the publicly deployed `app.getcaastor.co` frontend confirmed it uses the same project as the local repository's configured/linked backend. It is therefore shared with the live product, not isolated staging. No remote migration or application-data write was performed.
++
++A separate hosted staging target must be identified or provisioned before hosted validation. The user has been asked for that target. Do not run an unrestricted remote `supabase db push`: the preceding unapplied `20260901000000_delegation_token_hash.sql` drops a legacy token column and has a coordinated rollout requirement documented in `docs/2026-09-01-caa-46-migration-reconciliation.md`. The new `20260910000000_brief_drafts.sql` migration has been proven locally, but remains unapplied to the hosted/shared project. Existing environment files still point at their original target; the local verification processes received explicit loopback overrides.
++
++## Next implementation slice
++
++`loadBioForBriefing` still accepts self-certification, while production selects the highest currently certified BIO. The Creative Director route can append changed content and immediately certify it; it does not record user acceptance of that exact changed version.
++
++Next implement an explicit reviewed/approved BIO version shared by analysis, assembly and production. Unchanged CD approval unlocks directly; changed content waits for acceptance of the same version without another review. Prevent an older certified BIO from silently unlocking a pending replacement. Test stale acceptance, changed/unchanged approval, decertification/expiry and a BIO change between resume and Start. Draft list/save must remain available and idle throughout.
+diff --git a/package.json b/package.json
+index 59ae57c..abed768 100644
+--- a/package.json
++++ b/package.json
+@@ -24,7 +24,7 @@
+     "test:cert-flow": "node scripts/test-cert-flow.mjs",
+     "test:discovery-flow": "node scripts/test-discovery-flow.mjs",
+     "test:plan": "node --env-file=server/.env scripts/test-delivery-plan.mjs",
+-    "test:units": "node --test server/src/lib/opex-override.test.mjs server/src/lib/permissions.test.mjs server/src/lib/platforms.test.mjs server/src/lib/taxonomy.test.mjs server/src/lib/delivery-plan.test.mjs server/src/lib/deliverables.test.mjs server/src/lib/credits.test.mjs server/src/lib/compose-specialist-prompt.test.mjs server/src/lib/compose-image-prompt.test.mjs server/src/lib/models/fal-image.test.mjs server/src/lib/score-bio.test.mjs server/src/lib/bio-schema.test.mjs server/src/lib/ingest-guards.test.mjs server/src/lib/evaluate-certification.test.mjs server/src/lib/bio-hash.test.mjs server/src/lib/locale.test.mjs server/src/lib/bio-focus.test.mjs server/src/lib/bio-evidence.test.mjs server/src/lib/steward-copilot.test.mjs server/src/lib/brand-scope.test.mjs server/src/lib/deep-merge.test.mjs server/src/lib/sharpener.test.mjs server/src/lib/extract-visual-deterministic.test.mjs server/src/lib/plan-limits.test.mjs server/src/lib/platform-integrity.test.mjs server/src/lib/rate-limit.test.mjs server/src/lib/http-policy.test.mjs server/src/lib/delegation-token.test.mjs server/src/lib/log-redact.test.mjs src/brand-scope-flow.test.mjs src/lib/editing-shortcuts.test.mjs src/lib/account-architecture.test.mjs src/lib/mfa.test.mjs src/lib/home-stats.test.mjs src/portal-discovery.test.mjs",
++    "test:units": "node --test src/lib/brief-draft-store.test.mjs src/lib/brief-draft-review.test.mjs server/src/routes/brief-drafts.test.mjs server/src/lib/opex-override.test.mjs server/src/lib/permissions.test.mjs server/src/lib/platforms.test.mjs server/src/lib/taxonomy.test.mjs server/src/lib/delivery-plan.test.mjs server/src/lib/deliverables.test.mjs server/src/lib/credits.test.mjs server/src/lib/compose-specialist-prompt.test.mjs server/src/lib/compose-image-prompt.test.mjs server/src/lib/models/fal-image.test.mjs server/src/lib/score-bio.test.mjs server/src/lib/bio-schema.test.mjs server/src/lib/ingest-guards.test.mjs server/src/lib/evaluate-certification.test.mjs server/src/lib/bio-hash.test.mjs server/src/lib/locale.test.mjs server/src/lib/bio-focus.test.mjs server/src/lib/bio-evidence.test.mjs server/src/lib/steward-copilot.test.mjs server/src/lib/brand-scope.test.mjs server/src/lib/deep-merge.test.mjs server/src/lib/sharpener.test.mjs server/src/lib/extract-visual-deterministic.test.mjs server/src/lib/plan-limits.test.mjs server/src/lib/platform-integrity.test.mjs server/src/lib/rate-limit.test.mjs server/src/lib/http-policy.test.mjs server/src/lib/delegation-token.test.mjs server/src/lib/log-redact.test.mjs src/brand-scope-flow.test.mjs src/lib/editing-shortcuts.test.mjs src/lib/account-architecture.test.mjs src/lib/mfa.test.mjs src/lib/home-stats.test.mjs src/portal-discovery.test.mjs",
+     "test:db": "npx supabase test db supabase/tests/platform_integrity.sql",
+     "test:delegation": "node --experimental-test-module-mocks --test server/src/routes/discovery-delegation.test.mjs",
+     "test:deliverables": "node --env-file=server/.env scripts/test-deliverables.mjs",
+diff --git a/scripts/test-brief-drafts-local.mjs b/scripts/test-brief-drafts-local.mjs
+new file mode 100644
+index 0000000..191f662
+--- /dev/null
++++ b/scripts/test-brief-drafts-local.mjs
+@@ -0,0 +1,78 @@
++// Real HTTP/PostgreSQL verification. Requires a disposable local Supabase stack.
++// node scripts/test-brief-drafts-local.mjs --api http://localhost:8887 --env /path/local.env --fixtures /path/users.json
++import assert from 'node:assert/strict';
++import { readFileSync } from 'node:fs';
++import { randomUUID } from 'node:crypto';
++
++const flags = Object.fromEntries(Array.from({ length: Math.floor((process.argv.length - 2) / 2) }, (_, i) => [process.argv[2 + i * 2], process.argv[3 + i * 2]]));
++assert(flags['--api'] && flags['--env'] && flags['--fixtures'], 'Required: --api --env --fixtures');
++const env = Object.fromEntries(readFileSync(flags['--env'], 'utf8').split(/\r?\n/).filter(line => line && !line.startsWith('#')).map(line => { const i = line.indexOf('='); return [line.slice(0, i), line.slice(i + 1)]; }));
++function local(value) {
++  const url = new URL(value);
++  assert(['http:', 'https:'].includes(url.protocol) && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname) && !url.username && !url.password, 'Refusing non-loopback endpoint');
++  return url.origin;
++}
++const api = local(flags['--api']);
++const db = local(env.SUPABASE_URL);
++const [alice, bob] = JSON.parse(readFileSync(flags['--fixtures'], 'utf8'));
++assert(alice.secondBrandId && alice.workspaceId !== bob.workspaceId, 'Need two workspaces and a second brand for first user');
++let checks = 0;
++function check(value, label) { assert(value, label); checks++; console.log(`PASS ${label}`); }
++async function request(url, { token, key, body, method = 'GET' } = {}) {
++  const headers = { 'Content-Type': 'application/json' };
++  if (token) headers.Authorization = `Bearer ${token}`;
++  if (key) headers.apikey = key;
++  const response = await fetch(url, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), redirect: 'error' });
++  return { status: response.status, data: await response.json() };
++}
++const admin = path => request(`${db}/rest/v1/${path}`, { token: env.SUPABASE_SERVICE_ROLE_KEY, key: env.SUPABASE_SERVICE_ROLE_KEY });
++async function snapshot() {
++  const rows = await Promise.all(['runs', 'ledger', 'briefs'].map(async table => { const r = await admin(`${table}?select=*`); assert.equal(r.status, 200); return r.data.sort((a, b) => String(a.id).localeCompare(String(b.id))); }));
++  return JSON.stringify(rows);
++}
++for (const user of [alice, bob]) {
++  const login = await request(`${db}/auth/v1/token?grant_type=password`, { method: 'POST', key: env.SUPABASE_ANON_KEY, body: { email: user.email, password: user.password } });
++  check(login.status === 200 && login.data.user.id === user.userId, `${user.name} real GoTrue password login`);
++  user.accessToken = login.data.access_token;
++}
++const before = await snapshot();
++const bios = await admin(`bios?brand_id=eq.${alice.secondBrandId}&select=id`);
++check(bios.status === 200 && bios.data.length === 0, 'test brand has no BIO');
++const id = randomUUID();
++const payload = input => ({ input, mode: 'flow', answers: { 0: 'Entered answer' }, qStep: 1, sharpData: null });
++const body = (revision, input) => ({ brandId: alice.secondBrandId, workspaceId: alice.workspaceId, ownerUserId: alice.userId, revision, mutationId: randomUUID(), payload: payload(input) });
++const put = (user, content) => request(`${api}/api/briefs/drafts/${id}`, { method: 'PUT', token: user.accessToken, body: content });
++const list = (user, brandId, ownerUserId = user.userId) => request(`${api}/api/briefs/drafts?${new URLSearchParams({ brandId, ownerUserId })}`, { token: user.accessToken });
++const initial = body(0, 'Local integration initial draft');
++const saved = await put(alice, initial);
++check(saved.status === 200 && saved.data.draft.id === id && saved.data.draft.revision === 1, 'create draft without certified BIO');
++const retry = await put(alice, initial);
++check(retry.status === 200 && retry.data.draft.revision === 1, 'lost acknowledgment retry is idempotent');
++const listed = await list(alice, alice.secondBrandId);
++check(listed.status === 200 && listed.data.drafts.some(d => d.id === id && d.payload.answers[0] === 'Entered answer'), 'list restores input and entered answers');
++const otherBrand = await list(alice, alice.brandId);
++check(otherBrand.status === 200 && !otherBrand.data.drafts.some(d => d.id === id), 'same workspace brand isolation');
++const outsider = await list(bob, alice.secondBrandId);
++check(outsider.status === 403, 'other workspace cannot list draft');
++const forgedOwner = await list(bob, alice.secondBrandId, alice.userId);
++check(forgedOwner.status === 403, 'other user cannot impersonate owner');
++const forbiddenWrite = await put(bob, { ...body(1, 'forbidden'), ownerUserId: bob.userId });
++check(forbiddenWrite.status === 403, 'other workspace cannot overwrite draft');
++const mismatch = await put(alice, { ...body(1, 'wrong workspace'), workspaceId: bob.workspaceId });
++check(mismatch.status === 409, 'workspace mismatch rejected');
++const contenders = await Promise.all([put(alice, body(1, 'Concurrent A')), put(alice, body(1, 'Concurrent B'))]);
++check(contenders.map(r => r.status).sort().join(',') === '200,409', 'concurrent revision has exactly one winner');
++const edited = await put(alice, body(2, 'Final retained input'));
++check(edited.status === 200 && edited.data.draft.id === id && edited.data.draft.revision === 3, 'edit preserves draft identity');
++const stale = await put(alice, body(1, 'stale content'));
++check(stale.status === 409 && stale.data.code === 'DRAFT_CONFLICT', 'stale revision rejected');
++const unauth = await request(`${api}/api/briefs/drafts?brandId=${alice.secondBrandId}&ownerUserId=${alice.userId}`);
++check(unauth.status === 401, 'API requires a real session');
++for (const [name, token, expected] of [['anon', env.SUPABASE_ANON_KEY, 401], ['authenticated', alice.accessToken, 403]]) {
++  const direct = await request(`${db}/rest/v1/brief_drafts?select=id`, { key: env.SUPABASE_ANON_KEY, token });
++  check(direct.status === expected, `${name} direct table access denied`);
++}
++const record = await admin(`brief_drafts?id=eq.${id}&select=*`);
++check(record.status === 200 && record.data.length === 1 && record.data[0].payload.input === 'Final retained input' && record.data[0].revision === 3, 'service role confirms durable final row');
++check(await snapshot() === before, 'no run, ledger, or production brief mutations');
++console.log(`${checks} real integration checks passed. Local test draft retained for inspection.`);
+diff --git a/server/src/routes/brief-drafts.js b/server/src/routes/brief-drafts.js
+new file mode 100644
+index 0000000..b1838cf
+--- /dev/null
++++ b/server/src/routes/brief-drafts.js
+@@ -0,0 +1,58 @@
++// Personal composer recovery records, separate from production brief sharing.
++// Dependencies are injectable so route tests exercise the real HTTP contract.
++import { Hono } from "hono";
++import { hasPermission } from "../lib/permissions.js";
++
++import { isDraftPayload, isObject, isUuid, isRevision } from "../../../shared/brief-draft-payload.js";
++const MAX_BYTES = 128 * 1024;
++
++export function createBriefDraftRoutes({ db, authenticate }) {
++  const app = new Hono();
++  app.use("*", authenticate);
++  async function scope(c, brandId, ownerUserId, permission) {
++    const auth = c.get("auth");
++    if (ownerUserId !== auth.userId) return c.json({ error: "Session changed", code: "DRAFT_SESSION_CHANGED" }, 403);
++    if (!isUuid(brandId)) return c.json({ error: "Valid brandId required" }, 400);
++    const { data: brand, error } = await db.from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
++    if (error) return c.json({ error: "Draft storage unavailable" }, 503);
++    if (!brand || !hasPermission(auth, permission, brand.workspace_id)) return c.json({ error: "Brand unavailable" }, 403);
++    return { owner_user_id: auth.userId, workspace_id: brand.workspace_id, brand_id: brand.id };
++  }
++  function scoped(query, s) {
++    return query.eq("owner_user_id", s.owner_user_id).eq("workspace_id", s.workspace_id).eq("brand_id", s.brand_id);
++  }
++  app.get("/", async (c) => {
++    const s = await scope(c, c.req.query("brandId"), c.req.query("ownerUserId"), "brief.read");
++    if (s instanceof Response) return s;
++    const { data, error } = await scoped(db.from("brief_drafts").select("*"), s).order("updated_at", { ascending: false });
++    if (error) return c.json({ error: "Draft storage unavailable" }, 503);
++    return c.json({ drafts: data, workspaceId: s.workspace_id, ownerUserId: s.owner_user_id });
++  });
++  app.put("/:id", async (c) => {
++    const id = c.req.param("id");
++    if (!isUuid(id)) return c.json({ error: "Invalid draft ID" }, 400);
++    const raw = await c.req.text();
++    if (new TextEncoder().encode(raw).length > MAX_BYTES) return c.json({ error: "Draft is too large" }, 413);
++    let body;
++    try { body = JSON.parse(raw); } catch { return c.json({ error: "Invalid JSON" }, 400); }
++    if (!isObject(body) || !isDraftPayload(body.payload) || !isRevision(body.revision) || !isUuid(body.mutationId)) {
++      return c.json({ error: "Invalid draft content or revision" }, 400);
++    }
++    const s = await scope(c, body.brandId, body.ownerUserId, "brief.write");
++    if (s instanceof Response) return s;
++    if (body.workspaceId !== s.workspace_id) return c.json({ error: "Workspace changed" }, 409);
++    const lookup = () => scoped(db.from("brief_drafts").select("*").eq("id", id), s).maybeSingle();
++    const current = await lookup();
++    if (current.error) return c.json({ error: "Draft storage unavailable" }, 503);
++    if (current.data?.mutation_id === body.mutationId) return c.json({ draft: current.data });
++    if ((current.data?.revision || 0) !== body.revision) return c.json({ error: "Draft changed in another tab. Your local copy is preserved.", code: "DRAFT_CONFLICT" }, 409);
++    const patch = { payload: body.payload, revision: body.revision + 1, mutation_id: body.mutationId, updated_at: new Date().toISOString() };
++    const result = current.data
++      ? await scoped(db.from("brief_drafts").update(patch).eq("id", id).eq("revision", body.revision), s).select("*").maybeSingle()
++      : await db.from("brief_drafts").insert({ id, ...s, ...patch }).select("*").single();
++    if (result.error?.code === "23505" || (!result.error && !result.data)) return c.json({ error: "Draft changed. Your local copy is preserved.", code: "DRAFT_CONFLICT" }, 409);
++    if (result.error) return c.json({ error: "Draft could not be saved" }, 503);
++    return c.json({ draft: result.data });
++  });
++  return app;
++}
+diff --git a/server/src/routes/brief-drafts.test.mjs b/server/src/routes/brief-drafts.test.mjs
+new file mode 100644
+index 0000000..4daa80d
+--- /dev/null
++++ b/server/src/routes/brief-drafts.test.mjs
+@@ -0,0 +1,256 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { randomUUID } from "node:crypto";
++import { createBriefDraftRoutes } from "./brief-drafts.js";
++import { createBriefDraftStore, emptyDraft } from "../../../src/lib/brief-draft-store.js";
++
++const BRAND = randomUUID(), OTHER_BRAND = randomUUID(), FOREIGN_BRAND = randomUUID();
++function fixture() {
++  const tables = { brands: [{ id: BRAND, workspace_id: "workspace-a" }, { id: OTHER_BRAND, workspace_id: "workspace-a" }, { id: FOREIGN_BRAND, workspace_id: "workspace-b" }], brief_drafts: [] };
++  const touched = [];
++  let unavailable = false;
++  class Query {
++    constructor(table) { this.table = table; this.filters = []; this.op = "select"; }
++    select() { return this; }
++    eq(k, v) { this.filters.push([k, v]); return this; }
++    order() { return this; }
++    update(p) { this.op = "update"; this.payload = p; return this; }
++    insert(p) { this.op = "insert"; this.payload = p; return this; }
++    run() {
++      touched.push(this.table);
++      if (unavailable) return { error: { code: "08006", message: "offline" } };
++      const rows = tables[this.table];
++      if (!rows) throw new Error(`Unexpected side effect: ${this.table}`);
++      if (this.op === "insert") {
++        if (rows.some((r) => r.id === this.payload.id)) return { error: { code: "23505" } };
++        rows.push(structuredClone(this.payload));
++        return { data: [structuredClone(this.payload)] };
++      }
++      const found = rows.filter((r) => this.filters.every(([k, v]) => r[k] === v));
++      if (this.op === "update") found.forEach((r) => Object.assign(r, structuredClone(this.payload)));
++      return { data: structuredClone(found) };
++    }
++    async maybeSingle() { const r = this.run(); return { ...r, data: r.data?.[0] || null }; }
++    single() { return this.maybeSingle(); }
++    then(a, b) { return Promise.resolve(this.run()).then(a, b); }
++  }
++  const app = createBriefDraftRoutes({ db: { from: (t) => new Query(t) }, authenticate: async (c, next) => {
++    const userId = c.req.header("x-user");
++    if (!userId) return c.json({ error: "Unauthorized" }, 401);
++    c.set("auth", { userId, scope: "workspace", permissions: new Set(userId === "reader" ? ["brief.read"] : ["brief.read", "brief.write"]), memberships: [{ workspace_id: "workspace-a", status: "active" }] });
++    return next();
++  } });
++  const request = (path, init = {}, user = "alice") => app.request(path.replace("/api/briefs/drafts", "") || "/", { ...init, headers: { "x-user": user, ...init.headers } });
++  const put = (id, patch = {}, user = "alice") => request(`/api/briefs/drafts/${id}`, { method: "PUT", body: JSON.stringify({ ownerUserId: user, brandId: BRAND, workspaceId: "workspace-a", revision: 0, mutationId: randomUUID(), payload: { ...emptyDraft(), input: "Launch" }, ...patch }) }, user);
++  const list = (brand = BRAND, user = "alice") => request(`/api/briefs/drafts?brandId=${brand}&ownerUserId=${user}`, {}, user);
++  return { tables, touched, request, put, list, offline(value) { unavailable = value; } };
++}
++function memoryStorage() {
++  const entries = new Map();
++  return { get length() { return entries.size; }, key: (i) => [...entries.keys()][i], getItem: (k) => entries.get(k) ?? null, setItem: (k, v) => entries.set(k, v), removeItem: (k) => entries.delete(k) };
++}
++function store(f, storage, opts = {}) {
++  return createBriefDraftStore({ userId: "alice", brandId: BRAND, storage, request: f.request, uuid: randomUUID, delay: 60000, ...opts });
++}
++const tick = () => new Promise((r) => setImmediate(r));
++
++test("draft save, list and answers round-trip without BIO, runs or credit access", async () => {
++  const f = fixture(), id = randomUUID();
++  const payload = { ...emptyDraft(), input: "Raw input\nsecond line", answers: { 0: "My audience" }, sharpData: { questions: [{ q: "Who?" }], proposedSpecialists: ["a12"], deliveryPlan: { outputs: [] } }, mode: "visual" };
++  const saved = await f.put(id, { payload });
++  assert.equal(saved.status, 200);
++  const list = await (await f.list()).json();
++  assert.deepEqual(list.drafts[0].payload, payload);
++  assert.equal(list.drafts[0].id, id);
++  assert.deepEqual(new Set(f.touched), new Set(["brands", "brief_drafts"]));
++});
++
++test("authentication, owner, workspace and brand boundaries fail closed", async () => {
++  const f = fixture(), id = randomUUID();
++  assert.equal((await f.list(BRAND, "")).status, 401);
++  assert.equal((await f.put(id)).status, 200);
++  assert.deepEqual((await (await f.list(BRAND, "bob")).json()).drafts, []);
++  assert.equal((await f.put(id, {}, "bob")).status, 409);
++  assert.equal((await f.put(randomUUID(), { brandId: FOREIGN_BRAND })).status, 403);
++  assert.equal((await f.put(randomUUID(), { workspaceId: "workspace-b" })).status, 409);
++  assert.equal((await f.put(randomUUID(), { ownerUserId: "bob" })).status, 403);
++  assert.equal((await f.put(randomUUID(), {}, "reader")).status, 403);
++  assert.equal((await f.put(id, { brandId: OTHER_BRAND })).status, 409);
++  assert.equal(f.tables.brief_drafts[0].owner_user_id, "alice");
++  assert.equal(f.tables.brief_drafts[0].revision, 1);
++});
++
++test("stale saves cannot overwrite a newer revision and lost acknowledgements retry idempotently", async () => {
++  const f = fixture(), id = randomUUID(), mutationId = randomUUID();
++  await f.put(id, { mutationId });
++  assert.equal((await f.put(id, { mutationId })).status, 200);
++  assert.equal(f.tables.brief_drafts[0].revision, 1);
++  const results = await Promise.all([f.put(id, { revision: 1 }), f.put(id, { revision: 1 })]);
++  assert.deepEqual(results.map((r) => r.status).sort(), [200, 409]);
++  assert.equal(f.tables.brief_drafts[0].revision, 2);
++  assert.equal((await f.put(id, { revision: 0 })).status, 409);
++});
++
++test("invalid and oversized content is rejected without persistence", async () => {
++  const f = fixture();
++  assert.equal((await f.put(randomUUID(), { payload: null })).status, 400);
++  assert.equal((await f.put(randomUUID(), { revision: -1 })).status, 400);
++  assert.equal((await f.put(randomUUID(), { payload: { ...emptyDraft(), answers: { 0: 42 } } })).status, 400);
++  assert.equal((await f.put(randomUUID(), { payload: { ...emptyDraft(), sharpData: { text: "x".repeat(140000) } } })).status, 413);
++  assert.equal(f.tables.brief_drafts.length, 0);
++});
++
++test("edits during an in-flight save keep newer text and serialize writes on the same ID", async () => {
++  const f = fixture(), storage = memoryStorage();
++  let release, held = false;
++  const draft = store(f, storage, { request: async (path, init) => {
++    const response = await f.request(path, init);
++    if (init?.method === "PUT" && !held) { held = true; await new Promise((r) => { release = r; }); }
++    return response;
++  } });
++  await draft.load(); draft.update({ input: "first" });
++  const saving = draft.flush(); await tick();
++  const id = draft.getSnapshot().id;
++  draft.update({ input: "newer", answers: { 0: "answer" } });
++  release(); assert.equal(await saving, true);
++  assert.equal(draft.getSnapshot().payload.input, "newer");
++  assert.equal(f.tables.brief_drafts.length, 1);
++  assert.equal(f.tables.brief_drafts[0].id, id);
++  assert.equal(f.tables.brief_drafts[0].revision, 2);
++  assert.equal(f.tables.brief_drafts[0].payload.answers[0], "answer");
++  draft.dispose();
++});
++
++test("offline changes survive reload and reauthentication, with the original ID", async () => {
++  const f = fixture(), storage = memoryStorage(), first = store(f, storage);
++  await first.load(); first.update({ input: "recover me", mode: "words", answers: { 0: "keep this" } });
++  const id = first.getSnapshot().id;
++  f.offline(true); assert.equal(await first.flush(), false); first.dispose();
++  const second = store(f, storage);
++  await second.load();
++  assert.equal(second.getSnapshot().payload.input, "recover me");
++  assert.equal(second.getSnapshot().id, id);
++  f.offline(false); await second.load();
++  assert.equal(second.getSnapshot().status, "saved");
++  assert.equal(f.tables.brief_drafts[0].id, id);
++  assert.equal(f.tables.brief_drafts[0].payload.answers[0], "keep this");
++  second.dispose();
++});
++
++test("a server-committed save whose response was lost is recovered exactly once", async () => {
++  const f = fixture(), storage = memoryStorage(); let lose = true;
++  const first = store(f, storage, { request: async (path, init) => {
++    const res = await f.request(path, init);
++    if (init?.method === "PUT" && lose) throw new Error("connection lost after commit");
++    return res;
++  } });
++  await first.load(); first.update({ input: "persisted" });
++  assert.equal(await first.flush(), false);
++  first.dispose(); await tick(); lose = false;
++  const next = store(f, storage); await next.load();
++  assert.equal(next.getSnapshot().status, "saved");
++  assert.equal(f.tables.brief_drafts.length, 1);
++  assert.equal(f.tables.brief_drafts[0].revision, 1);
++  next.dispose();
++});
++
++test("saved drafts list after a new session and resume remains idle without writes", async () => {
++  const f = fixture(), first = store(f, memoryStorage());
++  await first.load(); first.update({ input: "one" }); await first.flush();
++  await first.select(null); first.update({ input: "two" }); await first.flush(); first.dispose();
++  const resumed = store(f, memoryStorage()); await resumed.load();
++  assert.equal(resumed.getSnapshot().id, null);
++  assert.equal(resumed.getSnapshot().drafts.length, 2);
++  const row = resumed.getSnapshot().drafts[0];
++  await resumed.select(row);
++  assert.equal(resumed.getSnapshot().id, row.id);
++  assert.deepEqual(resumed.getSnapshot().payload, row.payload);
++  assert.equal(f.tables.brief_drafts.every((d) => d.revision === 1), true);
++  resumed.dispose();
++});
++
++test("brand and account switches cannot recover another scope's local text", async () => {
++  const f = fixture(), storage = memoryStorage(), first = store(f, storage);
++  await first.load(); f.offline(true); first.update({ input: "private text" }); await first.flush(); first.dispose();
++  const brand = store(f, storage, { brandId: OTHER_BRAND }); await brand.load();
++  assert.equal(brand.getSnapshot().payload.input, "");
++  const user = store(f, storage, { userId: "bob", request: (p, i) => f.request(p, i, "bob") }); await user.load();
++  assert.equal(user.getSnapshot().payload.input, "");
++  brand.dispose(); user.dispose();
++});
++
++test("concurrent tab conflict preserves local text and can save a separate copy", async () => {
++  const f = fixture(), storage = memoryStorage(), a = store(f, storage);
++  await a.load(); a.update({ input: "baseline" }); await a.flush();
++  const b = store(f, storage); await b.load(); await b.select(b.getSnapshot().drafts[0]);
++  a.update({ input: "tab A" }); await a.flush();
++  b.update({ input: "tab B" }); assert.equal(await b.flush(), false);
++  assert.equal(b.getSnapshot().status, "conflict");
++  assert.equal(b.getSnapshot().payload.input, "tab B");
++  assert.equal(f.tables.brief_drafts[0].payload.input, "tab A");
++  assert.equal(await b.select(null), false);
++  assert.equal(await b.saveCopy(), true);
++  assert.deepEqual(f.tables.brief_drafts.map((d) => d.payload.input), ["tab A", "tab B"]);
++  a.dispose(); b.dispose();
++});
++
++test("local storage failure is visible while server saving still works", async () => {
++  const f = fixture(), storage = memoryStorage(); storage.setItem = () => { throw new Error("quota"); };
++  const draft = store(f, storage); await draft.load(); draft.update({ input: "in memory" });
++  assert.equal(draft.getSnapshot().localError, true);
++  assert.equal(await draft.flush(), true);
++  assert.equal(f.tables.brief_drafts[0].payload.input, "in memory");
++  draft.dispose();
++});
++
++test("first-visit offline authoring saves after scope is resolved, even if local storage is unavailable", async () => {
++  const f = fixture(), storage = memoryStorage();
++  storage.setItem = () => { throw new Error("quota"); };
++  f.offline(true);
++  const draft = store(f, storage); await draft.load();
++  assert.equal(draft.getSnapshot().ready, true);
++  draft.update({ input: "typed before first successful connection" });
++  assert.equal(await draft.flush(), false);
++  f.offline(false); await draft.load();
++  assert.equal(draft.getSnapshot().status, "saved");
++  assert.equal(f.tables.brief_drafts[0].payload.input, "typed before first successful connection");
++  draft.dispose();
++});
++
++test("navigation flushes pending debounce without requiring unload events", async () => {
++  const f = fixture(), draft = store(f, memoryStorage());
++  await draft.load(); draft.update({ input: "navigate immediately" }); draft.dispose();
++  await tick();
++  assert.equal(f.tables.brief_drafts[0].payload.input, "navigate immediately");
++});
++
++test("a late list response cannot restore a disposed brand's state", async () => {
++  const f = fixture(); let release;
++  const draft = store(f, memoryStorage(), { request: async (p, i) => {
++    const response = await f.request(p, i); await new Promise((r) => { release = r; }); return response;
++  } });
++  const loading = draft.load(); await tick(); draft.dispose(); release(); await loading;
++  assert.equal(draft.getSnapshot().ready, false);
++  assert.equal(draft.getSnapshot().workspaceId, null);
++});
++
++test("a changed authenticated account cannot commit the old account's queued edits", async () => {
++  const f = fixture(), storage = memoryStorage(); let user = "alice";
++  const draft = store(f, storage, { request: (p, i) => f.request(p, i, user) });
++  await draft.load(); draft.update({ input: "Alice's pending work" }); user = "bob";
++  assert.equal(await draft.flush(), false);
++  assert.equal(f.tables.brief_drafts.length, 0);
++  assert.equal(draft.getSnapshot().payload.input, "Alice's pending work");
++  assert.ok(storage.length > 0);
++  draft.dispose();
++});
++
++test("debounce coalesces rapid edits into a single server save", async () => {
++  const f = fixture(), draft = store(f, memoryStorage(), { delay: 5 });
++  await draft.load(); draft.update({ input: "a" }); draft.update({ input: "ab" }); draft.update({ input: "abc" });
++  await new Promise((r) => setTimeout(r, 20));
++  assert.equal(f.tables.brief_drafts.length, 1);
++  assert.equal(f.tables.brief_drafts[0].revision, 1);
++  assert.equal(f.tables.brief_drafts[0].payload.input, "abc");
++  draft.dispose();
++});
+diff --git a/server/src/routes/briefs.js b/server/src/routes/briefs.js
+index 18c93ef..98852a5 100644
+--- a/server/src/routes/briefs.js
++++ b/server/src/routes/briefs.js
+@@ -16,7 +16,10 @@ import { hasPermission } from "../lib/permissions.js";
+ import { verifyOpexOverride } from "../lib/opex-override.js";
+ import { writeAuthorizationAudit } from "../lib/audit.js";
+ 
++import { createBriefDraftRoutes } from "./brief-drafts.js";
++
+ const app = new Hono();
++app.route("/drafts", createBriefDraftRoutes({ db: supabaseAdmin, authenticate: requireAuth }));
+ 
+ app.post("/sharpen", requireAuth, async (c) => {
+   const auth = c.get("auth");
+diff --git a/shared/brief-draft-payload.js b/shared/brief-draft-payload.js
+new file mode 100644
+index 0000000..8bbf3cf
+--- /dev/null
++++ b/shared/brief-draft-payload.js
+@@ -0,0 +1,21 @@
++// Shared wire/recovery schema. Limits match the composer API, not production
++// brief or output policy. Unknown sharpener fields remain round-trippable.
++export const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
++export const isUuid = (v) => typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
++export const isRevision = (v) => Number.isInteger(v) && v >= 0 && v < 2147483647;
++export const emptyDraft = () => ({ input: "", mode: "flow", answers: {}, qStep: 0, sharpData: null, answerHistory: [] });
++const optionalString = (v) => v === undefined || v === null || typeof v === "string";
++const optionalStrings = (v) => v === undefined || (Array.isArray(v) && v.every((s) => typeof s === "string"));
++export function isDraftPayload(p, enforceLimits = true) {
++  if (!isObject(p) || typeof p.input !== "string" || (enforceLimits && p.input.length > 50000)
++    || !["flow", "words", "visual", "polish"].includes(p.mode)
++    || !isObject(p.answers) || !Object.entries(p.answers).every(([k, v]) => /^\d{1,3}$/.test(k) && typeof v === "string" && (!enforceLimits || v.length <= 10000))
++    || !Number.isInteger(p.qStep) || p.qStep < 0 || p.qStep > 1000) return false;
++  const sharp = p.sharpData;
++  if (sharp !== null && (!isObject(sharp)
++    || ![sharp.title, sharp.sharpenedBrief, sharp.tension].every(optionalString)
++    || !optionalStrings(sharp.proposedSpecialists) || !optionalStrings(sharp.refusals)
++    || (sharp.questions !== undefined && (!Array.isArray(sharp.questions) || !sharp.questions.every((q) => isObject(q) && typeof q.q === "string" && optionalString(q.solvingFor)))))) return false;
++  return p.answerHistory === undefined || (Array.isArray(p.answerHistory) && p.answerHistory.every((entry) =>
++    isObject(entry) && typeof entry.question === "string" && typeof entry.answer === "string"));
++}
+diff --git a/src/lib/brief-draft-review.js b/src/lib/brief-draft-review.js
+new file mode 100644
+index 0000000..4cf169b
+--- /dev/null
++++ b/src/lib/brief-draft-review.js
+@@ -0,0 +1,22 @@
++export function editBriefInput(payload, input) {
++  // Editing the brief invalidates runtime approval, not the user's answers.
++  return { ...payload, input };
++}
++
++export function replaceDraftAnalysis(payload, sharpData) {
++  const previous = payload.sharpData?.questions || [];
++  const questions = sharpData.questions || [];
++  const answers = Object.fromEntries(questions.map((q, index) => {
++    const oldIndex = previous.findIndex((old) => old.q === q.q);
++    return [index, payload.answers[oldIndex] || ""];
++  }));
++  const history = [...(payload.answerHistory || [])];
++  previous.forEach((q, index) => {
++    const answer = payload.answers[index];
++    if (answer?.trim() && !questions.some((next) => next.q === q.q)
++      && !history.some((entry) => entry.question === q.q && entry.answer === answer)) {
++      history.push({ question: q.q, answer });
++    }
++  });
++  return { ...payload, sharpData, answers, answerHistory: history, qStep: 0 };
++}
+diff --git a/src/lib/brief-draft-review.test.mjs b/src/lib/brief-draft-review.test.mjs
+new file mode 100644
+index 0000000..166b439
+--- /dev/null
++++ b/src/lib/brief-draft-review.test.mjs
+@@ -0,0 +1,75 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { editBriefInput, replaceDraftAnalysis } from './brief-draft-review.js';
++
++const analysis = (questions) => ({ questions: questions.map((q) => ({ q })), title: 'Saved analysis' });
++const fixture = () => ({ input: 'Original brief', mode: 'flow', qStep: 1, sharpData: analysis(['Who is this for?', 'When is launch?']), answers: { 0: 'Existing customers', 1: 'September' }, answerHistory: [] });
++
++test('editing the brief preserves entered answers and their original question context', () => {
++  const original = fixture();
++  const next = editBriefInput(original, 'Updated brief');
++  assert.equal(next.input, 'Updated brief');
++  assert.deepEqual(next.answers, original.answers);
++  assert.deepEqual(next.sharpData, original.sharpData);
++  assert.equal(next.mode, original.mode);
++  assert.equal(original.input, 'Original brief');
++});
++
++test('successful analysis matches answers by question text when questions reorder', () => {
++  const original = fixture();
++  const replacement = analysis(['When is launch?', 'Who is this for?', 'Which channel?']);
++  const next = replaceDraftAnalysis(original, replacement);
++  assert.deepEqual(next.answers, { 0: 'September', 1: 'Existing customers', 2: '' });
++  assert.deepEqual(next.sharpData, replacement);
++  assert.deepEqual(next.answerHistory, []);
++  assert.equal(next.input, original.input);
++  assert.deepEqual(original.answers, { 0: 'Existing customers', 1: 'September' });
++});
++
++test('answers to removed questions remain recoverable alongside existing history', () => {
++  const original = fixture();
++  original.answerHistory = [{ question: 'What tone?', answer: 'Friendly' }];
++  const next = replaceDraftAnalysis(original, analysis(['When is launch?']));
++  assert.deepEqual(next.answers, { 0: 'September' });
++  assert.deepEqual(next.answerHistory, [
++    { question: 'What tone?', answer: 'Friendly' },
++    { question: 'Who is this for?', answer: 'Existing customers' },
++  ]);
++  assert.deepEqual(original.answerHistory, [{ question: 'What tone?', answer: 'Friendly' }]);
++});
++
++test('repeated analysis does not duplicate a recovered question and answer', () => {
++  const original = fixture();
++  original.answerHistory = [{ question: 'Who is this for?', answer: 'Existing customers' }];
++  const next = replaceDraftAnalysis(original, analysis(['When is launch?']));
++  assert.deepEqual(next.answerHistory, original.answerHistory);
++  const repeated = replaceDraftAnalysis(next, analysis(['When is launch?']));
++  assert.deepEqual(repeated.answerHistory, original.answerHistory);
++});
++
++test('different answers to the same removed question remain separately recoverable', () => {
++  const original = fixture();
++  original.answerHistory = [{ question: 'Who is this for?', answer: 'New customers' }];
++  const next = replaceDraftAnalysis(original, analysis(['When is launch?']));
++  assert.deepEqual(next.answerHistory, [
++    { question: 'Who is this for?', answer: 'New customers' },
++    { question: 'Who is this for?', answer: 'Existing customers' },
++  ]);
++});
++
++test('unanswered removed questions do not create empty recovery records', () => {
++  const original = fixture();
++  original.answers = { 0: '', 1: 'September' };
++  const next = replaceDraftAnalysis(original, analysis(['When is launch?']));
++  assert.deepEqual(next.answerHistory, []);
++});
++
++test('legacy drafts without answer history retain removed answers', () => {
++  const original = fixture();
++  delete original.answerHistory;
++  const next = replaceDraftAnalysis(original, analysis([]));
++  assert.deepEqual(next.answerHistory, [
++    { question: 'Who is this for?', answer: 'Existing customers' },
++    { question: 'When is launch?', answer: 'September' },
++  ]);
++});
+diff --git a/src/lib/brief-draft-store.js b/src/lib/brief-draft-store.js
+new file mode 100644
+index 0000000..e136f0d
+--- /dev/null
++++ b/src/lib/brief-draft-store.js
+@@ -0,0 +1,162 @@
++import { emptyDraft, isDraftPayload, isUuid, isRevision, isObject } from "../../shared/brief-draft-payload.js";
++export { emptyDraft };
++
++
++// One controller per user/brand. Writes are serialized; every retry reuses its
++// mutation ID. Recovery entries are per editor, so two tabs cannot erase each
++// other's unsaved text. Server revisions arbitrate concurrent saves.
++export function createBriefDraftStore({ userId, brandId, request, storage, uuid = () => crypto.randomUUID(), delay = 600 }) {
++  const prefix = `ci_brief_draft:v1:${userId}:${brandId}:`;
++  let state = { payload: emptyDraft(), id: null, revision: 0, drafts: [], status: "loading", error: null, ready: false, workspaceId: null, localError: false };
++  let timer, flight, pending = null, dirty = false, recoveryKey = prefix + uuid(), sourceKey = null, sourceValue = null;
++  let generation = 0, loadSequence = 0, disposed = false, initialized = false;
++  const listeners = new Set();
++  const emit = (patch = {}) => { state = { ...state, ...patch }; listeners.forEach((fn) => fn()); };
++  const localEntries = () => {
++    const rows = [];
++    try {
++      for (let i = 0; i < storage.length; i++) {
++        const key = storage.key(i);
++        if (!key?.startsWith(prefix)) continue;
++        try {
++          const raw = storage.getItem(key), record = JSON.parse(raw);
++          const validPending = record?.pending == null || (isObject(record.pending)
++            && record.pending.ownerUserId === userId && record.pending.brandId === brandId
++            && record.pending.workspaceId === record.workspaceId
++            && isRevision(record.pending.revision) && record.pending.revision === record.revision
++            && isUuid(record.pending.mutationId) && isDraftPayload(record.pending.payload, false));
++          if (isObject(record) && isUuid(record.id) && isRevision(record.revision)
++            && isDraftPayload(record.payload, false) && validPending
++            && (record.workspaceId == null || typeof record.workspaceId === "string")
++            && record.userId === userId && record.brandId === brandId) rows.push({ ...record, recoveryKey: key, raw });
++        } catch { /* Ignore an invalid recovery record, never another scope. */ }
++      }
++    } catch { emit({ localError: true }); }
++    return rows.sort((a, b) => b.at - a.at);
++  };
++  const persist = () => {
++    if (!state.id || !dirty) return;
++    try {
++      storage.setItem(recoveryKey, JSON.stringify({ id: state.id, revision: state.revision, workspaceId: state.workspaceId, userId, brandId, payload: state.payload, pending, at: Date.now() }));
++      emit({ localError: false });
++    } catch { emit({ localError: true }); }
++  };
++  const removeRecovery = () => {
++    try {
++      storage.removeItem(recoveryKey);
++      // Don't erase a recovery copy another editor has since changed.
++      if (sourceKey && storage.getItem(sourceKey) === sourceValue) storage.removeItem(sourceKey);
++      sourceKey = null;
++    } catch { /* Server has acknowledged the save. */ }
++  };
++  async function json(path, init) {
++    const response = await request(path, init);
++    const data = await response.json();
++    if (!response.ok) { const e = new Error(data.error || "Draft request failed"); e.code = data.code; e.status = response.status; throw e; }
++    return data;
++  }
++  function adopt(row) {
++    generation++;
++    pending = row?.pending || null;
++    dirty = !!row?.recoveryKey;
++    sourceKey = row?.recoveryKey || null;
++    sourceValue = row?.raw || null;
++    recoveryKey = prefix + uuid();
++    emit({ id: row?.id || null, revision: row?.revision || 0, payload: row?.payload || emptyDraft(), status: dirty ? "unsaved" : row ? "saved" : "idle", error: null });
++  }
++  async function load() {
++    disposed = false;
++    const sequence = ++loadSequence;
++    emit({ status: "loading", error: null });
++    try {
++      const result = await json(`/api/briefs/drafts?brandId=${encodeURIComponent(brandId)}&ownerUserId=${encodeURIComponent(userId)}`);
++      if (disposed || sequence !== loadSequence) return;
++      if (result.ownerUserId !== userId) throw new Error("Session changed");
++      const local = localEntries().filter((r) => (!r.workspaceId || r.workspaceId === result.workspaceId));
++      // A list request can finish after a newer save. Merge acknowledgements
++      // by revision so navigating through that list never restores stale text.
++      const saved = new Map(result.drafts.map((row) => [row.id, row]));
++      if (state.workspaceId === result.workspaceId) {
++        for (const row of state.drafts.filter((entry) => !entry.recoveryKey)) {
++          if (!saved.has(row.id) || row.revision > saved.get(row.id).revision) saved.set(row.id, row);
++        }
++      }
++      emit({ workspaceId: result.workspaceId, drafts: [...local, ...saved.values()], ready: true });
++      if (!initialized) { adopt(local[0] || null); initialized = true; }
++      else emit({ status: dirty ? "unsaved" : state.id ? "saved" : "idle" });
++      // Recovery never starts or analyses a brief. Only pending storage writes retry.
++      if (dirty) await flush();
++    } catch (e) {
++      if (disposed || sequence !== loadSequence) return;
++      const local = localEntries();
++      if (!initialized && local[0]) {
++        emit({ workspaceId: local[0].workspaceId, drafts: local, ready: true });
++        adopt(local[0]); initialized = true;
++      }
++      initialized = true;
++      emit({ status: "error", error: e.message, ready: true });
++    }
++  }
++  function update(patch) {
++    if (!state.ready || disposed) return;
++    const next = typeof patch === "function" ? patch(state.payload) : patch;
++    dirty = true; generation++;
++    emit({ id: state.id || uuid(), payload: { ...state.payload, ...next }, status: "unsaved", error: null });
++    persist();
++    clearTimeout(timer); timer = setTimeout(() => { void flush(); }, delay);
++  }
++  async function flush() {
++    clearTimeout(timer);
++    if (flight) { await flight; return dirty && state.status !== "error" && state.status !== "conflict" ? flush() : !dirty; }
++    if (!dirty) return true;
++    if (!state.workspaceId) { emit({ status: "error", error: "Connect to load this brand before saving." }); return false; }
++    flight = (async () => {
++      try {
++        while (dirty) {
++          const atGeneration = generation;
++          pending ||= { brandId, workspaceId: state.workspaceId, ownerUserId: userId, revision: state.revision, mutationId: uuid(), payload: state.payload };
++          const sent = pending;
++          persist(); emit({ status: "saving", error: null });
++          const { draft } = await json(`/api/briefs/drafts/${state.id}`, { method: "PUT", body: JSON.stringify(sent) });
++          pending = null;
++          // An acknowledgement updates metadata only, never overwrites current text.
++          dirty = generation !== atGeneration || JSON.stringify(state.payload) !== JSON.stringify(sent.payload);
++          emit({ revision: draft.revision, status: dirty ? "unsaved" : "saved" });
++          if (dirty) persist(); else removeRecovery();
++          const recoveries = localEntries().filter((r) => !r.workspaceId || r.workspaceId === state.workspaceId);
++          emit({ drafts: [...recoveries, draft, ...state.drafts.filter((d) => !d.recoveryKey && d.id !== draft.id)] });
++        }
++        return true;
++      } catch (e) {
++        // Validation/body-limit failures definitively did not commit. Let a
++        // corrected payload replace that rejected request; uncertain failures
++        // keep the original mutation for safe idempotent retry.
++        if (e.status === 400 || e.status === 413) pending = null;
++        emit({ status: e.code === "DRAFT_CONFLICT" ? "conflict" : "error", error: e.message });
++        persist(); return false;
++      }
++    })();
++    try { return await flight; } finally { flight = null; }
++  }
++  async function select(row) {
++    // Do not abandon a failed save when choosing another draft.
++    if (!await flush()) return false;
++    if (row && !row.recoveryKey) row = state.drafts.find((d) => d.id === row.id && !d.recoveryKey) || row;
++    adopt(row);
++    if (dirty) void flush();
++    return true;
++  }
++  async function saveCopy() {
++    if (flight) await flight;
++    // A conflict can be resolved without overwriting either version.
++    pending = null; dirty = true; generation++;
++    emit({ id: uuid(), revision: 0, status: "unsaved", error: null });
++    persist(); return flush();
++  }
++  return {
++    getSnapshot: () => state,
++    subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
++    load, update, flush, select, saveCopy,
++    dispose() { disposed = true; loadSequence++; clearTimeout(timer); void flush(); },
++  };
++}
+diff --git a/src/lib/brief-draft-store.test.mjs b/src/lib/brief-draft-store.test.mjs
+new file mode 100644
+index 0000000..cd811d5
+--- /dev/null
++++ b/src/lib/brief-draft-store.test.mjs
+@@ -0,0 +1,101 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {randomUUID} from 'node:crypto';
++import {createBriefDraftStore,emptyDraft} from './brief-draft-store.js';
++const userId=randomUUID(),brandId=randomUUID(),workspaceId=randomUUID(),draftId=randomUUID();
++function fixture(records=[], wrapRequest=(request)=>request) {
++ const map=new Map(records.map((r,i)=>[`ci_brief_draft:v1:${userId}:${brandId}:${i}`,JSON.stringify(r)]));
++ const storage={get length(){return map.size},key:i=>[...map.keys()][i],getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
++ const rows=new Map();
++ const request=async(path,init)=>{
++  if(!init)return Response.json({ownerUserId:userId,workspaceId,drafts:[...rows.values()]});
++  const body=JSON.parse(init.body),id=path.split('/').pop(),current=rows.get(id);
++  if(body.revision!==(current?.revision||0))return Response.json({code:'DRAFT_CONFLICT',error:'conflict'},{status:409});
++  const draft={id,payload:body.payload,revision:body.revision+1};rows.set(id,draft);return Response.json({draft});
++ };
++ const store=createBriefDraftStore({userId,brandId,storage,request:wrapRequest(request),uuid:randomUUID,delay:60000});
++ return {store,map,rows};
++}
++const record=(input,at)=>({id:draftId,userId,brandId,workspaceId,revision:0,payload:{...emptyDraft(),input},at});
++test('a malformed JSON recovery payload cannot reach composer rendering',async()=>{
++ const {store}=fixture([{...record('x',1),payload:{}}]);
++ await store.load();
++ assert.equal(typeof store.getSnapshot().payload.input,'string');
++ store.dispose();
++});
++test('saving one recovered tab leaves other unsaved copy visible in draft list',async()=>{
++ const {store,map}=fixture([record('older tab unsaved content',1),record('newer tab content',2)]);
++ await store.load();
++ assert.ok([...map.values()].some(raw=>JSON.parse(raw).payload.input==='older tab unsaved content'));
++ assert.ok(store.getSnapshot().drafts.some(row=>row.payload.input==='older tab unsaved content'),'older recovery still exists in storage but disappears from resume list');
++ store.dispose();
++});
++
++test('recovery from another workspace cannot become active after scope resolution',async()=>{
++ const {store,map}=fixture([{...record('foreign workspace private draft',1),workspaceId:randomUUID()}]);
++ await store.load();
++ assert.equal(store.getSnapshot().id,null);
++ assert.equal(store.getSnapshot().payload.input,'');
++ assert.equal(store.getSnapshot().drafts.length,0);
++ assert.equal(map.size,1,'out-of-scope recovery is preserved, not erased');
++ store.dispose();
++});
++test('choosing an older saved list row uses its latest acknowledged revision',async()=>{
++ const {store}=fixture();
++ await store.load();store.update({input:'first'});await store.flush();
++ const staleRow=store.getSnapshot().drafts[0];
++ store.update({input:'second'});await store.flush();
++ await store.select(null);await store.select(staleRow);
++ assert.equal(store.getSnapshot().payload.input,'second');
++ assert.equal(store.getSnapshot().revision,2);
++ store.dispose();
++});
++
++for (const [label,patch] of Object.entries({
++  'invalid request shape': [],
++  'wrong owner': {ownerUserId:randomUUID()},
++  'wrong brand': {brandId:randomUUID()},
++  'wrong workspace': {workspaceId:randomUUID()},
++  'invalid payload': {payload:{}},
++  'mismatched revision': {revision:2},
++})) {
++ test(`corrupt pending recovery with ${label} is ignored before HTTP reuse`,async()=>{
++  const pending=Array.isArray(patch) ? patch : {ownerUserId:userId,brandId,workspaceId,revision:0,mutationId:randomUUID(),payload:emptyDraft(),...patch};
++  const {store,rows,map}=fixture([{...record('recover safely',1),pending}]);
++  await store.load();
++  assert.equal(store.getSnapshot().id,null);
++  assert.equal(rows.size,0,'invalid pending request must never be transmitted');
++  assert.equal(map.size,1,'invalid record stays available for manual recovery');
++  store.dispose();
++ });
++}
++test('a list request started before a save cannot replace the acknowledged draft with stale text',async()=>{
++ let hold=false,release;
++ const {store}=fixture([],request=>async(path,init)=>{
++  const response=await request(path,init);
++  if(!init && hold) await new Promise(resolve=>{release=resolve;});
++  return response;
++ });
++ await store.load();store.update({input:'first'});await store.flush();
++ hold=true;const loading=store.load();await new Promise(resolve=>setImmediate(resolve));
++ store.update({input:'second'});await store.flush();
++ release();await loading;
++ const row=store.getSnapshot().drafts.find(row=>!row.recoveryKey);
++ assert.equal(row.payload.input,'second');
++ assert.equal(row.revision,2);
++ store.dispose();
++});
++test('oversized local draft remains recoverable and editable after server rejection',async()=>{
++ const input='x'.repeat(50001);
++ const {store,map}=fixture([record(input,1)],request=>(path,init)=>init && JSON.parse(init.body).payload.input.length>50000
++  ? Promise.resolve(Response.json({error:'Invalid draft content or revision'},{status:400}))
++  : request(path,init));
++ await store.load();
++ assert.equal(store.getSnapshot().payload.input,input);
++ assert.equal(store.getSnapshot().status,'error');
++ assert.ok(map.size>0);
++ store.update({input:'shortened and editable'});
++ assert.equal(store.getSnapshot().payload.input,'shortened and editable');
++ assert.equal(await store.flush(),true,'correcting rejected content should allow the next save');
++ store.dispose();
++});
+diff --git a/src/lib/use-brief-drafts.js b/src/lib/use-brief-drafts.js
+new file mode 100644
+index 0000000..81af4f6
+--- /dev/null
++++ b/src/lib/use-brief-drafts.js
+@@ -0,0 +1,24 @@
++import { useEffect, useMemo, useSyncExternalStore } from "react";
++import { apiFetch } from "./supabase-browser.js";
++import { createBriefDraftStore } from "./brief-draft-store.js";
++
++export function useBriefDrafts(brandId) {
++  const userId = window.useSession()?.id;
++  const store = useMemo(() => createBriefDraftStore({ userId, brandId, request: apiFetch,
++    storage: { get length() { return window.localStorage.length; }, key: (i) => window.localStorage.key(i), getItem: (k) => window.localStorage.getItem(k), setItem: (k, v) => window.localStorage.setItem(k, v), removeItem: (k) => window.localStorage.removeItem(k) },
++  }), [userId, brandId]);
++  const state = useSyncExternalStore(store.subscribe, store.getSnapshot);
++  useEffect(() => {
++    if (userId && brandId) void store.load();
++    const flush = () => { if (document.visibilityState === "hidden") void store.flush(); };
++    const retry = () => { void store.load(); };
++    document.addEventListener("visibilitychange", flush);
++    window.addEventListener("online", retry);
++    return () => {
++      document.removeEventListener("visibilitychange", flush);
++      window.removeEventListener("online", retry);
++      store.dispose();
++    };
++  }, [store, userId, brandId]);
++  return { ...state, store };
++}
+diff --git a/src/locales/ar.json b/src/locales/ar.json
+index b1ef261..99979d8 100644
+--- a/src/locales/ar.json
++++ b/src/locales/ar.json
+@@ -1,4 +1,24 @@
+ {
++  "drafts": {
++    "retryAnalysis": "إعادة محاولة التحليل",
++    "previousAnswers": "الإجابات السابقة",
++    "handoffError": "تم حفظ المسودة، لكن تعذر فتح اللوحة. فعّل تخزين المتصفح وحاول مرة أخرى.",
++    "loading": "جارٍ تحميل المسودات…",
++    "idle": "مسودة",
++    "unsaved": "تغييرات غير محفوظة",
++    "saving": "جارٍ الحفظ…",
++    "saved": "تم حفظ المسودة",
++    "error": "الحفظ غير متاح. أبقِ هذه الصفحة مفتوحة إذا كان الاسترداد المحلي غير متاح.",
++    "conflict": "حفظت علامة تبويب أخرى تغييرات. تم الاحتفاظ بنصك.",
++    "selectBrand": "اختر علامة تجارية لحفظ المسودات.",
++    "saveCopy": "حفظ نسختي كمسودة جديدة",
++    "retry": "إعادة محاولة الحفظ",
++    "new": "مسودة جديدة",
++    "localError": "الاسترداد المحلي غير متاح. أبقِ هذه الصفحة مفتوحة حتى يؤكد الخادم الحفظ.",
++    "hint": "تُحفظ المسودات تلقائيًا وتبقى قيد الانتظار عند استئنافها. اختر البدء عندما تكون جاهزًا.",
++    "resume": "استئناف مسودة",
++    "untitled": "مسودة بلا عنوان"
++  },
+   "_notes": {
+     "proper_nouns": "BIO, Brandolph, Caastor, CaastorOS and 'The Colony' are kept in Latin script as product/proper nouns.",
+     "plurals": "Plural keys (notif.ariaUnread, plans.allowance) supply all 6 Arabic CLDR categories (zero/one/two/few/many/other); selection is by Intl.PluralRules('ar'), never a ternary.",
+@@ -379,7 +399,7 @@
+     "sharpeningEyebrow": "Brandolph · يصقل",
+     "sharpeningLoading": "يقرأ الـ BIO الخاص بك. يضغط على الموجز. يختار أصغر فريق.",
+     "sharpeningFailedEyebrow": "Brandolph · فشل الصقل",
+-    "sharpeningFailedBody": "{error}. يمكنك تشغيل الموجز كما هو.",
++    "sharpeningFailedBody": "{error}. تم الاحتفاظ بالمسودة والإجابات السابقة. أعد محاولة التحليل قبل المتابعة.",
+     "proceedRaw": "المتابعة بالموجز كما هو",
+     "cmoRewrite": "كيف سيكتبها مدير التسويق",
+     "answerPlaceholder": "أجب بجملة واحدة، أو تخطَّ.",
+diff --git a/src/locales/en.json b/src/locales/en.json
+index 14306ca..f88e486 100644
+--- a/src/locales/en.json
++++ b/src/locales/en.json
+@@ -1,4 +1,24 @@
+ {
++  "drafts": {
++    "retryAnalysis": "Retry analysis",
++    "previousAnswers": "Previous answers",
++    "handoffError": "Your draft is saved, but the canvas could not be opened. Enable browser storage and try again.",
++    "loading": "Loading drafts…",
++    "idle": "Draft",
++    "unsaved": "Unsaved changes",
++    "saving": "Saving…",
++    "saved": "Draft saved",
++    "error": "Save unavailable — keep this page open if local recovery is unavailable.",
++    "conflict": "Another tab saved changes. Your text is preserved.",
++    "selectBrand": "Select a brand to save drafts.",
++    "saveCopy": "Save my version as a new draft",
++    "retry": "Retry save",
++    "new": "New draft",
++    "localError": "Local recovery is unavailable. Keep this page open until the server confirms your save.",
++    "hint": "Drafts save automatically. Resuming keeps them idle; choose Start when you are ready.",
++    "resume": "Resume a draft",
++    "untitled": "Untitled draft"
++  },
+   "nav": {
+     "create": "Create",
+     "briefs": "Briefs",
+@@ -361,7 +381,7 @@
+     "sharpeningEyebrow": "Brandolph · sharpening",
+     "sharpeningLoading": "Reading your BIO. Pressuring the brief. Picking the smallest crew.",
+     "sharpeningFailedEyebrow": "Brandolph · sharpening failed",
+-    "sharpeningFailedBody": "{error}. You can run the brief as-written.",
++    "sharpeningFailedBody": "{error}. Your draft and previous answers are preserved. Retry analysis before proceeding.",
+     "proceedRaw": "Proceed with raw brief",
+     "cmoRewrite": "How a CMO would write this",
+     "answerPlaceholder": "Answer in a sentence — or skip.",
+diff --git a/src/locales/es.json b/src/locales/es.json
+index e85e1b5..502cf15 100644
+--- a/src/locales/es.json
++++ b/src/locales/es.json
+@@ -1,4 +1,24 @@
+ {
++  "drafts": {
++    "retryAnalysis": "Reintentar análisis",
++    "previousAnswers": "Respuestas anteriores",
++    "handoffError": "El borrador está guardado, pero no se pudo abrir el lienzo. Activa el almacenamiento del navegador y vuelve a intentarlo.",
++    "loading": "Cargando borradores…",
++    "idle": "Borrador",
++    "unsaved": "Cambios sin guardar",
++    "saving": "Guardando…",
++    "saved": "Borrador guardado",
++    "error": "No se puede guardar. Mantén esta página abierta si la recuperación local no está disponible.",
++    "conflict": "Otra pestaña guardó cambios. Tu texto se conserva.",
++    "selectBrand": "Selecciona una marca para guardar borradores.",
++    "saveCopy": "Guardar mi versión como nuevo borrador",
++    "retry": "Reintentar guardado",
++    "new": "Nuevo borrador",
++    "localError": "La recuperación local no está disponible. Mantén esta página abierta hasta que se confirme el guardado.",
++    "hint": "Los borradores se guardan automáticamente. Al retomarlos quedan en espera; elige Empezar cuando quieras continuar.",
++    "resume": "Retomar un borrador",
++    "untitled": "Borrador sin título"
++  },
+   "_notes": {
+     "proper_nouns": "BIO, Brandolph, Caastor, CaastorOS, SLA and 'The Colony' are kept untranslated as product/proper nouns.",
+     "nav.briefs": "'Briefs' is retained as the industry loanword commonly used by Spanish-speaking creative studios.",
+@@ -366,7 +386,7 @@
+     "sharpeningEyebrow": "Brandolph · afinando",
+     "sharpeningLoading": "Leyendo tu BIO. Presionando el brief. Eligiendo el equipo más pequeño.",
+     "sharpeningFailedEyebrow": "Brandolph · falló al afinar",
+-    "sharpeningFailedBody": "{error}. Puedes ejecutar el brief tal como está.",
++    "sharpeningFailedBody": "{error}. El borrador y las respuestas anteriores se conservan. Reintenta el análisis antes de continuar.",
+     "proceedRaw": "Continuar con el brief sin afinar",
+     "cmoRewrite": "Cómo lo escribiría un CMO",
+     "answerPlaceholder": "Responde en una frase, o sáltalo.",
+diff --git a/src/portal-brandolph.jsx b/src/portal-brandolph.jsx
+index 7297a41..0345ac9 100644
+--- a/src/portal-brandolph.jsx
++++ b/src/portal-brandolph.jsx
+@@ -2,6 +2,8 @@ import React from "react";
+ import { useLocale } from "./lib/i18n.js";
+ import { apiFetch, supabase } from "./lib/supabase-browser.js";
+ import { briefProgress, daysLeftInCycle, successRate } from "./lib/home-stats.js";
++import { editBriefInput, replaceDraftAnalysis } from "./lib/brief-draft-review.js";
++import { useBriefDrafts } from "./lib/use-brief-drafts.js";
+ import { handleComposerKeyDown } from "./lib/editing-shortcuts.js";
+ const { BrandolphAvatar, BrandolphDot, Icon, LayerTag, Reveal, StatusPill, StreamedText, useIsTeam } = window;
+ 
+@@ -250,20 +252,20 @@ function HomeCreate({ tweaks, go }) {
+      needs the same live balance, and two hooks would mean two round-trips. */
+   const stats = useHomeStats();
+   const activeBrandId = window.useCurrentBrandId();
+-  const [mode, setMode]   = useBState("flow");
+-  const [input, setInput] = useBState(() => {
+-    /* Pick up a "Reuse" prefill posted from the Library — when set,
+-       the brief textarea opens with the upstream output already pasted. */
+-    try {
+-      const raw = sessionStorage.getItem("ci_home_prefill");
+-      if (!raw) return "";
+-      const parsed = JSON.parse(raw);
+-      sessionStorage.removeItem("ci_home_prefill");
+-      return typeof parsed?.text === "string" ? parsed.text : "";
+-    } catch { return ""; }
+-  });
++  const draft = useBriefDrafts(activeBrandId);
++  const { input, mode, answers, qStep } = draft.payload;
++  const setInput = (value) => {
++    draft.store.update((payload) => editBriefInput(payload, value));
++    setBriefBrandId(null);
++  };
++  const setMode = (value) => draft.store.update({ mode: value });
++  const setAnswers = (value) => draft.store.update((p) => ({ answers: typeof value === "function" ? value(p.answers) : value }));
++  const setQStep = (value) => draft.store.update({ qStep: value });
++  const currentDraftStore = useBRef(draft.store);
++  currentDraftStore.current = draft.store;
+   const [phase, setPhase] = useBState("idle"); // idle | sharpening | proposing | running | done
+   const reviewRef = useBRef(null);
++  const startingRef = useBRef(null);
+ 
+   /* Wired models — text (Anthropic + OpenRouter) AND image (fal.ai).
+      Other vendors (exa/v0/gamma/framer/elevenlabs) aren't dispatched
+@@ -284,21 +286,37 @@ function HomeCreate({ tweaks, go }) {
+   const [runErr, setRunErr] = useBState(null);
+ 
+   /* a02 Sharpener state — real per-brief output from /api/briefs/sharpen. */
+-  const [sharp, setSharp]       = useBState({ loading: false, data: null, error: null });
+-  const [answers, setAnswers]   = useBState({});            /* { 0: "...", 1: "...", 2: "..." } */
+-  const [qStep, setQStep]       = useBState(0);             /* sharpening wizard: current question index */
+-  const [briefBrandId, setBriefBrandId] = useBState(null);  /* brand pinned when sharpening starts */
++  const [sharpStatus, setSharpStatus] = useBState({ loading: false, error: null });
++  const sharp = { ...sharpStatus, data: draft.payload.sharpData };
++  const setSharp = (value) => {
++    const next = typeof value === "function" ? value(sharp) : value;
++    setSharpStatus({ loading: next.loading, error: next.error });
++    if (next.data !== draft.store.getSnapshot().payload.sharpData) draft.store.update({ sharpData: next.data });
++  };
++  const [briefBrandId, setBriefBrandId] = useBState(null);
+ 
+-  /* A sharpened brief belongs to the BIO that shaped it. Switching brands
+-     invalidates that draft so it cannot be run against a different BIO. */
++  // Scope changes clear only runtime state. Each brand keeps its own saved work.
+   useBEffect(() => {
+-    if (!briefBrandId || briefBrandId === activeBrandId) return;
+     setPhase("idle");
+-    setSharp({ loading:false, data:null, error:null });
+-    setAnswers({});
+-    setQStep(0);
++    setSharpStatus({ loading: false, error: null });
+     setBriefBrandId(null);
+-  }, [activeBrandId, briefBrandId]);
++  }, [draft.store]);
++
++  // Library reuse becomes a new durable draft once storage is ready.
++  useBEffect(() => {
++    if (!draft.ready) return;
++    try {
++      const raw = sessionStorage.getItem("ci_home_prefill");
++      const parsed = raw && JSON.parse(raw);
++      if (typeof parsed?.text !== "string") return;
++      const store = draft.store;
++      void store.select(null).then((ok) => {
++        if (!ok || currentDraftStore.current !== store) return;
++        store.update({ input: parsed.text });
++        sessionStorage.removeItem("ci_home_prefill");
++      });
++    } catch { /* Keep the existing draft if a prefill is invalid. */ }
++  }, [draft.ready, draft.store]);
+ 
+   /* Resolve the actual assembly — Sharpener's proposed specialists take
+      precedence; fall back to the mock density-based pick filtered to
+@@ -322,20 +340,22 @@ function HomeCreate({ tweaks, go }) {
+   ];
+ 
+   const handleStart = async () => {
+-    if (!input.trim()) return;
++    if (!input.trim() || sharp.loading || !draft.ready || startingRef.current === draft.store) return;
+     if (!activeBrandId) {
+       setSharp({ loading:false, data:null, error: t("brandolph.selectBrand") + "." });
+       return;
+     }
+-    /* Real a02 The Sharpener pass — reads the BIO + brief, returns 2–3
+-       brand-aware questions + a proposed crew. If sharpening fails
+-       (network, parse, etc.), skip straight to proposing with the raw
+-       brief so the user is never blocked. */
++    const store = draft.store;
++    startingRef.current = store;
++    const startPayload = draft.payload;
++    if (!await store.flush() || currentDraftStore.current !== store || store.getSnapshot().payload !== startPayload) {
++      if (startingRef.current === store) startingRef.current = null;
++      return;
++    }
++    // Start is the explicit transition out of the idle draft composer.
+     setPhase("sharpening");
+-    setSharp({ loading: true, data: null, error: null });
+-    setAnswers({});
+-    setQStep(0);
+-    setBriefBrandId(activeBrandId);
++    setSharpStatus({ loading: true, error: null });
++    setBriefBrandId(null);
+     setTimeout(() => reviewRef.current?.scrollIntoView({ behavior:"smooth", block:"nearest" }), 80);
+     try {
+       const res = await apiFetch("/api/briefs/sharpen", {
+@@ -344,15 +364,24 @@ function HomeCreate({ tweaks, go }) {
+       });
+       const json = await res.json();
+       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+-      setSharp({ loading: false, data: json, error: null });
++      if (currentDraftStore.current !== store || store.getSnapshot().payload.input !== input) return;
++      store.update((payload) => replaceDraftAnalysis(payload, json));
++      setBriefBrandId(activeBrandId);
++      setSharpStatus({ loading: false, error: null });
+     } catch (e) {
+-      setSharp({ loading: false, data: null, error: e?.message || String(e) });
++      if (currentDraftStore.current !== store) return;
++      setSharpStatus({ loading: false, error: e?.message || String(e) });
++    } finally {
++      if (startingRef.current === store) startingRef.current = null;
+     }
+   };
+ 
+   const handleKeyDown = (e) => handleComposerKeyDown(e, handleStart);
+ 
+-  const handleProceed = () => {
++  const handleProceed = async () => {
++    const store = draft.store;
++    const approvedPayload = draft.payload;
++    if (!await store.flush() || currentDraftStore.current !== store || store.getSnapshot().payload !== approvedPayload) return;
+     if (!briefBrandId || briefBrandId !== activeBrandId) {
+       setSharp((current) => ({ ...current, error: t("brandolph.brandChangedError") }));
+       return;
+@@ -362,6 +391,7 @@ function HomeCreate({ tweaks, go }) {
+        the Canvas itself. The Canvas is the moment-of-truth UX surface;
+        a flat inline grid breaks that promise. */
+     const ctx = {
++      sourceDraftId: store.getSnapshot().id,
+       rawBrief:      input.trim(),
+       composedBrief: composeBriefText(),
+       title:         sharp.data?.title || "",
+@@ -381,7 +411,8 @@ function HomeCreate({ tweaks, go }) {
+       brandId:       activeBrandId,
+       ts:            Date.now(),
+     };
+-    try { sessionStorage.setItem("ci_run_context", JSON.stringify(ctx)); } catch (e) {}
++    try { sessionStorage.setItem("ci_run_context", JSON.stringify(ctx)); }
++    catch { setSharpStatus((current) => ({ ...current, error: t("drafts.handoffError") })); return; }
+     go("canvas");
+   };
+ 
+@@ -475,11 +506,17 @@ function HomeCreate({ tweaks, go }) {
+     setPhase("done");
+   };
+ 
+-  const handleReset = () => {
+-    setPhase("idle"); setInput("");
++  const handleReset = async () => {
++    if (!await draft.store.select(null)) return;
++    setPhase("idle");
+     setAgentStates({}); setAgentOutputs({}); setRunErr(null);
+-    setSharp({ loading: false, data: null, error: null });
+-    setAnswers({});
++    setSharpStatus({ loading: false, error: null });
++    setBriefBrandId(null);
++  };
++  const resumeDraft = async (row) => {
++    if (!await draft.store.select(row)) return;
++    setPhase("idle");
++    setSharpStatus({ loading: false, error: null });
+     setBriefBrandId(null);
+   };
+ 
+@@ -524,6 +561,35 @@ function HomeCreate({ tweaks, go }) {
+                 lines, and `scope` was never sent to the Sharpener — brands have
+                 no sub-line model, so the control had nothing real to filter. */}
+ 
++            <div style={{ marginTop: 24, textAlign: "left" }}>
++              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
++                <span role="status" aria-live="polite">{t(`drafts.${activeBrandId ? draft.status : "selectBrand"}`)}</span>
++                {(draft.status === "error" || draft.status === "conflict") && <button className="btn btn--ghost btn--sm" onClick={() => { void (draft.status === "conflict" ? draft.store.saveCopy() : draft.store.load()); }}>{t(draft.status === "conflict" ? "drafts.saveCopy" : "drafts.retry")}</button>}
++                <button className="btn btn--ghost btn--sm" disabled={!draft.ready || sharp.loading} onClick={handleReset}>{t("drafts.new")}</button>
++              </div>
++              {draft.error && <p role="alert" style={{ fontSize: 13 }}>{draft.error}</p>}
++              {draft.localError && <p role="alert">{t("drafts.localError")}</p>}
++              <p style={{ fontSize: 13, color: "var(--c-dim)" }}>{t("drafts.hint")}</p>
++              {draft.drafts.length > 0 && <details>
++                <summary style={{ cursor: "pointer", padding: "8px 0" }}>{t("drafts.resume")}</summary>
++                <ul style={{ listStyle: "none", padding: 0 }}>
++                  {draft.drafts.map((row) => <li key={row.recoveryKey || row.id} style={{ borderTop: "1px solid var(--c-line)", padding: "8px 0" }}>
++                    <button className="btn btn--ghost" disabled={sharp.loading} onClick={() => { void resumeDraft(row); }} style={{ maxWidth: "100%", whiteSpace: "normal", textAlign: "start" }}>
++                      {row.payload.input.slice(0, 100) || t("drafts.untitled")} · {t(row.recoveryKey ? "drafts.unsaved" : "drafts.saved")}
++                    </button>
++                  </li>)}
++                </ul>
++              </details>}
++            </div>
++
++            {(draft.payload.answerHistory || []).length > 0 && <details style={{ marginTop: 12, textAlign: "start" }}>
++              <summary>{t("drafts.previousAnswers")}</summary>
++              <dl>{draft.payload.answerHistory.map((entry, index) => <React.Fragment key={index}>
++                <dt style={{ fontWeight: 500, marginTop: 12 }}>{entry.question}</dt>
++                <dd style={{ margin: "4px 0", whiteSpace: "pre-wrap" }}>{entry.answer}</dd>
++              </React.Fragment>)}</dl>
++            </details>}
++
+             {/* Composer */}
+             <div style={{
+               marginTop: 32, background:"var(--c-card)",
+@@ -542,6 +608,9 @@ function HomeCreate({ tweaks, go }) {
+                 className="brandolph-composer__input"
+                 aria-label={t("brandolph.composerAria")}
+                 value={input}
++                maxLength={50000}
++                disabled={!draft.ready || sharp.loading}
++                onBlur={() => { void draft.store.flush(); }}
+                 onChange={(e) => { setInput(e.target.value); if (phase !== "idle") setPhase("idle"); }}
+                 onKeyDown={handleKeyDown}
+                 placeholder={t("brandolph.composerPlaceholder")}
+@@ -585,7 +654,7 @@ function HomeCreate({ tweaks, go }) {
+                     <span style={{margin:"0 4px"}}>+</span>
+                     <kbd style={{background:"var(--c-bg)", padding:"2px 6px", borderRadius: 4, border:"1px solid var(--c-line)"}}>↵</kbd>
+                   </span>
+-                  <button className="btn btn--primary" disabled={!input.trim()} onClick={handleStart}>
++                  <button className="btn btn--primary" disabled={!input.trim() || !draft.ready || sharp.loading} onClick={handleStart}>
+                     {isActive ? t("brandolph.reBrief") : t("brandolph.start")} <Icon name="arrow" size={14} />
+                   </button>
+                 </div>
+@@ -607,14 +676,14 @@ function HomeCreate({ tweaks, go }) {
+           </div>
+ 
+           {/* ── REVIEW PANEL — slides in below the composer inside the hero ── */}
+-          {isActive && (
++          {(isActive || sharp.data) && (
+             <div ref={reviewRef} style={{
+               maxWidth: 760, margin: "28px auto 0",
+               animation: "fade 200ms ease",
+             }}>
+ 
+               {/* Phase: sharpening — real a02 questions, brand-aware, with whys */}
+-              {phase === "sharpening" && (
++              {(phase === "sharpening" || (phase === "idle" && sharp.data)) && (
+                 <div style={{
+                   background:"var(--c-card)", border:"1px solid var(--c-line)",
+                   borderLeft:"3px solid var(--yellow-500)", borderRadius: 14,
+@@ -634,9 +703,9 @@ function HomeCreate({ tweaks, go }) {
+                     <>
+                       <div className="eyebrow eyebrow--yellow" style={{marginBottom: 8}}>{t("brandolph.sharpeningFailedEyebrow")}</div>
+                       <p style={{margin: 0, fontSize: 13.5, color:"var(--c-dim)", marginBottom: 14, lineHeight: 1.5}}>
+-                        {t("brandolph.sharpeningFailedBody", { error: sharp.error })}
++                        {t("brandolph.sharpeningFailedBody", { error: sharp.error.replace(/[.!?]+$/, "") })}
+                       </p>
+-                      <button className="btn btn--primary" onClick={handleProceed}>{t("brandolph.proceedRaw")} →</button>
++                      <button className="btn btn--primary" onClick={handleStart}>{t("drafts.retryAnalysis")} →</button>
+                     </>
+                   )}
+ 
+@@ -667,6 +736,9 @@ function HomeCreate({ tweaks, go }) {
+                                 </div>
+                               </div>
+                               <textarea
++                                aria-label={q.q}
++                                onBlur={() => { void draft.store.flush(); }}
++                                maxLength={10000}
+                                 value={answers[i] || ""}
+                                 onChange={(e) => setAnswers((p) => ({ ...p, [i]: e.target.value }))}
+                                 onKeyDown={(e) => e.stopPropagation()}
+@@ -702,7 +774,7 @@ function HomeCreate({ tweaks, go }) {
+ 
+                       <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop: 12, borderTop:"1px dashed var(--c-line)"}}>
+                         <button className="btn btn--link" style={{fontSize: 12}} onClick={handleReset}>← {t("brandolph.reBrief")}</button>
+-                        <button className="btn btn--primary" onClick={handleProceed}>
++                        <button className="btn btn--primary" disabled={!briefBrandId} onClick={handleProceed}>
+                           {t("brandolph.proceedAssembly")} <Icon name="arrow" size={14} />
+                         </button>
+                       </div>
+diff --git a/supabase/migrations/20260910000000_brief_drafts.sql b/supabase/migrations/20260910000000_brief_drafts.sql
+new file mode 100644
+index 0000000..d646181
+--- /dev/null
++++ b/supabase/migrations/20260910000000_brief_drafts.sql
+@@ -0,0 +1,17 @@
++-- Composer recovery records only. Production briefs and their sharing remain unchanged.
++create table public.brief_drafts (
++  id uuid primary key,
++  owner_user_id uuid not null references public.users(id) on delete cascade,
++  workspace_id uuid not null references public.workspaces(id) on delete cascade,
++  brand_id uuid not null references public.brands(id) on delete cascade,
++  payload jsonb not null check (jsonb_typeof(payload) = 'object'),
++  revision integer not null check (revision > 0),
++  mutation_id uuid not null,
++  created_at timestamptz not null default now(),
++  updated_at timestamptz not null default now()
++);
++create index brief_drafts_resume_idx on public.brief_drafts (owner_user_id, brand_id, updated_at desc);
++alter table public.brief_drafts enable row level security;
++-- Only authenticated, scoped API handlers using service_role may access these records.
++revoke all on public.brief_drafts from anon, authenticated;
++grant select, insert, update, delete on public.brief_drafts to service_role;

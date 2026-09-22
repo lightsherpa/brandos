@@ -512,12 +512,14 @@ function HomeCreate({ tweaks, go }) {
     setAgentStates({}); setAgentOutputs({}); setRunErr(null);
     setSharpStatus({ loading: false, error: null });
     setBriefBrandId(null);
+    return true;
   };
   const resumeDraft = async (row) => {
     if (!await draft.store.select(row)) return;
     setPhase("idle");
     setSharpStatus({ loading: false, error: null });
     setBriefBrandId(null);
+    return true;
   };
 
   const isActive = phase !== "idle";
@@ -560,35 +562,6 @@ function HomeCreate({ tweaks, go }) {
             {/* Scope pills lived here. They were four hardcoded demo product
                 lines, and `scope` was never sent to the Sharpener — brands have
                 no sub-line model, so the control had nothing real to filter. */}
-
-            <div style={{ marginTop: 24, textAlign: "left" }}>
-              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
-                <span role="status" aria-live="polite">{t(`drafts.${activeBrandId ? draft.status : "selectBrand"}`)}</span>
-                {(draft.status === "error" || draft.status === "conflict") && <button className="btn btn--ghost btn--sm" onClick={() => { void (draft.status === "conflict" ? draft.store.saveCopy() : draft.store.load()); }}>{t(draft.status === "conflict" ? "drafts.saveCopy" : "drafts.retry")}</button>}
-                <button className="btn btn--ghost btn--sm" disabled={!draft.ready || sharp.loading} onClick={handleReset}>{t("drafts.new")}</button>
-              </div>
-              {draft.error && <p role="alert" style={{ fontSize: 13 }}>{draft.error}</p>}
-              {draft.localError && <p role="alert">{t("drafts.localError")}</p>}
-              <p style={{ fontSize: 13, color: "var(--c-dim)" }}>{t("drafts.hint")}</p>
-              {draft.drafts.length > 0 && <details>
-                <summary style={{ cursor: "pointer", padding: "8px 0" }}>{t("drafts.resume")}</summary>
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                  {draft.drafts.map((row) => <li key={row.recoveryKey || row.id} style={{ borderTop: "1px solid var(--c-line)", padding: "8px 0" }}>
-                    <button className="btn btn--ghost" disabled={sharp.loading} onClick={() => { void resumeDraft(row); }} style={{ maxWidth: "100%", whiteSpace: "normal", textAlign: "start" }}>
-                      {row.payload.input.slice(0, 100) || t("drafts.untitled")} · {t(row.recoveryKey ? "drafts.unsaved" : "drafts.saved")}
-                    </button>
-                  </li>)}
-                </ul>
-              </details>}
-            </div>
-
-            {(draft.payload.answerHistory || []).length > 0 && <details style={{ marginTop: 12, textAlign: "start" }}>
-              <summary>{t("drafts.previousAnswers")}</summary>
-              <dl>{draft.payload.answerHistory.map((entry, index) => <React.Fragment key={index}>
-                <dt style={{ fontWeight: 500, marginTop: 12 }}>{entry.question}</dt>
-                <dd style={{ margin: "4px 0", whiteSpace: "pre-wrap" }}>{entry.answer}</dd>
-              </React.Fragment>)}</dl>
-            </details>}
 
             {/* Composer */}
             <div style={{
@@ -660,6 +633,45 @@ function HomeCreate({ tweaks, go }) {
                 </div>
               </div>
             </div>
+
+            {/* Drafts are secondary to writing; recovery failures stay visible. */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginTop: 8, textAlign: "start", fontSize: 12, color: "var(--c-dim)" }}>
+              {(draft.drafts.length > 0 || draft.id) && <details style={{ flex: 1, minWidth: 0 }}>
+                <summary style={{ cursor: "pointer", width: "fit-content", padding: "8px 0" }}>{t("drafts.label")} ({draft.drafts.length})</summary>
+                <div style={{ padding: "4px 0 8px" }}>
+                  <button className="btn btn--link" disabled={!draft.ready || sharp.loading} onClick={async (event) => {
+                    const disclosure = event.currentTarget.closest("details");
+                    if (await handleReset()) disclosure.open = false;
+                  }} style={{ fontSize: 12 }}>{t("drafts.new")}</button>
+                  <ul style={{ listStyle: "none", padding: 0, margin: "4px 0 0", maxHeight: 220, overflowY: "auto" }}>
+                    {draft.drafts.map((row) => <li key={row.recoveryKey || row.id} style={{ borderTop: "1px solid var(--c-line)", padding: "4px 0" }}>
+                      <button className="btn btn--link" disabled={sharp.loading} onClick={async (event) => {
+                        const disclosure = event.currentTarget.closest("details");
+                        if (await resumeDraft(row)) disclosure.open = false;
+                      }} style={{ maxWidth: "100%", whiteSpace: "normal", textAlign: "start", fontSize: 12 }}>
+                        {row.payload.input.slice(0, 100) || t("drafts.untitled")}{row.recoveryKey ? ` · ${t("drafts.unsaved")}` : ""}
+                      </button>
+                    </li>)}
+                  </ul>
+                </div>
+              </details>}
+              <span role="status" aria-live="polite" style={{ marginInlineStart: "auto", padding: "8px 0" }}>
+                {draft.id && ["unsaved", "saving", "saved"].includes(draft.status) ? t(`drafts.${draft.status}`) : ""}
+              </span>
+            </div>
+            {(draft.status === "error" || draft.status === "conflict") && <div style={{ textAlign: "start", fontSize: 13 }}>
+              <p role="alert" style={{ margin: "4px 0" }}>{draft.error || t(`drafts.${draft.status}`)}</p>
+              <button className="btn btn--link" onClick={() => { void (draft.status === "conflict" ? draft.store.saveCopy() : draft.store.load()); }}>{t(draft.status === "conflict" ? "drafts.saveCopy" : "drafts.retry")}</button>
+            </div>}
+            {draft.localError && <p role="alert" style={{ textAlign: "start", fontSize: 13 }}>{t("drafts.localError")}</p>}
+
+            {(draft.payload.answerHistory || []).length > 0 && <details style={{ marginTop: 12, textAlign: "start" }}>
+              <summary>{t("drafts.previousAnswers")}</summary>
+              <dl>{draft.payload.answerHistory.map((entry, index) => <React.Fragment key={index}>
+                <dt style={{ fontWeight: 500, marginTop: 12 }}>{entry.question}</dt>
+                <dd style={{ margin: "4px 0", whiteSpace: "pre-wrap" }}>{entry.answer}</dd>
+              </React.Fragment>)}</dl>
+            </details>}
 
             <div aria-live="polite" style={{marginTop: 16, fontFamily:"var(--font-mono)", fontSize: 10.5, color:"var(--c-faint)", letterSpacing:"0.04em"}}>
               <BrandolphDot /> &nbsp;

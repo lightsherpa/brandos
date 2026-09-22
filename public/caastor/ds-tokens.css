@@ -4,11 +4,11 @@
      restrained materials, system-feeling motion easings
    - Vivid color palettes (no pastels) selectable at runtime
    - Light + Dark themes
-   - IBM Plex Sans Condensed still available; default switches to
-     Inter Tight as the SF-substitute display/UI face
+   - IBM Plex is the active product family; the registry skin composes
+     Sans, Serif, and Mono into one editorial-operating system
    ────────────────────────────────────────────────────────────────── */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 
 /* ─────────────────────────────────────────────────────────────────
    ARABIC TYPOGRAPHY — IBM Plex Sans Arabic (SIL OFL, self-hosted)
@@ -65,16 +65,13 @@
    ROOT — fonts, scale, motion, radii (palette-agnostic)
    ================================================================= */
 :root {
-  /* Fonts — "IBM Plex Sans Arabic" is appended as the last real family
-     before the generic. Its @font-face is unicode-range-scoped to Arabic,
-     so it is a no-op for Latin text (Latin → Inter Tight) and only ever
-     supplies Arabic glyphs. This is the mixed-bidi cascade: one stack,
-     Latin → Inter, Arabic → Plex Arabic — no lang switch required. */
-  --font-sans:    "Inter Tight", -apple-system, BlinkMacSystemFont, system-ui, "IBM Plex Sans Arabic", sans-serif;
-  --font-display: "Inter Tight", -apple-system, BlinkMacSystemFont, system-ui, "IBM Plex Sans Arabic", sans-serif;
-  --font-body:    "Inter Tight", -apple-system, BlinkMacSystemFont, system-ui, "IBM Plex Sans Arabic", sans-serif;
-  --font-mono:    "Geist Mono", "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, "IBM Plex Sans Arabic", monospace;
-  --font-serif:   "Instrument Serif", "Times New Roman", "IBM Plex Sans Arabic", serif;
+  /* Fonts — one family with clear role changes: Plex Sans for UI/body,
+     Plex Serif for editorial names, Plex Mono for IDs and measurements. */
+  --font-sans:    "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif;
+  --font-display: "IBM Plex Serif", Georgia, "IBM Plex Sans Arabic", serif;
+  --font-body:    "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-serif:   "IBM Plex Serif", Georgia, "IBM Plex Sans Arabic", serif;
 
   /* Type scale — slightly tighter, Apple-feel */
   --text-display-lg: 72px;  --lh-display-lg: 76px;
@@ -340,7 +337,7 @@ p { margin: 0; font-family: var(--font-body); }
    it (via its unicode-range) regardless of which Latin face is selected. */
 [data-font="inter"] { --font-sans: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-display: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-body: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; }
 [data-font="geist"] { --font-sans: "Geist", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-display: "Geist", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-body: "Geist", system-ui, "IBM Plex Sans Arabic", sans-serif; }
-[data-font="plex"]  { --font-sans: "IBM Plex Sans Condensed", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-display: "IBM Plex Sans Condensed", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-body: "IBM Plex Sans Condensed", system-ui, "IBM Plex Sans Arabic", sans-serif; }
+[data-font="plex"]  { --font-sans: "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-display: "IBM Plex Serif", Georgia, "IBM Plex Sans Arabic", serif; --font-body: "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; }
 [data-font="serif-mix"] { --font-display: "Instrument Serif", "IBM Plex Sans Arabic", serif; --font-sans: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-body: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; }
 
 /* =================================================================

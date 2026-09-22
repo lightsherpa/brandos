@@ -10,3 +10,6 @@ dist/
 
 # Large raw media — keep out of git (use external storage / git-lfs if needed)
 explainer-video/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

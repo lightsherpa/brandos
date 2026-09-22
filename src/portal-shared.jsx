@@ -124,7 +124,7 @@ function AgentCard({ agentId, compact = false, onClick, showCaps = false }) {
   const isTeam = useIsTeam();
   const { t } = useLocale();
   const soon = a.status === "soon";
-  const accent = isTeam ? window.CI_MODELS[a.model].color : (window.CI_DEPT_COLORS[a.dept] || "var(--neutral-400)");
+  const accent = isTeam ? window.CI_MODELS[a.model].color : "var(--accent)";
   const caps = (window.CI_DEPT_META[a.dept] || {}).capabilities || [];
   return (
     <div

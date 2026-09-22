@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560">
+  <rect width="1200" height="560" fill="#F7F8F6"/>
+  <text x="64" y="76" font-family="IBM Plex Serif, Georgia, serif" font-size="42" fill="#15191F">Plex Registry palette</text>
+  <text x="66" y="112" font-family="IBM Plex Mono, monospace" font-size="14" fill="#697482" letter-spacing="2">MINERAL / GRAPHITE / COBALT / SIGNAL</text>
+  <g transform="translate(64 168)">
+    <rect width="232" height="232" fill="#F7F8F6" stroke="#C8CED7"/><text x="20" y="270" font-family="IBM Plex Mono" font-size="14" fill="#15191F">Paper · #F7F8F6</text>
+    <rect x="272" width="232" height="232" fill="#15191F"/><text x="292" y="270" font-family="IBM Plex Mono" font-size="14" fill="#15191F">Graphite · #15191F</text>
+    <rect x="544" width="232" height="232" fill="#2457D6"/><text x="564" y="270" font-family="IBM Plex Mono" font-size="14" fill="#15191F">Cobalt · #2457D6</text>
+    <rect x="816" width="232" height="232" fill="#1D9A63"/><text x="836" y="270" font-family="IBM Plex Mono" font-size="14" fill="#15191F">Signal · #1D9A63</text>
+  </g>
+  <text x="64" y="500" font-family="IBM Plex Sans, sans-serif" font-size="18" fill="#3D4652">Cobalt is action. Signal is live state. Graphite is structure. Paper is the working field.</text>
+</svg>

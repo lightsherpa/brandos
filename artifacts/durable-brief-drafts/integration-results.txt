@@ -1,0 +1,20 @@
+PASS alice real GoTrue password login
+PASS bob real GoTrue password login
+PASS test brand has no BIO
+PASS create draft without certified BIO
+PASS lost acknowledgment retry is idempotent
+PASS list restores input and entered answers
+PASS same workspace brand isolation
+PASS other workspace cannot list draft
+PASS other user cannot impersonate owner
+PASS other workspace cannot overwrite draft
+PASS workspace mismatch rejected
+PASS concurrent revision has exactly one winner
+PASS edit preserves draft identity
+PASS stale revision rejected
+PASS API requires a real session
+PASS anon direct table access denied
+PASS authenticated direct table access denied
+PASS service role confirms durable final row
+PASS no run, ledger, or production brief mutations
+19 real integration checks passed. Local test draft retained for inspection.

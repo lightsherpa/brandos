@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+  <rect width="1400" height="760" fill="#F7F8F6"/>
+  <rect x="0" y="0" width="190" height="760" fill="#FFFFFF" stroke="#DFE3E8"/>
+  <rect x="190" y="0" width="1210" height="72" fill="#FFFFFF" stroke="#DFE3E8"/>
+  <rect x="190" y="72" width="840" height="556" fill="#F7F8F6" stroke="#DFE3E8"/>
+  <rect x="1030" y="72" width="370" height="556" fill="#FFFFFF" stroke="#DFE3E8"/>
+  <rect x="190" y="628" width="1210" height="132" fill="#FFFFFF" stroke="#DFE3E8"/>
+  <text x="30" y="50" font-family="IBM Plex Sans" font-size="18" fill="#15191F">RAIL</text>
+  <text x="220" y="44" font-family="IBM Plex Sans" font-size="18" fill="#15191F">WORKSPACE HEADER</text>
+  <text x="220" y="110" font-family="IBM Plex Serif" font-size="24" fill="#15191F">CANVAS / GRAPH + TOOLBAR</text>
+  <text x="1060" y="110" font-family="IBM Plex Serif" font-size="24" fill="#15191F">INSPECTOR</text>
+  <text x="220" y="674" font-family="IBM Plex Serif" font-size="24" fill="#15191F">ASSET LIBRARY RAIL</text>
+  <g stroke="#2457D6" stroke-width="3" fill="none"><path d="M360 330 C480 220 560 220 670 300"/><path d="M670 300 C760 360 800 300 890 260"/></g>
+  <g fill="#FFFFFF" stroke="#2457D6" stroke-width="3"><rect x="280" y="260" width="150" height="84"/><rect x="550" y="250" width="170" height="98"/><rect x="820" y="220" width="160" height="88"/></g>
+  <text x="300" y="308" font-family="IBM Plex Mono" font-size="14" fill="#15191F">BIO</text><text x="580" y="304" font-family="IBM Plex Mono" font-size="14" fill="#15191F">BRIEF</text><text x="850" y="274" font-family="IBM Plex Mono" font-size="14" fill="#15191F">OUTPUT</text>
+</svg>

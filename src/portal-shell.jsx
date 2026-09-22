@@ -89,11 +89,18 @@ function useShellTweaks() {
    v2 tokens key off. Persisted to localStorage so the look survives
    reloads. */
 const DS_KEY = "ci_ds";
-const DS_DEFAULTS = { theme: "light", palette: "caastor", font: "inter", density: "cozy" };
+const DS_DEFAULTS = { theme: "light", palette: "plex-registry", font: "plex", density: "cozy" };
 function useDesignSettings() {
   const [ds, setDs] = useShellState(() => {
-    try { return { ...DS_DEFAULTS, ...JSON.parse(localStorage.getItem(DS_KEY) || "{}") }; }
-    catch (e) { return DS_DEFAULTS; }
+    try {
+      const stored = JSON.parse(localStorage.getItem(DS_KEY) || "{}");
+      /* Migrate pre-rebrand preferences so an existing browser session
+         cannot silently bring back the old yellow/purple visual world. */
+      const migrated = { ...DS_DEFAULTS, ...stored };
+      if (!stored.palette || stored.palette !== "plex-registry") migrated.palette = "plex-registry";
+      if (!stored.font || stored.font !== "plex") migrated.font = "plex";
+      return migrated;
+    } catch (e) { return DS_DEFAULTS; }
   });
   useShellEffect(() => {
     const r = document.documentElement;
@@ -626,7 +633,7 @@ function TopBar({ portal, route, brandName, go }) {
           <button onClick={() => go && go("home")}
             style={{
               display:"inline-flex", alignItems:"center", gap:7, height:32, padding:"0 14px",
-              background:"var(--neutral-900)", color:"#fff", border:"none", borderRadius:9,
+              background:"var(--accent)", color:"#fff", border:"none", borderRadius:4,
               fontFamily:"var(--font-sans)", fontWeight:600, fontSize:13, letterSpacing:"-0.01em",
               cursor:"pointer", boxShadow:"0 2px 6px rgba(0,0,0,0.18)",
             }}>
@@ -736,9 +743,8 @@ function App() {
   const portal = session ? (session.portal || session.role) : "client";
 
   /* Resolve the real brand name so the TopBar crumb reflects the
-     workspace switcher, not the mock CI_BRAND. The palette-shift
-     experiment was rolled back per user direction — keep the brand
-     plumbing (switcher + data refetch) without recoloring the UI. */
+     workspace switcher, not the mock CI_BRAND. The active visual world is
+     the Plex Registry rebrand; brand plumbing remains data-driven. */
   const currentBrandId = useCurrentBrandId();
   const { brands: allBrands } = useBrandList();
   const currentBrandName = allBrands.find((b) => b.id === currentBrandId)?.name
@@ -845,7 +851,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "brief-detail": return <BriefBoard id={route.param} go={go} />;
     case "specialists":  return <SpecialistsDirectory go={go} />;
     case "specialist-new": return <SpecialistAuthor go={go} />;
-    case "canvas":       return <CanvasView go={go} />;
+    case "canvas":       return <CanvasView go={go} prototype={route.param === "prototype"} />;
     case "craft":        return <CraftMarketplace go={go} tier={tweaks.tier} />;
     case "credits":      return <SettingsView section="usage" go={go} onLogout={onLogout} />;
     case "settings":     return <SettingsView section={route.param} go={go} onLogout={onLogout} />;
@@ -1054,20 +1060,13 @@ function PortalTweaks({ tweaks, setTweak, ds, setDs }) {
           value={ds.palette}
           onChange={v => setDs("palette", v)}
           options={[
-            { value:"citrus",  label:"Citrus (amber · indigo)" },
-            { value:"aurora",  label:"Aurora (violet · lime)" },
-            { value:"cobalt",  label:"Cobalt (blue · magenta)" },
-            { value:"ember",   label:"Ember (orange · teal)" },
-            { value:"caastor", label:"Caastor (yellow · purple)" },
+            { value:"plex-registry", label:"Plex Registry (mineral · cobalt · signal)" },
           ]} />
         <TweakSelect label="Font"
           value={ds.font}
           onChange={v => setDs("font", v)}
           options={[
-            { value:"inter",     label:"Inter Tight (default)" },
-            { value:"geist",     label:"Geist" },
-            { value:"plex",      label:"IBM Plex Condensed" },
-            { value:"serif-mix", label:"Serif display mix" },
+            { value:"plex", label:"IBM Plex (Registry)" },
           ]} />
         <TweakRadio label="Density"
           value={ds.density}

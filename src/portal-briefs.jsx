@@ -641,7 +641,9 @@ function SpecialistsDirectory({ go }) {
   const [openId, setOpenId] = useBrState(null);
   const [query, setQuery] = useBrState("");
   const [sort, setSort] = useBrState("dept");
-  const [view, setView] = useBrState("grid");
+  /* The registry is the default surface: scanable rows first, cards remain
+     available as an intentional alternate view. */
+  const [view, setView] = useBrState("list");
 
   /* Hide internal-only specs (BIO Compiler, Audit & Ledger) — those are
      infrastructure run by Brandolph, not user-pickable specialists. */
@@ -688,7 +690,7 @@ function SpecialistsDirectory({ go }) {
   );
 
   return (
-    <div style={{padding:"24px 36px 60px"}}>
+    <div className="cos-agents-v2" style={{padding:"24px 36px 60px"}}>
       <PageHeader
         eyebrow={t("briefs.spec.eyebrow")}
         title={t("briefs.spec.title")}
@@ -707,7 +709,7 @@ function SpecialistsDirectory({ go }) {
             {pinned.map(a => (
               <button key={a.id} onClick={() => setOpenId(a.id)} className="card"
                 style={{textAlign:"left", cursor:"pointer", padding:"12px 14px", display:"flex", alignItems:"center", gap:10,
-                  borderLeft:`3px solid ${window.CI_DEPT_COLORS[a.dept] || "var(--neutral-400)"}`}}>
+                  borderLeft:"3px solid var(--accent)"}}>
                 <div style={{flex:1, minWidth:0}}>
                   <div style={{fontSize:13.5, fontWeight:600, color:"var(--c-ink)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{a.name}</div>
                   <div className="eyebrow" style={{color:"var(--c-dim)"}}>{a.dept}</div>
@@ -727,7 +729,7 @@ function SpecialistsDirectory({ go }) {
             {mostUsed.map(a => (
               <button key={a.id} onClick={() => setOpenId(a.id)} className="card"
                 style={{textAlign:"left", cursor:"pointer", padding:"12px 14px", display:"flex", alignItems:"center", gap:10,
-                  borderLeft:`3px solid ${window.CI_DEPT_COLORS[a.dept] || "var(--neutral-400)"}`}}>
+                  borderLeft:"3px solid var(--accent)"}}>
                 <div style={{flex:1, minWidth:0}}>
                   <div style={{fontSize:13.5, fontWeight:600, color:"var(--c-ink)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{a.name}</div>
                   <div className="eyebrow" style={{color:"var(--c-dim)"}}>{a.dept}</div>
@@ -791,7 +793,10 @@ function SpecialistsDirectory({ go }) {
           );
         })
       ) : view === "list" ? (
-        <div className="card stagger" style={{padding: 0, overflow:"hidden"}}>
+        <div className="cos-agent-registry card stagger" style={{padding: 0, overflow:"hidden"}}>
+          <div className="cos-agent-registry__head" aria-hidden="true">
+            <span>Agent</span><span>Role</span><span>Status</span><span>Credits</span><span />
+          </div>
           {flat.map((a, i) => (
             <SpecialistRow key={a.id} a={a} usage={usage[a.id] || 0} last={i === flat.length - 1} onClick={() => setOpenId(a.id)} />
           ))}
@@ -813,24 +818,27 @@ function SpecialistsDirectory({ go }) {
 function SpecialistRow({ a, usage, last, onClick }) {
   const { t } = useLocale();
   const isTeam = useIsTeam();
-  const accent = isTeam ? window.CI_MODELS[a.model].color : (window.CI_DEPT_COLORS[a.dept] || "var(--neutral-400)");
+  const accent = isTeam ? window.CI_MODELS[a.model].color : "var(--accent)";
   const soon = a.status === "soon";
   return (
-    <div onClick={onClick}
-      style={{display:"flex", alignItems:"center", gap:14, padding:"12px 16px", cursor:"pointer",
+    <div className="cos-agent-row" onClick={onClick} role="button" tabIndex={0}
+      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick?.(); } }}
+      style={{display:"grid", alignItems:"center", gap:14, padding:"12px 16px", cursor:"pointer",
         borderBottom: last ? "none" : "1px solid var(--c-line)", borderLeft:`3px solid ${accent}`, opacity: soon ? 0.62 : 1}}
       onMouseEnter={e => e.currentTarget.style.background = "var(--neutral-50)"}
       onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-      <span style={{fontFamily:"var(--font-mono)", fontSize:10.5, color:"var(--c-faint)", minWidth:48}}>{a.code}</span>
-      <div style={{flex:"0 0 200px", minWidth:0}}>
-        <div style={{fontSize:13.5, fontWeight:600, color:"var(--c-ink)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{a.name}</div>
-        <div className="eyebrow" style={{color:"var(--c-dim)"}}>{a.dept}</div>
+      <div style={{minWidth:0}}>
+        <div className="cos-agent-row__name" style={{whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{a.name}</div>
+        <div className="cos-agent-row__code">{a.code} · {a.dept}</div>
       </div>
-      <div style={{flex:1, minWidth:0, fontSize:12.5, color:"var(--c-dim)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{a.job}</div>
+      <div className="cos-agent-row__role" style={{flex:1, minWidth:0, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{a.job}</div>
       {isTeam && <ModelChip modelKey={a.model} />}
       {usage > 0 && <span style={{fontFamily:"var(--font-mono)", fontSize:10.5, color:"var(--c-faint)"}}>{usage}×</span>}
-      <span className="credit credit--pending" style={{fontSize:11}}>{a.cr} cr</span>
-      {soon ? <span className="pill" style={{height:18, padding:"0 8px", fontSize:9.5}}>{t("briefs.spec.soon")}</span> : <Icon name="arrow" size={14} />}
+      <span className="cos-agent-row__credits credit credit--pending" style={{fontSize:11}}>{a.cr} cr</span>
+      <span className={"cos-agent-row__status" + (soon ? " cos-agent-row__status--soon" : "")}>
+        {soon ? t("briefs.spec.soon") : t("ui.status.live")}
+      </span>
+      <Icon name="arrow" size={14} />
     </div>
   );
 }
@@ -1013,7 +1021,7 @@ function SpecialistDrawer({ open, agent, onClose }) {
   if (!agent) return null;
   const isTeam = useIsTeam();
   const m = window.CI_MODELS[agent.model];
-  const accent = isTeam ? m.color : (window.CI_DEPT_COLORS[agent.dept] || "var(--neutral-300)");
+  const accent = isTeam ? m.color : "var(--accent)";
   const meta = window.CI_DEPT_META[agent.dept] || {};
   const spec = specialistSpec(agent);
   const refusals = [...(window.CI_BRAND_REFUSALS || []), ...(spec.refusals || [])];
@@ -2725,7 +2733,88 @@ function buildInitialRunEdges(ctx) {
   return edges;
 }
 
-function CanvasView({ go }) {
+/* Reference-grade Canvas workspace. The existing graph engine remains the
+   source of truth for pan/zoom/drag; this shell adds the actual product
+   anatomy from the approved visual: canvas + inspector + asset rail. */
+function PlexCanvasPrototype({ go }) {
+  const { t } = useLocale();
+  const [selected, setSelected] = useBrState(CANVAS_NODES.find(n => n.id === "brief") || CANVAS_NODES[0]);
+  const [tab, setTab] = useBrState("brief");
+  const assets = [
+    { label:"Campaign Hero", meta:"PNG · 1920×1080", tone:"navy" },
+    { label:"Brandolph Shield", meta:"SVG · Vector", tone:"cobalt" },
+    { label:"Messaging Lockup", meta:"PNG · 1200×628", tone:"paper" },
+    { label:"Campaign Palette", meta:"ASE · 4 colors", tone:"palette" },
+    { label:"Founder Portrait", meta:"JPG · 1200×1500", tone:"portrait" },
+  ];
+  const nodeLabel = selected?.title || "Q3 Campaign Launch Brief";
+  return (
+    <div className="plex-canvas-workspace">
+      <section className="plex-canvas-main" aria-label="Canvas workspace">
+        <div className="plex-canvas-toolbar">
+          <div className="plex-canvas-toolset">
+            <button className="plex-canvas-tool plex-canvas-tool--active" aria-label="Select"><Icon name="arrow" size={15} /></button>
+            <button className="plex-canvas-tool" aria-label="Arrange"><Icon name="canvas" size={15} /></button>
+            <button className="plex-canvas-tool" aria-label="Connect"><Icon name="spark" size={15} /></button>
+            <button className="plex-canvas-tool" aria-label="Add node"><Icon name="plus" size={15} /></button>
+          </div>
+          <div className="plex-canvas-toolbar__right">
+            <button className="plex-canvas-zoom">100% <span aria-hidden="true">⌄</span></button>
+            <button className="plex-canvas-tool" aria-label={t("briefs.canvas.exportImage")}><Icon name="download" size={15} /></button>
+          </div>
+        </div>
+        <div className="plex-canvas-stage">
+          <InteractiveCanvas
+            nodeData={CANVAS_NODES}
+            edges={CANVAS_EDGES}
+            onNodeClick={(node) => { setSelected(node); setTab(node?.kind === "feedback" ? "review" : "brief"); }}
+            exportName="plex-registry-canvas"
+            controls={false}
+            helper={false}
+            height="100%"
+          />
+          <div className="plex-canvas-minimap" aria-hidden="true">
+            <span className="plex-map-node plex-map-node--bio" /><span className="plex-map-node plex-map-node--brief" /><span className="plex-map-node plex-map-node--copy" /><span className="plex-map-node plex-map-node--asset" />
+          </div>
+        </div>
+        <div className="plex-canvas-library">
+          <div className="plex-canvas-library__heading"><strong>Library</strong><span>{assets.length} assets</span><button onClick={() => go && go("library")}>View all in Library ↗</button></div>
+          <div className="plex-canvas-assets">
+            {assets.map(asset => <button key={asset.label} className="plex-canvas-asset" onClick={() => go && go("library")}>
+              <span className={`plex-canvas-asset__thumb plex-canvas-asset__thumb--${asset.tone}`} aria-hidden="true">{asset.tone === "portrait" ? <img src="caastor/assets/profile-1.jpg" alt="" /> : asset.tone === "palette" ? <><i /><i /><i /><i /></> : null}</span>
+              <span><strong>{asset.label}</strong><small>{asset.meta}</small></span>
+            </button>)}
+          </div>
+        </div>
+      </section>
+
+      <aside className="plex-canvas-inspector" aria-label="Canvas inspector">
+        <div className="plex-inspector-tabs">
+          {[['brief','Brief'],['review','Review'],['account','Account']].map(([id, label]) => <button key={id} className={tab === id ? "is-active" : ""} onClick={() => setTab(id)}>{label}</button>)}
+        </div>
+        {tab === "brief" && <>
+          <div className="plex-inspector-kicker"><span className="plex-inspector-icon"><Icon name="brief" size={14} /></span><span>BRIEF</span><code>v2.1</code></div>
+          <h2>{nodeLabel}</h2>
+          <dl className="plex-inspector-facts">
+            <div><dt>Objective</dt><dd>Drive awareness and trial for the new Brandolph Pro.</dd></div>
+            <div><dt>Audience</dt><dd>Marketing leaders at B2B SaaS companies.</dd></div>
+            <div><dt>Deliverables</dt><dd>Campaign strategy, messaging, visuals, and asset library.</dd></div>
+            <div><dt>Due date</dt><dd>20 Jun, 2025</dd></div>
+            <div><dt>Owner</dt><dd><img src="caastor/assets/profile-1.jpg" alt="" /> Alex Mercer</dd></div>
+          </dl>
+          <div className="plex-inspector-meter"><div><span>Confidence</span><strong>72%</strong></div><span><i /></span></div>
+          <div className="plex-inspector-status"><span /> In progress</div>
+          <div className="plex-inspector-rule" />
+          <div className="plex-inspector-section"><h3>Brand &amp; Account</h3><p><span>Brand</span><strong>Brandolph <b>●</b></strong></p><p><span>Plan</span><strong>Enterprise</strong></p><p><span>API credits</span><strong>12,540 / 25,000</strong></p><p><span>Billing</span><strong className="is-live">● Active</strong></p></div>
+        </>}
+        {tab === "review" && <div className="plex-inspector-tabcopy"><div className="plex-inspector-kicker"><span className="plex-inspector-icon"><Icon name="check" size={14} /></span><span>REVIEW</span></div><h2>Review &amp; Decide</h2><p>Review the selected brief, compare specialist outputs, and send the work back for revision.</p><button className="btn btn--primary" onClick={() => setTab("brief")}>Back to brief</button></div>}
+        {tab === "account" && <div className="plex-inspector-tabcopy"><div className="plex-inspector-kicker"><span className="plex-inspector-icon"><Icon name="settings" size={14} /></span><span>ACCOUNT</span></div><h2>Workspace settings</h2><p>Manage your workspace, plan, credits, palette, and typography from Account.</p><button className="btn btn--primary" onClick={() => go && go("settings")}>Open Account</button></div>}
+      </aside>
+    </div>
+  );
+}
+
+function CanvasView({ go, prototype = false }) {
   /* Read context off sessionStorage. Two modes:
        mode:"run"  → assembled crew ready to run (from HomeCreate handoff)
        mode:"view" → existing brief opened from BriefsLibrary; loads runs/outputs from DB
@@ -2742,13 +2831,14 @@ function CanvasView({ go }) {
     setCtx(null);
   };
 
+  if (prototype) return <PlexCanvasPrototype go={go} />;
   if (ctx?.mode === "view" && ctx.briefId) {
     return <BriefViewCanvas briefId={ctx.briefId} onClear={clearCtx} go={go} />;
   }
   if (ctx && Array.isArray(ctx.specialistIds) && ctx.specialistIds.length > 0 && ctx.brandId) {
     return <BriefRunCanvas context={ctx} onClear={clearCtx} go={go} />;
   }
-  return <InteractiveCanvas nodeData={CANVAS_NODES} edges={CANVAS_EDGES} exportName="demo-brand-canvas" />;
+  return <PlexCanvasPrototype go={go} />;
 }
 
 /* ── BriefViewCanvas — loads an existing brief's runs/outputs from DB

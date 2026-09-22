@@ -1,5 +1,6 @@
 {
   "drafts": {
+    "label": "Drafts",
     "retryAnalysis": "Retry analysis",
     "previousAnswers": "Previous answers",
     "handoffError": "Your draft is saved, but the canvas could not be opened. Enable browser storage and try again.",
