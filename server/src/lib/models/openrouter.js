@@ -55,7 +55,7 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
   const systemText = flattenSystem(system);
   const body = {
     model,
-    max_tokens: maxTokens,
+    max_completion_tokens: maxTokens,
     stream: true,
     messages: [
       ...(systemText ? [{ role: "system", content: systemText }] : []),

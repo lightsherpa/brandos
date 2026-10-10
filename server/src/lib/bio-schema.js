@@ -1,3 +1,4 @@
+import {normalizePositioning} from "./competitive-landscape.js";
 // Single source of truth for BIO shape: the field registry, the
 // normalization boundary (normalizeBio), and the event-sourced
 // projection (projectBio). Pure — no DB, no network.
@@ -40,6 +41,15 @@ export const BIO_FIELDS = [
   { path: ["goals", "q3"],             kind: "scalar",  slice: "goals",       scored: true },
   { path: ["strategic", "watchouts"],  kind: "list",    slice: "strategic",   scored: true },
   { path: ["strategic", "notList"],    kind: "list",    slice: "strategic",   scored: true },
+  // Additive competitive landscape: current BIO scoring/certification stays unchanged.
+  { path:["aspirations","direction"],kind:"scalar",slice:"positioning",scored:false },
+  { path:["aspirations","notYetTrue"],kind:"list",slice:"positioning",scored:false },
+  { path:["aspirations","references"],kind:"list",slice:"positioning",scored:false },
+  { path: ["positioning", "frameOfReference"], kind: "scalar", slice: "positioning", scored: false },
+  { path: ["positioning", "competitors"], kind: "objlist", slice: "positioning", scored: false },
+  { path: ["positioning", "pointsOfDifference"], kind: "objlist", slice: "positioning", scored: false },
+  { path: ["positioning", "pointsOfParity"], kind: "list", slice: "positioning", scored: false },
+  { path: ["positioning", "researchGaps"], kind: "list", slice: "positioning", scored: false },
   // visual — rendered and sliced, but NOT scored (matches historical scoring).
   { path: ["visual", "palette"],       kind: "objlist", slice: "palette",     scored: false },
   { path: ["visual", "type"],          kind: "objlist", slice: "type",        scored: false },
@@ -84,6 +94,7 @@ export function normalizeBio(raw = {}) {
   for (const section of SECTIONS) {
     out[section] = { ...sectionSkeleton(section), ...(isObj(src[section]) ? src[section] : {}) };
   }
+  out.positioning = normalizePositioning(out.positioning);
   out.confidence = isObj(src.confidence) ? src.confidence : {};
   out.evidence = isObj(src.evidence) ? src.evidence : {};
   out.fieldStatus = isObj(src.fieldStatus) ? src.fieldStatus : {};
@@ -195,6 +206,7 @@ const AGENT_LABELS = {
   "voice.forbidden": "FORBIDDEN WORDS (never use)", "voice.signatures": "SIGNATURES",
   "goals.northStar": "NORTH STAR", "goals.q2": "THIS QUARTER", "goals.q3": "NEXT QUARTER",
   "strategic.watchouts": "WATCHOUTS", "strategic.notList": "WHAT THE BRAND IS NOT",
+  "positioning.frameOfReference":"MARKET / FRAME OF REFERENCE", "positioning.competitors":"COMPETITORS AND CUSTOMER ALTERNATIVES", "positioning.pointsOfDifference":"DIFFERENCES AND THEIR PROOF", "positioning.pointsOfParity":"CATEGORY EXPECTATIONS", "positioning.researchGaps":"COMPETITIVE RESEARCH GAPS",
   "visual.palette": "PALETTE", "visual.type": "TYPE", "visual.imagery": "IMAGERY", "visual.avoid": "AVOID",
 };
 
@@ -224,6 +236,10 @@ function renderAgentField(bio, field) {
   const key = `${s}.${k}`;
   const v = bio?.[s]?.[k];
   if (!isFilled(v)) return null;
+  if(s==='aspirations')return `ASPIRATIONAL ${k} (desired direction, not existing brand facts or proven claims): ${JSON.stringify(v)}`;
+  if (s==='positioning'  && ['competitors','pointsOfDifference'].includes(k)) {
+    return `${AGENT_LABELS[key]} (client/evidence context, not independently verified; never invent competitor claims or assert superiority without verified proof): ${JSON.stringify(v)}`;
+  }
   const conf = bio?.confidence?.[key]?.conf;
   const marker = typeof conf === "number" && conf < LOW_CONF ? " (inferred — low confidence, do not assert as fact)" : "";
   return `${AGENT_LABELS[key] || k}: ${renderValue(field.kind, v)}${marker}`;

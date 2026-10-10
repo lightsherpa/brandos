@@ -93,7 +93,7 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
     .maybeSingle();
   if (error || !job) return c.json({ error: error?.message || "Not found" }, 404);
   if (job.assigned_to && job.assigned_to !== steward.id && !isLead) {
-    return c.json({ error: "Job assigned to another Steward" }, 403);
+    return c.json({ error: "Job assigned to another Creative Director" }, 403);
   }
 
   const { data: sources } = await supabaseAdmin
@@ -225,7 +225,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
   /* ─── Cancel ────────────────────────────────────────────────────────── */
   if (body.status === "cancelled") {
-    if (job.assigned_to && job.assigned_to !== steward.id) return c.json({ error: "Job assigned to another Steward" }, 403);
+    if (job.assigned_to && job.assigned_to !== steward.id) return c.json({ error: "Job assigned to another Creative Director" }, 403);
     await supabaseAdmin.from("steward_jobs").update({ status: "cancelled", completed_at: new Date().toISOString() }).eq("id", jobId);
     return c.json({ ok: true, status: "cancelled" });
   }
@@ -244,7 +244,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
     await supabaseAdmin.from("steward_jobs").update({ assigned_to: steward.id, status: "in_review" }).eq("id", jobId);
     job.assigned_to = steward.id;
   } else if (job.assigned_to !== steward.id) {
-    return c.json({ error: "Job assigned to another Steward" }, 403);
+    return c.json({ error: "Job assigned to another Creative Director" }, 403);
   }
 
   const { data: bio, error: bioErr } = await supabaseAdmin
@@ -296,6 +296,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
     cert_kind: finalCertified ? job.kind : null,
     cert_valid_until: finalCertified ? ttlFromNow() : null,
     steward_notes: body.notes || null,
+    ...(hasBioPatch ? {client_acceptance_required:true,client_accepted_at:null,client_accepted_by:null} : {}),
   }).eq("id", targetBioId);
 
   const newStatus =
@@ -345,7 +346,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
       await notify({
         recipientUserId,
         kind: "steward.changes_requested",
-        title: "Your Steward requested changes",
+        title: "Your Creative Director requested changes",
         body: "A senior reviewer returned your brand BIO with required changes. Open your BIO to see what to address.",
         link: "#/bio",
         brandId: job.brand_id,

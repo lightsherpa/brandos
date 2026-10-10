@@ -1,3 +1,4 @@
+import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
@@ -5,6 +6,8 @@ import { assignSteward } from "../lib/assign-steward.js";
 import { scoreBio } from "../lib/score-bio.js";
 import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
+import {validateCertificationReview} from "../lib/certification-review.js";
+import { isWorkspaceOwner } from "../lib/permissions.js";
 import { selfCertifyBio } from "../lib/self-certify.js";
 import { diffBio } from "../lib/bio-diff.js";
 import { loadBioForRun } from "../lib/load-brand-bio.js";
@@ -90,6 +93,8 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   if (!form) return c.json({ error: "multipart/form-data required" }, 400);
   const file = form.get("file");
   const bucket = String(form.get("bucket") || "").trim();
+  const purpose=form.get("purpose") || "current";
+  if(!["current","aspiration"].includes(purpose))return c.json({error:"Invalid source purpose"},400);
   if (!file || typeof file === "string") return c.json({ error: "file required" }, 400);
   if (!["foundations","visual","voice"].includes(bucket)) return c.json({ error: "bucket must be foundations|visual|voice" }, 400);
   const filename = file.name || "upload.bin";
@@ -158,7 +163,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
         size: file.size,
         mime,
         upload_id: uploadRow?.id,
-        ext,
+        ext, purpose,
         ...visualMetadata,
         ...(bucket === "visual" ? { rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() } : {}),
       },
@@ -300,18 +305,21 @@ app.get("/:brandId", requireAuth, async (c) => {
 
   const { data: brand } = await supabaseAdmin
     .from("brands")
-    .select("id, name, workspace_id")
+    .select("id, name, url, workspace_id")
     .eq("id", brandId)
     .maybeSingle();
   if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
 
   const { data: bio } = await supabaseAdmin
     .from("bios")
-    .select("id, version, payload, score, certified, certified_by, certified_at, cert_kind, steward_notes, self_certified, self_certified_at, discovery_id, created_at, created_by")
+    .select("id, brand_id, version, payload, score, certified, certified_by, certified_at, cert_kind, steward_notes, self_certified, self_certified_at, discovery_id, created_at, created_by, cert_valid_until, client_acceptance_required, client_accepted_at, client_accepted_by")
     .eq("brand_id", brandId)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  const integrity = bio && bioIntegrityError(bio, brand);
+  if(integrity)return c.json(integrity,409);
 
   /* Surface whether a human review is already in flight for this BIO so
      the client can show "review requested" instead of offering the button
@@ -403,22 +411,43 @@ app.post("/:brandId/self-certify", requireAuth, async (c) => {
     .from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
   if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
 
+  if (!isWorkspaceOwner(c.get("auth"), workspaceId)) return c.json({error:"Only the workspace Owner can confirm the BIO",code:"OWNER_REQUIRED"},403);
+
   const body = await c.req.json().catch(() => ({}));
 
   const { data: bio } = await supabaseAdmin
     .from("bios").select("id, version, payload").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
   if (!bio) return c.json({ error: "No BIO to certify yet", code: "NO_BIO" }, 400);
+  const review = validateCertificationReview({body,bio});
+  if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
 
   // Shared gate: statements + field marks + high-importance gaps + min score,
   // then the attestation write + self_certified flip (see lib/self-certify.js).
   const result = await selfCertifyBio({
     brandId, bioId: bio.id, payload: bio.payload || {}, userId,
     statements: body.statements, fieldMarks: body.fieldMarks, statementVersion: body.statementVersion,
+    review: review.review,
   });
-  if (!result.ok) { const { ok, ...err } = result; return c.json(err, 400); }
+  if (!result.ok) { const { ok, ...err } = result; return c.json(err, result.code==="STALE_BIO"?409:result.code==="ATTESTATION_FAILED"?500:400); }
 
-  return c.json({ ok: true, self_certified: true, version: bio.version, score: result.score });
+  return c.json({ ok: true, self_certified: true, version: bio.version, score: result.score, attestationId:result.attestationId, attestedAt:result.attestedAt,reviewQueued:result.reviewQueued });
+});
+
+/* Owner acceptance of a CD-edited version uses the same deliberate v2 review. */
+app.post("/:brandId/accept-changes",requireAuth,async c=>{
+ const {workspaceId,userId}=c.get("auth"),brandId=c.req.param("brandId");
+ const {data:brand}=await supabaseAdmin.from("brands").select("workspace_id").eq("id",brandId).maybeSingle();
+ if(!brand||brand.workspace_id!==workspaceId)return c.json({error:"Brand not in workspace"},403);
+ if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can accept BIO changes",code:"OWNER_REQUIRED"},403);
+ const body=await c.req.json().catch(()=>({}));
+ const {data:bio}=await supabaseAdmin.from("bios").select("id,version,payload,certified,client_acceptance_required,client_accepted_at").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
+ if(!bio)return c.json({error:"No BIO to accept",code:"NO_BIO"},400);
+ const review=validateCertificationReview({body,bio});if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
+ const {data:result,error}=await supabaseAdmin.rpc("accept_bio_client_changes",{p_brand_id:brandId,p_bio_id:bio.id,p_version:body.version,p_user_id:userId,p_review:review.review});
+ if(error)return c.json({error:"Could not record acceptance"},500);
+ if(!result?.ok)return c.json(result||{error:"Acceptance was not recorded"},409);
+ return c.json({...result,version:bio.version});
 });
 
 /* POST /api/bios/:brandId/request-review

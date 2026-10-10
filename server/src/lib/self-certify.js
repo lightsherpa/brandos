@@ -12,6 +12,8 @@
 // { ok:false, code, error, ... } (with an `error` message HTTP callers can
 // pass straight through); success returns { ok:true, score }.
 
+import {bioIntegrityError} from "./brand-source-integrity.js";
+import { assignSteward } from "./assign-steward.js";
 import { supabaseAdmin } from "./supabase.js";
 import { scoreBio } from "./score-bio.js";
 import { computeFocus } from "./bio-focus.js";
@@ -30,14 +32,17 @@ import { DEFAULT_RUBRIC } from "./evaluate-certification.js";
  * @param {number}  [args.minScore]         override; else read the active rubric
  * @returns {Promise<{ok:true, score:number}|{ok:false, code:string, error:string}>}
  */
-export async function selfCertifyBio({ brandId, bioId, payload, userId, statements, fieldMarks, statementVersion, minScore }) {
+export async function selfCertifyBio({ brandId, bioId, payload, userId, statements, fieldMarks, statementVersion, minScore, review = null }) {
+  const integrity=bioIntegrityError({payload},{id:brandId});
+  if(integrity)return {ok:false,...integrity};
   const marks = (fieldMarks && typeof fieldMarks === "object") ? fieldMarks : {};
   const s = statements || {};
   const version = String(statementVersion || "1");
   const bio = payload || {};
+  if(version!=="2"||!review)return {ok:false,code:"REVIEW_REQUIRED",error:"Review the exact BIO in the current confirmation flow"};
 
   // 1) All three attestation statements must be affirmed.
-  if (!(s.authority && s.reflects && s.aspirationalMarked)) {
+  if (![s.authority, s.reflects, s.aspirationalMarked].every(value => value === true)) {
     return { ok: false, code: "STATEMENTS_REQUIRED", error: "All three attestation statements must be confirmed" };
   }
 
@@ -66,15 +71,21 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
     return { ok: false, code: "BELOW_MIN_SCORE", error: `BIO score ${score} is below the ${floor} needed to self-certify`, score, minScore: floor };
   }
 
-  // 5) Bind an immutable attestation to the exact payload, then flip the flag.
-  await supabaseAdmin.from("bio_attestations").insert({
-    bio_id: bioId, brand_id: brandId, attested_by: userId,
-    payload_hash: payloadHash(bio), statement_version: version,
-    field_marks: marks, self_score: score,
+  // Record and unlock atomically; a failed attestation must never unlock briefing.
+  const {data, error} = await supabaseAdmin.rpc("record_bio_self_certification", {
+    p_bio_id:bioId, p_brand_id:brandId, p_user_id:userId,
+    p_payload_hash:payloadHash(bio), p_statement_version:version,
+    p_field_marks:marks, p_score:score, p_review:review,
   });
-  await supabaseAdmin.from("bios")
-    .update({ self_certified: true, self_certified_at: new Date().toISOString() })
-    .eq("id", bioId);
-
-  return { ok: true, score };
+  if(error)return {ok:false,code:"ATTESTATION_FAILED",error:"Could not record certification. Please retry."};
+  if(!data?.ok)return data||{ok:false,code:"ATTESTATION_FAILED",error:"Certification was not recorded."};
+  await supabaseAdmin.from("discovery_sessions").update({status:"completed",updated_at:new Date().toISOString()}).eq("brand_id",brandId);
+  const {data:existing}=await supabaseAdmin.from("steward_jobs").select("id").eq("bio_id",bioId).in("status",["queued","in_review","pending_lead_review"]).limit(1).maybeSingle();
+  let reviewQueued=!!existing;
+  if(!existing){
+    const {data:job,error:queueError}=await supabaseAdmin.from("steward_jobs").insert({bio_id:bioId,brand_id:brandId,kind:"drift_check",status:"queued"}).select("id").single();
+    reviewQueued=!!job||queueError?.code==="23505";
+    if(job){try{await assignSteward(job.id);}catch{ /* remains queued for operations */ }}
+  }
+  return {...data, score, reviewQueued};
 }

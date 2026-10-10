@@ -1,0 +1,386 @@
+{
+  "brandName": "Neighborhood bakery · demo fixture",
+  "certifier": "Demo Creative Director",
+  "bio": {
+    "id": "demo-bio",
+    "version": 2,
+    "payload": {
+      "goals": {
+        "q2": "Introduce filter coffee.",
+        "q3": "Supply two nearby cafés.",
+        "northStar": "Be the neighborhood’s regular morning stop."
+      },
+      "voice": {
+        "rhythm": "Short sentences. Warm invitations.",
+        "register": "Plain and friendly",
+        "forbidden": [
+          "gourmet",
+          "synergy"
+        ],
+        "signatures": [
+          "Made this morning"
+        ]
+      },
+      "visual": {
+        "type": [
+          {
+            "kind": "Display",
+            "family": "IBM Plex Serif",
+            "selector": "h1",
+            "usageStatus": "declared-not-computed",
+            "sourceProperty": "font-family"
+          },
+          {
+            "kind": "Body",
+            "family": "IBM Plex Sans",
+            "selector": "body",
+            "usageStatus": "declared-not-computed",
+            "sourceProperty": "font-family"
+          }
+        ],
+        "avoid": [
+          "Unrelated stock imagery"
+        ],
+        "imagery": [
+          "Synthetic warm morning bakery photography"
+        ],
+        "palette": [
+          {
+            "hex": "#234567",
+            "name": "charcoal",
+            "role": "accent",
+            "evidence": [
+              "color: #234567"
+            ],
+            "roleStatus": "inferred"
+          },
+          {
+            "hex": "#f4f4f1",
+            "name": "white",
+            "role": "background",
+            "evidence": [
+              "background: #f4f4f1"
+            ],
+            "roleStatus": "inferred"
+          }
+        ],
+        "references": [],
+        "contrastPairs": [
+          {
+            "ratio": 9,
+            "background": "#f4f4f1",
+            "foreground": "#234567",
+            "normalTextAA": true
+          }
+        ]
+      },
+      "missing": [],
+      "audience": {
+        "jtbd": [
+          "Find a reliable morning stop",
+          "Share fresh bread at home"
+        ],
+        "primary": "Local residents who walk to the bakery each morning.",
+        "tertiary": "Weekend families.",
+        "secondary": "Office workers buying breakfast."
+      },
+      "evidence": {
+        "voice.rhythm": "Steward edit",
+        "audience.jtbd": "Synthetic audience source fixture",
+        "voice.register": "Synthetic voice source fixture",
+        "goals.northStar": "Synthetic goals source fixture",
+        "voice.forbidden": "Synthetic voice source fixture",
+        "audience.primary": "Synthetic audience source fixture",
+        "identity.category": "Synthetic identity source fixture",
+        "strategic.notList": "Synthetic strategic source fixture",
+        "identity.positioning": "Synthetic identity source fixture"
+      },
+      "identity": {
+        "founded": "2019",
+        "pillars": [
+          "Daily",
+          "Local",
+          "Honest"
+        ],
+        "category": "Neighborhood bakery",
+        "positioning": "An independent neighborhood bakery serving weekday regulars."
+      },
+      "refusals": [
+        "Never claim wholesale service already exists."
+      ],
+      "research": {
+        "query": "Neighborhood bakery alternatives competitors Local residents",
+        "status": "incomplete",
+        "sources": [],
+        "limitations": [
+          "No readable external competitive evidence returned. Do not invent competitors or comparisons."
+        ]
+      },
+      "strategic": {
+        "notList": [
+          "A destination patisserie"
+        ],
+        "watchouts": [
+          "Keep the weekday menu dependable"
+        ]
+      },
+      "confidence": {
+        "goals.q2": {
+          "conf": 90,
+          "source": "Synthetic goals source fixture"
+        },
+        "goals.q3": {
+          "conf": 90,
+          "source": "Synthetic goals source fixture"
+        },
+        "visual.type": {
+          "conf": 90,
+          "source": "Synthetic visual source fixture"
+        },
+        "visual.avoid": {
+          "conf": 90,
+          "source": "Synthetic visual source fixture"
+        },
+        "voice.rhythm": {
+          "conf": 70,
+          "source": "steward edit"
+        },
+        "audience.jtbd": {
+          "conf": 90,
+          "source": "Synthetic audience source fixture"
+        },
+        "visual.imagery": {
+          "conf": 90,
+          "source": "Synthetic visual source fixture"
+        },
+        "visual.palette": {
+          "conf": 90,
+          "source": "Synthetic visual source fixture"
+        },
+        "voice.register": {
+          "conf": 90,
+          "source": "Synthetic voice source fixture"
+        },
+        "goals.northStar": {
+          "conf": 90,
+          "source": "Synthetic goals source fixture"
+        },
+        "voice.forbidden": {
+          "conf": 90,
+          "source": "Synthetic voice source fixture"
+        },
+        "audience.primary": {
+          "conf": 90,
+          "source": "Synthetic audience source fixture"
+        },
+        "identity.founded": {
+          "conf": 90,
+          "source": "Synthetic identity source fixture"
+        },
+        "identity.pillars": {
+          "conf": 90,
+          "source": "Synthetic identity source fixture"
+        },
+        "voice.signatures": {
+          "conf": 90,
+          "source": "Synthetic voice source fixture"
+        },
+        "audience.tertiary": {
+          "conf": 90,
+          "source": "Synthetic audience source fixture"
+        },
+        "identity.category": {
+          "conf": 90,
+          "source": "Synthetic identity source fixture"
+        },
+        "strategic.notList": {
+          "conf": 90,
+          "source": "Synthetic strategic source fixture"
+        },
+        "audience.secondary": {
+          "conf": 90,
+          "source": "Synthetic audience source fixture"
+        },
+        "strategic.watchouts": {
+          "conf": 90,
+          "source": "Synthetic strategic source fixture"
+        },
+        "identity.positioning": {
+          "conf": 90,
+          "source": "Synthetic identity source fixture"
+        }
+      },
+      "aspirations": {
+        "direction": "Become the preferred neighborhood morning stop.",
+        "notYetTrue": [
+          "Wholesale service"
+        ],
+        "references": []
+      },
+      "fieldStatus": {
+        "voice.rhythm": "inferred",
+        "audience.jtbd": "supported",
+        "voice.register": "supported",
+        "goals.northStar": "supported",
+        "voice.forbidden": "supported",
+        "audience.primary": "supported",
+        "identity.category": "supported",
+        "strategic.notList": "supported",
+        "identity.positioning": "supported"
+      },
+      "positioning": {
+        "competitors": [],
+        "researchGaps": [
+          "Synthetic demo has no external competitive research.",
+          "No readable external competitive evidence returned. Do not invent competitors or comparisons."
+        ],
+        "pointsOfParity": [
+          "Fresh bread"
+        ],
+        "frameOfReference": "Local breakfast and bread",
+        "pointsOfDifference": []
+      },
+      "schema_version": "1.0",
+      "visualEvidence": {
+        "sources": [
+          {
+            "url": "https://demo-brand.test",
+            "note": "",
+            "status": "partial",
+            "styles": {
+              "type": [
+                {
+                  "kind": "Display",
+                  "family": "IBM Plex Serif",
+                  "selector": "h1",
+                  "usageStatus": "declared-not-computed",
+                  "sourceProperty": "font-family"
+                },
+                {
+                  "kind": "Body",
+                  "family": "IBM Plex Sans",
+                  "selector": "body",
+                  "usageStatus": "declared-not-computed",
+                  "sourceProperty": "font-family"
+                }
+              ],
+              "method": "html-and-linked-css-declarations",
+              "palette": [
+                {
+                  "hex": "#234567",
+                  "name": "charcoal",
+                  "role": "accent",
+                  "evidence": [
+                    "color: #234567"
+                  ],
+                  "roleStatus": "inferred"
+                },
+                {
+                  "hex": "#f4f4f1",
+                  "name": "white",
+                  "role": "background",
+                  "evidence": [
+                    "background: #f4f4f1"
+                  ],
+                  "roleStatus": "inferred"
+                }
+              ],
+              "computed": false,
+              "stylesheets": [],
+              "contrastPairs": [
+                {
+                  "ratio": 9,
+                  "background": "#f4f4f1",
+                  "foreground": "#234567",
+                  "normalTextAA": true
+                }
+              ],
+              "unreadableStylesheets": []
+            },
+            "visual": {
+              "type": [
+                {
+                  "kind": "Display",
+                  "family": "IBM Plex Serif",
+                  "selector": "h1",
+                  "usageStatus": "declared-not-computed",
+                  "sourceProperty": "font-family"
+                },
+                {
+                  "kind": "Body",
+                  "family": "IBM Plex Sans",
+                  "selector": "body",
+                  "usageStatus": "declared-not-computed",
+                  "sourceProperty": "font-family"
+                }
+              ],
+              "avoid": [
+                "Unrelated stock imagery"
+              ],
+              "imagery": [
+                "Synthetic warm morning bakery photography"
+              ],
+              "palette": [
+                {
+                  "hex": "#234567",
+                  "name": "charcoal",
+                  "role": "accent",
+                  "evidence": [
+                    "color: #234567"
+                  ],
+                  "roleStatus": "inferred"
+                },
+                {
+                  "hex": "#f4f4f1",
+                  "name": "white",
+                  "role": "background",
+                  "evidence": [
+                    "background: #f4f4f1"
+                  ],
+                  "roleStatus": "inferred"
+                }
+              ],
+              "contrastPairs": [
+                {
+                  "ratio": 9,
+                  "background": "#f4f4f1",
+                  "foreground": "#234567",
+                  "normalTextAA": true
+                }
+              ]
+            },
+            "purpose": "current",
+            "checkedAt": "2026-10-10T19:15:11.857Z",
+            "limitations": [],
+            "screenshotUrl": "https://example.test/synthetic-demo.png"
+          }
+        ],
+        "limitations": [
+          "Palette and typography are source declarations, not verified computed styles. Palette roles are inferred and require review.",
+          "Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.",
+          "PDF text is read, but embedded PDF images are not rendered or inspected."
+        ]
+      },
+      "discoverySources": {
+        "instagram": null,
+        "references": [],
+        "unreadable": []
+      },
+      "discoveryWorkflow": {
+        "route": "production-v1",
+        "vision": "google/gemini-3.8-flash",
+        "synthesis": "anthropic/claude-sonnet-5.5",
+        "extraction": "anthropic/claude-haiku-5.5",
+        "limitations": [
+          "Palette and typography are source declarations, not verified computed styles. Palette roles are inferred and require review.",
+          "Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.",
+          "PDF text is read, but embedded PDF images are not rendered or inspected."
+        ]
+      }
+    },
+    "certified": true,
+    "cert_valid_until": "2027-04-08T19:15:13.855+00:00",
+    "client_acceptance_required": false,
+    "self_certified": true
+  }
+}
