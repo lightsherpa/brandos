@@ -8,6 +8,7 @@
 
 import { supabaseAdmin as sb } from "../server/src/lib/supabase.js";
 import { loadBioForRun, loadBioForBriefing } from "../server/src/lib/load-brand-bio.js";
+import { validateCertificationReview, CERTIFICATION_SECTIONS } from "../server/src/lib/certification-review.js";
 import { selfCertifyBio } from "../server/src/lib/self-certify.js";
 import { scoreBio } from "../server/src/lib/score-bio.js";
 
@@ -82,7 +83,10 @@ async function run() {
     .insert({ brand_id: brandId, version: 1, payload: edited, score: scoreBio(edited), certified: false, self_certified: false })
     .select("id, version").single();
   ok("attest promotes the draft to a candidate BIO version", !bErr && newBio?.version === 1, bErr?.message || `v${newBio?.version}`);
-  const res = await selfCertifyBio({ brandId, bioId: newBio.id, payload: edited, userId: null, statements: STATEMENTS, statementVersion: "1" });
+  const body={bioId:newBio.id,version:newBio.version,statementVersion:"2",reviewedSections:CERTIFICATION_SECTIONS,statements:STATEMENTS};
+  const review=validateCertificationReview({body,bio:newBio});
+  ok("v2 review binds to saved candidate",review.ok);
+  const res = await selfCertifyBio({ brandId, bioId: newBio.id, payload: edited, userId: null, statements: STATEMENTS, statementVersion: "2",review:review.review });
   ok("selfCertifyBio succeeds (score >= min, no high-importance gaps)", res.ok === true, res.ok ? `score ${res.score}` : res.code);
   await sb.from("discovery_sessions").update({ status: "completed" }).eq("id", sessionId);
 

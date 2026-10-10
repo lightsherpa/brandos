@@ -131,3 +131,8 @@ export function serializeAuthorization(auth) {
     compatibilityMode: !!auth.compatibilityMode,
   };
 }
+
+// Certification is an Owner action; workspace-admin access alone is insufficient.
+export function isWorkspaceOwner(auth, workspaceId) {
+  return !!(auth?.memberships || []).some(row=>row.workspace_id===workspaceId && row.status==='active' && row.is_owner===true);
+}

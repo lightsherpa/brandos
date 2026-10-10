@@ -12,6 +12,7 @@
 // { ok:false, code, error, ... } (with an `error` message HTTP callers can
 // pass straight through); success returns { ok:true, score }.
 
+import { assignSteward } from "./assign-steward.js";
 import { supabaseAdmin } from "./supabase.js";
 import { scoreBio } from "./score-bio.js";
 import { computeFocus } from "./bio-focus.js";
@@ -35,6 +36,7 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
   const s = statements || {};
   const version = String(statementVersion || "1");
   const bio = payload || {};
+  if(version!=="2"||!review)return {ok:false,code:"REVIEW_REQUIRED",error:"Review the exact BIO in the current confirmation flow"};
 
   // 1) All three attestation statements must be affirmed.
   if (![s.authority, s.reflects, s.aspirationalMarked].every(value => value === true)) {
@@ -74,5 +76,13 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
   });
   if(error)return {ok:false,code:"ATTESTATION_FAILED",error:"Could not record certification. Please retry."};
   if(!data?.ok)return data||{ok:false,code:"ATTESTATION_FAILED",error:"Certification was not recorded."};
-  return {...data, score};
+  await supabaseAdmin.from("discovery_sessions").update({status:"completed",updated_at:new Date().toISOString()}).eq("brand_id",brandId);
+  const {data:existing}=await supabaseAdmin.from("steward_jobs").select("id").eq("bio_id",bioId).in("status",["queued","in_review","pending_lead_review"]).limit(1).maybeSingle();
+  let reviewQueued=!!existing;
+  if(!existing){
+    const {data:job,error:queueError}=await supabaseAdmin.from("steward_jobs").insert({bio_id:bioId,brand_id:brandId,kind:"drift_check",status:"queued"}).select("id").single();
+    reviewQueued=!!job||queueError?.code==="23505";
+    if(job){try{await assignSteward(job.id);}catch{ /* remains queued for operations */ }}
+  }
+  return {...data, score, reviewQueued};
 }

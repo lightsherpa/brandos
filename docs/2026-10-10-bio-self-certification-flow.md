@@ -20,3 +20,12 @@ References: https://refero.design/flows/834 ; https://refero.design/pages/18fe2f
 The standalone self-certify endpoint requires statement version 2, exact BIO ID/version, seven reviewed sections, and strict boolean declarations. Records store reviewed sections and declarations in review_capture alongside the existing actor, timestamp, payload hash, score and statement version. Shared discovery attestation continues to use its existing field review flow; both write an attestation and unlock briefing atomically through a service-only database function. Apply migration 20261010010000_bio_review_attestation.sql before deploying server changes.
 
 Validation: 11 relevant Node tests pass, including stale-version, incomplete-review and strict-boolean regressions; production build and git diff --check pass. Local database transaction test verifies receipt metadata, successful unlock, stale rejection, failed-write rollback, and denied authenticated-role RPC execution; fixtures roll back. Browser QA checked all seven previews, review counter/gate, unchecked declarations, disabled final action, Escape dismissal, fresh unchecked state on reopen, and mobile layout at 390px with no modal/body horizontal overflow. QA did not self-certify the user's BIO. Screenshots: output/discovery-bio/bio-certification-confirm.png and bio-certification-mobile.png.
+
+
+## Release integration, 10 October
+
+Discovery now saves its draft via `prepare-review` and opens the same v2 modal as the BIO page. Both attestation endpoints validate the exact saved id/version, all seven reviewed sections and three strict boolean declarations. The compatibility `/attest` route no longer silently promotes an unreviewed payload. Both endpoints require an active Owner membership.
+
+Owner self-certification unlocks briefing and queues a Creative Director review; production remains gated by human certification. Creative Director edits flag that exact version for Owner acceptance. Acceptance uses the shared review modal and a service-only atomic acceptance/decision-receipt RPC. Existing RC separation of duties, rubric, calibration and expiration remain authoritative. Brand Judge in the review stream gates generated output, not BIO certification; it is outside this focused port.
+
+Validation: isolated local migration reset succeeded through 20261010030000. Real certification/discovery DB checks and transaction rollback/privilege checks pass. Nothing was applied to a hosted database.

@@ -1365,7 +1365,8 @@
       "successText": "This BIO version is now ready for briefing. Brand Steward certification is still required before production.",
       "recorded": "Recorded at",
       "done": "Return to BIO",
-      "close": "Close certification"
+      "close": "Close certification",
+      "acceptChanges": "Review Creative Director changes"
     },
     "landscape": {
       "label": "Competitive landscape",

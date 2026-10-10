@@ -62,7 +62,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
       const { bio, reviewPending, focusCount, review, diff } = await res.json();
       let certInfo = null;
       if (bio?.certified) {
-        let certName = "your Brand Steward";
+        let certName = "your Creative Director";
         if (bio.certified_by) {
           const { data: tm } = await supabase.from("team_members").select("first_name, name").eq("id", bio.certified_by).maybeSingle();
           certName = tm?.first_name || tm?.name || certName;
@@ -763,7 +763,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
   const [toast, setToast] = useDState(null);
 
   /* Attest UI */
-  const [statements, setStatements] = useDState({ authority:false, reflects:false, aspirationalMarked:false });
+  const [reviewBio,setReviewBio]=useDState(null);
   const [attestBusy, setAttestBusy] = useDState(false);
   const [attestErr, setAttestErr] = useDState(null);
 
@@ -801,7 +801,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
         const cur = typeof s.cursor === "string" && s.cursor ? s.cursor : "hub";
         setCursor(cur);
         if (cur.startsWith("chapter:")) { setActiveChapter(cur.slice("chapter:".length)); setView("chapter"); }
-        else if (cur === "attest") setView("attest");
+        else if (cur === "attest") setView("hub");
         else setView("hub");
       } catch (e) {
         /* Fall back to the live BIO payload so the user still sees real data. */
@@ -865,25 +865,19 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
     if (reviewedKey) setChapterStatus(cs => ({ ...cs, [reviewedKey]: "reviewed" }));
     setView("hub"); setCursor("hub"); bump();
   };
-  const openAttest = () => { setView("attest"); setCursor("attest"); bump(); };
+  const openAttest = () => prepareReview();
   const saveAndExit = async () => { if (!(await saveSession())) return; flash(t("discovery.results.savedExit")); setTimeout(() => { window.location.hash = "#/home"; }, 700); };
 
-  /* ── Attest → promote draft to a certified BIO version ──────────── */
-  const submitAttest = async () => {
-    if (attestBusy || !brandId) return;
-    setAttestBusy(true); setAttestErr(null);
-    if (!(await saveSession())) { setAttestErr(t("discovery.results.saveError")); setAttestBusy(false); return; }
-    try {
-      const res = await apiFetch(`/api/discovery/session/${brandId}/attest`, {
-        method: "POST",
-        body: JSON.stringify({ statements, fieldMarks: attestedRef.current, statementVersion: "1" }),
-      });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) { setAttestErr(discoAttestError(j)); return; }
-      flash(t("discovery.results.bioSigned"));
-      onConfirm && onConfirm();                   // advance to the live S13 step
-    } catch (e) { setAttestErr(e?.message || String(e)); }
-    finally { setAttestBusy(false); }
+  const prepareReview = async () => {
+    if(attestBusy||!brandId)return;
+    setAttestBusy(true);setAttestErr(null);
+    try{
+      if(!(await saveSession()))throw new Error(t("discovery.results.saveError"));
+      const response=await apiFetch(`/api/discovery/session/${brandId}/prepare-review`,{method:"POST"});
+      const body=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(body.error||`HTTP ${response.status}`);
+      setReviewBio(body.bio);
+    }catch(error){setAttestErr(error.message);}finally{setAttestBusy(false);}
   };
 
   /* ── Derived: per-section + overall roll-ups ────────────────────── */
@@ -917,7 +911,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       if (st.kind === "missing" || ["inferred", "review"].includes(st.kind)) flaggedFields.push({ ch, f, st });
     });
   });
-  const allChecked = statements.authority && statements.reflects && statements.aspirationalMarked;
+
 
   const noBrand = !brandId && !live.loading;
   const showLoader = (!brandId && live.loading) || (brandId && loading);
@@ -1040,75 +1034,12 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
             </>
           )}
 
-          {/* ── S12 — CONFIRM & ATTEST ──────────────────────────────── */}
-          {view === "attest" && (
-            <>
-              <button className="btn btn--link" style={{marginBottom:10, fontSize:13}} onClick={() => backToHub()}>{t("discovery.attest.back")}</button>
-              <h2 style={{margin:"0 0 4px", fontSize:24, letterSpacing:"-0.01em"}}>{t("discovery.attest.title")}</h2>
-              <p style={{margin:"0 0 20px", fontSize:14, color:"var(--c-dim)", lineHeight:1.55}}>
-                {t("discovery.attest.desc")}
-              </p>
 
-              {/* Summary tiles */}
-              <div style={{display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:12, marginBottom:18}}>
-                {[
-                  [t("discovery.attest.confirmed"), totals.confirmed, "var(--green-600)"],
-                  [t("discovery.attest.inferredToConfirm"), totals.toConfirm, "var(--orange-600)"],
-                  [t("discovery.attest.gaps"), totals.gaps, "var(--pink-500)"],
-                ].map(([label, n, color]) => (
-                  <div key={label} className="card" style={{padding:"14px 16px"}}>
-                    <div style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize:32, lineHeight:1, color, fontWeight:500}}>{n}</div>
-                    <div className="eyebrow" style={{marginTop:6}}>{label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Still-open fields */}
-              {flaggedFields.length > 0 && (
-                <div className="card" style={{padding:"14px 18px", marginBottom:18, borderLeft:"3px solid var(--yellow-500)"}}>
-                  <div className="eyebrow eyebrow--yellow" style={{marginBottom:8}}>{t("discovery.attest.stillOpen", { count: flaggedFields.length })}</div>
-                  <div style={{display:"flex", flexDirection:"column", gap:6}}>
-                    {flaggedFields.map(({ ch, f, st }, i) => (
-                      <button key={i} className="btn btn--link" style={{fontSize:12.5, textAlign:"left", padding:0, color:"var(--c-dim)"}} onClick={() => openChapter(ch.key)}>
-                        <span style={{color:st.color, marginRight:6}}>●</span> {chapterLabel(ch)} · {fieldLabel(ch.key, f)} — {t("discovery.fieldStatus." + st.kind)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Three attestation statements */}
-              <div className="card" style={{padding:"18px 20px", marginBottom:16}}>
-                <div className="eyebrow" style={{marginBottom:12}}>{t("discovery.attest.attestation")}</div>
-                <div style={{display:"flex", flexDirection:"column", gap:12}}>
-                  {[
-                    ["authority", t("discovery.statement.authority")],
-                    ["reflects", t("discovery.statement.reflects")],
-                    ["aspirationalMarked", t("discovery.statement.aspirational")],
-                  ].map(([k, label]) => (
-                    <label key={k} style={{display:"flex", gap:10, alignItems:"flex-start", fontSize:13.5, color:"var(--c-ink)", cursor:"pointer", lineHeight:1.5}}>
-                      <input type="checkbox" checked={statements[k]} onChange={(e) => setStatements(s => ({ ...s, [k]: e.target.checked }))} style={{marginTop:3}} />
-                      <span>{label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {attestErr && (
-                <div className="card" style={{padding:"12px 16px", marginBottom:16, borderLeft:"3px solid var(--pink-500)", fontSize:13, color:"var(--c-ink)"}}>{attestErr}</div>
-              )}
-
-              <div style={{display:"flex", gap:12, alignItems:"center", flexWrap:"wrap"}}>
-                <button className="btn btn--primary btn--lg" disabled={!allChecked || attestBusy} onClick={submitAttest}>
-                  {attestBusy ? t("discovery.attest.signing") : <>{t("discovery.attest.signActivate")} <Icon name="arrow" size={14} /></>}
-                </button>
-                {!allChecked && <span style={{fontSize:12, color:"var(--c-faint)"}}>{t("discovery.attest.confirmAllThree")}</span>}
-              </div>
-            </>
-          )}
         </>
       )}
 
+      {attestErr&&<p className="discovery-intake-error" role="alert">{attestErr}</p>}
+      {reviewBio&&<BioSelfCertification brandId={brandId} brandName={live.brandName} bio={reviewBio} initiallyOpen onClose={()=>setReviewBio(null)} onDone={()=>{setReviewBio(null);live.refresh();onConfirm?.();}} renderSection={section=><BioReviewSection payload={reviewBio.payload} section={section}/>}/>}
       {/* Learning toast */}
       {toast && (
         <div style={{position:"fixed", bottom:28, left:"50%", transform:"translateX(-50%)", zIndex:60, background:"var(--c-inverse)", color:"#fff", borderRadius:10, padding:"11px 18px", fontSize:13.5, boxShadow:"var(--shadow-lg)", display:"flex", alignItems:"center", gap:9, maxWidth:560}}>
@@ -1665,13 +1596,7 @@ function BioViewer({ go, bioScore = 91 }) {
           </div>
         </div>
         <div className="bio-hero-actions" style={{display:"flex", flexDirection:"column", gap: 10, alignItems:"flex-end"}}>
-          {live.brandId&&live.bio&&!live.cert&&<BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing||hasUnappliedSourceChanges} onDone={live.refresh} renderSection={section=>{
-            const snapshot=payloadToFields(live.bio.payload);
-            if(section==="positioning")return <BioCompetitive value={snapshot.positioning} aspirations={live.bio.payload?.aspirations} editing={false}/>;
-            if(section==="visual")return <BioVisual bio={snapshot} editing={false}/>;
-            if(section==="strategic")return <BioStrategic strat={snapshot.strategic} editing={false}/>;
-            return <BioFieldList items={snapshot[section]} editing={false}/>;
-          }}/>}
+          {live.brandId&&live.bio&&(!live.cert||(live.bio.client_acceptance_required&&!live.bio.client_accepted_at))&&<BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing||hasUnappliedSourceChanges} onDone={live.refresh} renderSection={section=><BioReviewSection payload={live.bio.payload} section={section}/>}/>}
           <button className="btn btn--primary" onClick={() => setTab("sources")} disabled={!live.brandId}>
             <Icon name="plus" size={14} /> {t("discovery.bio.feedBrandolph")}
           </button>
@@ -2192,3 +2117,11 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
 Object.assign(window, { Discovery, BioViewer });
 
 export { Discovery, BioViewer, payloadToFields, fieldsToPayload, discoFieldStatus };
+
+export function BioReviewSection({payload,section}){
+ const snapshot=payloadToFields(payload);
+ if(section==="positioning")return <BioCompetitive value={snapshot.positioning} aspirations={payload?.aspirations} editing={false}/>;
+ if(section==="visual")return <BioVisual bio={snapshot} editing={false}/>;
+ if(section==="strategic")return <BioStrategic strat={snapshot.strategic} editing={false}/>;
+ return <BioFieldList items={snapshot[section]} editing={false}/>;
+}

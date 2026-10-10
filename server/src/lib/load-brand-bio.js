@@ -17,6 +17,7 @@
 // is always run through normalizeBio, so every consumer gets a CanonicalBio.
 
 import { supabaseAdmin } from "./supabase.js";
+import { productionBlocker } from "./bio-stage.js";
 import { normalizeBio } from "./bio-schema.js";
 
 function bioError(code, message, status = 409) {
@@ -62,7 +63,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   // Resolve the gated BIO version.
   let bioQuery = supabaseAdmin
     .from("bios")
-    .select("id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at")
+    .select("id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at, client_acceptance_required, client_accepted_at, client_accepted_by")
     .eq("brand_id", brandRow.id);
   if (requireCertified) {
     // Production gate also honors the cert TTL (P3 M1): an expired certification
@@ -82,7 +83,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   if (!bioRow) {
     let err;
     if (requireCertified) {
-      err = bioError("BIO_NOT_CERTIFIED", `BIO for brand ${brandRow.id} is not certified by a Brand Steward`);
+      err = bioError("BIO_NOT_CERTIFIED", `BIO for brand ${brandRow.id} is not certified by a Creative Director`);
     } else if (requireSelfCertified) {
       err = bioError("NOT_SELF_CERTIFIED", `BIO for brand ${brandRow.id} has not been self-certified`);
     } else {
@@ -90,6 +91,8 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     }
     throw err;
   }
+
+  if(requireCertified){const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);}
 
   return {
     brand: { id: brandRow.id, name: brandRow.name, url: brandRow.url, tagline: bioRow.payload?.identity?.positioning },
