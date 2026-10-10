@@ -27,7 +27,20 @@
     "test:units": "node --test server/src/lib/opex-override.test.mjs server/src/lib/permissions.test.mjs server/src/lib/platforms.test.mjs server/src/lib/taxonomy.test.mjs server/src/lib/delivery-plan.test.mjs server/src/lib/deliverables.test.mjs server/src/lib/credits.test.mjs server/src/lib/compose-specialist-prompt.test.mjs server/src/lib/compose-image-prompt.test.mjs server/src/lib/models/fal-image.test.mjs server/src/lib/score-bio.test.mjs server/src/lib/bio-schema.test.mjs server/src/lib/ingest-guards.test.mjs server/src/lib/evaluate-certification.test.mjs server/src/lib/bio-hash.test.mjs server/src/lib/locale.test.mjs server/src/lib/bio-focus.test.mjs server/src/lib/bio-evidence.test.mjs server/src/lib/steward-copilot.test.mjs server/src/lib/brand-scope.test.mjs server/src/lib/deep-merge.test.mjs server/src/lib/sharpener.test.mjs server/src/lib/extract-visual-deterministic.test.mjs server/src/lib/plan-limits.test.mjs server/src/lib/platform-integrity.test.mjs src/brand-scope-flow.test.mjs src/lib/editing-shortcuts.test.mjs src/lib/account-architecture.test.mjs src/lib/mfa.test.mjs src/lib/home-stats.test.mjs src/portal-discovery.test.mjs",
     "test:db": "npx supabase test db supabase/tests/platform_integrity.sql",
     "test:deliverables": "node --env-file=server/.env scripts/test-deliverables.mjs",
-    "bench:image": "node --env-file=server/.env scripts/bench-image.mjs"
+    "bench:image": "node --env-file=server/.env scripts/bench-image.mjs",
+    "test:canvas": "node --test src/canvas/document.test.mjs server/src/lib/canvas-service.test.mjs",
+    "test:canvas:db": "node scripts/canvas-db-check.mjs",
+    "test:creative": "node --test server/src/lib/creative/*.test.mjs",
+    "bench:creative": "node scripts/bench-creative.mjs",
+    "setup:mvp-local": "node scripts/setup-mvp-local.mjs",
+    "dev:mvp-local:api": "cd server && node --env-file=.env.mvp-local src/index.js",
+    "dev:mvp-local:web": "vite --host 127.0.0.1 --port 5184 --strictPort --mode mvp-local",
+    "dev:mvp-local:inngest": "npx inngest-cli dev --port 8291 -u http://127.0.0.1:8791/api/inngest",
+    "test:mvp-local": "node --env-file=server/.env.mvp-local scripts/check-mvp-local.mjs",
+    "seed:mvp-local:text-spend": "node --env-file=server/.env.mvp-local scripts/seed-text-spend-local.mjs",
+    "test:text-spend": "node --test server/src/lib/text-spend.test.mjs server/src/lib/models/text-boundary.test.mjs",
+    "test:mvp-spend": "node --env-file=server/.env.mvp-local scripts/check-execution-spend.mjs",
+    "test:office": "node --test src/lib/office-model.test.mjs src/brand-scope-flow.test.mjs src/pixel-office/layouts.test.mjs src/lib/studio-state.test.mjs src/lib/agency-avatars.test.mjs src/lib/generated-office-layout.test.mjs src/lib/office-surfaces.test.mjs src/lib/office-customization.test.mjs src/canvas/office-adapter.test.mjs src/lib/workspace-surface.test.mjs src/canvas/submission-state.test.mjs src/lib/office-copy.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.1",

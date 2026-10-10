@@ -1,0 +1,272 @@
+[
+  {
+    "id": "image-01",
+    "modality": "image",
+    "title": "Coffee hero",
+    "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+    "acceptanceCriteria": "Brand palette, product shape, negative space",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-02",
+    "modality": "image",
+    "title": "Skincare product",
+    "brief": "Studio skincare bottle with restrained reflections and beige background.",
+    "acceptanceCriteria": "Accurate label, no medical claims",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-03",
+    "modality": "image",
+    "title": "Restaurant launch",
+    "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+    "acceptanceCriteria": "Fresh ingredients, brand palette",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-04",
+    "modality": "image",
+    "title": "Sports social",
+    "brief": "Vertical running shoe campaign image with room for headline.",
+    "acceptanceCriteria": "9:16 composition, no extra limbs",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-05",
+    "modality": "image",
+    "title": "Architecture",
+    "brief": "Calm architectural exterior at dusk with neutral materials.",
+    "acceptanceCriteria": "Geometry, perspective, no invented signage",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-06",
+    "modality": "image",
+    "title": "Editorial portrait",
+    "brief": "Editorial adult maker portrait in a pottery studio.",
+    "acceptanceCriteria": "Hands, natural lighting, dignity",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-07",
+    "modality": "image",
+    "title": "Icon set direction",
+    "brief": "Single clean line illustration of a reusable bottle.",
+    "acceptanceCriteria": "Simple silhouette and clear edges",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-08",
+    "modality": "image",
+    "title": "Packaging edit",
+    "brief": "Edit the approved package image background to pale blue; preserve product.",
+    "acceptanceCriteria": "Approved reference and label preserved",
+    "requiresApprovedReference": true,
+    "measurement": null
+  },
+  {
+    "id": "image-09",
+    "modality": "image",
+    "title": "Travel scene",
+    "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+    "acceptanceCriteria": "No crowds, atmospheric realism",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "image-10",
+    "modality": "image",
+    "title": "Fashion still life",
+    "brief": "Folded linen clothing arranged on a warm wooden surface.",
+    "acceptanceCriteria": "Textile realism, restrained palette",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-01",
+    "modality": "video",
+    "title": "Coffee steam",
+    "brief": "Single four-second slow push toward a cup with rising steam.",
+    "acceptanceCriteria": "Stable cup, coherent steam",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-02",
+    "modality": "video",
+    "title": "Approved product",
+    "brief": "Animate approved product still with subtle camera motion.",
+    "acceptanceCriteria": "Pinned reference preserved",
+    "requiresApprovedReference": true,
+    "measurement": null
+  },
+  {
+    "id": "video-03",
+    "modality": "video",
+    "title": "Restaurant ambience",
+    "brief": "One clip of daylight moving over an empty restaurant table.",
+    "acceptanceCriteria": "No scene cuts",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-04",
+    "modality": "video",
+    "title": "Running campaign",
+    "brief": "Single shot of adult runner along a park path.",
+    "acceptanceCriteria": "Natural gait and anatomy",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-05",
+    "modality": "video",
+    "title": "Architecture reveal",
+    "brief": "One smooth lateral camera move across a building facade.",
+    "acceptanceCriteria": "Stable architecture",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-06",
+    "modality": "video",
+    "title": "Pottery process",
+    "brief": "Single close shot of hands shaping clay.",
+    "acceptanceCriteria": "Temporal hand consistency",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-07",
+    "modality": "video",
+    "title": "Bottle rotation",
+    "brief": "One clip of a reusable bottle rotating slowly.",
+    "acceptanceCriteria": "Brand marks and shape stable",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-08",
+    "modality": "video",
+    "title": "Packaging motion",
+    "brief": "Animate approved package image with a gentle shadow change.",
+    "acceptanceCriteria": "No label mutation",
+    "requiresApprovedReference": true,
+    "measurement": null
+  },
+  {
+    "id": "video-09",
+    "modality": "video",
+    "title": "Hotel terrace",
+    "brief": "One static terrace shot with breeze in curtains.",
+    "acceptanceCriteria": "Consistent geometry",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "video-10",
+    "modality": "video",
+    "title": "Linen texture",
+    "brief": "Single macro shot moving across linen folds.",
+    "acceptanceCriteria": "Plausible fabric motion",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-01",
+    "modality": "email",
+    "title": "Welcome",
+    "brief": "Welcome new members to a fictional coffee brand without sending.",
+    "acceptanceCriteria": "Subject, preheader, introduction, CTA, footer",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-02",
+    "modality": "email",
+    "title": "Product launch",
+    "brief": "Announce a reusable bottle with one approved product asset.",
+    "acceptanceCriteria": "Alt text, durable asset, CTA",
+    "requiresApprovedReference": true,
+    "measurement": null
+  },
+  {
+    "id": "email-03",
+    "modality": "email",
+    "title": "Restaurant opening",
+    "brief": "Invite readers to explore the restaurant opening page.",
+    "acceptanceCriteria": "HTTPS link and brand name",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-04",
+    "modality": "email",
+    "title": "Event reminder",
+    "brief": "Draft a design event reminder email with venue and time supplied.",
+    "acceptanceCriteria": "No invented date or venue",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-05",
+    "modality": "email",
+    "title": "Editorial digest",
+    "brief": "Create a three-section editorial digest with links.",
+    "acceptanceCriteria": "Clear hierarchy, mobile readability",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-06",
+    "modality": "email",
+    "title": "Brand story",
+    "brief": "Tell the pottery studio origin story using supplied facts.",
+    "acceptanceCriteria": "No invented claims",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-07",
+    "modality": "email",
+    "title": "Seasonal offer",
+    "brief": "Draft a seasonal promotion with the provided price and conditions.",
+    "acceptanceCriteria": "Exact conditions, no placeholders",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-08",
+    "modality": "email",
+    "title": "Service update",
+    "brief": "Explain a supplied change to opening hours.",
+    "acceptanceCriteria": "Clear action and unchanged facts",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-09",
+    "modality": "email",
+    "title": "Reengagement",
+    "brief": "Create a restrained invitation to revisit a travel collection.",
+    "acceptanceCriteria": "One CTA, no pressure claims",
+    "requiresApprovedReference": false,
+    "measurement": null
+  },
+  {
+    "id": "email-10",
+    "modality": "email",
+    "title": "Thank you",
+    "brief": "Thank customers for support and link to the brand story.",
+    "acceptanceCriteria": "Warm tone, accessible contrast",
+    "requiresApprovedReference": false,
+    "measurement": null
+  }
+]

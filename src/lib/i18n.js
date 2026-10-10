@@ -20,9 +20,9 @@
 
 import { useSyncExternalStore } from "react";
 
-import en from "../locales/en.json";
-import es from "../locales/es.json";
-import ar from "../locales/ar.json";
+import en from "../locales/en.json" with {type:"json"};
+import es from "../locales/es.json" with {type:"json"};
+import ar from "../locales/ar.json" with {type:"json"};
 
 const CATALOGS = { en, es, ar };
 const FALLBACK = "en";

@@ -2,8 +2,8 @@
 // OpenRouter — non-Claude text models adapter for the model router.
 //
 // Used for: GPT-5 (a12 Conversion Copy), Gemini Flash (a14 Subject
-// Lines), and any future non-Claude text specialist. NOT used for
-// Claude — see anthropic.js for why (prompt caching).
+// Lines), and future specialists. Claude prompt caching is supported by
+// OpenRouter too; direct Anthropic remains the established baseline.
 //
 // API: OpenAI-compatible REST at https://openrouter.ai/api/v1/chat/completions
 // with `stream: true` → SSE. No SDK; raw fetch keeps the dependency
@@ -46,15 +46,16 @@ function flattenSystem(system) {
  * @param {number} [params.maxTokens]  - max output tokens
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ model, system, messages, maxTokens = 800 }) {
+export async function* streamCompletion({ model, system, messages, maxTokens = 800, spendOptions }) {
   if (!hasKey()) {
     yield { type: "error", message: "Server has no OPENROUTER_API_KEY configured." };
     return;
   }
 
-  const systemText = flattenSystem(system);
+  const systemText = model.startsWith("anthropic/") && Array.isArray(system) ? system : flattenSystem(system);
   const body = {
     model,
+    ...(spendOptions?.bounded?{provider:{order:[spendOptions.qualification.bounds.provider],allow_fallbacks:false,require_parameters:true,max_price:{prompt:spendOptions.qualification.bounds.inputUsdPerMillionMax,completion:spendOptions.qualification.bounds.outputUsdPerMillionMax,request:spendOptions.qualification.bounds.requestFeeUsdMax}}}:{}),
     max_tokens: maxTokens,
     stream: true,
     messages: [
@@ -106,6 +107,7 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
   let finishReason = null;
   let providerLabel = null;
   let yieldedDone = false;
+  let receiptId=null;
 
   try {
     while (true) {
@@ -141,6 +143,7 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
         let evt;
         try { evt = JSON.parse(payload); } catch { continue; }
 
+        if(evt.id && !receiptId){receiptId=evt.id;yield {type:"receipt",id:receiptId};}
         if (evt.provider) providerLabel = evt.provider;
         if (evt.usage) finalUsage = evt.usage;
 

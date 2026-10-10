@@ -1,0 +1,14 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+import {createClient} from '@supabase/supabase-js';
+const fixture=JSON.parse(await readFile(new URL('../.mvp-local/office-fixture.json',import.meta.url)));
+assert.equal(fixture.synthetic,true);assert.ok(['127.0.0.1','localhost'].includes(new URL(process.env.SUPABASE_URL).hostname));
+const db=createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY);
+const q=async query=>{const {data,error}=await query;if(error)throw error;return data;};
+const bios=await q(db.from('bios').select('id,version,score,certified,self_certified,discovery_id,created_at,payload').eq('brand_id',fixture.brandId).order('version'));
+const latest=bios.at(-1);
+const sources=await q(db.from('bio_sources').select('id,kind,signals').eq('brand_id',fixture.brandId));
+const reviews=await q(db.from('steward_jobs').select('status').eq('bio_id',latest.id));
+const positioning=latest.payload.positioning||{};
+const result={synthetic:true,brandId:fixture.brandId,version:latest.version,score:latest.score,certified:latest.certified,selfCertified:latest.self_certified,discoveryId:latest.discovery_id,createdAt:latest.created_at,engineGenerationCorrelated:!!latest.discovery_id,sourceCount:sources.length,reviewStatuses:reviews.map(row=>row.status),competitors:positioning.competitors||[],differences:positioning.pointsOfDifference||[],research:latest.payload.research||null,researchGaps:positioning.researchGaps||[],providerConfigured:Object.fromEntries(['FIRECRAWL_API_KEY','OPENROUTER_API_KEY','TYPESAFE_API_KEY'].map(key=>[key,!!process.env[key]]))};
+await writeFile(new URL('../output/discovery-bio/current-status.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

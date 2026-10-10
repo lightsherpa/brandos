@@ -1,0 +1,1321 @@
+{
+  "source_checkout": "/Users/oscarmottaquintana/Documents/Claudio/CaastorOS",
+  "source_head": "6fafe3811dae2395258808bd74314fdbe8e1b750",
+  "source_status": "uncommitted office implementation; files copied individually without overwriting existing divergent files",
+  "imported_files": [
+    {
+      "path": "src/agency-office.jsx",
+      "source_sha256": "f4059f1d2db8074f69e0ff25404595b1ac7fb003d5e48584d7094c0690c6c09d",
+      "integrated_sha256": "19c4ebb3346a00a8c42fb7a0b93ddaa9f107cbea39ecd18ea834f58f24e235fb",
+      "adapted": true
+    },
+    {
+      "path": "src/agency-office.css",
+      "source_sha256": "07caee33af6201dc4f43664f1d844fb518bc51fddd0d071d9a499020ee7e9fc5",
+      "integrated_sha256": "07caee33af6201dc4f43664f1d844fb518bc51fddd0d071d9a499020ee7e9fc5",
+      "adapted": false
+    },
+    {
+      "path": "src/boutique-office.jsx",
+      "source_sha256": "8ba7c04fc22c841dac212af2e06a2fa1f96fa12adf1d1beacfc71540b82e428b",
+      "integrated_sha256": "af1f92de3450c728bb0ddbb9690a323b0b032ca31e4d21de4e842ad595ddbd0d",
+      "adapted": true
+    },
+    {
+      "path": "src/boutique-office.css",
+      "source_sha256": "bc0ad88c5c90a9d6cf091387b0c790822d69fe75af9587e84213db21146d24bd",
+      "integrated_sha256": "bc0ad88c5c90a9d6cf091387b0c790822d69fe75af9587e84213db21146d24bd",
+      "adapted": false
+    },
+    {
+      "path": "src/generated-agency-scene.jsx",
+      "source_sha256": "bbd453b1e76ab05af761a9d2710cd4a266e7659714e2c62f7955e56775458bf5",
+      "integrated_sha256": "0a908228d21de41f7b7ea20b78cb40921143be464cddd4c9eb038a16c2fce883",
+      "adapted": true
+    },
+    {
+      "path": "src/office-customizer.jsx",
+      "source_sha256": "bbc8d5be04d9a683afb502d700b9097e2d02087a3ff8888888f149f1d0ac83a5",
+      "integrated_sha256": "79d1148b0040da613e33385181933924d11ab9ab43e4854c6e2a587aa9d1c8b1",
+      "adapted": true
+    },
+    {
+      "path": "src/office-preview.jsx",
+      "source_sha256": "7d32b06339cc8d457facebaaa2bc3ff4806b5963d255fdad5e93f95e5cc5ef39",
+      "integrated_sha256": "7d32b06339cc8d457facebaaa2bc3ff4806b5963d255fdad5e93f95e5cc5ef39",
+      "adapted": false
+    },
+    {
+      "path": "office-preview.html",
+      "source_sha256": "845d8a82172f539d6027ef9aa432115171f338f9a88c7661d2d9037b7f59451b",
+      "integrated_sha256": "a83f29f15a882c595786978b1165e81d6d2041acfaf76a011857d09b6a142d0f",
+      "adapted": true
+    },
+    {
+      "path": "docs/2026-10-08-generated-office-integration.md",
+      "source_sha256": "af3791fdfdb404fe13f350b9357e2a3182d86a18549e08bf6f62c2a59fbb94dd",
+      "integrated_sha256": "af3791fdfdb404fe13f350b9357e2a3182d86a18549e08bf6f62c2a59fbb94dd",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/office-model.js",
+      "source_sha256": "224111648c35161d811844a526f47a9ce82a5dc955458574fd65099aadbfa68a",
+      "integrated_sha256": "4d105f57e03d4404c1657324c34d861d3f03f39116912ce844dfcfd371014272",
+      "adapted": true
+    },
+    {
+      "path": "src/lib/office-model.test.mjs",
+      "source_sha256": "5fd1b1e0661276d2c22ecf8987e552451ac92ae3ba28c547c7c0953f25934c2b",
+      "integrated_sha256": "5fd1b1e0661276d2c22ecf8987e552451ac92ae3ba28c547c7c0953f25934c2b",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/studio-state.js",
+      "source_sha256": "1751e27ba611558e5fe8c1c15aacd64ce9e944d93727a9a956e57b66dbdcb36c",
+      "integrated_sha256": "1751e27ba611558e5fe8c1c15aacd64ce9e944d93727a9a956e57b66dbdcb36c",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/studio-state.test.mjs",
+      "source_sha256": "5c9d4c20bc91d2bfc9363fc8f825d217716d00f079f1fd2a05769240b0f7e390",
+      "integrated_sha256": "5c9d4c20bc91d2bfc9363fc8f825d217716d00f079f1fd2a05769240b0f7e390",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/agency-avatars.js",
+      "source_sha256": "605bdadb550750faaaa3ef054a0c18cccda1ee6cf0a34be40b7b9ff30cce7d7d",
+      "integrated_sha256": "605bdadb550750faaaa3ef054a0c18cccda1ee6cf0a34be40b7b9ff30cce7d7d",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/agency-avatars.test.mjs",
+      "source_sha256": "3a8d86724f2633e6c77899c6b79539bd2f99d13bd3823f72c381c9d59bd7b4ed",
+      "integrated_sha256": "3a8d86724f2633e6c77899c6b79539bd2f99d13bd3823f72c381c9d59bd7b4ed",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/generated-office-layout.js",
+      "source_sha256": "408ac9ec7ad182261cf1fc33152604dc17ee3d85c9b8719d8ac2e158b870bf4f",
+      "integrated_sha256": "408ac9ec7ad182261cf1fc33152604dc17ee3d85c9b8719d8ac2e158b870bf4f",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/generated-office-layout.test.mjs",
+      "source_sha256": "a33e20d8012c2aa9a9057d8b90f45d4049a4d975c8e3aaa147c69847d02e07b5",
+      "integrated_sha256": "6850681e68d726f21ce693dfa1ab78dbaf1f6c46b62f5783b7dc500084aaef95",
+      "adapted": true
+    },
+    {
+      "path": "src/lib/office-surfaces.js",
+      "source_sha256": "ef43d0c405a131941e7acfd6f75a5d544a94eb1348e28084da50ee6223827b27",
+      "integrated_sha256": "ef43d0c405a131941e7acfd6f75a5d544a94eb1348e28084da50ee6223827b27",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/office-surfaces.test.mjs",
+      "source_sha256": "65cd6311442b15c7f26d6e6bc853e960de7b532d2f081d9dc17af28aee3585fb",
+      "integrated_sha256": "65cd6311442b15c7f26d6e6bc853e960de7b532d2f081d9dc17af28aee3585fb",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/office-customization.js",
+      "source_sha256": "584cbe18cfd79888a311870d39e70d68427749e5476250bef094b19c21bb406a",
+      "integrated_sha256": "584cbe18cfd79888a311870d39e70d68427749e5476250bef094b19c21bb406a",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/office-customization.test.mjs",
+      "source_sha256": "b8c0d3d9ae87529e78df2c6a44180a280314da770967e161d8037f0946ec4e0b",
+      "integrated_sha256": "b8c0d3d9ae87529e78df2c6a44180a280314da770967e161d8037f0946ec4e0b",
+      "adapted": false
+    },
+    {
+      "path": "src/lib/agency-office-assets.json",
+      "source_sha256": "ebf7bc51a0914d48fc8c682d3b9e1062645a0984cbd84b0b05a8617087a96b2a",
+      "integrated_sha256": "ebf7bc51a0914d48fc8c682d3b9e1062645a0984cbd84b0b05a8617087a96b2a",
+      "adapted": false
+    },
+    {
+      "path": "src/pixel-office/PixelOffice.jsx",
+      "source_sha256": "cb2690796c4543b094aebc721af14762283c5e3add489be8dc5ea03a9bf30d8d",
+      "integrated_sha256": "cb2690796c4543b094aebc721af14762283c5e3add489be8dc5ea03a9bf30d8d",
+      "adapted": false
+    },
+    {
+      "path": "src/pixel-office/pixel-office.css",
+      "source_sha256": "c4ed6fd52f806c057403ded9f95eb0c2b8fe8c1cc3c8c90387973135bed8d3ff",
+      "integrated_sha256": "c4ed6fd52f806c057403ded9f95eb0c2b8fe8c1cc3c8c90387973135bed8d3ff",
+      "adapted": false
+    },
+    {
+      "path": "src/pixel-office/layouts.js",
+      "source_sha256": "658d7113eb8d878abdaa8bd36b6e60e4275be7ce7cb6bfdc502c05f2e603a7ec",
+      "integrated_sha256": "658d7113eb8d878abdaa8bd36b6e60e4275be7ce7cb6bfdc502c05f2e603a7ec",
+      "adapted": false
+    },
+    {
+      "path": "src/pixel-office/layouts.test.mjs",
+      "source_sha256": "55cc79f948dcd20bf36be475f380fef0f9ad58104b05358b27634ef42b3e800b",
+      "integrated_sha256": "55cc79f948dcd20bf36be475f380fef0f9ad58104b05358b27634ef42b3e800b",
+      "adapted": false
+    },
+    {
+      "path": "src/pixel-office/assets.js",
+      "source_sha256": "1911c9c4d4675090996dd5f4c0c78702ed00ec1a23bf3a5733a522d33aaaddab",
+      "integrated_sha256": "1911c9c4d4675090996dd5f4c0c78702ed00ec1a23bf3a5733a522d33aaaddab",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/UPSTREAM.md",
+      "source_sha256": "e0d9760f9360561ecabddf6702f245fd25362871181bb33277598276feffe57b",
+      "integrated_sha256": "e0d9760f9360561ecabddf6702f245fd25362871181bb33277598276feffe57b",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/LICENSE",
+      "source_sha256": "20729e3cb9d06d64cdf78d43070ead3eae96e67a5b35b1aa35b5520906cb8ab5",
+      "integrated_sha256": "20729e3cb9d06d64cdf78d43070ead3eae96e67a5b35b1aa35b5520906cb8ab5",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/core/src/paletteUtils.ts",
+      "source_sha256": "2ab445e24ea5cf197bb50a8303b66e077c261acbf27180fa5b75b50d08d7eb42",
+      "integrated_sha256": "2ab445e24ea5cf197bb50a8303b66e077c261acbf27180fa5b75b50d08d7eb42",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/constants.ts",
+      "source_sha256": "aa3cda0411f8558621149302c9a3aa09a32210c0770a16716d5e3ffd574b82da",
+      "integrated_sha256": "aa3cda0411f8558621149302c9a3aa09a32210c0770a16716d5e3ffd574b82da",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/colorize.ts",
+      "source_sha256": "9c1acd0bff5315bb03bd916cb38d97547f5d2464c890e4fcb5fef4af057f48a7",
+      "integrated_sha256": "9c1acd0bff5315bb03bd916cb38d97547f5d2464c890e4fcb5fef4af057f48a7",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/projection.ts",
+      "source_sha256": "dfa409f8f18b10930fe401fa7cc5cf05c22e83061cdcff9a0ce78f44ff58b7ce",
+      "integrated_sha256": "dfa409f8f18b10930fe401fa7cc5cf05c22e83061cdcff9a0ce78f44ff58b7ce",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/floorTiles.ts",
+      "source_sha256": "86a1279b5119b8059771daa3a59540ede8fdcc1e761a328c280b43eafa22a2be",
+      "integrated_sha256": "86a1279b5119b8059771daa3a59540ede8fdcc1e761a328c280b43eafa22a2be",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/types.ts",
+      "source_sha256": "2e15ac41afa84aa23ea2e178fe76bb349bf356c495c3169c6033da63cda598f1",
+      "integrated_sha256": "2e15ac41afa84aa23ea2e178fe76bb349bf356c495c3169c6033da63cda598f1",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/toolUtils.ts",
+      "source_sha256": "223c39a91a551ad88b03ea83e31890f3564d3844276614953dc0d31c92d08092",
+      "integrated_sha256": "223c39a91a551ad88b03ea83e31890f3564d3844276614953dc0d31c92d08092",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/wallTiles.ts",
+      "source_sha256": "a292703da788ddb5586c432376a0b9f8ce3e085a672112d63270776240bc188e",
+      "integrated_sha256": "a292703da788ddb5586c432376a0b9f8ce3e085a672112d63270776240bc188e",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/layout/furnitureCatalog.ts",
+      "source_sha256": "26c9feacfcf4b6db18a7cdffe5fb10053703ed5398ae5fbeb0f8048fbc6c98c4",
+      "integrated_sha256": "26c9feacfcf4b6db18a7cdffe5fb10053703ed5398ae5fbeb0f8048fbc6c98c4",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/layout/layoutSerializer.ts",
+      "source_sha256": "fdb76d058ad42a4c9cd1f0456a3daf8ade7c4470173cc734c08a694e8e4e722f",
+      "integrated_sha256": "fdb76d058ad42a4c9cd1f0456a3daf8ade7c4470173cc734c08a694e8e4e722f",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/layout/tileMap.ts",
+      "source_sha256": "0564fec7ad749668ab9a2317fb658eb3e5d0cf2aecc9b5c4f63d82a475b54790",
+      "integrated_sha256": "0564fec7ad749668ab9a2317fb658eb3e5d0cf2aecc9b5c4f63d82a475b54790",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/sprites/bubble-permission.json",
+      "source_sha256": "c1c5843455f8a4201eef1aa4d15d3bae41ef30f209ba6936004606f2adc7d8df",
+      "integrated_sha256": "c1c5843455f8a4201eef1aa4d15d3bae41ef30f209ba6936004606f2adc7d8df",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/sprites/spriteCache.ts",
+      "source_sha256": "fd615d74508e9dc32ecda030a087a0de2bf0a06b5e242e5cee93e8525b268e60",
+      "integrated_sha256": "fd615d74508e9dc32ecda030a087a0de2bf0a06b5e242e5cee93e8525b268e60",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/sprites/spriteData.ts",
+      "source_sha256": "b6b7153bccb3c12a9d9719b6fab36dcd793b55df71fd53e71e10816072c20bcb",
+      "integrated_sha256": "b6b7153bccb3c12a9d9719b6fab36dcd793b55df71fd53e71e10816072c20bcb",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/sprites/petSpriteData.ts",
+      "source_sha256": "4d972482c1ad20e36b08d6be191f3a7c38d5657684228d3d8166cdf172d169fe",
+      "integrated_sha256": "4d972482c1ad20e36b08d6be191f3a7c38d5657684228d3d8166cdf172d169fe",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/sprites/carpetTiles.ts",
+      "source_sha256": "cc09f55aff372298badb346ffd0df510780a46c8b86ed1aadb81043b66b30985",
+      "integrated_sha256": "cc09f55aff372298badb346ffd0df510780a46c8b86ed1aadb81043b66b30985",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/sprites/bubble-waiting.json",
+      "source_sha256": "58cadd14f6b18c2f773a8bf3a8b25da82da81333d93d17fff6ce10dd20410c32",
+      "integrated_sha256": "58cadd14f6b18c2f773a8bf3a8b25da82da81333d93d17fff6ce10dd20410c32",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/sprites/bubble-pet.json",
+      "source_sha256": "d5254d4fdcd1ed0daa471951d56bed5b33afa263272efa5efcbc8ddd2cdede53",
+      "integrated_sha256": "d5254d4fdcd1ed0daa471951d56bed5b33afa263272efa5efcbc8ddd2cdede53",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/engine/seatPlacement.ts",
+      "source_sha256": "cef18fb154b31040f112a00d3cb916a77544cf9c0dc5223bd1673d3c0706db6b",
+      "integrated_sha256": "cef18fb154b31040f112a00d3cb916a77544cf9c0dc5223bd1673d3c0706db6b",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/engine/characters.ts",
+      "source_sha256": "a50f7f2822bf19a2b88b5076f2a9e69f19bdef53b55601717f7e7da3acc2be92",
+      "integrated_sha256": "a50f7f2822bf19a2b88b5076f2a9e69f19bdef53b55601717f7e7da3acc2be92",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/engine/matrixEffectState.ts",
+      "source_sha256": "55c4508949d14b5dc05498744eaee2e23acdab0275122750221f814c2e1b78a0",
+      "integrated_sha256": "55c4508949d14b5dc05498744eaee2e23acdab0275122750221f814c2e1b78a0",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/engine/petEntity.ts",
+      "source_sha256": "fb6edcd6a72a81712bfff227a36b8bea8c2f96e640aabc093c738ad35c4211b9",
+      "integrated_sha256": "fb6edcd6a72a81712bfff227a36b8bea8c2f96e640aabc093c738ad35c4211b9",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/engine/matrixEffect.ts",
+      "source_sha256": "96913fedebf4d3c07e78b1868a667059f19a0f110cfefd83fa1cd27863fd4070",
+      "integrated_sha256": "96913fedebf4d3c07e78b1868a667059f19a0f110cfefd83fa1cd27863fd4070",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/engine/renderer.ts",
+      "source_sha256": "41c338e5141458bc6c7583a44dca9c36702632c0e624bd2e9abab10e4797497c",
+      "integrated_sha256": "41c338e5141458bc6c7583a44dca9c36702632c0e624bd2e9abab10e4797497c",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/engine/officeState.ts",
+      "source_sha256": "5ea3076a89a946eaa914cf1daa7945983d9c1ed11f9e1eef427963650f7c6ec8",
+      "integrated_sha256": "5ea3076a89a946eaa914cf1daa7945983d9c1ed11f9e1eef427963650f7c6ec8",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/office/editor/editorActions.ts",
+      "source_sha256": "873e2cdb7a1d151e88b41497c6524bc3fe928b8142b7a164f40fb4c0617c8b94",
+      "integrated_sha256": "873e2cdb7a1d151e88b41497c6524bc3fe928b8142b7a164f40fb4c0617c8b94",
+      "adapted": false
+    },
+    {
+      "path": "src/vendor/pixel-agents/webview-ui/src/components/ui/types.ts",
+      "source_sha256": "7a9ade9267557821ac33bca98ecf035ee6067fb2d9e6aa843e3faa823b5a2abf",
+      "integrated_sha256": "7a9ade9267557821ac33bca98ecf035ee6067fb2d9e6aa843e3faa823b5a2abf",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/creative-studio-v1.png",
+      "source_sha256": "883ea858e5411edc7aa9e2ff02518fc5efa7e5d446538d37f79bb99091ccdb2e",
+      "integrated_sha256": "883ea858e5411edc7aa9e2ff02518fc5efa7e5d446538d37f79bb99091ccdb2e",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-10-meeting-table.png",
+      "source_sha256": "559e856ef4d84f108261743145c218c6151966986fd852aec246d05db6cdb4ad",
+      "integrated_sha256": "559e856ef4d84f108261743145c218c6151966986fd852aec246d05db6cdb4ad",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-08-desk-cream.png",
+      "source_sha256": "80aafd5f867cb6d435494c25139198736060f0c6415864d56709c6d5354a561d",
+      "integrated_sha256": "80aafd5f867cb6d435494c25139198736060f0c6415864d56709c6d5354a561d",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-04-monitor.png",
+      "source_sha256": "d1e292a485155274d26f50ad26fa11a8825892886bc6e028f54535765125eccf",
+      "integrated_sha256": "d1e292a485155274d26f50ad26fa11a8825892886bc6e028f54535765125eccf",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-01-desk-oak.png",
+      "source_sha256": "711450ae79622e3e35f2a96c885f76d24accc25f4b8a6b6a6798cb0af1911f03",
+      "integrated_sha256": "711450ae79622e3e35f2a96c885f76d24accc25f4b8a6b6a6798cb0af1911f03",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-02-chair-orange-back.png",
+      "source_sha256": "25b332a0bc0360bdcf89bbd0bbec42427a01db524983269cd4fdb2f36ff61807",
+      "integrated_sha256": "25b332a0bc0360bdcf89bbd0bbec42427a01db524983269cd4fdb2f36ff61807",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-11-review-counter.png",
+      "source_sha256": "21af6a81248887512b0c33ede8a65a1f0bd08310d348d09022e79429031650d4",
+      "integrated_sha256": "21af6a81248887512b0c33ede8a65a1f0bd08310d348d09022e79429031650d4",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-09-chair-charcoal-front.png",
+      "source_sha256": "7b698d67d0f76985f1b170d6ae1a77d9578c6c50d47831f1bc42530241ae80d9",
+      "integrated_sha256": "7b698d67d0f76985f1b170d6ae1a77d9578c6c50d47831f1bc42530241ae80d9",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-02-chair-orange-front.png",
+      "source_sha256": "88a154d3e15535b12ae485e7c4129e5c87081a706deafe81ea8d7c605a3c477d",
+      "integrated_sha256": "88a154d3e15535b12ae485e7c4129e5c87081a706deafe81ea8d7c605a3c477d",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-02-chair-orange-right.png",
+      "source_sha256": "0cfd214d218aa4de826e9184e9af5d4dd1b21e192425b0e131b0cb10bb729a9f",
+      "integrated_sha256": "0cfd214d218aa4de826e9184e9af5d4dd1b21e192425b0e131b0cb10bb729a9f",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-05-keyboard.png",
+      "source_sha256": "f1052967264401d422d85454ad895bc2b2a765b72d061a1e1ba5356db0a97c70",
+      "integrated_sha256": "f1052967264401d422d85454ad895bc2b2a765b72d061a1e1ba5356db0a97c70",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-07-pen-tablet.png",
+      "source_sha256": "7c7e70e2c665f2d9bf2136ad2189ed2e7fae84c7d4e5d4a3f70a769fdd25c278",
+      "integrated_sha256": "7c7e70e2c665f2d9bf2136ad2189ed2e7fae84c7d4e5d4a3f70a769fdd25c278",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-03-laptop-right.png",
+      "source_sha256": "97764f2cc6339abdeb0241e57b6158bfdaf204957754f012d48fb9eeac666dd2",
+      "integrated_sha256": "97764f2cc6339abdeb0241e57b6158bfdaf204957754f012d48fb9eeac666dd2",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-01-desk-oak-right.png",
+      "source_sha256": "49de30df7e81b47983fe9777ed3de736803c57cc5a1118efb3e34ae427496ba4",
+      "integrated_sha256": "49de30df7e81b47983fe9777ed3de736803c57cc5a1118efb3e34ae427496ba4",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-03-laptop-back.png",
+      "source_sha256": "4269a177b2cf866567ff5320080f5fd93547284ee7b291254ef7060a8c1e508b",
+      "integrated_sha256": "4269a177b2cf866567ff5320080f5fd93547284ee7b291254ef7060a8c1e508b",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-06-mouse.png",
+      "source_sha256": "efde1a6cc72d3d789df39ddd914532044d7417a7e2261934b67c22fbbb72ef3a",
+      "integrated_sha256": "efde1a6cc72d3d789df39ddd914532044d7417a7e2261934b67c22fbbb72ef3a",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-12-task-lamp.png",
+      "source_sha256": "1cea125806321c40b5d8fb4f26e296d12b0ea43c344b8609f6ba5a849d30d421",
+      "integrated_sha256": "1cea125806321c40b5d8fb4f26e296d12b0ea43c344b8609f6ba5a849d30d421",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-01-desk-oak-back.png",
+      "source_sha256": "b079b3f76bb4ada90d6a5da007ed8ca0475fd0ea76bd0ca94d85b9f300e60e81",
+      "integrated_sha256": "b079b3f76bb4ada90d6a5da007ed8ca0475fd0ea76bd0ca94d85b9f300e60e81",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/workstations/WORK-03-laptop-open.png",
+      "source_sha256": "4cfddfe3295f717f2a8fcb5fe4dcc65c91c06e36af6b108d9663b895978dd838",
+      "integrated_sha256": "4cfddfe3295f717f2a8fcb5fe4dcc65c91c06e36af6b108d9663b895978dd838",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-05-oak-floor-tile.png",
+      "source_sha256": "7c9e6f0d95f6c3a1dd8d2e9a9d7126307b4a149d27da2318e649d23dba9db4e6",
+      "integrated_sha256": "7c9e6f0d95f6c3a1dd8d2e9a9d7126307b4a149d27da2318e649d23dba9db4e6",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-08-glass-partition-side.png",
+      "source_sha256": "479a6aa438aa6efaef2b4a1de13b1ab4716c41728c4636eed453f15e7cacea93",
+      "integrated_sha256": "479a6aa438aa6efaef2b4a1de13b1ab4716c41728c4636eed453f15e7cacea93",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-06-cream-wall-horizontal.png",
+      "source_sha256": "4eb211222665c9ea0a6eff5bb89e620f2a7c87820de324779f1c149bd5011a4f",
+      "integrated_sha256": "4eb211222665c9ea0a6eff5bb89e620f2a7c87820de324779f1c149bd5011a4f",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-01-empty-studio.png",
+      "source_sha256": "b329dc30482e2fb4fae5642e87a6981d27e4755fa641bf56695e932602a6fab2",
+      "integrated_sha256": "b329dc30482e2fb4fae5642e87a6981d27e4755fa641bf56695e932602a6fab2",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-03-glass-doorway-horizontal.png",
+      "source_sha256": "925ae3b13850ec02761494df257056e75431953f68a5c0ce32d011fb5029335d",
+      "integrated_sha256": "925ae3b13850ec02761494df257056e75431953f68a5c0ce32d011fb5029335d",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-04-window-horizontal.png",
+      "source_sha256": "37cbb7d2ab22c71538d352bc882d71033a0048ce2874f9184a902ec724326210",
+      "integrated_sha256": "37cbb7d2ab22c71538d352bc882d71033a0048ce2874f9184a902ec724326210",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-02-glass-partition-horizontal.png",
+      "source_sha256": "3494568788f8fc2070b134a4491e355333886a32c6248accbb472a34b340ef66",
+      "integrated_sha256": "3494568788f8fc2070b134a4491e355333886a32c6248accbb472a34b340ef66",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/environment/ENV-07-cream-wall-side.png",
+      "source_sha256": "5d39173588ae775ad0046590fae2d648ec6fb024ccd9a7dbf5037b2d33d76126",
+      "integrated_sha256": "5d39173588ae775ad0046590fae2d648ec6fb024ccd9a7dbf5037b2d33d76126",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-20-snake-plant.png",
+      "source_sha256": "e5b4c163013e0a96ad23ec9970a0521b1174cd8aa1c2af060bdfde86b5c16104",
+      "integrated_sha256": "e5b4c163013e0a96ad23ec9970a0521b1174cd8aa1c2af060bdfde86b5c16104",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-17-column-cactus.png",
+      "source_sha256": "b64f94a5333d4e427ed84384c6a89bc84d831973db60705611526b6f4837837c",
+      "integrated_sha256": "b64f94a5333d4e427ed84384c6a89bc84d831973db60705611526b6f4837837c",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-03-abstract-art.png",
+      "source_sha256": "bb769a84b098edffbadf22411c970ecf7a65506a728f2dac8a590271fe118de2",
+      "integrated_sha256": "bb769a84b098edffbadf22411c970ecf7a65506a728f2dac8a590271fe118de2",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-14-coffee-machine.png",
+      "source_sha256": "a56458ed8f15998a0da4ae40d22754daf47b988b5b96926157ecb6e0e245ee32",
+      "integrated_sha256": "a56458ed8f15998a0da4ae40d22754daf47b988b5b96926157ecb6e0e245ee32",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-19-prickly-pear.png",
+      "source_sha256": "ddc4aad26919f2df80cbbf6c5379c435345e3df1d5e56de78515ae4a38b43d89",
+      "integrated_sha256": "ddc4aad26919f2df80cbbf6c5379c435345e3df1d5e56de78515ae4a38b43d89",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-11-storage-cabinet.png",
+      "source_sha256": "b6fc536138e305c26d84a42fea41c6e5951df920d5ca37faf7a94e2e5e10663b",
+      "integrated_sha256": "b6fc536138e305c26d84a42fea41c6e5951df920d5ca37faf7a94e2e5e10663b",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-12-rug.png",
+      "source_sha256": "98e665218daff7fd161b69c96554e3ccb36139f46b4801fb65b842147053466c",
+      "integrated_sha256": "98e665218daff7fd161b69c96554e3ccb36139f46b4801fb65b842147053466c",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-01-storage-planter-base.png",
+      "source_sha256": "270bde65aae67ff0c30a7c065520935fe7b23326e73541c61e991ed4725668b6",
+      "integrated_sha256": "270bde65aae67ff0c30a7c065520935fe7b23326e73541c61e991ed4725668b6",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-15-notebook.png",
+      "source_sha256": "19aa62c667ea2bee836190a5a2ff22884fff1ed31b3ceae7df895098e5527117",
+      "integrated_sha256": "19aa62c667ea2bee836190a5a2ff22884fff1ed31b3ceae7df895098e5527117",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-18-barrel-cactus.png",
+      "source_sha256": "c39990c214c083b893f1b0f886c94b519956e417045a8bae018bfd17f835ac34",
+      "integrated_sha256": "c39990c214c083b893f1b0f886c94b519956e417045a8bae018bfd17f835ac34",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-04-sofa.png",
+      "source_sha256": "8350f11e21734a98efd17d59e4f1d059351aecfa1bd4bf350f4bf5ce86c2304b",
+      "integrated_sha256": "8350f11e21734a98efd17d59e4f1d059351aecfa1bd4bf350f4bf5ce86c2304b",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-13-mug.png",
+      "source_sha256": "18343527b415bf010ffc506ed34db6ba7fe3576774881b8834a81807ad4e26b5",
+      "integrated_sha256": "18343527b415bf010ffc506ed34db6ba7fe3576774881b8834a81807ad4e26b5",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-05-coffee-table.png",
+      "source_sha256": "a710fdaf94bb78234547c43a6018bdcbf6fde7150f874c1d43320914315a6a4f",
+      "integrated_sha256": "a710fdaf94bb78234547c43a6018bdcbf6fde7150f874c1d43320914315a6a4f",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-21-lounge-armchair.png",
+      "source_sha256": "d3f2ee604fd84258e555d9f81eb2ea245ab11b9b5fd4539e3a4973cf9631e4a4",
+      "integrated_sha256": "d3f2ee604fd84258e555d9f81eb2ea245ab11b9b5fd4539e3a4973cf9631e4a4",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-02-frame-square.png",
+      "source_sha256": "0c3bfbf7ba4f629705aed8051dd3fd06635e33eaf95223e71b82b4c15e3c2940",
+      "integrated_sha256": "0c3bfbf7ba4f629705aed8051dd3fd06635e33eaf95223e71b82b4c15e3c2940",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-10-oak-bookshelf.png",
+      "source_sha256": "e2e222992a258a4723d21ac94e0859f0e1078d61cff80205d46db6f3a55593c1",
+      "integrated_sha256": "e2e222992a258a4723d21ac94e0859f0e1078d61cff80205d46db6f3a55593c1",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-16-concept-pinboard.png",
+      "source_sha256": "721b85bd03f5bf488631bc142403b6fbca3dbcf1370441476c26fc19a8efcc2d",
+      "integrated_sha256": "721b85bd03f5bf488631bc142403b6fbca3dbcf1370441476c26fc19a8efcc2d",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-09-shelf-plant.png",
+      "source_sha256": "f38ecb1c75171008aec0898fa78ceb3214aa1df17b634741598763272e0fd4ca",
+      "integrated_sha256": "f38ecb1c75171008aec0898fa78ceb3214aa1df17b634741598763272e0fd4ca",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/generated/decor/DECOR-06-floor-plant.png",
+      "source_sha256": "519657f899e023f4ba03bcbfaae9bdc0d3e7bd640466b153b91eb5c3cc27aedb",
+      "integrated_sha256": "519657f899e023f4ba03bcbfaae9bdc0d3e7bd640466b153b91eb5c3cc27aedb",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/voice-reviewer-playful-v1.png",
+      "source_sha256": "2c1646a8d95729fbbbdeae426ddddde657236da3b542104077c96f2806b7ef55",
+      "integrated_sha256": "2c1646a8d95729fbbbdeae426ddddde657236da3b542104077c96f2806b7ef55",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/creative-lead-playful-v1.png",
+      "source_sha256": "48312f4069e51893f9b1c57f0aa0aa7ed86f806b674ce46746a9432e33ba495c",
+      "integrated_sha256": "48312f4069e51893f9b1c57f0aa0aa7ed86f806b674ce46746a9432e33ba495c",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/brand-reviewer-playful-v1.png",
+      "source_sha256": "295cf6a4ac2c11fa576f9ab8a052578d00535438dd2ba16e67efd84c98023b47",
+      "integrated_sha256": "295cf6a4ac2c11fa576f9ab8a052578d00535438dd2ba16e67efd84c98023b47",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/brandolph-playful-v1.png",
+      "source_sha256": "822563f9e15d2837e7b6fac6f00a33dbb57b44eb2e708649f815b620d404806b",
+      "integrated_sha256": "822563f9e15d2837e7b6fac6f00a33dbb57b44eb2e708649f815b620d404806b",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/copywriter-playful-v1.png",
+      "source_sha256": "e28d17acf5133529db7950fe401517056178ebcac67311542e9e28005c410430",
+      "integrated_sha256": "e28d17acf5133529db7950fe401517056178ebcac67311542e9e28005c410430",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/strategist-playful-v1.png",
+      "source_sha256": "0b5090b8f5f1bca11075af88172cf6c448320bc9636f7afdcec463ba95097c54",
+      "integrated_sha256": "0b5090b8f5f1bca11075af88172cf6c448320bc9636f7afdcec463ba95097c54",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/designer-playful-v2.png",
+      "source_sha256": "9f735f8fbe8eddba538cf40b6f58792e443f3910d4f93a844c5d8efbeb604b2b",
+      "integrated_sha256": "9f735f8fbe8eddba538cf40b6f58792e443f3910d4f93a844c5d8efbeb604b2b",
+      "adapted": false
+    },
+    {
+      "path": "public/agency-office/characters/designer-playful-v1.png",
+      "source_sha256": "2d9ea433c04000483a0dd5fa1d36b5b250e5e71b714cfbe1bc65b0362190dfe4",
+      "integrated_sha256": "2d9ea433c04000483a0dd5fa1d36b5b250e5e71b714cfbe1bc65b0362190dfe4",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/LICENSE",
+      "source_sha256": "20729e3cb9d06d64cdf78d43070ead3eae96e67a5b35b1aa35b5520906cb8ab5",
+      "integrated_sha256": "20729e3cb9d06d64cdf78d43070ead3eae96e67a5b35b1aa35b5520906cb8ab5",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/CREDITS.md",
+      "source_sha256": "ec79d52d489e481151d163ac1b0b0e4a1db5df0817481feb4b3718a99ce2813a",
+      "integrated_sha256": "ec79d52d489e481151d163ac1b0b0e4a1db5df0817481feb4b3718a99ce2813a",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/catalog.json",
+      "source_sha256": "33ea475bf83a861579fa9d5f84e5e384cb90b38e186b55d146785b8d17fa16eb",
+      "integrated_sha256": "33ea475bf83a861579fa9d5f84e5e384cb90b38e186b55d146785b8d17fa16eb",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/index.json",
+      "source_sha256": "495ec948bf437aa00a653a6ec1c9171ab4c40512ed9ee203e8ad6038066a303b",
+      "integrated_sha256": "495ec948bf437aa00a653a6ec1c9171ab4c40512ed9ee203e8ad6038066a303b",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/default-layout-1.json",
+      "source_sha256": "ac4a7ea4bb9ddaedead465dd2a9cd0761dc46361f19b1a609cfbf5cd3e7ff616",
+      "integrated_sha256": "ac4a7ea4bb9ddaedead465dd2a9cd0761dc46361f19b1a609cfbf5cd3e7ff616",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/walls/wall_0.png",
+      "source_sha256": "f2afc6dacc44986a388695a720839ed00da03e9b308d6c727f5292740a62adfa",
+      "integrated_sha256": "f2afc6dacc44986a388695a720839ed00da03e9b308d6c727f5292740a62adfa",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/pets/gitcat/manifest.json",
+      "source_sha256": "dea53fd2b975ba95ccf3eab6cf147df935d22226b7657afe9eb6373ed39c6f67",
+      "integrated_sha256": "dea53fd2b975ba95ccf3eab6cf147df935d22226b7657afe9eb6373ed39c6f67",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/pets/gitcat/pet.png",
+      "source_sha256": "cb4163bc000da739d988dda58402b4a27cea970ae772d0b107bef515af092a68",
+      "integrated_sha256": "cb4163bc000da739d988dda58402b4a27cea970ae772d0b107bef515af092a68",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/pets/claudio/manifest.json",
+      "source_sha256": "ccd0ba576f92542087da3a70ace663f21d65fc0969bae7dc5a8d69ec353c07ce",
+      "integrated_sha256": "ccd0ba576f92542087da3a70ace663f21d65fc0969bae7dc5a8d69ec353c07ce",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/pets/claudio/pet.png",
+      "source_sha256": "174acbe0a597830bd311c241eed3ac8ad70bd46a55a78b6d9a77ae1728f23185",
+      "integrated_sha256": "174acbe0a597830bd311c241eed3ac8ad70bd46a55a78b6d9a77ae1728f23185",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PC/PC_FRONT_ON_2.png",
+      "source_sha256": "dc083d31848be3661b4ea571ee8d8d7e5dcd34cdbcef48d4dd6c444166eb7a69",
+      "integrated_sha256": "dc083d31848be3661b4ea571ee8d8d7e5dcd34cdbcef48d4dd6c444166eb7a69",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PC/PC_FRONT_ON_3.png",
+      "source_sha256": "773c5e0cfee45ad12669c082ff26c0041f12a6369e4622db3eab35685aeabc0f",
+      "integrated_sha256": "773c5e0cfee45ad12669c082ff26c0041f12a6369e4622db3eab35685aeabc0f",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PC/PC_FRONT_ON_1.png",
+      "source_sha256": "d00d95a9c4718f770dee1a93240be8b7dc6d2e8abab4071179dd79c2d73a9337",
+      "integrated_sha256": "d00d95a9c4718f770dee1a93240be8b7dc6d2e8abab4071179dd79c2d73a9337",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PC/PC_SIDE.png",
+      "source_sha256": "c327f64a39cc84d3a2c4e97b7165e5a07e355003d0f1a9bca27fc8f8deef9603",
+      "integrated_sha256": "c327f64a39cc84d3a2c4e97b7165e5a07e355003d0f1a9bca27fc8f8deef9603",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PC/manifest.json",
+      "source_sha256": "4f33a91b789e22c4e3f5aa05b53eb903581612ef3aa004330143646b8c830f82",
+      "integrated_sha256": "4f33a91b789e22c4e3f5aa05b53eb903581612ef3aa004330143646b8c830f82",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PC/PC_FRONT_OFF.png",
+      "source_sha256": "a5d6f40f500f14f440cf981950630f5433521faa7578ae0f83684b9ededdc2bf",
+      "integrated_sha256": "a5d6f40f500f14f440cf981950630f5433521faa7578ae0f83684b9ededdc2bf",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PC/PC_BACK.png",
+      "source_sha256": "48f3d9aa7f571cc0ce1e5d702977987432bca292995ff67e36d47361d4b6f9a0",
+      "integrated_sha256": "48f3d9aa7f571cc0ce1e5d702977987432bca292995ff67e36d47361d4b6f9a0",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CACTUS/CACTUS.png",
+      "source_sha256": "830dbba8ac4912858e22eed1e89d4290202113363a934389e54fffb794ad893b",
+      "integrated_sha256": "830dbba8ac4912858e22eed1e89d4290202113363a934389e54fffb794ad893b",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CACTUS/manifest.json",
+      "source_sha256": "78e4ecb0a0ccfe4da323ca5bcb32f1b43a79967f83b573bda44c917bd01605b3",
+      "integrated_sha256": "78e4ecb0a0ccfe4da323ca5bcb32f1b43a79967f83b573bda44c917bd01605b3",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CUSHIONED_BENCH/manifest.json",
+      "source_sha256": "854d701f00f9dec17141f266edf12868c1faa396ca88596cb1c2c9dd0fc28a27",
+      "integrated_sha256": "854d701f00f9dec17141f266edf12868c1faa396ca88596cb1c2c9dd0fc28a27",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CUSHIONED_BENCH/CUSHIONED_BENCH.png",
+      "source_sha256": "b66ba12ce7921b3ab34515c319bc72775c49351d75ad146c6b29adf46459eaa0",
+      "integrated_sha256": "b66ba12ce7921b3ab34515c319bc72775c49351d75ad146c6b29adf46459eaa0",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/DOUBLE_BOOKSHELF/DOUBLE_BOOKSHELF.png",
+      "source_sha256": "b27bd0cc4c73dab38eebbf6b8ed68257acb8264d23a8e87c2cf5026138842cda",
+      "integrated_sha256": "b27bd0cc4c73dab38eebbf6b8ed68257acb8264d23a8e87c2cf5026138842cda",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/DOUBLE_BOOKSHELF/manifest.json",
+      "source_sha256": "e3af4890e8f9e140a58b3db79c1718c6bf742ae4dca21aa17b2dcf235465db91",
+      "integrated_sha256": "e3af4890e8f9e140a58b3db79c1718c6bf742ae4dca21aa17b2dcf235465db91",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/DESK/DESK_FRONT.png",
+      "source_sha256": "4df9ed2b04efb98dbd901d400d65fa5a1729e4508787ad70eb93e747017220ca",
+      "integrated_sha256": "4df9ed2b04efb98dbd901d400d65fa5a1729e4508787ad70eb93e747017220ca",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/DESK/manifest.json",
+      "source_sha256": "2f68f60b61f6ee5aaa40b526af7dcf8581072d936b38ae3a0a25e5caa61cf3db",
+      "integrated_sha256": "2f68f60b61f6ee5aaa40b526af7dcf8581072d936b38ae3a0a25e5caa61cf3db",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/DESK/DESK_SIDE.png",
+      "source_sha256": "b5421b3b3fc30b4a295c67c67d4a138877a1d179b532ffe25973200277107ff9",
+      "integrated_sha256": "b5421b3b3fc30b4a295c67c67d4a138877a1d179b532ffe25973200277107ff9",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/BIN/manifest.json",
+      "source_sha256": "6d3c3d075e3f77bcf4bc2bbd6809bb8b747c34dcc557be881146ca0122dd7e35",
+      "integrated_sha256": "6d3c3d075e3f77bcf4bc2bbd6809bb8b747c34dcc557be881146ca0122dd7e35",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/BIN/BIN.png",
+      "source_sha256": "738129d621fabc15b100f7129b854d1fe36201dbe92c0800bb1e80cb06793284",
+      "integrated_sha256": "738129d621fabc15b100f7129b854d1fe36201dbe92c0800bb1e80cb06793284",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SMALL_TABLE/SMALL_TABLE_FRONT.png",
+      "source_sha256": "dc224670ea2c5752830143337fd8b3a080f93980287706d4efd614aaabd4882f",
+      "integrated_sha256": "dc224670ea2c5752830143337fd8b3a080f93980287706d4efd614aaabd4882f",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SMALL_TABLE/SMALL_TABLE_SIDE.png",
+      "source_sha256": "5568526f6393ad643606b0095eceee5b7674b5588d7105144adc3fb99f0a3f42",
+      "integrated_sha256": "5568526f6393ad643606b0095eceee5b7674b5588d7105144adc3fb99f0a3f42",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SMALL_TABLE/manifest.json",
+      "source_sha256": "cfd626759f52304db591b28caab63832813e846a02bd974e4cee43950005e854",
+      "integrated_sha256": "cfd626759f52304db591b28caab63832813e846a02bd974e4cee43950005e854",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PLANT/PLANT.png",
+      "source_sha256": "b9f845e7930e685161a21ac0f1743c2906cb7cbb0bd6b79ef1e4fb5aafff98c6",
+      "integrated_sha256": "b9f845e7930e685161a21ac0f1743c2906cb7cbb0bd6b79ef1e4fb5aafff98c6",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PLANT/manifest.json",
+      "source_sha256": "94bfbdc7ba97c86517a8b6bcefda8b23b7c10128b479eabc433ba72ba1e136f5",
+      "integrated_sha256": "94bfbdc7ba97c86517a8b6bcefda8b23b7c10128b479eabc433ba72ba1e136f5",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WHITEBOARD/WHITEBOARD.png",
+      "source_sha256": "42fb63a8d8041f602c6cd0e7491be3ea95c3f4699b6a5ba6e47851ba8a473059",
+      "integrated_sha256": "42fb63a8d8041f602c6cd0e7491be3ea95c3f4699b6a5ba6e47851ba8a473059",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WHITEBOARD/manifest.json",
+      "source_sha256": "70c1924a08f76f042a8bcaf0d56e7fd3724e717ea207f5ab31e0ec9c3ea1dd67",
+      "integrated_sha256": "70c1924a08f76f042a8bcaf0d56e7fd3724e717ea207f5ab31e0ec9c3ea1dd67",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/COFFEE_TABLE/manifest.json",
+      "source_sha256": "acca0880e88e6ada927eddef632559ed7941ce3c5bc2d8a576f4a33dd98034cb",
+      "integrated_sha256": "acca0880e88e6ada927eddef632559ed7941ce3c5bc2d8a576f4a33dd98034cb",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/COFFEE_TABLE/COFFEE_TABLE.png",
+      "source_sha256": "0b0fd17c95b29e3b86da00031452166a1400a534c8adff1dc98bb4e5ce72aad3",
+      "integrated_sha256": "0b0fd17c95b29e3b86da00031452166a1400a534c8adff1dc98bb4e5ce72aad3",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CUSHIONED_CHAIR/CUSHIONED_CHAIR_FRONT.png",
+      "source_sha256": "30a021a8356125a743be8352da9756ec6d0832e232aca1ae2dd76a5e038a2208",
+      "integrated_sha256": "30a021a8356125a743be8352da9756ec6d0832e232aca1ae2dd76a5e038a2208",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CUSHIONED_CHAIR/CUSHIONED_CHAIR_SIDE.png",
+      "source_sha256": "ac2d90e87ce198271f50fd3e9161c4c9b8ea4befd3befdb0c5c9720256febb70",
+      "integrated_sha256": "ac2d90e87ce198271f50fd3e9161c4c9b8ea4befd3befdb0c5c9720256febb70",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CUSHIONED_CHAIR/manifest.json",
+      "source_sha256": "a8a1a949ca45f9b0c65ac2ff2726004ec1a3a60db842f448a6de31a1be9cd8ec",
+      "integrated_sha256": "a8a1a949ca45f9b0c65ac2ff2726004ec1a3a60db842f448a6de31a1be9cd8ec",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CUSHIONED_CHAIR/CUSHIONED_CHAIR_BACK.png",
+      "source_sha256": "7eba17a7c86115caba0246599988e3169dc766af7814e51c7afa566e0fe40846",
+      "integrated_sha256": "7eba17a7c86115caba0246599988e3169dc766af7814e51c7afa566e0fe40846",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/LARGE_PLANT/manifest.json",
+      "source_sha256": "3d45775a4c7930f4d53c3436d9eda4527633eb51a572c106acea1f90b4cf5184",
+      "integrated_sha256": "3d45775a4c7930f4d53c3436d9eda4527633eb51a572c106acea1f90b4cf5184",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/LARGE_PLANT/LARGE_PLANT.png",
+      "source_sha256": "196a4f1748160cdbf69400e370b1d7d1254b49902b8c091bcabd7676934f3149",
+      "integrated_sha256": "196a4f1748160cdbf69400e370b1d7d1254b49902b8c091bcabd7676934f3149",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/BOOKSHELF/manifest.json",
+      "source_sha256": "f162c5c78a8e7e3357d99ac8dc9f9e5ebda30e5756474aa8891888eeb39bda7e",
+      "integrated_sha256": "f162c5c78a8e7e3357d99ac8dc9f9e5ebda30e5756474aa8891888eeb39bda7e",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/BOOKSHELF/BOOKSHELF.png",
+      "source_sha256": "bd05119962080fd4cff6697fec0c3730c5a9c3def01b31ca0fa929971144322e",
+      "integrated_sha256": "bd05119962080fd4cff6697fec0c3730c5a9c3def01b31ca0fa929971144322e",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SMALL_PAINTING/SMALL_PAINTING.png",
+      "source_sha256": "15f370af43455d303b5ccb21429e298f7a603c3b6db10d6ed9270aa62caa71a3",
+      "integrated_sha256": "15f370af43455d303b5ccb21429e298f7a603c3b6db10d6ed9270aa62caa71a3",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SMALL_PAINTING/manifest.json",
+      "source_sha256": "02f09ec0d22404f102f609f8aabc0ca41f3e4d9af4274206167088db95cd13f6",
+      "integrated_sha256": "02f09ec0d22404f102f609f8aabc0ca41f3e4d9af4274206167088db95cd13f6",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/POT/POT.png",
+      "source_sha256": "cc2889e6fe22350bbeba94d55157f5bb2a38fe40f3a85ef96429f1af88506585",
+      "integrated_sha256": "cc2889e6fe22350bbeba94d55157f5bb2a38fe40f3a85ef96429f1af88506585",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/POT/manifest.json",
+      "source_sha256": "1e6106dd6e888adae7701597f565e0a9c1741d72918708b6421dafcfb7cb7d5e",
+      "integrated_sha256": "1e6106dd6e888adae7701597f565e0a9c1741d72918708b6421dafcfb7cb7d5e",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SOFA/SOFA_SIDE.png",
+      "source_sha256": "b583fa6261dbbc4c4020c0a887023d3f707a70b7e5524535d541b453b22f9e94",
+      "integrated_sha256": "b583fa6261dbbc4c4020c0a887023d3f707a70b7e5524535d541b453b22f9e94",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SOFA/manifest.json",
+      "source_sha256": "aa3615e2e2b9de9766d1936d06f630c0a4053030cef7f9f054f16cba6661b8d6",
+      "integrated_sha256": "aa3615e2e2b9de9766d1936d06f630c0a4053030cef7f9f054f16cba6661b8d6",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SOFA/SOFA_FRONT.png",
+      "source_sha256": "7e4c7e98e46d32daa2776651f6f413f68a84252b357b01d722fce6bb2a0ca52f",
+      "integrated_sha256": "7e4c7e98e46d32daa2776651f6f413f68a84252b357b01d722fce6bb2a0ca52f",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SOFA/SOFA_BACK.png",
+      "source_sha256": "62a40318fce1d3166f1ea3811ca2081b39ad3161974c6bcd2edb0bdaf9b06d08",
+      "integrated_sha256": "62a40318fce1d3166f1ea3811ca2081b39ad3161974c6bcd2edb0bdaf9b06d08",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/TABLE_FRONT/TABLE_FRONT.png",
+      "source_sha256": "fef9638fd372f081f4c80cc52f9bcb4be8db9db194fa46f88968ec08e5463b4a",
+      "integrated_sha256": "fef9638fd372f081f4c80cc52f9bcb4be8db9db194fa46f88968ec08e5463b4a",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/TABLE_FRONT/manifest.json",
+      "source_sha256": "d7868924b6edd92f0b6f135e254fe7c291fe1134c56f84fc3b98b2ca1bc72373",
+      "integrated_sha256": "d7868924b6edd92f0b6f135e254fe7c291fe1134c56f84fc3b98b2ca1bc72373",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WOODEN_CHAIR/WOODEN_CHAIR_SIDE.png",
+      "source_sha256": "b57e3fd470a60e9f9800e9cdfe629b2a187cc0f936ed81314522a17fc7bb2198",
+      "integrated_sha256": "b57e3fd470a60e9f9800e9cdfe629b2a187cc0f936ed81314522a17fc7bb2198",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WOODEN_CHAIR/WOODEN_CHAIR_BACK.png",
+      "source_sha256": "244fd28f4650e469d836f4287613e834805d3a00b7e14f68ae8415dd30411d5c",
+      "integrated_sha256": "244fd28f4650e469d836f4287613e834805d3a00b7e14f68ae8415dd30411d5c",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WOODEN_CHAIR/WOODEN_CHAIR_FRONT.png",
+      "source_sha256": "fb4c4bf7def68c98e4eedffe1d9ee0cbeaa054fc5bc4aa6785f37cc83b1cd44d",
+      "integrated_sha256": "fb4c4bf7def68c98e4eedffe1d9ee0cbeaa054fc5bc4aa6785f37cc83b1cd44d",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WOODEN_CHAIR/manifest.json",
+      "source_sha256": "ba184e498776b354b5642f579499c1a60a0b4e5a4fdbe452009d4cca2cc5cc9b",
+      "integrated_sha256": "ba184e498776b354b5642f579499c1a60a0b4e5a4fdbe452009d4cca2cc5cc9b",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PLANT_2/manifest.json",
+      "source_sha256": "238248bdd213f7f6a18875153ccaee50e5b7d44f916a9f310abbef516197c6ba",
+      "integrated_sha256": "238248bdd213f7f6a18875153ccaee50e5b7d44f916a9f310abbef516197c6ba",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/PLANT_2/PLANT_2.png",
+      "source_sha256": "b0d2e82fefd1f7ebada9656260571aa3e810db55975495e72a62d9ce8a878b42",
+      "integrated_sha256": "b0d2e82fefd1f7ebada9656260571aa3e810db55975495e72a62d9ce8a878b42",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/COFFEE/COFFEE.png",
+      "source_sha256": "6bed27c8de5a4ce98b3646d233803b3192cc5980c8f4caf779eb1344a87f8e0d",
+      "integrated_sha256": "6bed27c8de5a4ce98b3646d233803b3192cc5980c8f4caf779eb1344a87f8e0d",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/COFFEE/manifest.json",
+      "source_sha256": "8f671ece319b7ee5b462bc2afe7bf072538ad71f08370ebede83ae926c67ccb8",
+      "integrated_sha256": "8f671ece319b7ee5b462bc2afe7bf072538ad71f08370ebede83ae926c67ccb8",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SMALL_PAINTING_2/SMALL_PAINTING_2.png",
+      "source_sha256": "148d161726fb08dc7887e75e91f0332bf69d1aadfc649dce6fbc4b2678f5d0f0",
+      "integrated_sha256": "148d161726fb08dc7887e75e91f0332bf69d1aadfc649dce6fbc4b2678f5d0f0",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/SMALL_PAINTING_2/manifest.json",
+      "source_sha256": "b023f4e593a868efb5dc98ac283e9a15d923848514849ed6e836944d6605867a",
+      "integrated_sha256": "b023f4e593a868efb5dc98ac283e9a15d923848514849ed6e836944d6605867a",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/LARGE_PAINTING/LARGE_PAINTING.png",
+      "source_sha256": "f6355392631f0004ccd49c3d9ddf4df8ef60c59ec8b23d0b3fb1d0dce6c01c2b",
+      "integrated_sha256": "f6355392631f0004ccd49c3d9ddf4df8ef60c59ec8b23d0b3fb1d0dce6c01c2b",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/LARGE_PAINTING/manifest.json",
+      "source_sha256": "906af931475def2450e40d553e2e900b2b2068f5d990b1301433e622942046bf",
+      "integrated_sha256": "906af931475def2450e40d553e2e900b2b2068f5d990b1301433e622942046bf",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/HANGING_PLANT/manifest.json",
+      "source_sha256": "200ca5deaef21d2b135dd8d894a4445f96ecf43d325321b904e35c0088c3aed1",
+      "integrated_sha256": "200ca5deaef21d2b135dd8d894a4445f96ecf43d325321b904e35c0088c3aed1",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/HANGING_PLANT/HANGING_PLANT.png",
+      "source_sha256": "a6e9c025d0a84e960d3c84d55f18d01585eb8e079cd84f9970de08d636877de2",
+      "integrated_sha256": "a6e9c025d0a84e960d3c84d55f18d01585eb8e079cd84f9970de08d636877de2",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WOODEN_BENCH/WOODEN_BENCH.png",
+      "source_sha256": "b2a889a7e67dd1bd59ce1035daffeda8c0b34e696f07658ee0bc8ae514e1af49",
+      "integrated_sha256": "b2a889a7e67dd1bd59ce1035daffeda8c0b34e696f07658ee0bc8ae514e1af49",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/WOODEN_BENCH/manifest.json",
+      "source_sha256": "cc37d68a0cd451d4329b8efc43e6b01ac157df69f928751b2eca27c96c07407a",
+      "integrated_sha256": "cc37d68a0cd451d4329b8efc43e6b01ac157df69f928751b2eca27c96c07407a",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CLOCK/manifest.json",
+      "source_sha256": "10a2596fda4958c436bdc7fbae18bc2bd8fe72d58e1dd7a98b5392e6a9568944",
+      "integrated_sha256": "10a2596fda4958c436bdc7fbae18bc2bd8fe72d58e1dd7a98b5392e6a9568944",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/furniture/CLOCK/CLOCK.png",
+      "source_sha256": "f1ff567d71508dfdba37f2ff94ffde734940b56b3999e29b213ab6774e67b20f",
+      "integrated_sha256": "f1ff567d71508dfdba37f2ff94ffde734940b56b3999e29b213ab6774e67b20f",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/carpets/carpet_2.png",
+      "source_sha256": "926017fb0052dd8466b88618a309889edaa5c37b83b3b4f24ea52a00d84ce72e",
+      "integrated_sha256": "926017fb0052dd8466b88618a309889edaa5c37b83b3b4f24ea52a00d84ce72e",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/carpets/carpet_0.png",
+      "source_sha256": "a3a2b9789dd7b6e4345fe9f6204e668aa3b0ec52ae13cbc567e9abdac708a385",
+      "integrated_sha256": "a3a2b9789dd7b6e4345fe9f6204e668aa3b0ec52ae13cbc567e9abdac708a385",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/carpets/carpet_1.png",
+      "source_sha256": "5fdc496323782dd846c0fa485b51da8827a907dc85058005905329d8d8d7b05e",
+      "integrated_sha256": "5fdc496323782dd846c0fa485b51da8827a907dc85058005905329d8d8d7b05e",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_2.png",
+      "source_sha256": "ac112a1f1b2bc0068649e7cfd8be47f9c794f343388fb2e4437f140eb2ed0dee",
+      "integrated_sha256": "ac112a1f1b2bc0068649e7cfd8be47f9c794f343388fb2e4437f140eb2ed0dee",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_3.png",
+      "source_sha256": "8befc77b71238aa01d19cc73d5fe747831e0e85b1a986838c02df2f76cdf2690",
+      "integrated_sha256": "8befc77b71238aa01d19cc73d5fe747831e0e85b1a986838c02df2f76cdf2690",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_1.png",
+      "source_sha256": "6199f7135d3f5e233e0f33a925a20e348fcc17e396347799ac7573241c1416b8",
+      "integrated_sha256": "6199f7135d3f5e233e0f33a925a20e348fcc17e396347799ac7573241c1416b8",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_0.png",
+      "source_sha256": "7ac83e6dafab1d73c2ee346880929718920123a7057b0cd9ee34dec6543eacc2",
+      "integrated_sha256": "7ac83e6dafab1d73c2ee346880929718920123a7057b0cd9ee34dec6543eacc2",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_4.png",
+      "source_sha256": "fdf610ffa4583c688ed72cc3b8c8b9496c4843b341c201ead62ba769804a9cbb",
+      "integrated_sha256": "fdf610ffa4583c688ed72cc3b8c8b9496c4843b341c201ead62ba769804a9cbb",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_5.png",
+      "source_sha256": "b935a21804f12c18e0b0cc4db2ba873e4e39c2c6cf80c59cc9dfa01c00e497bb",
+      "integrated_sha256": "b935a21804f12c18e0b0cc4db2ba873e4e39c2c6cf80c59cc9dfa01c00e497bb",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_7.png",
+      "source_sha256": "aa44b7de3ced5e0bb2ef3fbd8bd27e9993a83bf8b901c37da2a97c162d7e6dad",
+      "integrated_sha256": "aa44b7de3ced5e0bb2ef3fbd8bd27e9993a83bf8b901c37da2a97c162d7e6dad",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_6.png",
+      "source_sha256": "dc7dc8722e3a03b28385400b76079c168a5d93d50e7b06f6a40ebd1dd8f178b4",
+      "integrated_sha256": "dc7dc8722e3a03b28385400b76079c168a5d93d50e7b06f6a40ebd1dd8f178b4",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/floors/floor_8.png",
+      "source_sha256": "653e4534e66844d72ea78fef499c5052ed337f7c10ada4d818d21255ad27bdfe",
+      "integrated_sha256": "653e4534e66844d72ea78fef499c5052ed337f7c10ada4d818d21255ad27bdfe",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/characters/char_5.png",
+      "source_sha256": "4b2c639a50e089a4e3b87be440ffb52b5c5c8cfd6473a386f325b25f99db7381",
+      "integrated_sha256": "4b2c639a50e089a4e3b87be440ffb52b5c5c8cfd6473a386f325b25f99db7381",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/characters/char_4.png",
+      "source_sha256": "fcf72626bbee3045d0f3e10bb87a41dab19a331d1affdfc53b483567f9c083aa",
+      "integrated_sha256": "fcf72626bbee3045d0f3e10bb87a41dab19a331d1affdfc53b483567f9c083aa",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/characters/char_0.png",
+      "source_sha256": "9ece93c20765abb876e3dacfe01e0cd1801323eff41c1779be0c47369886c09a",
+      "integrated_sha256": "9ece93c20765abb876e3dacfe01e0cd1801323eff41c1779be0c47369886c09a",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/characters/char_1.png",
+      "source_sha256": "f935f033726b06f73dbbe590db5a23cfb20d2d02c1329fd5d67d57a262e9b05e",
+      "integrated_sha256": "f935f033726b06f73dbbe590db5a23cfb20d2d02c1329fd5d67d57a262e9b05e",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/characters/char_3.png",
+      "source_sha256": "ee5ebe0847471e4834e367f8a4108e6caf2f402ed506bbfebd90c64a43a79348",
+      "integrated_sha256": "ee5ebe0847471e4834e367f8a4108e6caf2f402ed506bbfebd90c64a43a79348",
+      "adapted": false
+    },
+    {
+      "path": "public/pixel-office/assets/characters/char_2.png",
+      "source_sha256": "9f63ee7be4577e1d60de3b64d198d387d1c09794bed3a608958e77c7b955575d",
+      "integrated_sha256": "9f63ee7be4577e1d60de3b64d198d387d1c09794bed3a608958e77c7b955575d",
+      "adapted": false
+    }
+  ],
+  "merged_files": {
+    "src/portal-briefs.jsx": "260dc9528fb7da1e01591c967697721c708986a0d4426e4435c8e953accd41ef",
+    "package.json": "4645f83aa4053be1526d0d3710d06ec9b2a08f702f1c5f36403633f378c9e6b2",
+    "vite.config.js": "f9ff1e16841ba78e37b3a086d456dbc8aa474d9ebef900e4bdf66addd12b21d5"
+  },
+  "integration_date": "2026-10-09",
+  "source_verification": {
+    "source_files_changed_since_copy": [],
+    "main_checkout_modified_by_integration": false
+  },
+  "merged_integrated_hashes": {
+    "src/portal-briefs.jsx": "9f499281c223e9e56e20a884ec19b24782e25c955a7e295b32a62fe0c4d377fb",
+    "package.json": "6be0cee16c25ac6c2d481be80dfbd550233e420a64faa32bbc5970391aabcc30",
+    "vite.config.js": "f9ff1e16841ba78e37b3a086d456dbc8aa474d9ebef900e4bdf66addd12b21d5"
+  },
+  "additional_integration_files": [
+    {
+      "path": "src/canvas/CanvasWorkspace.jsx",
+      "sha256": "fb940641861d95bcb79b64cda88f1ad1f0282fbbc6aabfd9d427f391f71ae9be"
+    },
+    {
+      "path": "src/canvas/CanvasProvider.jsx",
+      "sha256": "9118c318abe32f99efef4db0ece969a53c1783b913c841359aebdc1450926144"
+    },
+    {
+      "path": "src/canvas/office-adapter.js",
+      "sha256": "b866c32262831ff4650525b4ace3a90fdf6a09ab5b95d2e7a00d8a7de947f13e"
+    },
+    {
+      "path": "src/canvas/office-adapter.test.mjs",
+      "sha256": "46380fa51d6ad9c0a7f9239ba0fbd1884a5e5d76ca512a27fde906f4d75cf5f1"
+    },
+    {
+      "path": "src/lib/workspace-surface.js",
+      "sha256": "75609f3acf8c37cf914f300595f05ba24414a2f08e9fae69426436ff846a0974"
+    },
+    {
+      "path": "src/lib/workspace-surface.test.mjs",
+      "sha256": "809f33da7dff53108cd09baf9e5a29ddc16de846545863e595a43cfdbc19fdeb"
+    },
+    {
+      "path": "src/lib/agency-office-source-hashes.json",
+      "sha256": "c8d7b6139d5f675706bc07b6d57d51e5676b47625e3ad6b66a9d70d9f1992e31"
+    },
+    {
+      "path": "src/office-integration.css",
+      "sha256": "7a54ea22e1679fce0fa11c862330a6bacff6b293a9433cd1fc811394fd1c7323"
+    },
+    {
+      "path": "scripts/seed-office-integration-local.mjs",
+      "sha256": "45e5f72335a15b7c55680b1e2f6d181e021b804d1ed26b47a414e4528aa3cd90"
+    },
+    {
+      "path": "src/canvas/submission-state.js",
+      "sha256": "b27b282fe96669ca409f57404fa5cfa847a31896b7341a9b89dc01de4171be91"
+    },
+    {
+      "path": "src/canvas/submission-state.test.mjs",
+      "sha256": "a80bd1d5a5ee7f8b71c824f5390de334c875dbf3e7a9dd00ea86ff76468530eb"
+    },
+    {
+      "path": "src/lib/office-copy.js",
+      "sha256": "af9cb8aa62c42c685ed9920062305d5bf5a5fc703ff49c5a4ea8dae8c602947a"
+    },
+    {
+      "path": "src/lib/office-copy.test.mjs",
+      "sha256": "16945ee7a7e226b592b7ffae4bf7ae7ffc71bb2c9ddb5da0cddb5b33875c0f98"
+    },
+    {
+      "path": "src/canvas/panels.jsx",
+      "sha256": "93ee40be1ff65b05797872fc87e3c9646ac2f6be130c49a7d108eebd53003a36"
+    },
+    {
+      "path": "src/canvas/copy.js",
+      "sha256": "1c341ac0cac6623fb2e8777fe8a1c465e11d2e4b573a3c50e23bb08197b0fe40"
+    },
+    {
+      "path": "src/locales/en.json",
+      "sha256": "6c1fae6bede72222dcad9488de44cf063e401cd0c5d58027741461bdf3420a3f"
+    },
+    {
+      "path": "src/locales/es.json",
+      "sha256": "1b1b488e4cffd35b6769c8da7168d7a3058ecefeb278c0cd4041257fe99f2409"
+    },
+    {
+      "path": "src/locales/ar.json",
+      "sha256": "fac0bc88bf121d139e0b02c43fe3f6c157c45de26a23e8a4c648bd5eec1c6eca"
+    },
+    {
+      "path": "scripts/check-office-integration-local.mjs",
+      "sha256": "65a6a467051c47c40fb61d26e2ee1455d9c7a62fbaf82f72b34f641172026a6b"
+    },
+    {
+      "path": "docs/mockups/office-check/index.html",
+      "sha256": "2a93e639d0bbfa7a011efb4841b83d8c18b56c8d785ea903efdd87eacfc644d3"
+    },
+    {
+      "path": "docs/mockups/office-check/check.jsx",
+      "sha256": "8d883cee1171088027ce9e6f99faa8bbc2a66271447ae2b6c7b24b042783b0b6"
+    }
+  ],
+  "notes": [
+    "Source document remains historical source evidence, not MVP acceptance evidence.",
+    "Portable source asset hashes replace dependency on unshipped artifact originals in asset tests.",
+    "Existing portal/CanvasProvider/run/credit/approval paths retained. Office adapter is a read-only projection.",
+    "No source credentials, fixtures, Geoking data, or unrelated source package scripts copied."
+  ],
+  "remediation": "Translated media/catalog copy; proven preflight busy restoration; theme contrast and CSS zoom remediation. Art unmodified."
+}

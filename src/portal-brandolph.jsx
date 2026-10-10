@@ -1,4 +1,5 @@
 import React from "react";
+import {loadModelCatalog,submitMedia} from "./lib/creative-client.js";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
 import { briefProgress, daysLeftInCycle, successRate } from "./lib/home-stats.js";
@@ -8,6 +9,14 @@ const { BrandolphAvatar, BrandolphDot, Icon, LayerTag, Reveal, StatusPill, Strea
 /* Same SSE helper as portal-briefs's TryPanel — duplicated here to keep
    portal-brandolph self-contained. Parses /api/runs/stream events. */
 async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, onToken, onProgress, onQa, onDone, onError }) {
+  try {
+    const catalog=await loadModelCatalog();
+    const agent=window.CI_AGENTS?.find(a=>a.id===specialistId);
+    const model=catalog.models.find(m=>m.legacyKey===agent?.model);
+    if(catalog.enabled&&['image','video'].includes(model?.modality)){
+      await submitMedia({specialistId,briefText,brandId,briefId,modality:model.modality,settings:model.settings||{}},{onToken,onProgress,onQa,onDone,onError});return;
+    }
+  }catch(e){onError?.({message:e.message});return;}
   const res = await apiFetch("/api/runs/stream", {
     method: "POST",
     body: JSON.stringify({ specialistId, briefText, brandId, briefId }),
@@ -268,15 +277,15 @@ function HomeCreate({ tweaks, go }) {
   /* Wired models — text (Anthropic + OpenRouter) AND image (fal.ai).
      Other vendors (exa/v0/gamma/framer/elevenlabs) aren't dispatched
      through /api/runs/stream yet so we filter them out of the assembly. */
-  const TEXT_MODELS  = new Set(["opus", "sonnet", "haiku", "gpt5", "gemPro", "gemFlash"]);
-  const IMAGE_MODELS = new Set(["flux", "fluxSchnell", "gptimage", "recraft"]);
-  const RUNNABLE = (m) => TEXT_MODELS.has(m) || IMAGE_MODELS.has(m);
+  const [runnableKeys,setRunnableKeys]=useBState([]);
+  useBEffect(()=>{let active=true;loadModelCatalog().then(c=>{if(active)setRunnableKeys(c.models.map(m=>m.legacyKey).filter(Boolean));}).catch(()=>{});return()=>{active=false;};},[]);
+  const RUNNABLE = m => runnableKeys.includes(m);
   const rawAssembly = useBMemo(() => getAssembly(tweaks.assemblyDensity || 7), [tweaks.assemblyDensity]);
   const assembly = useBMemo(() => ({
     ...rawAssembly,
     agents: rawAssembly.agents.filter((a) => a.status === "live" && RUNNABLE(a.model)).slice(0, 3),
     totalCr: rawAssembly.agents.filter((a) => a.status === "live" && RUNNABLE(a.model)).slice(0, 3).reduce((s, a) => s + (a.cr || 0), 0),
-  }), [rawAssembly]);
+  }), [rawAssembly,runnableKeys]);
 
   /* Per-agent live state during a real assembly run. Keyed by specialist id. */
   const [agentStates, setAgentStates] = useBState({});      /* { a12: "running"|"ok"|"queued"|"failed" } */
@@ -372,6 +381,10 @@ function HomeCreate({ tweaks, go }) {
       refusals:      sharp.data?.refusals || [],
       specialistIds: realAssembly.agents.map((a) => a.id),
       deliveryPlan:  sharp.data?.deliveryPlan || null,
+      // V2 keeps the existing deliverable contract on each independently runnable node.
+      deliverableSettings: Object.fromEntries((sharp.data?.deliveryPlan?.deliverableGroups || []).flatMap(g =>
+        Object.entries(g.crew || {}).map(([part,id]) => [id,{tier:'auto',deliverableSpec:{type:g.type,part,count:/image|frames|hero/i.test(part)?1:(g.count || 1),platform:g.platforms?.[0] || g.platform || 'generic'}}])
+      )),
       totalCr:       realAssembly.totalCr,
       /* Carry the current brand so canvas re-runs forward a real brandId
          instead of undefined. The server still re-derives brand from briefId,

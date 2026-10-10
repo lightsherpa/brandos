@@ -4,6 +4,8 @@ import { supabaseAdmin } from "../lib/supabase.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
 import { createOpexOverride, OPEX_OVERRIDE_OPERATIONS } from "../lib/opex-override.js";
 
+import {loadPlatformMeasurements} from "../lib/creative/measurements.js";
+
 const app = new Hono();
 app.use("*", requireAuth);
 app.use("*", requirePermission("opex.read"));
@@ -36,6 +38,7 @@ const sanitizeEvent = (event) => ({
   pages: event.pages,
   requests: event.requests,
   bytes: event.bytes,
+  units: event.units,
   reported_cost_usd: event.reported_cost_usd,
   estimated_cost_usd: event.estimated_cost_usd,
   reconciled_cost_usd: event.reconciled_cost_usd,
@@ -61,6 +64,14 @@ const group = (events, key) => Object.values(events.reduce((acc, e) => {
   return acc;
 }, {})).sort((a, b) => b.cost - a.cost);
 
+app.get("/measurements", async c => {
+  const period=parsePeriod(c),workspaceId=c.req.query("workspaceId")||c.get("auth").workspaceId;
+  const acceptanceStage=c.req.query("acceptanceStage")||"client_approved";
+  if(!period||!workspaceId||!['client_approved','internally_approved'].includes(acceptanceStage))return c.json({error:"Valid workspace, period and acceptance stage required"},400);
+  try{return c.json(await loadPlatformMeasurements(supabaseAdmin,{workspaceId,...period,acceptanceStage}));}
+  catch(error){return c.json({error:error.message},503);}
+});
+
 app.get("/overview", async (c) => {
   const now = new Date();
   const period = parsePeriod(c);
@@ -80,7 +91,8 @@ app.get("/overview", async (c) => {
   const spend = rows.reduce((n, e) => n + costOf(e), 0);
   const priorSpend = (priorEvents || []).reduce((n,e)=>n+costOf(e),0);
   const creditsSpent = (creditRows || []).reduce((n,e)=>n+Number(e.credits||0),0);
-  const covered = rows.filter((e) => e.cost_source && e.cost_source !== "unpriced").length;
+  const covered = rows.filter(e=>e.reconciled_cost_usd!=null||e.reported_cost_usd!=null||e.estimated_cost_usd!=null).length;
+  const costUnknownRequests = rows.length-covered;
   const daysElapsed = Math.max(1, (Date.parse(to) - Date.parse(from)) / 86400000);
   const daysInMonth = new Date(now.getUTCFullYear(), now.getUTCMonth() + 1, 0).getUTCDate();
   const workspaceIds = new Set(rows.map((e) => e.workspace_id).filter(Boolean));
@@ -97,12 +109,12 @@ app.get("/overview", async (c) => {
   return c.json({
     period: { from, to },
     metrics: {
-      spend, forecast,
+      spend, forecast, costUnknownRequests, spendIsLowerBound:costUnknownRequests>0,
       priorSpend, priorPeriodChange: priorSpend ? (spend-priorSpend)/priorSpend : null,
       budget: totalBudget || null, budgetUtilization: totalBudget ? spend / totalBudget : null,
       activeWorkspaces: workspaceIds.size, requestCount: rows.length,
       costPerRun: runs.size ? spend / runs.size : 0,
-      costPerApprovedDeliverable: approved ? spend / approved : 0,
+      costPerApprovedDeliverable: approved && !costUnknownRequests ? spend / approved : null,
       creditsToCostRatio: spend ? creditsSpent / spend : null,
       costCoverage: rows.length ? covered / rows.length : 1,
       inputTokens: rows.reduce((n,e)=>n+Number(e.input_tokens||0),0), outputTokens: rows.reduce((n,e)=>n+Number(e.output_tokens||0),0),

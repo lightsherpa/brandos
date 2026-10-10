@@ -1,0 +1,12 @@
+import React,{useEffect,useState} from 'react';
+import {ActionButton} from './design-system/primitives.jsx';
+import {loadModelCatalog,submitMedia,followMediaJob} from './lib/creative-client.js';
+export default function MediaDerivative({outputId,brandId,briefId,specialistId}) {
+ const [models,setModels]=useState([]),[route,setRoute]=useState(''),[brief,setBrief]=useState(''),[status,setStatus]=useState(''),[result,setResult]=useState(null),[busy,setBusy]=useState(false);
+ useEffect(()=>{loadModelCatalog().then(c=>{if(c.enabled)setModels(c.models.filter(m=>m.features.includes('image_edit')||m.features.includes('image_to_video')));}).catch(()=>{});},[]);
+ const callbacks={onProgress:j=>setStatus(j.stage),onDone:j=>{setResult(j.output);setStatus('Ready for review');},onError:e=>setStatus(e.message)};
+ async function run(){const model=models.find(m=>m.route===route);if(!model)return;setBusy(true);try{await submitMedia({specialistId,brandId,briefId,briefText:brief,referenceOutputId:outputId,modelOverride:route,modality:model.modality,settings:model.settings||{}},callbacks);}catch(e){setStatus(e.message);}finally{setBusy(false);}}
+ async function reconnect(){const id=sessionStorage.getItem(`creative-job:${brandId||''}:${specialistId}`);if(!id)return;setBusy(true);try{await followMediaJob(id,callbacks);}catch(e){setStatus(e.message);}finally{setBusy(false);}}
+ if(!models.length||!outputId)return null;
+ return <section style={{marginTop:20}} aria-label="Create from approved image"><h3>Create from approved image</h3><label className="ds-field">Generation option<select aria-label="Media model" value={route} onChange={e=>setRoute(e.target.value)}><option value="">Choose image edit or video model</option>{models.map(m=><option key={m.route} value={m.route}>{m.label}</option>)}</select></label><label className="ds-field">Edit or animation instructions<textarea aria-label="Edit or animation instructions" placeholder="Describe the edit or single clip" value={brief} onChange={e=>setBrief(e.target.value)} /></label><ActionButton disabled={busy||!route||!brief.trim()} onClick={run}>Create</ActionButton><ActionButton disabled={busy} onClick={reconnect}>Reconnect to last job</ActionButton><p role="status">{status}</p>{result?.kind==='video'?<video controls src={result.asset_url} className="ds-media-preview"/>:result?.asset_url?<img src={result.asset_url} alt="Generated image edit" className="ds-media-preview"/>:null}</section>;
+}

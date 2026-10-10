@@ -1,0 +1,187 @@
+[
+  {
+    "path": "package.json",
+    "jev_sha256": "4b44bf635b0d54b878cc62940eb7e2b566bf495aae38a1d1f5b0224c9fa6e02c",
+    "canvas_sha256": "14e89e4fb6eb4f8b96ea95b19270a2a99a3f96d23339b712bb1a8b860f57b69a"
+  },
+  {
+    "path": "server/src/index.js",
+    "jev_sha256": "84f5e46dda8918392771e8282f73852b0e1994c6d6c057f02daefdaff379629d",
+    "canvas_sha256": "1e72da38a15ba36b971693d5df169a81573258ad21dacbc31b99d05b24ff790f"
+  },
+  {
+    "path": "server/src/lib/models/anthropic.js",
+    "jev_sha256": "622a9bb679c9d7622b353b8846d41fd07c5ea1dc7799daea0888d9e7d705283a",
+    "canvas_sha256": "d6895ebc231f1b543940776ac8a1a5c85442071bfbca16001f7fecf1d05c872d"
+  },
+  {
+    "path": "server/src/lib/models/fal-image.js",
+    "jev_sha256": "6c75c53c8a56a61cd31c61928cda14dc362d24e36578262cb9fb055d776f81d0",
+    "canvas_sha256": "51560944b643400a926b385c7ff3ef242af7f279a5a5c95f6096e337c6574e0f"
+  },
+  {
+    "path": "server/src/lib/models/openrouter.js",
+    "jev_sha256": "0bb819e2fe826f40cd5f58d9abb01a4fca4504bc2d788593da2ff814c8d1cb6e",
+    "canvas_sha256": "4a9acff946535f969f682fb1d283f26678da8d5e00f89eb62e16eec3e2e8527f"
+  },
+  {
+    "path": "server/src/lib/models/router.js",
+    "jev_sha256": "876791a3954b25450abc5fe10ea537eaac49dff296f93cdae812df8fa68e8261",
+    "canvas_sha256": "b8f65aa72bc776122a21b46790550401415e37cbf0dacd53f7c926de8c9b6e85"
+  },
+  {
+    "path": "server/src/lib/taxonomy.js",
+    "jev_sha256": "e8ba35341a2f6eda003abb66dd4386fa897b5e7cca8a6109be7e4b432c8f59c1",
+    "canvas_sha256": "38887063e960a2cbf02defd15f01ba7305cfeadb0f56a4fd7f9418d34bb47e02"
+  },
+  {
+    "path": "server/src/routes/inngest.js",
+    "jev_sha256": "ea81bd594015853464edbdb947787754cf4b7eda76e83d0f24454a2b5cfc8ad8",
+    "canvas_sha256": "1d1952eba7c1ce838aa8b9a9533f092cf9a8fecfb527ffbb9c0c8e918ed0fada"
+  },
+  {
+    "path": "server/src/routes/opex.js",
+    "jev_sha256": "2c6975edf36989e55c26fb6309ba5fd9d9ac98400d43f1d03fb0a5639df2f29d",
+    "canvas_sha256": "6215645e6b915575529b32bbb471d75de37b1cd0a53dbcdab6d6a5b9cd2288ae"
+  },
+  {
+    "path": "server/src/routes/runs.js",
+    "jev_sha256": "92c9788ee9f6cb0f09ccb27078134272baec704be27e55c3f3c91e07183c3a60",
+    "canvas_sha256": "a435ffa9745c513e3c9387373d925a3f09b3d7ab84ff6e3162fd3be92e489956"
+  },
+  {
+    "path": "src/portal-brandolph.jsx",
+    "jev_sha256": "c554338fe911263b4a537483fb8a4c2f433357913ff6b663ae8bb9c0222e50e2",
+    "canvas_sha256": "f927133c44d9801cf8776d7109955745dce66f9200d7faa1cd52dd4f6d2767ff"
+  },
+  {
+    "path": "src/portal-briefs.jsx",
+    "jev_sha256": "e685d7fca240a712866c9eb1910184c62e4c61ec22944fa0063e22d02cddec9f",
+    "canvas_sha256": "8b15d4d7b8eb85b265939b3e5102245c6492d413ea1a4f6a296d9001883507e1"
+  },
+  {
+    "path": "src/portal-ops.jsx",
+    "jev_sha256": "72f3d557cff9c0d3aa0e66ac1b14bb75ecc66df162d3c6db0c027a43f8567b4a",
+    "canvas_sha256": "793e3d4062bbe7009aad51ecad0060576270f13bd8cbe043ecd5f375d1233c62"
+  },
+  {
+    "path": "docs/creative-production.md",
+    "jev_sha256": "e46c6611f90310e345f976d983b396d27dec2fae6438ce673e5352e1e1313fda",
+    "canvas_sha256": null
+  },
+  {
+    "path": "scripts/bench-creative.mjs",
+    "jev_sha256": "05e110249746ade53c3bb1ead504eca68fa9f66908aa555062366e5b08a90e6e",
+    "canvas_sha256": null
+  },
+  {
+    "path": "scripts/fixtures/creative-briefs.json",
+    "jev_sha256": "6cdedc7dc2bce7753a2059f7a2947803728b0e969f1b8227ae609ff7adbd59b8",
+    "canvas_sha256": null
+  },
+  {
+    "path": "scripts/fixtures/jev-labeled-cases.json",
+    "jev_sha256": "1e0bc00ba7afc6bdd2cea781f6f4c8916c4967c25329ffbe1e9277a2b1ace6e0",
+    "canvas_sha256": null
+  },
+  {
+    "path": "scripts/run-creative-benchmark.mjs",
+    "jev_sha256": "ea583a21298b7775af14d44302769e9819d40d636393baf9ee9d01dfae0cb31c",
+    "canvas_sha256": null
+  },
+  {
+    "path": "scripts/test-creative-db.mjs",
+    "jev_sha256": "b29743317757d6191c2d54130b5b89b7ae566ee58565ebd1e20dc7f1ebc5d465",
+    "canvas_sha256": null
+  },
+  {
+    "path": "scripts/test-jev-fixtures.mjs",
+    "jev_sha256": "f5c943e3c9a447d2c18b766a665d40d59162222843bc0baeb114fec2431c0676",
+    "canvas_sha256": null
+  },
+  {
+    "path": "scripts/verify-email-preview.mjs",
+    "jev_sha256": "17c132e85352cc82610b02d2c1b36ba5743df5e7d61db1e47cb3b17269345abb",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/inngest/functions/creative-media.js",
+    "jev_sha256": "32e3b6d8fe154217b9fdd96f6633938f1593d86e6dce31fd7e6ee7ed21cda67f",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/creative/benchmark.js",
+    "jev_sha256": "76a982894f1df51ff864d0d4461bac79a18bf6c36ba97548f45176b67778cf3d",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/creative/creative.test.mjs",
+    "jev_sha256": "fdbba6ef9373ae6c469771b8a47ab0ae5949c18cc21b2403738e496b545ddbbe",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/creative/email-html.js",
+    "jev_sha256": "93e626644953362da5533f6908d877733a9368ba978706752256858b6758b092",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/creative/engine.js",
+    "jev_sha256": "13dfc04f05b3db3f31a68e7c6d927c7ff138092898338612f78f683453a6ef5a",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/creative/providers.js",
+    "jev_sha256": "7ca500f92764eda82ea9f2c9a57dedaea2a379aaa1e5f68e1c9e3fce101ad34a",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/creative/store.js",
+    "jev_sha256": "d45db8638d78267742acef6cbd7ee5cb1f83e77ed2413eeec251f495a9adae60",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/creative/usage.js",
+    "jev_sha256": "5f70b3f26832b10b25434e144eec5165cc5a65e2fc0e39c33c1ffaebb9900bfc",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/models/catalog.js",
+    "jev_sha256": "8f2c67fe118e0bc30348767c701091479f6c4a3e8268dad571c103d4738ddd10",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/lib/models/jev.js",
+    "jev_sha256": "96782dc966a61eb0237837693ba2c551df7555aa4c7e0494aefeb10e2551337c",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/routes/creative.js",
+    "jev_sha256": "ca90d0eb50c6fd86ee342e51a3fcab959a0867912601de9ae7673cca9053a2d8",
+    "canvas_sha256": null
+  },
+  {
+    "path": "server/src/routes/email-deliverables.js",
+    "jev_sha256": "b654ef418c6d9a7baf59ec669c866969e4b024bf58377d8e14752ec2631c31fa",
+    "canvas_sha256": null
+  },
+  {
+    "path": "src/email-preview.jsx",
+    "jev_sha256": "8455922752c5bc64780de1662b3bebf23bb6a1e30c14b216f06e301ccacdcf1a",
+    "canvas_sha256": null
+  },
+  {
+    "path": "src/lib/creative-client.js",
+    "jev_sha256": "e00dfbcaecd6fb07f94ecfa386f4ce2f85b11473a2091f00dc2a6508bd2ebde7",
+    "canvas_sha256": null
+  },
+  {
+    "path": "src/media-derivative.jsx",
+    "jev_sha256": "4d5721336042be425147731af0960d97b912dd42475a16857a74820fb184b905",
+    "canvas_sha256": null
+  },
+  {
+    "path": "supabase/migrations/20260922000000_creative_production.sql",
+    "jev_sha256": "85e1218f47b915d0416e15f10c2bb437b407b28ca274783b924a1767f656c3ab",
+    "canvas_sha256": null
+  }
+]

@@ -1,0 +1,14 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {prepareMediaPlan} from './plan.js';
+function fixture(){const tables={creative_workspace_policy:{enabled:true,policy:{defaults:{image:'vendor/fal/flux-schnell'},qaMaxCostUsd:.1,jevMaxCostUsd:.05}},creative_model_qualifications:[{route:'vendor/fal/flux-schnell',qualification:{available:true,maxCostUsd:.1}},{route:'vendor/fal/flux-1.1-pro',qualification:{available:true,maxCostUsd:.3}}],api_budgets:{per_request_ceiling_usd:1,monthly_budget_usd:20}};return {tables,db:{from(table){const q={select(){return q},eq(){return q},maybeSingle(){return Promise.resolve({data:tables[table]})},then(resolve){return Promise.resolve({data:tables[table]}).then(resolve)}};return q;}},request:{workspaceId:'test',spec:{payload:{cr_estimate:8,modelRouting:{primary:'vendor/fal/flux-schnell'}}},briefText:'Synthetic brief'}};}
+test('media plan quotes the highest eligible credit class before JEV and includes QA/routing bounds',async()=>{const f=fixture(),p=await prepareMediaPlan(f.request,f.db,()=>true);assert.equal(p.credits,16);assert.equal(p.maxCost,.45);assert.equal(p.routing.requestedMode,'shadow');assert.equal(p.routing.chosenRoute,'vendor/fal/flux-schnell');});
+test('explicit media override reduces eligible set while retaining configured spend ceiling',async()=>{const f=fixture(),p=await prepareMediaPlan({...f.request,override:'vendor/fal/flux-schnell'},f.db,()=>true);assert.equal(p.credits,6);assert.equal(p.routing.eligibleCandidates.length,1);assert.equal(p.routing.override,'vendor/fal/flux-schnell');});
+test('generation+QA+routing exceeding ceiling fails before submission',async()=>{const f=fixture();f.tables.api_budgets.per_request_ceiling_usd=.4;await assert.rejects(()=>prepareMediaPlan(f.request,f.db,()=>true),/per-request/);});
+test('unknown pricing, missing provider credentials and unsupported reference capabilities fail closed',async()=>{const f=fixture();await assert.rejects(()=>prepareMediaPlan(f.request,f.db,()=>false),/No qualified/);await assert.rejects(()=>prepareMediaPlan({...f.request,reference:{outputId:'test'}},f.db,()=>true),/No qualified/);f.tables.creative_model_qualifications=[];await assert.rejects(()=>prepareMediaPlan(f.request,f.db,()=>true),/No qualified/);});
+
+import {summarizeBenchmark} from './benchmark.js';
+test('impact measurements keep baseline/shadow separate and preserve unknown cost',()=>{
+ const records=[{cohort:'baseline',model:'a',version:'1',gateway:'test',settings:{},accepted:true,revisions:1,totalCostUsd:2,timeToAcceptedMs:100,latencyMs:80},{cohort:'shadow',model:'a',version:'1',gateway:'test',settings:{},accepted:true,totalCostUsd:null,timeToAcceptedMs:120,latencyMs:90}];
+ const groups=summarizeBenchmark(records);assert.equal(groups.length,2);assert.equal(groups[0].p95LatencyMs,80);assert.equal(groups[0].costPerAcceptedOutputUsd,2);assert.equal(groups[1].totalCostUsd,null);
+});

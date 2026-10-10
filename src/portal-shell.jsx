@@ -1,7 +1,18 @@
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
 import { useLocale, t, fmtNumber, applyOverrides } from "./lib/i18n.js";
-const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, Discovery, BioViewer, BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard, CraftMarketplace, CreditsLedger, SettingsView, FloatingBrandolph, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
+const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, CraftMarketplace, CreditsLedger, SettingsView, FloatingBrandolph, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
+// Load screen modules on first navigation; shared window primitives stay eager.
+const Discovery = React.lazy(() => import("./portal-discovery.jsx").then(module => ({default: module.Discovery})));
+const BioViewer = React.lazy(() => import("./portal-discovery.jsx").then(module => ({default: module.BioViewer})));
+const BriefsLibrary = React.lazy(() => import("./portal-briefs.jsx").then(module => ({default: module.BriefsLibrary})));
+const BriefDetail = React.lazy(() => import("./portal-briefs.jsx").then(module => ({default: module.BriefDetail})));
+const SpecialistsDirectory = React.lazy(() => import("./portal-briefs.jsx").then(module => ({default: module.SpecialistsDirectory})));
+const SpecialistAuthor = React.lazy(() => import("./portal-briefs.jsx").then(module => ({default: module.SpecialistAuthor})));
+const CanvasView = React.lazy(() => import("./portal-briefs.jsx").then(module => ({default: module.CanvasView})));
+const Library = React.lazy(() => import("./portal-briefs.jsx").then(module => ({default: module.Library})));
+const BriefBoard = React.lazy(() => import("./portal-briefs.jsx").then(module => ({default: module.BriefBoard})));
+
 /* Caastor Intelligence — app shell + router + sidebar + topbar.    */
 /* Internal hash router; supports client + team portals.            */
 
@@ -89,10 +100,14 @@ function useShellTweaks() {
    v2 tokens key off. Persisted to localStorage so the look survives
    reloads. */
 const DS_KEY = "ci_ds";
-const DS_DEFAULTS = { theme: "light", palette: "caastor", font: "inter", density: "cozy" };
+const DS_DEFAULTS = { theme: "light", palette: "plex-registry", font: "plex", density: "cozy" };
 function useDesignSettings() {
   const [ds, setDs] = useShellState(() => {
-    try { return { ...DS_DEFAULTS, ...JSON.parse(localStorage.getItem(DS_KEY) || "{}") }; }
+    try {
+      const stored = JSON.parse(localStorage.getItem(DS_KEY) || "{}");
+      // Match the current platform migration: stale preferences cannot restore the old identity.
+      return { ...DS_DEFAULTS, ...stored, palette: "plex-registry", font: "plex" };
+    }
     catch (e) { return DS_DEFAULTS; }
   });
   useShellEffect(() => {
@@ -811,7 +826,9 @@ function App() {
         <TopBar portal={portal} route={route.id} brandName={currentBrandName} go={go} />
         <main className="scroll" style={{flex:1, overflowY:"auto"}}>
           <div className="route-view" key={route.id + "/" + (route.param || "")}>
-            <ScreenRouter route={route} go={go} tweaks={tweaks} setTweak={setTweak} onLogout={logout} />
+            <React.Suspense fallback={<div role="status" style={{padding:24,color:"var(--ink-secondary)"}}>{t("team.loading")}</div>}>
+              <ScreenRouter route={route} go={go} tweaks={tweaks} setTweak={setTweak} onLogout={logout} />
+            </React.Suspense>
           </div>
         </main>
       </div>
@@ -1058,16 +1075,14 @@ function PortalTweaks({ tweaks, setTweak, ds, setDs }) {
             { value:"aurora",  label:"Aurora (violet · lime)" },
             { value:"cobalt",  label:"Cobalt (blue · magenta)" },
             { value:"ember",   label:"Ember (orange · teal)" },
-            { value:"caastor", label:"Caastor (yellow · purple)" },
+            { value:"plex-registry", label:"Plex Registry (mineral · cobalt · signal)" },
+            { value:"caastor", label:"Caastor (legacy yellow · purple)" },
           ]} />
         <TweakSelect label="Font"
           value={ds.font}
           onChange={v => setDs("font", v)}
           options={[
-            { value:"inter",     label:"Inter Tight (default)" },
-            { value:"geist",     label:"Geist" },
-            { value:"plex",      label:"IBM Plex Condensed" },
-            { value:"serif-mix", label:"Serif display mix" },
+            { value:"plex",      label:"IBM Plex Sans / Serif / Mono" },
           ]} />
         <TweakRadio label="Density"
           value={ds.density}

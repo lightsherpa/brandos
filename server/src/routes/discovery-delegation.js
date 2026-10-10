@@ -25,7 +25,7 @@ const DELEGATION_TTL_MS = Number(process.env.DELEGATION_TTL_DAYS || 7) * 8640000
 
 // The six BIO section names. A delegation is scoped to exactly one of these,
 // and it is also the key under discovery_sessions.draft_payload we touch.
-const SECTIONS = ["identity", "audience", "voice", "visual", "goals", "strategic"];
+const SECTIONS = ["identity", "audience", "positioning", "voice", "visual", "goals", "strategic"];
 
 // Minimal HTML escaping for values interpolated into the invite email.
 const esc = (s) =>

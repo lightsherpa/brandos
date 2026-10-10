@@ -44,7 +44,7 @@ function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export async function voiceQa({ body, bio, refusals }) {
+export async function voiceQa({ body, bio, refusals, spendOptions }) {
   /* 1. Local forbidden-words scan. */
   const forbidden = bio?.voice?.forbidden || [];
   const localViolations = [];
@@ -79,13 +79,14 @@ export async function voiceQa({ body, bio, refusals }) {
       system: QA_SYSTEM,
       messages: [{ role: "user", content: userMsg }],
       maxTokens: 400,
+      spendOptions,
     })) {
       if (ev.type === "token")      text += ev.text;
       else if (ev.type === "done")  usage = ev.usage;
       else if (ev.type === "error") {
         /* QA itself failed — fail safe: report local violations only. */
         return {
-          passed: localViolations.length === 0,
+          passed: !spendOptions?.bounded && localViolations.length === 0,
           voice_match: localViolations.length === 0 ? 70 : 0,
           violations: [...localViolations, `qa_unavailable: ${ev.message}`],
           usage: null,
@@ -94,7 +95,7 @@ export async function voiceQa({ body, bio, refusals }) {
     }
   } catch (e) {
     return {
-      passed: localViolations.length === 0,
+      passed: !spendOptions?.bounded && localViolations.length === 0,
       voice_match: localViolations.length === 0 ? 70 : 0,
       violations: [...localViolations, `qa_unavailable: ${e?.message || e}`],
       usage: null,
@@ -111,13 +112,14 @@ export async function voiceQa({ body, bio, refusals }) {
   } catch {
     /* If the LLM returned non-JSON, fall back to local-only result. */
     return {
-      passed: localViolations.length === 0,
+      passed: !spendOptions?.bounded && localViolations.length === 0,
       voice_match: localViolations.length === 0 ? 70 : 0,
       violations: [...localViolations, "qa_unparseable_response"],
       usage,
     };
   }
 
+  if(spendOptions?.bounded&&(typeof llmVerdict?.passed!=='boolean'||!Number.isFinite(llmVerdict?.voice_match)||llmVerdict.voice_match<0||llmVerdict.voice_match>100||(!Array.isArray(llmVerdict?.violations)||llmVerdict.violations.some(v=>typeof v!=='string'))))return {passed:false,voice_match:null,violations:[...localViolations,'qa_invalid_verdict'],usage};
   const violations = [...localViolations, ...(Array.isArray(llmVerdict.violations) ? llmVerdict.violations : [])];
   const voiceMatch = typeof llmVerdict.voice_match === "number" ? llmVerdict.voice_match : 70;
   const llmPassed = llmVerdict.passed !== false;

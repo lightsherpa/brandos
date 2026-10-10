@@ -1,4 +1,10 @@
 import React from "react";
+import { AgencyOffice, OfficePreview, useOfficeCopy } from "./agency-office.jsx";
+import { readWorkspaceSurface, writeWorkspaceSurface } from "./lib/workspace-surface.js";
+import { CanvasEntry } from "./canvas/CanvasEntry.jsx";
+import MediaDerivative from "./media-derivative.jsx";
+import EmailPreview from "./email-preview.jsx";
+import { submitMedia } from "./lib/creative-client.js";
 import { useLocale, t as tt } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
 const { AgentCard, BrandolphDot, Drawer, Icon, ModelChip, OutputCard, PageHeader, Reveal, StatusPill, useIsTeam, PinButton, usePins } = window;
@@ -36,11 +42,14 @@ function useLiveBriefs() {
         .select(`
           id, title, type, payload, mode, status, created_at,
           runs ( id, specialist_id, spec_version, bio_version, model_used, status, prompt_tokens, completion_tokens, ended_at,
-                 outputs ( id, kind, body, status, rationale ) )
+                 outputs ( id, kind, body, status, workflow_status, rationale ) )
         `)
         .eq("brand_id", brand.id)
         .order("created_at", { ascending: false });
       if (error) { setState({ briefs: [], cert: null, brand, loading: false, error: error.message }); return; }
+      await Promise.all((briefs||[]).flatMap(b=>(b.runs||[]).flatMap(r=>(r.outputs||[]).filter(o=>o.body?.asset?.path).map(async o=>{
+        try {const response=await apiFetch(`/api/creative/assets/${o.id}`);if(response.ok)o.body.asset_url=(await response.json()).url;}catch{}
+      }))));
 
       /* Cert state for the active BIO — drives the footer chip */
       const { data: bio } = await supabase
@@ -173,6 +182,15 @@ async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, 
   /* __body is the per-call escape hatch — any extra fields the caller
      wants to send (e.g. modelOverride for re-runs) get merged. */
   const body = { specialistId, briefText, brandId, briefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, ...(__body || {}) };
+  try {
+    const catalog = await loadModelCatalog();
+    const agent = window.CI_AGENTS?.find(a=>a.id===specialistId);
+    const media = catalog.models.find(m=>m.route===body.modelOverride)?.modality || catalog.models.find(m=>m.legacyKey===agent?.model)?.modality;
+    if (catalog.enabled && (['image','video'].includes(media) || deliverableSpec?.type==='video_clip')) {
+      await submitMedia({...body,settings:body.settings||catalog.models.find(m=>m.route===body.modelOverride||m.legacyKey===agent?.model)?.settings||{},modality:deliverableSpec?.type==='video_clip'?'video':media}, {onProgress,onQa,onDone,onError});
+      return;
+    }
+  } catch (e) { onError?.({message:e.message}); return; }
   const res = await apiFetch("/api/runs/stream", {
     method: "POST",
     body: JSON.stringify(body),
@@ -882,6 +900,9 @@ function composeSpecialistPrompt(a, isTeam, specArg) {
 function TryPanel({ agent, onClose }) {
   const { t } = useLocale();
   const [brief, setBrief]       = useBrState("");
+  const [emailMode,setEmailMode] = useBrState(false);
+  const [emailEnabled,setEmailEnabled] = useBrState(false);
+  useBrEffect(()=>{loadModelCatalog().then(c=>setEmailEnabled(c.emailHtml)).catch(()=>{});},[]);
   const [running, setRunning]   = useBrState(false);
   const [output, setOutput]     = useBrState("");
   const [qa, setQa]             = useBrState(null);
@@ -896,6 +917,8 @@ function TryPanel({ agent, onClose }) {
     await streamSpecialistRun({
       specialistId: agent.id,
       briefText: brief.trim(),
+      brandId: window.getCurrentBrandId?.(),
+      deliverableSpec: emailMode ? {type:"email_html",part:"email_html",count:1} : undefined,
       onToken:  ({ text }) => setOutput((o) => o + text),
       onQa:     (data) => setQa(data),
       onDone:   (data) => setDone(data),
@@ -917,6 +940,8 @@ function TryPanel({ agent, onClose }) {
         )}
       </div>
 
+      {emailEnabled && agent.id === 'a13' && <label><input type="checkbox" checked={emailMode} disabled={running} onChange={e=>setEmailMode(e.target.checked)}/> Create HTML email preview and export</label>}
+      {done?.output?.kind === 'email_html' && <EmailPreview outputId={done.outputId} email={done.output}/>}
       {/* Brief composer — locked once a run is in flight or done */}
       <textarea
         value={brief}
@@ -947,7 +972,7 @@ function TryPanel({ agent, onClose }) {
       </div>
 
       {/* Streaming output */}
-      {(output || running) && (
+      {(output || running) && !emailMode && (
         <div style={{
           marginTop: 14, padding: 14, borderRadius: 10,
           background: "var(--c-card)", border: "1px solid var(--c-line)",
@@ -1177,6 +1202,20 @@ const SCALE_MIN = 0.4, SCALE_MAX = 2;
 
 /* Reusable pan/zoom/drag canvas. Renders nodeData + edges; clicking a
    node (without dragging) fires onNodeClick(node). */
+/* Office is a presentation of the existing legacy nodes, never an executor. */
+function BriefWorkspaceSurface(props) {
+  const copy = useOfficeCopy();
+  const [surface, setSurface] = useBrState(() => readWorkspaceSurface(window.localStorage));
+  const choose = value => { setSurface(value); writeWorkspaceSurface(window.localStorage, value); };
+  return <>
+    <div className="ao-surface-switch" role="group" aria-label={copy.office}>
+      <button aria-pressed={surface === "office"} onClick={() => choose("office")}>{copy.office}</button>
+      <button aria-pressed={surface === "canvas"} onClick={() => choose("canvas")}>{copy.canvas}</button>
+    </div>
+    {surface === "office" ? <AgencyOffice nodeData={props.nodeData} onNodeClick={props.onNodeClick} toolbarExtra={props.toolbarExtra} officeScope={props.officeScope || "workspace"} /> : <InteractiveCanvas {...props} />}
+  </>;
+}
+
 function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = "calc(100vh - 56px)", controls = true, helper, exportName = "canvas", toolbarExtra }) {
   const { t } = useLocale();
   const [nodes, setNodes] = React.useState(() => nodeData.map(n => ({ ...n })));
@@ -1986,7 +2025,7 @@ function BriefRunCanvas({ context, onClear, go }) {
         if (visualId) {
           const platform = group.platforms?.[0] || "generic";
           setNodes((prev) => prev.map((n) => n.id === "spec-" + visualId
-            ? { ...n, state: "running", sub: t("briefs.run.subRenderingImages") } : n));
+            ? { ...n, state: "running", inputFrom: "spec-" + agent.id, sub: t("briefs.run.subRenderingImages") } : n));
           const items = done.output.deliverables;
           for (let i = 0; i < items.length; i++) {
             const cardId = `spec-${agent.id}-d${i}`;
@@ -2052,7 +2091,8 @@ function BriefRunCanvas({ context, onClear, go }) {
         completed={completed}
         running={running}
       />
-      <InteractiveCanvas
+      <BriefWorkspaceSurface
+        officeScope={context.brandId}
         nodeData={nodes}
         edges={edges}
         renderNode={renderNode}
@@ -2170,21 +2210,14 @@ function BriefRunCanvas({ context, onClear, go }) {
   );
 }
 
-/* Curated re-run alternatives. Text specialists get text models; image
-   specialists get image models. The cost-default already picked the
-   right one — these are for "escalate to premium" or "try cheaper". */
+/* Client quality tiers resolve to server routes with actual credit estimates. */
 const TEXT_RERUN_OPTIONS = [
-  { route: "anthropic/claude-opus-4-7",            label: "Opus 4.7",            noteKey: "noteOpus" },
-  { route: "anthropic/claude-sonnet-4-6",          label: "Sonnet 4.6",          noteKey: "noteSonnet" },
-  { route: "anthropic/claude-haiku-4-5-20251001",  label: "Haiku 4.5",           noteKey: "noteHaiku" },
-  { route: "openrouter/google/gemini-2.5-pro",     label: "Gemini Pro",          noteKey: "noteGeminiPro" },
-  { route: "openrouter/google/gemini-2.5-flash",   label: "Gemini Flash",        noteKey: "noteGeminiFlash" },
+  { tier: "auto", label: "Auto", note: "Use the configured specialist route" },
+  { tier: "premium", label: "Premium", note: "For detailed creative work" },
+  { tier: "balanced", label: "Balanced", note: "For most deliverables" },
+  { tier: "fast", label: "Fast", note: "For drafts and volume" },
 ];
-const IMAGE_RERUN_OPTIONS = [
-  { route: "vendor/fal/flux-1.1-pro",  label: "Flux 1.1 Pro",   noteKey: "noteFluxPro" },
-  { route: "vendor/fal/flux-schnell",  label: "Flux Schnell",   noteKey: "noteFluxSchnell" },
-  { route: "vendor/fal/recraft-v3",    label: "Recraft V3",     noteKey: "noteRecraft" },
-];
+const IMAGE_RERUN_OPTIONS = TEXT_RERUN_OPTIONS;
 
 /* The brief + Brandolph's recommendations — opened by clicking the Brief node. */
 function BriefDrawer({ brief, onClose }) {
@@ -2336,13 +2369,24 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
   const assetUrl = node.assetUrl || node.done?.output?.asset_url || null;
   const isImage  = !!assetUrl;
   const rerunOptions = isImage ? IMAGE_RERUN_OPTIONS : TEXT_RERUN_OPTIONS;
-  const currentRoute = node.done?.usage?.model || node.run?.model_used || "";
+  const [tierEstimates, setTierEstimates] = useBrState({});
+  useBrEffect(() => {
+    if(!rerunOpen || !agent?.id)return;
+    let active = true;
+    Promise.all(TEXT_RERUN_OPTIONS.map(async option => {
+      const res=await apiFetch(`/api/runs/estimate?specialistId=${encodeURIComponent(agent.id)}&tier=${option.tier}`);
+      if(!res.ok)return [option.tier,null];
+      const data=await res.json();return [option.tier,data.credits];
+    })).then(entries=>{if(active)setTierEstimates(Object.fromEntries(entries));}).catch(()=>{if(active)setTierEstimates({});});
+    return ()=>{active=false;};
+  },[rerunOpen,agent?.id]);
+  const email = node.done?.output?.kind === "email_html" ? node.done.output : node.output?.body?.kind === "email_html" ? node.output.body : null;
 
   const dirty = !isImage && (editedText || "") !== (baselineText || "");
 
-  const fireRerun = async ({ modelOverride, revisionFeedback, label }) => {
+  const fireRerun = async ({ qualityTier = "auto", revisionFeedback, label }) => {
     if (!briefId || !agent?.id) return;
-    setRerunState({ running: true, model: label || modelOverride, error: null, output: "" });
+    setRerunState({ running: true, model: label || qualityTier, error: null, output: "" });
     let text = "";
     let done = null;
     let err = null;
@@ -2360,14 +2404,14 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
       },
       onDone: (data) => { done = data; },
       onError: ({ message }) => { err = message; },
-      __body: { modelOverride, revisionFeedback },   // see streamSpecialistRun
+      __body: { qualityTier, revisionFeedback },   // see streamSpecialistRun
     });
     if (err) {
-      setRerunState({ running: false, model: label || modelOverride, error: err, output: text });
+      setRerunState({ running: false, model: label || qualityTier, error: err, output: text });
       return;
     }
-    setRerunState({ running: false, model: label || modelOverride, error: null, output: text, done });
-    onRerun && onRerun({ modelOverride, revisionFeedback, done, text });
+    setRerunState({ running: false, model: label || qualityTier, error: null, output: text, done });
+    onRerun && onRerun({ qualityTier, revisionFeedback, done, text });
   };
 
   const copy = async () => {
@@ -2472,12 +2516,13 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
           </span>
         )}
       </div>
+      {isImage && passed && <MediaDerivative outputId={outputId} brandId={brandId} briefId={briefId} specialistId={agent.id}/>}
       {saveErr && (
         <div style={{marginBottom: 8, padding:"6px 10px", background:"var(--pink-50, rgba(244,143,177,0.12))", color:"var(--pink-700, var(--pink-500))", borderRadius: 6, fontSize: 12}}>
           {saveErr}
         </div>
       )}
-      {isImage ? (
+      {email ? <EmailPreview outputId={outputId} email={email}/> : node.done?.output?.kind === "video" ? <video controls src={assetUrl} style={{width:"100%"}}/> : isImage ? (
         <a href={assetUrl} target="_blank" rel="noreferrer"
            style={{display:"block", borderRadius: 10, overflow:"hidden", border:"1px solid var(--c-line)"}}>
           <img src={assetUrl} alt={agent.name}
@@ -2522,25 +2567,25 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
           {rerunOpen && (
             <div className="card" style={{padding: 8, display:"flex", flexDirection:"column", gap: 2, animation:"cvPopIn 160ms cubic-bezier(.2,.8,.2,1)"}}>
               {rerunOptions.map((opt) => {
-                const isCurrent = currentRoute && (currentRoute === opt.route || opt.route.endsWith(currentRoute));
+                const unavailable = tierEstimates[opt.tier] == null;
                 return (
-                  <button key={opt.route}
-                    onClick={() => { setRerunOpen(false); fireRerun({ modelOverride: opt.route, label: opt.label }); }}
-                    disabled={isCurrent}
+                  <button key={opt.tier}
+                    onClick={() => { setRerunOpen(false); fireRerun({ qualityTier: opt.tier, label: opt.label }); }}
+                    disabled={unavailable}
                     style={{
                       display:"flex", justifyContent:"space-between", alignItems:"center",
                       width:"100%", padding:"8px 10px", borderRadius: 7,
                       border:"none", background:"transparent",
-                      cursor: isCurrent ? "default" : "pointer", textAlign:"left",
-                      opacity: isCurrent ? 0.5 : 1,
+                      cursor: unavailable ? "default" : "pointer", textAlign:"left",
+                      opacity: unavailable ? 0.5 : 1,
                     }}
-                    onMouseEnter={(e) => { if (!isCurrent) e.currentTarget.style.background = "var(--neutral-50)"; }}
+                    onMouseEnter={(e) => { if (!unavailable) e.currentTarget.style.background = "var(--neutral-50)"; }}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                     <div>
-                      <div style={{fontSize: 13, fontWeight: 500, color:"var(--c-ink)"}}>{opt.label}{isCurrent && <span style={{color:"var(--c-faint)", fontWeight: 400}}> {t("briefs.notepad.current")}</span>}</div>
-                      <div style={{fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)"}}>{t("briefs.rerun." + opt.noteKey)}</div>
+                      <div style={{fontSize: 13, fontWeight: 500, color:"var(--c-ink)"}}>{opt.label}</div>
+                      <div style={{fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)"}}>{opt.note}</div>
                     </div>
-                    <Icon name="arrow" size={12} />
+                    <span style={{fontSize:12,color:"var(--c-faint)"}}>{unavailable ? "Unavailable" : `≈ ${tierEstimates[opt.tier]} cr`}</span>
                   </button>
                 );
               })}
@@ -2743,12 +2788,12 @@ function CanvasView({ go }) {
   };
 
   if (ctx?.mode === "view" && ctx.briefId) {
-    return <BriefViewCanvas briefId={ctx.briefId} onClear={clearCtx} go={go} />;
+    return <CanvasEntry context={ctx} onClear={clearCtx} go={go} fallback={<BriefViewCanvas briefId={ctx.briefId} onClear={clearCtx} go={go} />} />;
   }
   if (ctx && Array.isArray(ctx.specialistIds) && ctx.specialistIds.length > 0 && ctx.brandId) {
-    return <BriefRunCanvas context={ctx} onClear={clearCtx} go={go} />;
+    return <CanvasEntry context={ctx} onClear={clearCtx} go={go} fallback={<BriefRunCanvas context={ctx} onClear={clearCtx} go={go} />} />;
   }
-  return <InteractiveCanvas nodeData={CANVAS_NODES} edges={CANVAS_EDGES} exportName="demo-brand-canvas" />;
+  return <OfficePreview go={go} />;
 }
 
 /* ── BriefViewCanvas — loads an existing brief's runs/outputs from DB
@@ -2771,7 +2816,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         if (bErr || !brief) { setState({ loading: false, brief: null, runs: [], cert: null, error: bErr?.message || t("briefs.view.notFound") }); return; }
 
         const { data: runs } = await supabase
-          .from("runs").select("id, specialist_id, bio_version, status, outputs ( id, kind, body, status, rationale )")
+          .from("runs").select("id, specialist_id, bio_version, status, outputs ( id, kind, body, status, workflow_status, rationale )")
           .eq("brief_id", briefId).order("started_at", { ascending: true });
 
         const { data: bio } = await supabase
@@ -2840,7 +2885,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
       cr: s.agent?.cr || 0,
       state: s.passed ? "done" : "flagged",
       outputText: s.text, assetUrl, tokenCount: 1000, qa: null,
-      done: { brand: { bioVersion: s.firstRun.bio_version }, output: assetUrl ? { asset_url: assetUrl } : null },
+      done: { brand: { bioVersion: s.firstRun.bio_version }, output: s.output?.body || (assetUrl ? { asset_url: assetUrl } : null) },
     };
   });
 
@@ -2985,7 +3030,8 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         completed={!anyFlagged}
         running={false}
       />
-      <InteractiveCanvas
+      <BriefWorkspaceSurface
+        officeScope={state.brief.brand_id}
         nodeData={nodes}
         edges={edges}
         renderNode={renderNode}
@@ -3017,7 +3063,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
             qa: null,
             done: {
               brand: { bioVersion: opened.firstRun.bio_version },
-              output: opened.output?.body?.asset_url ? { asset_url: opened.output.body.asset_url } : null,
+              output: opened.output?.body || null,
             },
             run: { model_used: opened.firstRun.model_used },
             state: opened.passed ? "done" : "flagged",
@@ -3601,6 +3647,7 @@ function Library({ go }) {
             status: o.status,
             rationale: o.rationale,
             text,
+            email: body.kind === "email_html" ? body : null,
             assetUrl,
             edited: !!body.edited_text,                 /* surfaced as a chip in the UI */
             brief: { id: b.id, request: b.payload?.request || b.title, title: b.payload?.title || b.title, mode: b.mode, created_at: b.created_at, payload: b.payload || {} },
@@ -4018,7 +4065,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
           padding: isImage && o.assetUrl ? "16px 18px" : "20px 22px",
           ...(isImage && o.assetUrl ? { display:"flex", flexDirection:"column" } : null),
         }}>
-          {isImage && o.assetUrl ? (
+          {o.email ? <EmailPreview outputId={o.id} email={o.email}/> : o.kind === "video" && o.assetUrl ? <video controls src={o.assetUrl} style={{width:"100%"}}/> : isImage && o.assetUrl ? (
             /* Frameless lightbox — full image fits, centered, on the dim backdrop */
             <div style={{flex:1, minHeight:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
               <img src={o.assetUrl} alt={o.kind} style={{display:"block", maxWidth:"100%", maxHeight:"62vh", width:"auto", height:"auto", margin:"0 auto", objectFit:"contain", borderRadius:8}} />
@@ -4360,3 +4407,5 @@ function SpecialistAuthor({ go }) {
 }
 
 Object.assign(window, { BriefsLibrary, BriefDetail, SpecialistsDirectory, CanvasView, Library, SpecialistAuthor, BriefBoard });
+
+export { BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard };

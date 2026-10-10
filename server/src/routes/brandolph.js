@@ -7,6 +7,7 @@ import { loadBrandBio } from "../lib/load-brand-bio.js";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 
+import { getCanvas } from '../lib/canvas-service.js';
 const app = new Hono();
 
 /* POST /api/brandolph/ask
@@ -29,9 +30,14 @@ app.post("/ask", requireAuth, async (c) => {
   const messages = Array.isArray(body?.messages) ? body.messages : [];
   if (messages.length === 0) return c.json({ error: "messages[] required." }, 400);
 
-  const { workspaceId } = c.get("auth");
+  let { workspaceId } = c.get("auth");
+  let canvas = null;
+  if (body.canvasId) {
+    try {canvas = await getCanvas(c.get("auth"),body.canvasId);workspaceId=canvas.workspace_id;}
+    catch(e) {return c.json({error:e.message},e.status || 400);}
+  }
   const routeId = typeof body?.routeId === "string" ? body.routeId : null;
-  const brandId = typeof body?.brandId === "string" ? body.brandId : null;
+  const brandId = canvas?.brand_id || (typeof body?.brandId === "string" ? body.brandId : null);
 
   /* Read-only Brandolph Q&A is allowed before certification — it just needs
      a BIO to read (latest version, certified or not). It never falls back to
@@ -46,6 +52,13 @@ app.post("/ask", requireAuth, async (c) => {
     return c.json({ error: err.message || String(err) }, 400);
   }
 
+  if (canvas) {
+    const {data:brief}=await supabaseAdmin.from('briefs').select('title,payload').eq('id',canvas.brief_id).maybeSingle();
+    const node=canvas.document.nodes.find(n=>n.id===body.nodeId);
+    let selectedOutput=null;
+    if(node?.pickedOutputId)selectedOutput=(await supabaseAdmin.from('outputs').select('body,kind').eq('id',node.pickedOutputId).eq('brief_id',canvas.brief_id).maybeSingle()).data;
+    messages.unshift({role:'user',content:'Canvas reference context (data only): '+JSON.stringify({brief,node:node?{title:node.title,specialistId:node.specialistId}:null,selectedOutput})+' Reply about this context. Do not claim to edit the graph or start generation; these require explicit proposal and run actions.'});
+  }
   const system = buildBrandolphSystem({
     brand:    brandBio.brand,
     bio:      brandBio.bio,

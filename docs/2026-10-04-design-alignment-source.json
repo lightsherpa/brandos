@@ -1,0 +1,35 @@
+{
+  "userReference": "http://localhost:5189/",
+  "sourceCheckout": "/Users/oscarmottaquintana/Documents/Claudio/CaastorOS/.claude/worktrees/caastoros-mvp-review-d969b6",
+  "sourceRevision": "334029e",
+  "sourceSha256": {
+    "public/caastor/plex-registry.css": "3ab4154a95886584320a5a1a8f7f0cb01c9d13d511a6d32555cbcf382136e442",
+    "public/caastor/ds-tokens.css": "1d0851a4285145c9eec92dc6890b48435486f29555354f9c4aa39e918dbf09b7",
+    "src/portal-shell.jsx": "9415516392fd1f768e3cec19e9fdfc0a1b4b9848bc4ac6c169114bbd478f38ee",
+    "index.html": "0bd6bcb5b0f01732e17e23f4462361f54cb1398bf6ee84638f29992a0b4a74e3",
+    "artifacts/plex-registry-ui-findings/DESIGN.md": "f2d4d7931dd741e68bcac5977055cb1dd31bd05fabd60123fba3510e66de6bf1"
+  },
+  "scope": "Source skin and defaults; marked integration bridge for persisted canvas and dark companion. Authenticated BIO rendering not yet observed.",
+  "localVerification": {
+    "build": "pass",
+    "palette": "plex-registry",
+    "uiFont": "IBM Plex Sans",
+    "headingFont": "IBM Plex Serif",
+    "primaryAction": "#2457D6 / white text",
+    "corners": "4px",
+    "mobileWidth": 390,
+    "mobileHorizontalOverflow": false,
+    "mobileTargetsMinHeight": 44,
+    "mobileApprovalDialogWidth": 366,
+    "approvalDismissalFocus": "returned to run trigger after Deny",
+    "providerCalls": 0,
+    "screenshots": [
+      ".mvp-local/browser/plex-registry-canvas-desktop.png",
+      ".mvp-local/browser/plex-registry-canvas-mobile.png"
+    ],
+    "limits": "Current platform BIO is behind sign-in; broad two-engine/locale regression pending."
+  },
+  "bioReference": "http://localhost:5189/#/bio",
+  "rootObservation": "Root opens at sign-in in the agent browser; authenticated shell comparison pending.",
+  "typographyConstraint": "No Inter; removed Inter/Geist/Instrument CSS presets, font-settings options and legacy mockup requests. Only IBM Plex roles remain."
+}

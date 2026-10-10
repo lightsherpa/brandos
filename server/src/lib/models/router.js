@@ -19,34 +19,17 @@
 //   { type: "error", message }
 // ─────────────────────────────────────────────────────────────────────
 
+import { MODEL_CATALOG, catalogModel } from "./catalog.js";
 import * as anthropic from "./anthropic.js";
 import * as openrouter from "./openrouter.js";
 
 /* Browser-requested overrides are deliberately finite. Specs may still use
    other routes as their server-authored primary, but clients cannot turn the
    platform key into an arbitrary OpenRouter proxy. */
-export const ALLOWED_MODEL_OVERRIDES = new Set([
-  "anthropic/claude-opus-4-7",
-  "anthropic/claude-sonnet-4-6",
-  "anthropic/claude-haiku-4-5-20251001",
-  "openrouter/google/gemini-2.5-pro",
-  "openrouter/google/gemini-2.5-flash",
-  "vendor/fal/flux-1.1-pro",
-  "vendor/fal/flux-schnell",
-  "vendor/fal/recraft-v3",
-]);
-
-export function isAllowedModelOverride(route) {
-  return typeof route === "string" && ALLOWED_MODEL_OVERRIDES.has(route);
-}
-
-/* Credit multipliers reflect relative provider cost classes. They are kept
-   server-side and applied to the specialist's base credit estimate. */
-export function routeCreditMultiplier(route) {
-  if (/opus|gemini-2\.5-pro|flux-1\.1-pro|recraft-v3/i.test(route || "")) return 2;
-  if (/haiku|gemini-2\.5-flash|flux-schnell/i.test(route || "")) return 0.75;
-  return 1;
-}
+export const ALLOWED_MODEL_OVERRIDES = new Set(MODEL_CATALOG.filter(m => m.override).map(m => m.route));
+export function isAllowedModelOverride(route) { return ALLOWED_MODEL_OVERRIDES.has(route); }
+export function textProviderAvailable(route){return route?.startsWith('anthropic/')?anthropic.hasKey():route?.startsWith('openrouter/')?openrouter.hasKey():false;}
+export function routeCreditMultiplier(route) { return catalogModel(route)?.credits ?? 1; }
 
 /**
  * Stream a text completion through the right vendor.
@@ -61,7 +44,7 @@ export function routeCreditMultiplier(route) {
  * @param {number} [params.maxTokens]    - max output tokens; derived from spec.payload.cr_estimate if omitted
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ spec, system, messages, maxTokens }) {
+export async function* streamCompletion({ spec, system, messages, maxTokens, spendOptions }) {
   const route = spec?.payload?.modelRouting?.primary;
   if (typeof route !== "string" || !route.includes("/")) {
     yield { type: "error", message: `Invalid model route: ${JSON.stringify(route)}. Expected "anthropic/<model>" or "openrouter/<model>".` };
@@ -78,13 +61,13 @@ export async function* streamCompletion({ spec, system, messages, maxTokens }) {
 
   if (route.startsWith("anthropic/")) {
     const model = route.slice("anthropic/".length);
-    yield* anthropic.streamCompletion({ model, system, messages, maxTokens: budget });
+    yield* anthropic.streamCompletion({ model, system, messages, maxTokens: budget, spendOptions });
     return;
   }
 
   if (route.startsWith("openrouter/")) {
     const model = route.slice("openrouter/".length);
-    yield* openrouter.streamCompletion({ model, system, messages, maxTokens: budget });
+    yield* openrouter.streamCompletion({ model, system, messages, maxTokens: budget, spendOptions });
     return;
   }
 

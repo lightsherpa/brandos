@@ -6,6 +6,9 @@
 // exist in CI_AGENTS / CI_SPECIALIST_SPECS.
 
 export const DELIVERABLE_TYPES = {
+  image: { label: "Image", parts: ["image"], crew: { image: "a20" }, platformSensitive: ["image"], visual: true },
+  video_clip: { label: "Video clip", parts: ["video"], crew: { video: "a35" }, platformSensitive: ["video"], visual: true },
+  email_html: { label: "HTML email", parts: ["email_html"], crew: { email_html: "a13" }, platformSensitive: [], visual: false },
   social_post:     { label: "Social post",     parts: ["caption", "image"],                 crew: { caption: "a16", image: "a41" },                      platformSensitive: ["caption", "image"], visual: true },
   carousel:        { label: "Carousel",        parts: ["caption", "frames"],                crew: { caption: "a16", frames: "a41" },                     platformSensitive: ["caption", "frames"], visual: true },
   ad_creative:     { label: "Ad creative",     parts: ["headline", "body", "image"],        crew: { headline: "a37", body: "a12", image: "a42" },        platformSensitive: ["headline", "body", "image"], visual: true },

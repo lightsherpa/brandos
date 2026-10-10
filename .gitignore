@@ -10,3 +10,12 @@ dist/
 
 # Large raw media — keep out of git (use external storage / git-lfs if needed)
 explainer-video/
+
+# Isolated local MVP credentials and private fixture state
+.env.mvp-local
+server/.env.mvp-local
+.mvp-local/
+
+# Local QA/provider receipts stay local; preserve code in the WIP snapshot.
+output/
+.env*

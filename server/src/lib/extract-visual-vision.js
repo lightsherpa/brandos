@@ -19,14 +19,14 @@ const VISUAL_VISION_SPEC = {
   payload: {
     name: "Visual Imagery Extractor",
     modelRouting: {
-      primary: "openrouter/google/gemini-2.5-flash",
+      primary: process.env.DISCOVERY_TEST_ROUTE === "haiku-sonnet" ? "openrouter/google/gemini-3.8-flash" : "openrouter/google/gemini-2.5-flash",
       reason: "one-shot vision read of brand imagery; cheap + reliable JSON",
     },
     cr_estimate: 1,
   },
 };
 
-const VISUAL_VISION_SYSTEM = `You are a brand visual analyst — you read a brand's homepage screenshot and describe its IMAGERY style.
+export const VISUAL_VISION_SYSTEM = `You are a brand visual analyst — you read a brand's homepage screenshot and describe its IMAGERY style.
 
 Return STRICT JSON ONLY, no preamble, no fences. Shape:
 {"imagery":string[],"avoid":string[]}
@@ -73,7 +73,7 @@ export async function extractImageryAvoid({ screenshotUrl, voice = null, notList
       spec: VISUAL_VISION_SPEC,
       system: VISUAL_VISION_SYSTEM,
       messages: [{ role: "user", content: userContent }],
-      maxTokens: 300,
+      maxTokens: process.env.DISCOVERY_TEST_ROUTE === "haiku-sonnet" ? 2000 : 300,
     })) {
       if (ev.type === "token")      text += ev.text;
       else if (ev.type === "error") throw new Error(ev.message);

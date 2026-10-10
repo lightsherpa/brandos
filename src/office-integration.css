@@ -1,0 +1,63 @@
+/* Imported room art remains intact. Shell controls consume the current Plex tokens. */
+.cvs-workspace[data-workspace-surface="office"] .cvs-desk{display:none}
+.cvs-office{flex:1;min-width:0;overflow:auto}.cvs-office .ao-workspace{border-top:0}
+.ao-workspace,.ao-preview-page{--ao-ink:var(--plex-ink);--ao-muted:var(--plex-muted);--ao-line:var(--plex-line);font-family:var(--plex-font-ui);color:var(--plex-ink)}
+.ao-floor-header h2,.ao-preview-header h1,.bs-room-options>span{font-family:var(--plex-font-display)}
+.ao-surface-switch button:focus-visible,.ao-workspace button:focus-visible{outline-color:var(--plex-cobalt)}
+.ao-surface-switch button{min-height:36px}
+@media(pointer:coarse){.ao-surface-switch button{min-height:44px}}
+/* Keep the illustrated floor scrollable without widening its containing page. */
+.app:has(.cvs-workspace[data-workspace-surface="office"]) .topbar>div:last-child{min-width:0}
+@media(max-width:760px){
+ .app:has(.cvs-workspace[data-workspace-surface="office"]) .topbar{height:auto;min-height:56px;flex-wrap:wrap;gap:8px;padding-block:10px}
+ .app:has(.cvs-workspace[data-workspace-surface="office"]) .topbar .titlestrip__crumb{min-width:0;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .app:has(.cvs-workspace[data-workspace-surface="office"]) .topbar>div:last-child{flex:1 0 100%;flex-wrap:wrap;gap:8px!important;margin-left:0!important}
+ .app:has(.cvs-workspace[data-workspace-surface="office"]) .topbar>div:last-child>div{min-width:0;flex:1;overflow-wrap:anywhere;letter-spacing:.03em!important}
+ .cvs-office .bs-customizer label{flex-wrap:wrap;max-width:100%}
+ .cvs-office .bs-customizer select{min-width:0;max-width:100%}
+}
+@media(max-width:1024px),(pointer:coarse){
+ .cvs-workspace[data-workspace-surface="office"] .ao-surface-switch button,
+ .cvs-office .ao-output-actions button,.cvs-office .bs-room-options button,
+ .cvs-office .bs-customizer button,.cvs-office select,.cvs-office input[type="range"],
+ .cvs-office .ao-roster-row,.cvs-office .ao-inspector button{min-height:44px;min-width:44px}
+ .cvs-office .bs-room-options label,.cvs-office .ao-motion{min-height:44px;display:inline-flex;align-items:center}
+ .app:has(.cvs-workspace[data-workspace-surface="office"]) .topbar button{min-height:44px;min-width:44px}
+ .cvs-office .bs-office{max-width:100%;overflow:auto}
+}
+/* Keep operational labels legible and aligned with the current platform skin. */
+.ao-workspace{background:var(--plex-paper)}
+.ao-surface-switch,.ao-sidebar,.ao-floor-header,.ao-output-card,.bs-customizer{background:var(--plex-surface);border-color:var(--plex-line)}
+.ao-surface-switch button[aria-pressed="true"],.ao-roster-row.is-selected{background:var(--plex-surface-2);color:var(--plex-ink);border-color:var(--plex-line)}
+.ao-output-info small,.ao-output-info>span,.ao-roster-state,.ao-roster-row small,.ao-eyebrow,.ao-count,.ao-roster-heading,.ao-output-header,.bs-customizer,.bs-customizer small{color:var(--plex-ink)}
+.ao-output-info small{font-size:11px;text-transform:none;letter-spacing:0;line-height:1.4}
+.ao-output-info>span,.ao-roster-state,.ao-roster-row small{font-size:11px}
+.ao-brief-card{background:var(--plex-surface-2);border-color:var(--plex-line);color:var(--plex-ink)}
+.ao-brief-card strong,.ao-inspector h3{font-family:var(--plex-font-display)}
+.ao-brief-card>span:not(.ao-eyebrow):not(.ao-link){color:var(--plex-ink)}
+.ao-map{transition:none}
+/* Operational controls follow both Plex themes; the illustration keeps its materials. */
+.ao-floor,.bs-room-options,.bs-office{background:var(--plex-paper);color:var(--plex-ink)}
+.bs-customizer button,.bs-room-options button,.bs-customizer select,.bs-room-options select,.ao-room-filter,.ao-button,.ao-map-controls button{background:var(--plex-surface-2);color:var(--plex-ink);border-color:var(--plex-line-strong);border-radius:4px}
+.bs-customizer button:focus-visible,.bs-customizer select:focus-visible,.bs-room-options select:focus-visible,.bs-room-options input:focus-visible{outline:2px solid var(--plex-cobalt);outline-offset:3px}
+.bs-events,.ao-empty,.ao-empty-shelf,.ao-motion,.ao-map-controls{color:var(--plex-ink-2)}
+.bs-person strong{color:#15191f}
+.bs-room-options label,.bs-customizer label{min-width:0;overflow-wrap:anywhere}
+.ao-output-card{overflow-wrap:anywhere}
+@media(max-width:760px){.ao-floor-header{flex-wrap:wrap}.ao-project-state{max-width:none}.bs-prop-tools>label,.bs-catalog-filters>label{flex:1 1 100%}.bs-customizer select{width:100%}.ao-roster{grid-template-columns:1fr}}
+.ao-preview-page{background:var(--plex-paper)}
+.ao-preview-header p{color:var(--plex-ink-2)}
+.ao-button-primary{background:var(--plex-cobalt);border-color:var(--plex-cobalt);color:var(--text-on-brand,#fff)}
+.ao-preview-actions{flex-wrap:wrap;min-width:0}
+.ao-preview-actions button{white-space:normal;overflow-wrap:anywhere;max-width:100%}
+.bs-customizer-heading>div{min-width:0}
+/* Outrank the imported room stylesheet regardless of entry-point import order. */
+.ao-workspace .bs-room-options,.ao-workspace .bs-office{background:var(--plex-paper);color:var(--plex-ink)}
+.ao-workspace .bs-customizer{background:var(--plex-surface);color:var(--plex-ink);border-color:var(--plex-line)}
+.ao-workspace .bs-customizer button,.ao-workspace .bs-room-options button,.ao-workspace .bs-customizer select,.ao-workspace .bs-room-options select{background:var(--plex-surface-2);color:var(--plex-ink);border-color:var(--plex-line-strong)}
+.ao-workspace .bs-customizer small,.ao-workspace .bs-customizer-heading>span{color:var(--plex-ink-2)}
+.ao-workspace .bs-events{color:var(--plex-ink-2)}
+.ao-workspace .bs-person strong{color:#15191f}
+.ao-workspace .bs-customizer-heading>div{min-width:0}
+@media(max-width:760px){.ao-workspace .bs-customizer label{flex-wrap:wrap;max-width:100%}.ao-workspace .bs-customizer select{min-width:0;max-width:100%;width:100%}}
+@media(max-width:760px){.ao-workspace .ao-roster{grid-template-columns:minmax(0,1fr)}.ao-workspace .ao-roster-row{min-width:0;flex-wrap:wrap}.ao-workspace .ao-roster-state{max-width:100%;overflow-wrap:anywhere}.ao-workspace .bs-customizer label{overflow-wrap:anywhere}}

@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-palette="plex-registry" data-font="plex" data-density="cozy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CaastorOS · Plex Registry parity study</title>
+<!-- Relative paths support both file:// viewing and the local Vite preview. -->
+<link rel="stylesheet" href="../../../public/caastor/ds-tokens.css">
+<link rel="stylesheet" href="../../../public/caastor/plex-registry.css">
+<style>
+/* Prototype aliases consume the current platform's Plex Registry tokens.
+   Source: localhost:5189, caastoros-mvp-review-d969b6. */
+:root{
+  --text-1:var(--plex-ink); --text-2:var(--plex-ink-2);
+  --text-3:var(--plex-muted); --text-4:var(--plex-muted);
+  --line:var(--plex-line); --line-2:var(--plex-line-strong); --line-soft:var(--border-subtle);
+  --ok:var(--plex-signal); --ok-soft:var(--plex-signal-soft);
+  --danger:var(--plex-danger); --danger-soft:#fcecef; --warn:var(--plex-warning);
+  --desk:var(--plex-paper); --desk-dot:var(--canvas-grid);
+  --desk-ui:var(--plex-surface); --desk-ui-2:var(--plex-surface-2);
+  --desk-line:var(--plex-line); --desk-text:var(--plex-ink-2); --desk-dim:var(--plex-muted);
+  --p-bio:var(--plex-signal); --p-brief:var(--plex-cobalt); --p-text:var(--plex-signal);
+  --p-image:var(--plex-cobalt); --p-video:var(--plex-muted);
+  --d-strategy:var(--plex-ink-2); --d-concept:var(--plex-cobalt); --d-copy:var(--plex-signal);
+  --d-visual:var(--plex-cobalt); --d-web:var(--plex-cobalt); --d-research:var(--plex-muted);
+  --font:var(--plex-font-ui); --serif:var(--plex-font-display); --mono:var(--plex-font-mono);
+}
+*{box-sizing:border-box} html,body{margin:0;height:100%}
+body{font-family:var(--font);background:var(--bg-app);color:var(--text-1);font-size:13px;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,textarea{font:inherit;color:inherit}
+.mono{font-family:var(--mono)}
+.serif{font-family:var(--serif);font-weight:400}
+
+/* ── Prototype switcher (not product UI) ─────────────────────────── */
+.proto{position:fixed;top:0;left:0;right:0;height:34px;background:var(--desk-ui);color:var(--text-3);display:flex;align-items:center;gap:6px;padding:0 12px;z-index:100;font-size:11.5px}
+.proto b{color:#fff;font-weight:600;margin-right:8px}
+.proto button{padding:4px 10px;border-radius:4px;color:var(--desk-text)}
+.proto button.on{background:var(--desk-ui-2);color:#fff}
+.proto .sp{flex:1}
+.proto kbd{font-family:var(--mono);font-size:10px;background:var(--desk-ui-2);color:var(--desk-text);padding:1px 5px;border-radius:4px}
+.screen{position:fixed;top:34px;left:0;right:0;bottom:0;display:none}
+.screen.on{display:flex}
+
+/* ── App shell rail / sidebar ─────────────────────────────────────── */
+.side{width:212px;flex-shrink:0;background:var(--bg-canvas);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:12px 10px;gap:2px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;padding:4px 6px 10px}
+.logo i{width:22px;height:22px;border-radius:4px;background:var(--brand);display:grid;place-items:center;font-style:normal;font-size:12px;color:var(--text-1)}
+.brandsw{display:flex;align-items:center;gap:8px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;margin-bottom:8px}
+.brandsw .av{width:22px;height:22px;border-radius:4px;background:linear-gradient(135deg,#E8D5C4,#B98D72)}
+.brandsw small{display:block;color:var(--text-3);font-size:10.5px}
+.newbtn{background:var(--text-1);color:#fff;border-radius:4px;padding:8px 10px;font-weight:600;display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:10px}
+.grp{font-size:10.5px;color:var(--text-4);padding:10px 8px 4px;letter-spacing:.02em}
+.nav{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:4px;color:var(--text-2);font-weight:500}
+.nav.on{background:var(--bg-muted);color:var(--text-1)}
+.nav .ic{width:16px;text-align:center;opacity:.8}
+.badge{margin-left:auto;font-size:9.5px;font-family:var(--mono);padding:1px 6px;border-radius:4px;background:var(--ok-soft);color:var(--plex-signal-strong)}
+.side .foot{margin-top:auto;display:flex;align-items:center;gap:6px;padding-top:10px;border-top:1px solid var(--line-soft)}
+.cr{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;padding:4px 8px;border-radius:4px;background:var(--brand-soft);color:var(--brand-strong)}
+.cr::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--brand)}
+
+/* ── HOME ──────────────────────────────────────────────────────────── */
+.home{flex:1;overflow:auto}
+.home-hero{padding:56px 48px 34px;display:flex;flex-direction:column;align-items:center;background-image:radial-gradient(circle,#E3E6EE 1px,transparent 1px);background-size:20px 20px;border-bottom:1px solid var(--line)}
+.home-hero h1{font-family:var(--serif);font-weight:400;font-size:44px;margin:0;letter-spacing:-.01em}
+.home-hero p{color:var(--text-2);margin:8px 0 22px;font-size:14px}
+.composer{width:min(680px,100%);background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 30px rgba(7,20,55,.06);padding:12px 12px 10px}
+.composer textarea{width:100%;border:0;outline:0;resize:none;font-size:14px;min-height:46px;background:none}
+.ctoks{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.tok{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:4px;background:var(--bg-muted);font-size:11.5px;font-weight:500}
+.tok.bio{background:var(--brand-soft);color:var(--brand-strong)}
+.tok.bio::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.tok.skill{color:var(--accent);background:var(--accent-soft);font-family:var(--mono);font-size:11px}
+.tok img,.tok .th{width:16px;height:16px;border-radius:4px;object-fit:cover}
+.tok .x{opacity:.5;margin-left:2px}
+.crow{display:flex;align-items:center;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:4px;border:1px solid var(--line);font-size:11.5px;color:var(--text-2);background:#fff}
+.pill.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.round{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--text-2)}
+.send{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--text-1);color:#fff;font-weight:700}
+.sugg{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+.sugg .pill{height:30px;border-radius:4px;padding:0 12px 0 4px}
+.sugg .pill .th{width:22px;height:22px;border-radius:50%;background-size:cover}
+.sec{padding:26px 48px 4px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.sec-h h2{font-family:var(--serif);font-weight:400;font-size:26px;margin:0}
+.ghostlink{font-size:12px;color:var(--text-2);border:1px solid var(--line);border-radius:4px;padding:5px 11px;background:#fff}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s}
+.pcard:hover{box-shadow:0 10px 30px rgba(7,20,55,.08);transform:translateY(-1px)}
+.mosaic{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,58px);gap:2px;background:var(--bg-muted)}
+.mosaic div{background-size:cover;background-position:center;background-color:var(--bg-muted)}
+.pcard .meta{padding:10px 12px}
+.pcard .meta b{display:block;font-weight:600;margin-bottom:3px}
+.pcard .meta span{color:var(--text-3);font-size:11.5px}
+.runcard{display:flex;gap:16px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:4px;padding:14px 16px}
+.bar{height:5px;border-radius:4px;background:var(--bg-muted);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:4px}
+.tmpl{background:#fff;border:1px solid var(--line);border-radius:4px;padding:12px}
+.tmpl .io{display:flex;align-items:center;gap:6px;margin:8px 0}
+.tmpl .io .sq{width:40px;height:40px;border-radius:4px;background-size:cover;background-color:var(--bg-muted);position:relative}
+.tmpl .io .lab{position:absolute;bottom:2px;left:2px;font-size:8.5px;background:rgba(7,20,55,.75);color:#fff;border-radius:4px;padding:0 3px}
+.tmpl .foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11.5px;color:var(--text-3)}
+.btn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:4px;font-weight:600;font-size:12px}
+.btn.pri{background:var(--brand);color:var(--text-1)}
+.btn.dark{background:var(--text-1);color:#fff}
+.btn.out{border:1px solid var(--line);background:#fff;color:var(--text-1)}
+.btn.acc{background:var(--accent);color:#fff}
+
+/* ── CANVAS ────────────────────────────────────────────────────────── */
+.rail{width:52px;flex-shrink:0;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:6px}
+.rail .r{width:34px;height:34px;border-radius:4px;display:grid;place-items:center;color:var(--text-2)}
+.rail .r.on{background:var(--bg-muted);color:var(--text-1)}
+.rail .r.plus{background:var(--text-1);color:#fff;font-weight:700}
+.rail .sp{flex:1}
+
+.chat{width:320px;flex-shrink:0;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;position:relative;transition:margin-left .22s ease}
+.chat.closed{margin-left:-320px}
+.chat-tabs{display:flex;align-items:center;gap:4px;padding:8px 8px 0;border-bottom:1px solid var(--line)}
+.ctab{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:4px;font-size:12px;color:var(--text-3);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctab.on{color:var(--text-1);background:var(--bg-sunken);border:1px solid var(--line);border-bottom-color:var(--bg-sunken);margin-bottom:-1px;font-weight:600}
+.ctab .live{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.chat-body{flex:1;overflow:auto;padding:14px;background:var(--bg-sunken);display:flex;flex-direction:column;gap:12px}
+.umsg{align-self:flex-end;max-width:88%;background:#fff;border:1px solid var(--line);border-radius:4px;padding:9px 11px;line-height:1.45}
+.umsg .ctoks{margin-bottom:6px}
+.who{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600}
+.bdot{width:18px;height:18px;border-radius:4px;background:linear-gradient(135deg,var(--accent),#7C73FF);display:grid;place-items:center;color:#fff;font-size:9.5px;font-weight:700}
+.runlog{background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.runlog .hd{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.runlog .hd .t{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--text-3);font-weight:400}
+.runlog .st{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 12px;font-size:11.5px;color:var(--text-2);border-top:1px solid var(--line-soft)}
+.runlog .st .ck{width:14px;height:14px;border-radius:50%;display:grid;place-items:center;font-size:8.5px;background:var(--ok-soft);color:var(--plex-signal-strong)}
+.runlog .st .ck.run{background:var(--accent-soft);color:var(--accent);animation:pulse 1.2s infinite}
+.runlog .st .t{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-4)}
+.approve{background:#fff;border:1px solid var(--brand);border-radius:4px;padding:12px;box-shadow:0 0 0 3px var(--brand-soft)}
+.approve b{display:block;font-size:13px;margin-bottom:3px}
+.approve p{margin:0 0 10px;color:var(--text-2);font-size:12px;line-height:1.45}
+.approve .row{display:flex;gap:6px;align-items:center}
+.amsg{line-height:1.55;color:var(--text-1)}
+.amsg .chip{display:inline-flex;align-items:center;gap:4px;background:var(--bg-muted);border-radius:4px;padding:0 5px;font-size:11.5px}
+.chat-comp{border-top:1px solid var(--line);padding:10px;background:#fff}
+.chat-comp .box{border:1px solid var(--line);border-radius:4px;padding:8px}
+.chat-comp textarea{width:100%;border:0;outline:0;resize:none;height:38px;background:none;font-size:12.5px}
+.chat-toggle{position:absolute;right:-14px;top:50%;width:14px;height:44px;margin-top:-22px;background:var(--brand);border-radius:4px;display:grid;place-items:center;font-size:10px;color:var(--text-1);z-index:6;box-shadow:2px 0 8px rgba(0,0,0,.2)}
+.plusmenu{position:absolute;bottom:58px;left:14px;width:220px;background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:0 12px 30px rgba(7,20,55,.14);padding:5px;display:none;z-index:20}
+.plusmenu.on{display:block}
+.mi{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:4px;font-size:12.5px;width:100%;text-align:left}
+.mi:hover,.mi.hl{background:var(--bg-muted)}
+.mi .k{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-4);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.mi .sub{display:block;font-size:10.5px;color:var(--text-3);font-weight:400}
+.msep{height:1px;background:var(--line-soft);margin:4px 2px}
+
+.work{flex:1;display:flex;flex-direction:column;min-width:0}
+/* CanvasHeader — kept, slimmed to 44px (Figma canvas-header) */
+.chead{height:44px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 14px;position:relative;z-index:8}
+.chead>*{white-space:nowrap;flex-shrink:0}
+.chead .crumb{flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:1280px){.depts,.prog{display:none}}
+@media (max-width:1000px){.tension{max-width:150px}.chead .cr{display:none}.chat{width:280px}.chat.closed{margin-left:-280px}}
+.crumb{color:var(--text-3);font-size:12px}
+.crumb b{color:var(--text-1);font-family:var(--serif);font-style:italic;font-weight:400;font-size:17px;margin-left:4px}
+.tension{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:4px;background:var(--brand-soft);color:var(--brand-strong);font-size:11.5px;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.depts{display:flex;gap:4px}
+.dchip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:4px;border:1px solid var(--line);font-family:var(--mono);font-size:10px}
+.dchip i{width:6px;height:6px;border-radius:50%}
+.chead .sp{flex:1}
+.prog{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+.share{display:inline-flex;height:28px;border-radius:4px;overflow:hidden;background:var(--text-1);color:#fff;font-weight:600;font-size:12px}
+.share span{padding:0 12px;display:flex;align-items:center}
+.share span+span{border-left:1px solid rgba(255,255,255,.2);padding:0 9px}
+.cexp{position:absolute;top:44px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 18px;display:none;grid-template-columns:1fr 300px;gap:24px;box-shadow:0 12px 24px rgba(7,20,55,.06)}
+.cexp.on{display:grid}
+.cexp p{margin:0;font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.5}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px}
+.refusal{font-size:12px;color:var(--text-2);padding-left:14px;position:relative;margin-bottom:3px}
+.refusal::before{content:"✕";position:absolute;left:0;color:var(--danger);font-size:10px;top:1px}
+
+.desk{flex:1;position:relative;overflow:hidden;background:var(--desk);cursor:default}
+.desk.panning{cursor:grabbing}
+.grid{position:absolute;inset:0;background-image:radial-gradient(circle,var(--desk-dot) 1.1px,transparent 1.1px)}
+.stage{position:absolute;left:0;top:0;transform-origin:0 0}
+.wires{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.wire{fill:none;stroke:var(--desk-dim);stroke-width:1.5}
+.wire.hot{stroke:var(--brand);stroke-width:2}
+.wire.tmp{stroke-dasharray:4 4;stroke-width:1.8}
+.wbadge{font-family:var(--mono);font-size:9px;font-weight:600}
+
+/* Nodes — white artifacts with graphite rules on mineral paper */
+.node{position:absolute;width:236px;background:#fff;border-radius:4px;box-shadow:0 1px 0 rgba(255,255,255,.04),0 10px 24px rgba(0,0,0,.35);border:1.5px solid transparent;user-select:none}
+.node.sel{border-color:var(--brand);box-shadow:0 0 0 4px rgba(245,180,0,.18),0 10px 24px rgba(0,0,0,.35)}
+.node.agent{border-color:var(--accent);box-shadow:0 0 0 4px rgba(79,70,229,.22),0 10px 24px rgba(0,0,0,.35)}
+.ncap{position:absolute;top:-19px;left:2px;right:2px;display:flex;justify-content:space-between;font-size:10.5px;color:var(--desk-dim);white-space:nowrap}
+.ncap b{color:var(--desk-text);font-weight:500;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.nhd{display:flex;align-items:center;gap:6px;padding:9px 11px 0;cursor:grab}
+.dept{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.dept i{width:7px;height:7px;border-radius:4px}
+.status{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.06em;padding:2px 6px;border-radius:4px;text-transform:uppercase;font-weight:500}
+.s-done{background:var(--ok-soft);color:var(--plex-signal-strong)}
+.s-run{background:var(--accent-soft);color:var(--accent)}
+.s-queue{background:var(--bg-muted);color:var(--text-3)}
+.s-flag{background:var(--danger-soft);color:#B91C1C}
+.s-cert{background:var(--brand-soft);color:var(--brand-strong)}
+.ntitle{padding:5px 11px 0;font-weight:600;font-size:13.5px;cursor:grab}
+.nbody{padding:7px 11px 0;font-size:11.5px;line-height:1.5;color:var(--text-2)}
+.nimg{margin:8px 11px 0;border-radius:4px;height:200px;background-size:cover;background-position:center;background-color:var(--bg-muted);position:relative;overflow:hidden}
+.nimg .fav{position:absolute;top:7px;left:7px;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;font-size:10px;color:var(--danger)}
+.nimg .qa{position:absolute;top:7px;right:7px;font-family:var(--mono);font-size:9.5px;background:rgba(7,20,55,.78);color:#fff;border-radius:4px;padding:2px 6px}
+.stamp{position:absolute;bottom:8px;right:8px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--plex-signal-strong);background:#fff;border:1.5px solid var(--ok);border-radius:4px;padding:2px 6px;transform:rotate(-4deg)}
+.vstrip{display:flex;align-items:center;justify-content:space-between;margin:6px 11px 0;font-family:var(--mono);font-size:10px;color:var(--text-3)}
+.vstrip button{padding:2px 6px;border-radius:4px;color:var(--text-2)}
+.vstrip button:hover{background:var(--bg-muted)}
+.vtray{display:none;gap:4px;margin:6px 11px 0}
+.node:hover .vtray{display:flex}
+.vtray div{flex:1;height:34px;border-radius:4px;background-size:cover;background-position:center;border:1.5px solid transparent}
+.vtray div.on{border-color:var(--brand)}
+.prompt{margin:8px 11px 0;padding-top:7px;border-top:1px solid var(--line-soft);font-size:11px;color:var(--text-2);line-height:1.45}
+.mention{color:var(--accent);font-weight:600}
+.mention.bio{color:var(--brand-strong)}
+.nft{display:flex;align-items:center;gap:6px;padding:8px 11px 10px}
+.nft .meta{font-size:10.5px;color:var(--text-3);display:flex;align-items:center;gap:5px}
+.nft .meta .gl{width:16px;height:16px;border-radius:4px;background:var(--bg-muted);display:grid;place-items:center;font-size:9px}
+.cnt{margin-left:auto;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:4px;font-family:var(--mono);font-size:10px;height:22px}
+.cnt button{width:20px;height:20px;color:var(--text-3)}
+.run{width:26px;height:26px;border-radius:50%;background:var(--text-1);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+.run.stop{background:var(--accent)}
+.dots{margin:8px 11px 0;height:120px;border-radius:4px;background:var(--bg-muted);display:grid;place-items:center}
+.dm{display:grid;grid-template-columns:repeat(9,7px);gap:5px}
+.dm i{width:7px;height:7px;border-radius:50%;background:var(--line-2);animation:dm 1.4s infinite}
+@keyframes dm{0%,100%{background:var(--line)}40%{background:var(--accent)}60%{background:var(--brand-soft)}}
+.skel{height:7px;border-radius:4px;background:var(--bg-muted);margin:6px 0}
+/* ports */
+.port{position:absolute;width:12px;height:12px;border-radius:50%;border:2.5px solid var(--desk);top:50%;margin-top:-6px;cursor:crosshair;z-index:2}
+.port.in{left:-7px}.port.out{right:-7px}
+.port.out.glow{animation:glow 1.6s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(245,180,0,.6)}50%{box-shadow:0 0 0 7px rgba(245,180,0,0)}}
+.ptags{position:absolute;top:8px;display:none;flex-direction:column;gap:3px;font-size:9.5px}
+.node.sel .ptags{display:flex}
+.ptags.l{right:calc(100% + 12px);align-items:flex-end}
+.ptags.r{left:calc(100% + 12px)}
+.ptags .h{color:var(--desk-dim);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+.ptags span{display:inline-flex;align-items:center;gap:4px;background:var(--desk-ui);border:1px solid var(--desk-line);color:var(--desk-text);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.ptags span i{width:6px;height:6px;border-radius:50%}
+.note{position:absolute;width:170px;min-height:130px;background:#FFE58A;border-radius:4px;padding:12px;font-size:12px;line-height:1.45;color:#3B2F00;box-shadow:0 10px 20px rgba(0,0,0,.3);user-select:none;cursor:grab}
+.note small{display:block;margin-top:10px;color:#8A6D00;font-size:10.5px}
+.guard{position:absolute;display:flex;align-items:center;gap:5px;background:#2A1416;border:1px solid #6B2A2E;color:#FCA5A5;font-size:10.5px;border-radius:4px;padding:3px 9px 3px 4px;white-space:nowrap}
+.guard i{width:16px;height:16px;border-radius:50%;background:var(--danger);color:#fff;display:grid;place-items:center;font-style:normal;font-size:9px}
+
+/* Floating desk chrome */
+.modelbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:2px;background:var(--desk-ui);border:1px solid var(--desk-line);border-radius:4px;padding:3px;color:var(--desk-text);font-size:11.5px;z-index:9;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.modelbar.on{display:flex}
+.mb{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:4px;white-space:nowrap}
+.mb:hover,.mb.open{background:var(--desk-ui-2)}
+.mb small{color:var(--desk-dim)}
+.mbsep{width:1px;height:16px;background:var(--desk-line);margin:0 2px}
+.dock{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:2px;background:var(--desk-ui);border:1px solid var(--desk-line);border-radius:4px;padding:4px;color:var(--desk-text);z-index:9;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.dk{height:30px;min-width:30px;padding:0 7px;border-radius:4px;display:flex;align-items:center;justify-content:center;gap:3px;font-size:13px}
+.dk:hover{background:var(--desk-ui-2)}
+.dk.on{background:var(--brand-soft);color:#fff}
+.dk.add{background:var(--brand);color:var(--text-1);font-weight:700;font-size:16px}
+.dk small{font-size:8px;opacity:.6}
+.dksep{width:1px;height:18px;background:var(--desk-line);margin:0 3px}
+.zoom{font-family:var(--mono);font-size:11px;min-width:44px}
+.minimap{position:absolute;right:14px;bottom:14px;width:170px;height:110px;background:var(--desk-ui);border:1px solid var(--desk-line);border-radius:4px;z-index:9;overflow:hidden}
+.minimap.off{display:none}
+.insp.on~.minimap,.insp.on~.tray{right:292px}
+.minimap .x{position:absolute;top:3px;right:6px;color:var(--desk-dim);font-size:11px}
+.minimap svg{width:100%;height:100%}
+.tray{position:absolute;right:14px;bottom:134px;display:none;align-items:center;gap:8px;background:var(--desk-ui);border:1px solid var(--desk-line);color:var(--desk-text);border-radius:4px;padding:6px 12px;font-size:11.5px;z-index:9;overflow:hidden}
+.tray.on{display:flex}
+.tray::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:40%;background:var(--accent);animation:trayp 1.6s linear infinite}
+@keyframes trayp{from{left:-40%}to{left:100%}}
+.toast{position:absolute;top:14px;left:50%;transform:translate(-50%,-80px);display:flex;align-items:center;gap:9px;background:#fff;color:var(--text-1);border-radius:4px;padding:7px 14px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-size:12px;font-weight:500;z-index:30;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.toast.on{transform:translate(-50%,0)}
+.toast .ok{width:16px;height:16px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:9px}
+.toast kbd{font-family:var(--mono);font-size:10px;background:var(--bg-muted);padding:1px 5px;border-radius:4px}
+
+/* Inspector */
+.insp{position:absolute;top:12px;right:12px;bottom:12px;width:268px;background:#fff;border-radius:4px;display:none;flex-direction:column;z-index:9;box-shadow:0 12px 30px rgba(0,0,0,.4);overflow:hidden}
+.insp.on{display:flex}
+.insp .ih{padding:12px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:8px}
+.insp .ib{padding:12px 14px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:14px}
+.field label{display:block;font-size:11px;color:var(--text-3);margin-bottom:5px}
+.select{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:4px;padding:7px 9px;font-size:12px}
+.kv{display:flex;justify-content:space-between;font-size:11.5px;padding:3px 0}
+.kv span:first-child{color:var(--text-3)}
+.score{display:flex;align-items:center;gap:8px;font-size:11.5px}
+.score .bar{flex:1}
+.score .bar i{background:var(--ok)}
+.memo{background:var(--accent-soft);color:var(--accent-strong);border-radius:4px;padding:8px 10px;font-size:11.5px;line-height:1.45}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tools button{border:1px solid var(--line);border-radius:4px;padding:7px 2px;font-size:10px;color:var(--text-2);display:flex;flex-direction:column;align-items:center;gap:3px}
+.tools button b{font-size:14px;font-weight:400}
+
+/* Popovers on the desk (light) */
+.pop{position:absolute;background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:0 18px 40px rgba(0,0,0,.45);z-index:40;display:none;padding:5px}
+.pop.on{display:block}
+.picker{width:270px}
+.picker .srch{display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line-soft);padding:6px 8px 8px}
+.picker .srch input{border:0;outline:0;flex:1;font-size:12.5px}
+.ptabs{display:flex;gap:4px;padding:6px 4px 4px}
+.ptabs button{padding:4px 9px;border-radius:4px;font-size:11.5px;color:var(--text-3)}
+.ptabs button.on{background:var(--bg-muted);color:var(--text-1);font-weight:600}
+.plist{max-height:300px;overflow:auto}
+.pgrp{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4);padding:8px 9px 3px;display:flex;align-items:center;gap:6px}
+.pgrp i{width:7px;height:7px;border-radius:4px}
+.mi .ico{width:22px;height:22px;border-radius:4px;display:grid;place-items:center;font-size:11px;background:var(--bg-muted);flex-shrink:0}
+.mi.soon{opacity:.45;pointer-events:none}
+.ctx{width:230px}
+.mi.danger{color:#B91C1C}
+.ask{width:340px;padding:8px}
+.ask .row{display:flex;align-items:center;gap:6px}
+.ask input{flex:1;border:0;outline:0;font-size:12.5px}
+.tiers{width:300px}
+.tier{display:flex;gap:10px;align-items:flex-start;padding:8px 9px;border-radius:4px}
+.tier:hover,.tier.on{background:var(--bg-muted)}
+.tier b{display:block;font-size:12.5px}
+.tier small{color:var(--text-3);font-size:11px}
+.tier .chips{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.tier .chips span{font-family:var(--mono);font-size:9.5px;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--text-2);white-space:nowrap}
+.toggle{width:28px;height:16px;border-radius:4px;background:var(--ok);position:relative;flex-shrink:0}
+.toggle::after{content:"";position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+
+/* Modals */
+.scrim{position:fixed;inset:34px 0 0 0;background:rgba(7,10,20,.55);display:none;align-items:center;justify-content:center;z-index:60}
+.scrim.on{display:flex}
+.modal{background:#fff;border-radius:4px;width:420px;box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden}
+.modal .mh{display:flex;align-items:center;padding:16px 18px 6px;font-weight:600;font-size:15px}
+.modal .mh button{margin-left:auto;color:var(--text-3)}
+.modal .mb2{padding:6px 18px 16px}
+.modal .mf{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line-soft)}
+.krow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.krow kbd{font-family:var(--mono);font-size:10.5px;background:var(--bg-muted);border-radius:4px;padding:1px 6px;margin-left:3px}
+
+/* Tour */
+.tour{position:absolute;z-index:45;display:none;align-items:flex-start;gap:8px;max-width:300px}
+.tour.on{display:flex}
+.tour .bub{background:var(--accent);color:#fff;border-radius:4px;padding:9px 12px;font-size:12.5px;line-height:1.45;box-shadow:0 10px 30px rgba(79,70,229,.45)}
+.tourpill{position:absolute;left:14px;bottom:14px;z-index:45;display:none;align-items:center;gap:8px;background:var(--desk-ui);border:1px solid var(--desk-line);border-radius:4px;padding:5px 12px 5px 5px;color:var(--desk-text);font-size:11.5px}
+.tourpill.on{display:flex}
+.ring{width:28px;height:28px;border-radius:50%;background:conic-gradient(var(--brand) 25%,var(--desk-line) 0);display:grid;place-items:center}
+.ring span{width:22px;height:22px;border-radius:50%;background:var(--desk-ui);display:grid;place-items:center;font-family:var(--mono);font-size:9px}
+.stages b{color:#fff}
+
+/* ── REVIEW ────────────────────────────────────────────────────────── */
+.review{flex:1;display:flex;background:var(--desk)}
+.vers{width:200px;border-right:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.vers h4{margin:0 0 2px;color:var(--desk-text);font-size:12px;font-weight:600}
+.vcard{border:1.5px solid var(--line);border-radius:4px;overflow:hidden;cursor:pointer;color:var(--desk-text)}
+.vcard.on{border-color:var(--brand)}
+.vcard div{height:110px;background-size:cover;background-position:center}
+.vcard p{margin:0;padding:6px 8px;font-size:10.5px;line-height:1.4}
+.vcard p small{color:var(--desk-dim);display:block}
+.stagec{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;gap:14px}
+.bigimg{width:min(420px,60%);aspect-ratio:4/5;border-radius:4px;background-size:cover;background-position:center;position:relative;cursor:crosshair}
+.pin{position:absolute;width:24px;height:24px;border-radius:50% 50% 50% 0;background:var(--brand);transform:rotate(-45deg);display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+.pin span{transform:rotate(45deg);font-size:10px;font-weight:700;color:var(--text-1)}
+.rbar{display:flex;align-items:center;gap:2px;background:var(--desk-ui);border:1px solid var(--desk-line);border-radius:4px;padding:3px;color:var(--desk-text);font-size:11.5px}
+.rpanel{width:300px;background:#fff;display:flex;flex-direction:column;overflow:auto}
+.rpanel .sec2{padding:14px 16px;border-bottom:1px solid var(--line-soft)}
+.cmt{display:flex;gap:8px;font-size:12px;line-height:1.45}
+.cmt .av{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:10px;font-weight:600;flex-shrink:0}
+.cmt small{color:var(--text-3)}
+
+/* ── LIBRARY ───────────────────────────────────────────────────────── */
+.lib{flex:1;overflow:auto;padding:22px 32px 90px;position:relative}
+.lib h1{font-family:var(--serif);font-weight:400;font-size:32px;margin:0 0 14px}
+.ltools{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:4px;padding:0 10px;height:32px;width:280px;color:var(--text-3)}
+.fchips{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
+.fchips button{padding:0 11px;height:30px;font-size:12px;color:var(--text-2);border-right:1px solid var(--line-soft)}
+.fchips button:last-child{border-right:0}
+.fchips button.on{background:var(--bg-muted);color:var(--text-1);font-weight:600}
+.fchips small{font-family:var(--mono);color:var(--text-4);margin-left:4px}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.acard{background:#fff;border:1.5px solid var(--line);border-radius:4px;overflow:hidden;position:relative;cursor:pointer}
+.acard.sel{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.acard .im{aspect-ratio:4/5;background-size:cover;background-position:center;position:relative}
+.acard .txt{aspect-ratio:4/5;padding:14px;font-family:var(--serif);font-size:18px;line-height:1.25;background:var(--bg-sunken)}
+.acard .cb{position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:4px;background:rgba(255,255,255,.9);border:1.5px solid var(--line-2);display:grid;place-items:center;font-size:10px;opacity:0;transition:opacity .12s}
+.acard:hover .cb,.acard.sel .cb,.lib.selecting .cb{opacity:1}
+.acard.sel .cb{background:var(--brand);border-color:var(--brand)}
+.oncv{position:absolute;bottom:8px;left:8px;font-size:9.5px;font-weight:600;background:var(--accent);color:#fff;border-radius:4px;padding:2px 6px}
+.acard .ft{padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-size:11.5px}
+.acard .ft small{color:var(--text-3);display:block;font-size:10.5px}
+.qchip{font-family:var(--mono);font-size:9.5px;padding:2px 5px;border-radius:4px}
+.selbar{position:fixed;bottom:22px;left:50%;transform:translate(-50%,100px);display:flex;align-items:center;gap:4px;background:var(--text-1);color:#fff;border-radius:4px;padding:5px 6px 5px 14px;box-shadow:0 14px 40px rgba(7,20,55,.35);transition:transform .22s cubic-bezier(.2,.8,.2,1);z-index:50}
+.selbar.on{transform:translate(-50%,0)}
+.selbar button{padding:6px 11px;border-radius:4px;font-size:12px;color:var(--text-2)}
+.selbar button:hover{background:rgba(255,255,255,.1)}
+.selbar .n{font-weight:600;margin-right:8px}
+.annot{position:fixed;right:14px;bottom:14px;max-width:290px;background:#FFFBEB;border:1px solid #FDE68A;color:#78350F;border-radius:4px;padding:10px 12px;font-size:11.5px;line-height:1.5;z-index:55;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.annot b{display:block;margin-bottom:3px}
+.annot button{position:absolute;top:4px;right:8px;color:#B45309}
+
+/* Plex Registry composition and materials; prototype interactions stay intact. */
+button:focus-visible,a[data-go]:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--plex-cobalt);outline-offset:3px}
+.proto{background:var(--plex-surface);border-bottom:1px solid var(--line);color:var(--text-2)}
+.proto b,.proto button{color:var(--text-2)}
+.proto button.on{background:var(--brand-soft);color:var(--brand-strong)}
+.proto kbd{background:var(--bg-muted);color:var(--text-2)}
+.side{width:208px;background:var(--plex-surface);padding:18px 14px}
+.logo{font-weight:500;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.logo i,.btn.pri,.dk.add,.chat-toggle,.pin span{color:#fff}
+.brandsw .av{background:var(--bg-muted);border:1px solid var(--line)}
+.nav{min-height:38px}.nav.on,.rail .r.on{background:var(--brand-soft);color:var(--brand-strong)}
+.newbtn,.send,.run,.rail .r.plus,.btn.dark{background:var(--brand);color:#fff}
+.home-hero{align-items:flex-start;background-image:none;padding:44px 48px 30px;background:var(--plex-paper)}
+.home-hero h1{font-size:40px;line-height:1.15;letter-spacing:-.025em}
+.composer{width:min(720px,100%);box-shadow:var(--shadow-sm)}
+.sugg{justify-content:flex-start}
+.sec-h h2,.lib h1,.ntitle{font-family:var(--serif);font-weight:400}
+.ntitle{font-size:18px;line-height:1.25}
+.chead{height:58px;padding-inline:20px}.cexp{top:58px}
+.crumb b,.cexp p{font-style:normal}
+.bdot{background:var(--accent)}
+.node{border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.node.sel{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft)}
+.node.agent{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.node .run,.node .run.stop{background:var(--brand);color:#fff}
+.node .stamp{transform:none;color:var(--plex-signal-strong);border-color:var(--ok)}
+.pcard:hover{box-shadow:var(--shadow-sm);transform:none;border-color:var(--line-2)}
+.composer,.pcard,.runcard,.tmpl,.runlog,.chat-comp .box,.approve,.modal,.pop,.dock,.modelbar,.minimap,.toast,.selbar,.tour .bub{box-shadow:var(--shadow-sm)}
+.approve{border-color:var(--line-2);box-shadow:none;border-inline-start:3px solid var(--brand)}
+.port.out.glow{animation:none}.ctab .live{animation:none}
+.note{background:var(--bg-canvas);color:var(--text-2);border:1px solid var(--line);border-inline-start:3px solid var(--line-2);box-shadow:var(--shadow-sm)}
+.note small{color:var(--text-3)}
+.guard{background:var(--danger-soft);border-color:#e9c6cc;color:#9e2638}
+.insp{top:0;right:0;bottom:0;width:320px;border-inline-start:1px solid var(--line);border-radius:0;box-shadow:none}
+.insp .ih,.insp .ib{padding-inline:22px}
+.insp.on~.minimap,.insp.on~.tray{right:334px}
+.insp .ih b{font-family:var(--serif);font-size:20px;font-weight:400}
+.modal{max-width:calc(100vw - 32px)}
+.scrim{background:rgba(21,25,31,.28)}
+.dk.on{color:var(--brand-strong)}
+.review,.vers{background:var(--plex-paper)}.vers h4,.vcard{color:var(--text-2)}
+.rbar{background:var(--plex-surface);color:var(--text-2)}
+.stages b{color:var(--brand-strong)}
+.selbar{background:var(--plex-surface);color:var(--text-1);border:1px solid var(--line);visibility:hidden;pointer-events:none}
+.selbar.on{visibility:visible;pointer-events:auto}
+.selbar button{color:var(--text-2)}.selbar button:hover{background:var(--bg-muted)}
+.annot{background:var(--plex-surface);border-color:var(--line);color:var(--text-2);box-shadow:var(--shadow-sm)}
+.annot button{color:var(--text-3)}
+@media(max-width:1100px){.proto>span:not(.sp){display:none}.proto b{font-size:10px}.home-hero,.sec{padding-inline:28px}.chat{width:260px}.chat.closed{margin-left:-260px}}
+@media(max-width:700px){
+ .proto{height:68px;flex-wrap:wrap;gap:4px;padding:4px 8px}.proto b{flex-basis:100%}.proto button{min-height:28px;padding-inline:6px}.proto .sp{display:none}
+ .screen{top:68px;overflow:auto}.scrim{inset:68px 0 0}.side{width:140px;padding:12px 8px}.side .foot{flex-wrap:wrap}
+ .home-hero,.sec{padding:24px 16px}.home-hero h1{font-size:30px}.home-hero p{line-height:1.5}
+ .home,.lib,.work{min-width:0}.lib{padding:24px 16px 90px}.ltools{flex-wrap:wrap}.search{max-width:100%}
+ .chat{width:240px}.chat.closed{margin-left:-240px}.chead{padding-inline:10px}.tension{display:none}.chead .share{margin-inline-start:auto}
+ .insp{width:min(320px,100%)}.insp.on~.minimap,.insp.on~.tray{display:none}.annot{display:none}
+ .review{flex-wrap:wrap;overflow:auto}.vers{width:120px;padding:8px}.rpanel{width:100%;max-height:none}.stagec{min-height:460px;min-width:calc(100% - 120px)}
+ .dock{max-width:calc(100% - 16px);overflow-x:auto}.minimap{display:none}.cexp{grid-template-columns:1fr}
+ .btn,.mi,.nav,.round,.send,.rail .r,.dk{min-height:44px}.round,.send,.rail .r,.dk{min-width:36px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* Small finishing fixes: badges never cover asset names; controls stay square. */
+.oncv{top:8px;bottom:auto;left:34px}
+.acard .txt{padding-top:48px}
+.round,.send,.run{border-radius:4px}
+.share{background:var(--brand);color:#fff}
+@media(max-width:700px){
+ .crow{flex-wrap:wrap}.cards,.lgrid{grid-template-columns:1fr}
+ .fchips{max-width:100%;overflow-x:auto}.fchips button{flex-shrink:0;min-height:44px}
+ .chat{position:absolute;left:52px;top:0;bottom:0;width:260px;z-index:12;border-inline-end:1px solid var(--line);transition:transform .22s ease}
+ .chat.closed{margin-left:0;transform:translateX(-100%)}
+ .chead .crumb{flex:1}.chead .prog,.chead .depts,.chead .cr{display:none}
+ .selbar{max-width:calc(100% - 24px);flex-wrap:wrap;padding-inline:8px}
+ .rbar{flex-wrap:wrap;max-width:calc(100% - 16px)}
+}
+
+</style>
+<link rel="stylesheet" href="platform-study.css">
+</head>
+<body>
+
+<!-- Prototype switcher — not product UI -->
+<div class="proto">
+  <b>CaastorOS · Plex Registry study</b>
+  <button data-go="home">1 · Home</button>
+  <button data-go="canvas" class="on">2 · Canvas</button>
+  <button data-go="review">3 · Review</button>
+  <button data-go="library">4 · Library</button>
+  <span class="sp"></span>
+  <span>Simulated runs · <kbd>N</kbd> add · <kbd>/</kbd> ask · right-click · drag a port · <kbd>⌫</kbd> · <kbd>?</kbd> shortcuts</span>
+  <button id="tourBtn">▶ First-run tour</button>
+</div>
+
+<!-- ═══════════════════════ 1 · HOME ═══════════════════════ -->
+<section class="screen" id="s-home">
+  <aside class="side">
+    <div class="logo"><i>C</i>CaastorOS</div>
+    <div class="brandsw"><span class="av"></span><div><b style="font-size:12.5px">Aurelia Skincare</b><small>BIO v3 · certified</small></div><span style="margin-left:auto;color:var(--text-4)">⌄</span></div>
+    <button class="newbtn">＋ New brief</button>
+    <a class="nav on"><span class="ic">⌂</span>Home</a>
+    <div class="grp">Create</div>
+    <a class="nav"><span class="ic">◆</span>Brandolph</a>
+    <a class="nav"><span class="ic">◎</span>Specialists<span class="badge">50 live</span></a>
+    <div class="grp">Library</div>
+    <a class="nav" data-go="canvas"><span class="ic">▤</span>Briefs</a>
+    <a class="nav" data-go="library"><span class="ic">▣</span>Assets</a>
+    <a class="nav"><span class="ic">⊞</span>Templates</a>
+    <div class="grp">Brand</div>
+    <a class="nav"><span class="ic">✦</span>BIO</a>
+    <div class="foot"><span class="cr">18,420 cr</span><span style="margin-left:auto;color:var(--text-3)">⚙ &nbsp;?</span></div>
+  </aside>
+  <main class="home">
+    <div class="home-hero">
+      <h1>What should we make for Aurelia?</h1>
+      <p>Brandolph reads your BIO, sharpens the brief and puts the right specialists on the canvas.</p>
+      <div class="composer">
+        <div class="ctoks"><span class="tok bio">BIO v3 · Aurelia</span><span class="tok skill">/spring-launch <span class="x">✕</span></span></div>
+        <textarea placeholder="Describe the outcome — e.g. launch the night serum on IG and email, clinical but warm"></textarea>
+        <div class="crow">
+          <button class="round" title="Attach · Skills · Brand settings">＋</button>
+          <button class="pill on">▷ Auto-run</button>
+          <button class="pill">☰ Plan first</button>
+          <span style="flex:1"></span>
+          <span style="font-size:11px;color:var(--text-3)">Estimate shown before anything spends</span>
+          <button class="send" data-go="canvas">↑</button>
+        </div>
+      </div>
+      <div class="sugg">
+        <button class="pill"><span class="th" style="background-image:url(https://picsum.photos/seed/serum/80)"></span>Night serum launch</button>
+        <button class="pill"><span class="th" style="background-image:url(https://picsum.photos/seed/stone/80)"></span>PDP hero set</button>
+        <button class="pill"><span class="th" style="background-image:url(https://picsum.photos/seed/mail/80)"></span>Welcome email flow</button>
+        <button class="pill"><span class="th" style="background-image:url(https://picsum.photos/seed/name/80)"></span>Name the new line</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Brandolph is still working</h2></div>
+      <div class="runcard">
+        <span class="bdot" style="width:34px;height:34px;border-radius:10px;font-size:13px">B</span>
+        <div style="flex:1">
+          <b>Spring night-serum launch</b>
+          <div style="color:var(--text-3);font-size:12px;margin:3px 0 8px">4 of 6 specialists done · Social Post Designer running · 1 needs your approval</div>
+          <div class="bar"><i style="width:66%"></i></div>
+        </div>
+        <button class="btn dark" data-go="canvas">Open canvas →</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Recently viewed</h2><button class="ghostlink">All briefs →</button></div>
+      <div class="cards">
+        <div class="pcard" data-go="canvas"><div class="mosaic"><div style="background-image:url(https://picsum.photos/seed/a1/200)"></div><div style="background-image:url(https://picsum.photos/seed/a2/200)"></div><div style="background-image:url(https://picsum.photos/seed/a3/200)"></div><div style="background-image:url(https://picsum.photos/seed/a4/200)"></div><div style="background-image:url(https://picsum.photos/seed/a5/200)"></div><div></div></div><div class="meta"><b>Spring night-serum launch</b><span>6 specialists · QA 91 avg · today</span></div></div>
+        <div class="pcard"><div class="mosaic"><div style="background-image:url(https://picsum.photos/seed/b1/200)"></div><div style="background-image:url(https://picsum.photos/seed/b2/200)"></div><div style="background-image:url(https://picsum.photos/seed/b3/200)"></div><div></div><div></div><div></div></div><div class="meta"><b>PDP hero refresh</b><span>3 specialists · approved · yesterday</span></div></div>
+        <div class="pcard"><div class="mosaic"><div style="background-image:url(https://picsum.photos/seed/c1/200)"></div><div style="background-image:url(https://picsum.photos/seed/c2/200)"></div><div></div><div></div><div></div><div></div></div><div class="meta"><b>Positioning territories Q4</b><span>Strategy · 2 flagged · Sep 28</span></div></div>
+        <div class="pcard"><div class="mosaic"><div style="background-image:url(https://picsum.photos/seed/d1/200)"></div><div style="background-image:url(https://picsum.photos/seed/d2/200)"></div><div style="background-image:url(https://picsum.photos/seed/d3/200)"></div><div style="background-image:url(https://picsum.photos/seed/d4/200)"></div><div></div><div></div></div><div class="meta"><b>Welcome email flow</b><span>Copy + Visual · Sep 24</span></div></div>
+      </div>
+    </div>
+
+    <div class="sec" style="padding-bottom:40px">
+      <div class="sec-h"><h2>Start from a crew</h2><button class="ghostlink">All templates →</button></div>
+      <div class="cards">
+        <div class="tmpl"><b>Product launch kit</b><div class="io"><span class="sq" style="background-image:url(https://picsum.photos/seed/p1/80)"><span class="lab">Packshot</span></span>→<span class="sq" style="background-image:url(https://picsum.photos/seed/p2/80)"><span class="lab">KV</span></span><span class="sq" style="background-image:url(https://picsum.photos/seed/p3/80)"><span class="lab">Social</span></span><span class="sq" style="background:var(--bg-muted)"><span class="lab">Email</span></span></div><div class="foot"><span>6 specialists</span><span class="cr">≈ 1,400 cr</span></div></div>
+        <div class="tmpl"><b>Naming sprint</b><div class="io"><span class="sq" style="background:var(--brand-soft)"><span class="lab">BIO</span></span>→<span class="sq" style="background:var(--accent-soft)"><span class="lab">Names</span></span><span class="sq" style="background:var(--ok-soft)"><span class="lab">Taglines</span></span></div><div class="foot"><span>3 specialists</span><span class="cr">≈ 180 cr</span></div></div>
+        <div class="tmpl"><b>Landing page in a day</b><div class="io"><span class="sq" style="background:var(--brand-soft)"><span class="lab">Brief</span></span>→<span class="sq" style="background:var(--brand-soft)"><span class="lab">IA</span></span><span class="sq" style="background:var(--ok-soft)"><span class="lab">Copy</span></span><span class="sq" style="background-image:url(https://picsum.photos/seed/lp/80)"><span class="lab">Hero</span></span></div><div class="foot"><span>5 specialists</span><span class="cr">≈ 620 cr</span></div></div>
+        <div class="tmpl"><b>Competitive scan</b><div class="io"><span class="sq" style="background:var(--bg-muted)"><span class="lab">URLs</span></span>→<span class="sq" style="background:var(--bg-muted)"><span class="lab">Scan</span></span><span class="sq" style="background:var(--brand-soft)"><span class="lab">Map</span></span></div><div class="foot"><span>2 specialists</span><span class="cr">≈ 90 cr</span></div></div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ═══════════════════════ 2 · CANVAS ═══════════════════════ -->
+<section class="screen on" id="s-canvas">
+  <nav class="rail" aria-label="Canvas navigation">
+    <div class="r" style="background:var(--brand);color:#fff;font-weight:700">C</div>
+    <button class="r plus" data-go="home" title="New brief" aria-label="New brief">＋</button>
+    <button class="r" data-go="home" title="Create" aria-label="Create">⌂</button>
+    <button class="r on" data-go="briefs" title="Briefs" aria-label="Briefs">▤</button>
+    <button class="r" data-go="library" title="Library" aria-label="Library">▣</button>
+    <button class="r" data-go="bio" title="BIO" aria-label="BIO">✦</button>
+    <div class="sp"></div>
+    <button class="r" data-go="account" title="Account" aria-label="Account">⚙</button>
+  </nav>
+
+  <!-- Brandolph docked chat -->
+  <aside class="chat" id="chat">
+    <button class="chat-toggle" id="chatToggle">‹</button>
+    <div class="chat-tabs">
+      <div class="ctab on"><span class="live"></span>Spring night-serum…</div>
+      <div class="ctab">Tagline options</div>
+      <span style="flex:1"></span>
+      <button class="round" style="width:24px;height:24px;border:0" title="New chat">＋</button>
+      <button class="round" style="width:24px;height:24px;border:0" title="History">🕘</button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="umsg">
+        <div class="ctoks"><span class="tok"><span class="th" style="background:url(https://picsum.photos/seed/serum/40) center/cover"></span>night-serum.jpg</span><span class="tok skill">/spring-launch</span></div>
+        Launch the night serum on Instagram + email. Clinical but warm — no before/after claims.
+      </div>
+      <div class="who"><span class="bdot">B</span>Brandolph</div>
+      <div class="runlog">
+        <div class="hd" id="logHd">› Assembled the crew <span class="t">38.4s</span></div>
+        <div id="logSteps">
+          <div class="st"><span class="ck">✓</span>Read BIO v3 (voice, palette, refusals)<span class="t">1.2s</span></div>
+          <div class="st"><span class="ck">✓</span>Sharpened brief · tension found<span class="t">9.8s</span></div>
+          <div class="st"><span class="ck">✓</span>Picked 6 specialists from memory<span class="t">4.1s</span></div>
+          <div class="st"><span class="ck">✓</span>Created 6 nodes · wired to BIO<span class="t">0.6s</span></div>
+          <div class="st"><span class="ck run">●</span>Running Strategy → Copy<span class="t">22.7s</span></div>
+        </div>
+      </div>
+      <div class="approve" id="approveCard">
+        <b>Run the Visual specialists?</b>
+        <p>Hero KV and Social Post Designer will spend <b style="display:inline">1,240 credits</b>. You have 18,420.</p>
+        <div class="row"><button class="btn pri" id="approveBtn">Approve</button><button class="btn out">Always approve</button><button class="btn" style="color:var(--text-3)">Deny</button></div>
+      </div>
+      <div class="amsg">The tension is <i>clinical proof vs. ritual comfort</i>. I wired <span class="chip">Headlines</span> into <span class="chip">Hero KV</span> so the KV carries the line, and pinned your BIO refusal on every Visual node.</div>
+      <button class="btn out" style="align-self:flex-start" id="viewNodes">⛶ View 6 nodes</button>
+    </div>
+    <div class="chat-comp" style="position:relative">
+      <div class="plusmenu" id="plusMenu">
+        <button class="mi">📎 Attach files</button>
+        <button class="mi">✦ BIO skills <span class="k">›</span></button>
+        <button class="mi" style="padding-left:30px;font-family:var(--mono);font-size:11.5px;color:var(--accent)">/spring-launch</button>
+        <button class="mi" style="padding-left:30px;font-family:var(--mono);font-size:11.5px;color:var(--accent)">/clinical-voice</button>
+        <button class="mi" style="padding-left:30px;color:var(--text-3)">＋ Create skill from BIO</button>
+        <div class="msep"></div>
+        <button class="mi">⚙ Brand context settings</button>
+      </div>
+      <div class="box">
+        <div class="ctoks" id="selChip" style="display:none"></div>
+        <textarea placeholder="Ask a follow-up…  @ to mention a node"></textarea>
+        <div class="crow">
+          <button class="round" style="width:26px;height:26px" id="plusBtn">＋</button>
+          <button class="pill on">▷ Auto-run</button>
+          <button class="pill">☰ Plan</button>
+          <span style="flex:1"></span>
+          <button class="send" style="width:26px;height:26px;font-size:11px" title="Mic → Send → Stop">🎙</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="work">
+    <!-- CanvasHeader — preserved (CLAUDE.md), slimmed to 44px -->
+    <header class="chead">
+      <span class="crumb">Briefs /<b>Spring night-serum launch</b></span>
+      <span class="tension" id="tensionBtn" title="Show sharpened brief">◐ Clinical proof vs. ritual comfort ▾</span>
+      <div class="depts">
+        <span class="dchip"><i style="background:var(--d-strategy)"></i>Strategy·1</span>
+        <span class="dchip"><i style="background:var(--d-copy)"></i>Copy·2</span>
+        <span class="dchip"><i style="background:var(--d-visual)"></i>Visual·2</span>
+        <span class="dchip"><i style="background:var(--d-web)"></i>Web·1</span>
+      </div>
+      <span class="sp"></span>
+      <span class="prog" id="progTxt">6 specialists · 3 done</span>
+      <span class="cr">18,420 cr</span>
+      <span class="share" id="shareBtn"><span>Share</span><span>🔗</span></span>
+      <div class="cexp" id="cexp">
+        <div><div class="eyebrow">Sharpened brief</div><p>Make the night serum feel like the one clinical step a tired skeptic actually looks forward to: proof on the label, ritual in the hand. Instagram first, email to convert.</p></div>
+        <div><div class="eyebrow">Hard refusals (from BIO)</div><div class="refusal">No before/after or "erases wrinkles" claims</div><div class="refusal">No hands touching the bottle in KVs</div><div class="refusal">Never "anti-aging" — say "skin longevity"</div></div>
+      </div>
+    </header>
+
+    <div class="desk" id="desk">
+      <div class="grid" id="grid"></div>
+      <div class="stage" id="stage">
+        <svg class="wires" id="wires" width="1" height="1"></svg>
+        <div id="nodes"></div>
+      </div>
+
+      <!-- contextual model bar for the selected node -->
+      <div class="modelbar" id="modelBar">
+        <span class="mb" id="tierBtn"><small>Tier</small> <b id="tierLbl">Auto</b> ▾</span><span class="mbsep"></span>
+        <span class="mb">4:5 ▾</span><span class="mb">2K ▾</span><span class="mbsep"></span>
+        <span class="mb">✂ Tools ▾</span><span class="mb" title="Ask Brandolph about this">◆ Ask</span><span class="mbsep"></span>
+        <span class="mb">⬇</span><span class="mb">🔗</span><span class="mb" data-go="review" title="Review mode">⛶</span>
+      </div>
+      <div class="pop tiers" id="tierPop">
+        <div class="tier on"><div><b>Auto</b><small>Brandolph picks per run from your approval history</small></div><div class="chips"><span class="toggle"></span></div></div>
+        <div class="msep"></div>
+        <div class="tier"><div><b>Premium</b><small>Hero work, fine type, campaign KVs</small></div><div class="chips"><span>~40s</span><span>180–360 cr</span></div></div>
+        <div class="tier"><div><b>Balanced</b><small>Most deliverables</small></div><div class="chips"><span>~15s</span><span>60–120 cr</span></div></div>
+        <div class="tier"><div><b>Fast</b><small>Volume: social, mood boards, mockups</small></div><div class="chips"><span>~4s</span><span>12–24 cr</span></div></div>
+        <div class="msep"></div>
+        <div class="memo" style="margin:4px">◆ You approve 92% of Hero KV runs on Premium and 41% on Fast.</div>
+      </div>
+
+      <!-- inspector -->
+      <aside class="insp" id="insp">
+        <div class="ih"><span class="dept" id="iDept"><i></i></span><b id="iName" style="font-size:13px"></b><button style="margin-left:auto;color:var(--text-3)" id="iClose">✕</button></div>
+        <div class="ib" id="iBody"></div>
+      </aside>
+
+      <div class="dock" id="dock">
+        <button class="dk add" id="dockAdd" title="Add node (N)">＋</button>
+        <button class="dk on" title="Select (V)">➤<small>▾</small></button>
+        <button class="dk" id="dockNote" title="Note (S) / Comment (C)">▢<small>▾</small></button>
+        <span class="dksep"></span>
+        <button class="dk" title="Assets" data-go="library">▣</button>
+        <button class="dk" id="dockAsk" title="Ask Brandolph (/)">◆</button>
+        <span class="dksep"></span>
+        <button class="dk on" id="dockMap" title="Minimap">◫</button>
+        <button class="dk zoom" id="zoomLbl" title="Fit (⇧1)">100%</button>
+      </div>
+      <div class="minimap" id="minimap"><span class="x" id="mmX">✕</span><svg id="mm"></svg></div>
+      <div class="tray" id="tray"><span class="bdot" style="width:14px;height:14px;font-size:8px">B</span><span id="trayTxt">Running 1 specialist</span> ⌃</div>
+      <div class="toast" id="toast"><span class="ok">✓</span><span id="toastTxt">Hero KV is ready</span><kbd>Space</kbd></div>
+
+      <!-- add-node picker -->
+      <div class="pop picker" id="picker">
+        <div class="srch">🔍<input id="pickQ" placeholder="Search 50 specialists…"></div>
+        <div class="ptabs"><button class="on" data-pt="spec">Specialists</button><button data-pt="util">Utilities</button><button data-pt="in">Inputs</button></div>
+        <div class="plist" id="plist"></div>
+      </div>
+      <!-- right-click menu -->
+      <div class="pop ctx" id="ctx">
+        <button class="mi" data-act="ask"><span>◆ Ask Brandolph</span><span class="k">/</span></button>
+        <div class="msep"></div>
+        <button class="mi" data-act="run"><span>↑ Re-run</span><span class="k">⌘↵</span></button>
+        <button class="mi" data-act="run"><span>↑ Re-run on Premium</span></button>
+        <div class="msep"></div>
+        <button class="mi"><span>Copy</span><span class="k">⌘C</span></button>
+        <button class="mi"><span>Copy output</span><span class="k">⌘⇧C</span></button>
+        <button class="mi" data-act="dup"><span>Duplicate</span><span class="k">⌘D</span></button>
+        <button class="mi"><span>Duplicate (no connections)</span><span class="k">⌘⇧D</span></button>
+        <button class="mi"><span>Rename</span><span class="k">⌘E</span></button>
+        <div class="msep"></div>
+        <button class="mi"><span>✓ Send to steward</span></button>
+        <button class="mi"><span>⬇ Download</span></button>
+        <div class="msep"></div>
+        <button class="mi danger" data-act="del"><span>Delete</span><span class="k">⌫</span></button>
+      </div>
+      <!-- selection-scoped ask -->
+      <div class="pop ask" id="ask">
+        <div class="row"><span class="tok" id="askSel">1 selected</span><input id="askIn" placeholder="Ask Brandolph about this…"><button class="send" style="width:24px;height:24px;font-size:11px;background:var(--brand);color:var(--text-1)">↑</button></div>
+      </div>
+
+      <!-- tour -->
+      <div class="tour" id="tour"><span class="bdot" style="width:26px;height:26px;font-size:11px;flex-shrink:0">B</span><div class="bub" id="tourTxt"></div></div>
+      <div class="tourpill" id="tourPill"><span class="ring" id="tourRing"><span id="tourN">1/4</span></span><span class="stages" id="tourStages"></span><button id="tourNext" style="color:var(--text-1);margin-left:6px">›</button><button id="tourExit" style="color:var(--desk-dim)">⊗</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 3 · REVIEW ═══════════════════════ -->
+<section class="screen" id="s-review">
+  <div class="review">
+    <aside class="vers">
+      <h4>Versions · Hero KV</h4>
+      <div class="vcard on"><div style="background-image:url(https://picsum.photos/seed/kv1/300/375)"></div><p>v4 · Premium<small>QA 91 · approved</small></p></div>
+      <div class="vcard"><div style="background-image:url(https://picsum.photos/seed/kv2/300/375)"></div><p>v3 · Premium<small>QA 84</small></p></div>
+      <div class="vcard"><div style="background-image:url(https://picsum.photos/seed/kv3/300/375)"></div><p>v2 · Fast<small>QA 62 · flagged: hands</small></p></div>
+      <div class="vcard"><div style="background-image:url(https://picsum.photos/seed/kv4/300/375)"></div><p>v1 · Fast<small>QA 58</small></p></div>
+    </aside>
+    <div class="stagec">
+      <button class="btn out" data-go="canvas" style="position:absolute;top:14px;left:14px;background:var(--desk-ui);border-color:var(--desk-line);color:var(--desk-text)">← Back to canvas</button>
+      <div style="color:var(--desk-text);font-size:12px">Hero KV — <b style="color:var(--text-1)">“Proof you can sleep on.”</b></div>
+      <div class="bigimg" id="bigImg" style="background-image:url(https://picsum.photos/seed/kv1/840/1050)">
+        <span class="pin" style="left:62%;top:30%"><span>1</span></span>
+      </div>
+      <div class="rbar"><span class="mb"><small>Tier</small> Premium ▾</span><span class="mb">4:5 ▾</span><span class="mb">2K ▾</span><span class="mbsep"></span><span class="mb">− 100% +</span><span class="mbsep"></span><span class="mb">✂</span><span class="mb" id="cmtMode">💬 Comment</span><span class="mb">⬇</span><span class="mb">🔗</span></div>
+    </div>
+    <aside class="rpanel">
+      <div class="sec2"><div class="eyebrow">Prompt</div><div style="font-size:12px;line-height:1.55;color:var(--text-2)">Amber serum bottle on warm travertine at night, single lamp, <span class="mention">@Headlines·v2</span> set in the BIO display face, palette from <span class="mention bio">@BIO</span>. No hands.</div></div>
+      <div class="sec2"><div class="eyebrow">Provenance</div>
+        <div class="kv"><span>BIO</span><span>v3 · certified by M. Ortega</span></div>
+        <div class="kv"><span>Specialist</span><span>Hero KV · Visual</span></div>
+        <div class="kv"><span>Tier</span><span>Premium · 240 cr</span></div>
+        <div class="kv"><span>Size</span><span>1856 × 2304 (2K)</span></div>
+        <div class="kv"><span>Created</span><span>Today 17:15 · Brandolph</span></div>
+      </div>
+      <div class="sec2"><div class="eyebrow">Quality gate</div>
+        <div class="score">Brand match<div class="bar"><i style="width:91%"></i></div><span class="mono">91</span></div>
+        <div class="score" style="margin-top:6px">Refusals<div class="bar"><i style="width:100%"></i></div><span class="mono">0 hit</span></div>
+        <div style="display:flex;gap:6px;margin-top:12px"><button class="btn pri" style="flex:1;justify-content:center">✓ Approve as steward</button><button class="btn out">Flag</button></div>
+      </div>
+      <div class="sec2" style="border:0"><div class="eyebrow">Comments (1)</div>
+        <div class="cmt"><span class="av">L</span><div><b>Lucía R.</b> <small>· 2m · pin 1</small><br>Lamp glow is perfect. Can we warm the label 5%?<br><a style="color:var(--accent);font-size:11.5px">Reply</a></div></div>
+        <div style="border:1px solid var(--line);border-radius:9px;padding:8px;margin-top:12px;font-size:12px;color:var(--text-4)">Click the image to pin a comment…</div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 4 · LIBRARY ═══════════════════════ -->
+<section class="screen" id="s-library">
+  <aside class="side">
+    <div class="logo"><i>C</i>CaastorOS</div>
+    <div class="brandsw"><span class="av"></span><div><b style="font-size:12.5px">Aurelia Skincare</b><small>BIO v3 · certified</small></div></div>
+    <button class="newbtn">＋ New brief</button>
+    <a class="nav" data-go="home"><span class="ic">⌂</span>Home</a>
+    <div class="grp">Library</div>
+    <a class="nav" data-go="canvas"><span class="ic">▤</span>Briefs</a>
+    <a class="nav on"><span class="ic">▣</span>Assets</a>
+    <a class="nav"><span class="ic">⊞</span>Templates</a>
+    <div class="foot"><span class="cr">18,420 cr</span></div>
+  </aside>
+  <main class="lib" id="lib">
+    <h1>Assets</h1>
+    <div class="ltools">
+      <div class="search">🔍 Search deliverables, prompts, tags…</div>
+      <div class="fchips"><button class="on">All<small>48</small></button><button>Deliverables<small>31</small></button><button>Uploads<small>12</small></button><button>Favorites<small>5</small></button></div>
+      <div class="fchips"><button>Approved<small>27</small></button><button>Flagged<small>4</small></button></div>
+      <button class="btn out">Brief: All ▾</button><button class="btn out">Tags ▾</button>
+      <span style="flex:1"></span><button class="btn out">📁 New folder</button>
+    </div>
+    <div class="lgrid" id="lgrid"></div>
+  </main>
+  <div class="selbar" id="selbar"><span class="n" id="selN">0 selected</span><button>📁 Move</button><button>🏷 Tag</button><button>⬇ Download</button><button>◆ Open on canvas</button><button>Archive</button><button id="selX">✕</button></div>
+</section>
+
+<!-- Modals -->
+<div class="scrim" id="shareModal"><div class="modal">
+  <div class="mh">Share “Spring night-serum launch”<button data-close>✕</button></div>
+  <div class="mb2">
+    <div class="eyebrow" style="margin-top:6px">General access</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0"><span style="font-size:18px">🔒</span><div style="flex:1"><b>Restricted</b><div style="color:var(--text-3);font-size:11.5px">Only workspace members can open this canvas</div></div><span class="select" style="width:120px">Restricted ▾</span></div>
+    <button class="btn out" style="width:100%;justify-content:center;margin:6px 0 12px" id="copyLink">🔗 Copy link</button>
+    <div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--line-soft);padding-top:12px"><span>👥</span><b>Aurelia team</b><span style="color:var(--text-3)">· 4 members</span><button class="btn out" style="margin-left:auto">＋ Add people</button></div>
+    <div style="display:flex;align-items:center;gap:8px;padding-top:10px"><span>✓</span><b>Steward</b><span style="color:var(--text-3)">· M. Ortega reviews before client view</span></div>
+  </div>
+  <div class="mf"><button class="btn pri" data-close>Done</button></div>
+</div></div>
+
+<div class="scrim" id="keysModal"><div class="modal" style="width:440px">
+  <div class="mh">⌘ Keyboard shortcuts<button data-close>✕</button></div>
+  <div class="mb2">
+    <div class="krow"><span>Add node</span><span><kbd>N</kbd></span></div>
+    <div class="krow"><span>Ask Brandolph (about selection)</span><span><kbd>/</kbd></span></div>
+    <div class="krow"><span>Run selected</span><span><kbd>⌘</kbd><kbd>↵</kbd></span></div>
+    <div class="krow"><span>Review latest result</span><span><kbd>Space</kbd></span></div>
+    <div class="krow"><span>Find node</span><span><kbd>⌘</kbd><kbd>F</kbd></span></div>
+    <div class="krow"><span>Duplicate / without connections</span><span><kbd>⌘D</kbd> <kbd>⌘⇧D</kbd></span></div>
+    <div class="krow"><span>Copy output</span><span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>C</kbd></span></div>
+    <div class="krow"><span>Rename</span><span><kbd>⌘</kbd><kbd>E</kbd></span></div>
+    <div class="krow"><span>Note / Comment</span><span><kbd>S</kbd> <kbd>C</kbd></span></div>
+    <div class="krow"><span>Fit to screen</span><span><kbd>⇧</kbd><kbd>1</kbd></span></div>
+    <div class="krow" style="border:0"><span>Delete</span><span><kbd>⌫</kbd></span></div>
+  </div>
+</div></div>
+
+<div class="annot" id="annot"><button onclick="this.parentNode.remove()">✕</button><b>How to read this mockup</b>This is an interactive design study with simulated runs, credits and review. Explore: adding, connecting, selecting, the right-click menu, running and reviewing. It sits on top of what only CaastorOS has: the BIO root node, the CanvasHeader, Brandolph's run log, QA and steward stamps, refusal guardrails, and credits-only tiers.</div>
+
+<script>
+/* ───────── screen switching ───────── */
+const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+function go(id){
+  $$('.screen').forEach(s => s.classList.toggle('on', s.id === 's-' + id));
+  $$('.proto [data-go]').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+  closePops();
+}
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); } });
+
+/* ───────── canvas data ───────── */
+const IMG = s => `https://picsum.photos/seed/${s}/480/600`;
+const DEPT = { Strategy:'var(--d-strategy)', Concept:'var(--d-concept)', Copy:'var(--d-copy)', Visual:'var(--d-visual)', 'Web & UX':'var(--d-web)', Research:'var(--d-research)', BIO:'var(--brand)', Brief:'var(--accent)' };
+const PORT = { bio:'var(--p-bio)', brief:'var(--p-brief)', text:'var(--p-text)', image:'var(--p-image)' };
+let nodes = [
+  { id:'bio',   kind:'bio',   x:40,  y:250, title:'BIO · Aurelia Skincare', dept:'BIO', status:'cert', ins:[], outs:['bio'] },
+  { id:'brief', kind:'brief', x:330, y:240, title:'Sharpened brief', dept:'Brief', status:'done', ins:['bio'], outs:['brief'] },
+  { id:'pos',   kind:'text',  x:640, y:40,  title:'Positioning Architect', dept:'Strategy', status:'done', qa:88, ins:['brief','bio'], outs:['text'],
+    body:'<b style="color:var(--text-1)">Territory:</b> “The clinical ritual.” Proof is the comfort — the label reads like a lab report, the moment feels like a bath.' },
+  { id:'head',  kind:'text',  x:640, y:300, title:'Headlines', dept:'Copy', status:'done', qa:86, ins:['brief','text'], outs:['text'], v:[2,3],
+    body:'“Proof you can sleep on.”<br><span style="color:var(--text-4)">alt: “Eight hours of evidence.” · “Clinically calm.”</span>' },
+  { id:'kv',    kind:'image', x:960, y:60,  title:'Hero KV', dept:'Visual', status:'done', qa:91, img:'kv1', ins:['brief','text','image'], outs:['image'], v:[1,4], approved:true,
+    prompt:'Amber serum on warm travertine, single lamp, <span class="mention">@Headlines</span> in display face, palette from <span class="mention bio">@BIO</span>.' },
+  { id:'soc',   kind:'image', x:1290, y:60, title:'Social Post Designer', dept:'Visual', status:'queue', ins:['brief','image'], outs:['image'],
+    prompt:'4 IG frames from <span class="mention">@Hero KV</span>, 4:5, caption-safe zones.' },
+  { id:'mail',  kind:'text',  x:960, y:470, title:'Email', dept:'Copy', status:'queue', ins:['brief','text'], outs:['text'],
+    body:'<div class="skel" style="width:90%"></div><div class="skel" style="width:70%"></div>' },
+  { id:'lp',    kind:'text',  x:1290, y:470, title:'Landing Page Architect', dept:'Web & UX', status:'queue', ins:['brief','text','image'], outs:['text'],
+    body:'<div class="skel" style="width:80%"></div><div class="skel" style="width:60%"></div>' },
+];
+let edges = [
+  { f:'bio', t:'brief' }, { f:'brief', t:'pos' }, { f:'brief', t:'head' }, { f:'pos', t:'head', n:1 },
+  { f:'head', t:'kv', n:1 }, { f:'brief', t:'kv' }, { f:'kv', t:'soc', n:1 }, { f:'head', t:'mail', n:1 }, { f:'head', t:'lp', n:1 }, { f:'kv', t:'lp', n:2 },
+];
+const NOTE = { x:330, y:520, text:'Steward: keep packshots on stone, never in hand. Lamp light only after 7pm scenes.', who:'M. Ortega · steward' };
+
+let view = { x:30, y:70, s:.78 }, sel = null, mouse = { x:400, y:300 }, seq = 0;
+const desk = $('#desk'), stage = $('#stage'), wires = $('#wires'), nodesEl = $('#nodes');
+
+/* ───────── render ───────── */
+function statusChip(n){
+  const m = { done:['s-done','done'], run:['s-run','running'], queue:['s-queue','queued'], flag:['s-flag','flagged'], cert:['s-cert','certified'] }[n.status];
+  return `<span class="status ${m[0]}">${m[1]}</span>`;
+}
+function nodeHTML(n){
+  const dc = DEPT[n.dept] || 'var(--d-research)';
+  let inner = '';
+  if (n.kind === 'bio') inner = `
+    <div class="nbody"><div style="display:flex;gap:4px;margin-bottom:8px">${['#2B2118','#B98D72','#E8D5C4','#F4EFE8','#7A8B6F'].map(c=>`<span style="flex:1;height:18px;border-radius:4px;background:${c}"></span>`).join('')}</div>
+    <div style="font-family:var(--serif);font-size:16px;color:var(--text-1);line-height:1.2">Aa — Canela / Söhne</div>
+    <div style="margin-top:6px">Voice: <b style="color:var(--text-1)">calm, clinical, warm</b><br>Refusals: 3 · Proof points: 7</div></div>`;
+  else if (n.kind === 'brief') inner = `<div class="nbody"><span style="color:var(--text-4);font-family:var(--mono);font-size:9.5px">TENSION</span><br><span style="font-family:var(--serif);font-size:15px;color:var(--text-1);line-height:1.25">Clinical proof vs. ritual comfort</span><div style="margin-top:6px">IG first, email to convert · 6 deliverables</div></div>`;
+  else if (n.kind === 'image') {
+    if (n.status === 'run') inner = `<div class="dots"><div class="dm">${'<i></i>'.repeat(54).replace(/<i><\/i>/g,(m,i)=>`<i style="animation-delay:${(Math.random()*1.4).toFixed(2)}s"></i>`)}</div></div>`;
+    else if (n.img) inner = `<div class="nimg" style="background-image:url(${IMG(n.img)})"><span class="fav">♥</span>${n.qa?`<span class="qa">QA ${n.qa}</span>`:''}${n.approved?'<span class="stamp">✓ STEWARD</span>':''}</div>
+      ${n.v?`<div class="vstrip"><button data-v="-1">‹ Prev</button><span>${n.v[0]}/${n.v[1]}</span><button data-v="1">Next ›</button></div><div class="vtray">${Array.from({length:n.v[1]},(_,i)=>`<div class="${i+1===n.v[0]?'on':''}" style="background-image:url(${IMG(n.img.replace(/\d$/,'')+(i+1))})"></div>`).join('')}</div>`:''}`;
+    else inner = `<div class="nimg" style="height:120px;display:grid;place-items:center;color:var(--text-4);font-size:11px;background:var(--bg-muted)">Waiting on upstream · or describe it</div>`;
+    inner += `<div class="prompt">${n.prompt||'Describe the image, or @ to mention nodes'}</div>`;
+  } else {
+    inner = n.status === 'run' ? `<div class="nbody"><div class="skel" style="width:85%"></div><div class="skel" style="width:65%"></div><div class="skel" style="width:75%"></div></div>` : `<div class="nbody">${n.body||''}</div>`;
+    if (n.v) inner += `<div class="vstrip"><button data-v="-1">‹</button><span>option ${n.v[0]}/${n.v[1]}</span><button data-v="1">›</button></div>`;
+  }
+  const runnable = !['bio','brief'].includes(n.kind);
+  const foot = runnable ? `<div class="nft"><span class="meta"><span class="gl">◆</span>${n.qa?`QA ${n.qa}`:n.status==='queue'?'≈ '+(n.kind==='image'?'620':'60')+' cr':'Auto tier'}</span>
+      <span class="cnt"><button>−</button>${n.kind==='image'?4:3}<button>＋</button></span>
+      <button class="run ${n.status==='run'?'stop':''}" data-run="${n.id}" title="${n.status==='run'?'Stop':'Run'}">${n.status==='run'?'■':'↑'}</button></div>`
+    : `<div class="nft"><span class="meta"><span class="gl">✓</span>${n.kind==='bio'?'Certified · M. Ortega':'Sharpener · 9.8s'}</span></div>`;
+  const ins = n.ins.map((p,i)=>`<span class="port in" data-port="in" data-type="${p}" style="background:${PORT[p]};top:${40+i*16}px;margin-top:0"></span>`).join('');
+  const outs = n.outs.map(p=>`<span class="port out ${n.id==='kv'||n.id==='head'?'glow':''}" data-port="out" data-type="${p}" style="background:${PORT[p]}"></span>`).join('');
+  const tags = `<div class="ptags l"><span class="h">Inputs</span>${n.ins.map(p=>`<span><i style="background:${PORT[p]}"></i>${p[0].toUpperCase()+p.slice(1)}</span>`).join('')}</div>
+               <div class="ptags r"><span class="h">Outputs</span>${n.outs.map(p=>`<span><i style="background:${PORT[p]}"></i>${p[0].toUpperCase()+p.slice(1)}</span>`).join('')}</div>`;
+  const cap = `<div class="ncap"><b>${n.title}</b><span>${n.kind==='bio'?'v3':n.kind==='brief'?'Brandolph':n.status==='run'?'running…':n.tier||'Auto'}</span></div>`;
+  return `${cap}<div class="nhd"><span class="dept"><i style="background:${dc}"></i>${n.dept}</span>${statusChip(n)}</div>
+    <div class="ntitle">${n.title}</div>${inner}${foot}${ins}${outs}${tags}`;
+}
+function render(){
+  nodesEl.innerHTML = nodes.map(n => `<div class="node ${sel===n.id?'sel':''} ${n.agent?'agent':''}" data-id="${n.id}" style="left:${n.x}px;top:${n.y}px">${nodeHTML(n)}</div>`).join('')
+    + `<div class="note" data-note style="left:${NOTE.x}px;top:${NOTE.y}px">${NOTE.text}<small>${NOTE.who}</small></div>`;
+  drawWires(); applyView(); drawMini(); updateProg();
+}
+function portPos(id, side, type){
+  const n = nodes.find(x => x.id === id), el = nodesEl.querySelector(`[data-id="${id}"]`);
+  if (!n || !el) return [0,0];
+  if (side === 'out') return [n.x + el.offsetWidth + 1, n.y + el.offsetHeight / 2];
+  const i = Math.max(0, n.ins.indexOf(type));
+  return [n.x - 1, n.y + 46 + i * 16];
+}
+function curve(a, b){ const dx = Math.max(40, (b[0]-a[0]) * .45); return `M${a[0]},${a[1]} C${a[0]+dx},${a[1]} ${b[0]-dx},${b[1]} ${b[0]},${b[1]}`; }
+let tmpWire = null;
+function drawWires(){
+  let h = '';
+  edges.forEach(e => {
+    const from = nodes.find(n => n.id === e.f), to = nodes.find(n => n.id === e.t);
+    if (!from || !to) return;
+    const type = from.outs[0];
+    const a = portPos(e.f,'out'), b = portPos(e.t,'in',type);
+    const hot = sel && (e.f === sel || e.t === sel);
+    h += `<path class="wire ${hot?'hot':''}" d="${curve(a,b)}" style="${hot?'':`stroke:${PORT[type]};opacity:.55`}"/>`;
+    if (e.n) h += `<circle cx="${b[0]-12}" cy="${b[1]}" r="7" fill="${PORT[type]}"/><text class="wbadge" x="${b[0]-12}" y="${b[1]+3}" text-anchor="middle" fill="var(--text-1)">${e.n}</text>`;
+  });
+  if (tmpWire) h += `<path class="wire tmp" d="${curve(tmpWire.a, tmpWire.b)}" style="stroke:${PORT[tmpWire.type]}"/>`;
+  wires.innerHTML = h;
+  // BIO refusal guardrail on the KV input
+  const kvIn = portPos('kv','in','image');
+  wires.insertAdjacentHTML('beforeend', '');
+  let g = $('#guard'); if (!g) { g = document.createElement('div'); g.id = 'guard'; g.className = 'guard'; stage.appendChild(g); }
+  g.innerHTML = '<i>✕</i>BIO refusal: no hands on bottle'; g.style.left = (kvIn[0]-250)+'px'; g.style.top = (kvIn[1]+86)+'px';
+}
+function applyView(){
+  stage.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.s})`;
+  const g = $('#grid'); g.style.backgroundSize = `${22*view.s}px ${22*view.s}px`; g.style.backgroundPosition = `${view.x}px ${view.y}px`;
+  $('#zoomLbl').textContent = Math.round(view.s*100) + '%';
+  drawMini();
+}
+function drawMini(){
+  const mm = $('#mm'); if (!mm) return;
+  const sx = .095, ox = 6, oy = 8;
+  let h = edges.map(e => { const a = nodes.find(n=>n.id===e.f), b = nodes.find(n=>n.id===e.t); return a&&b?`<line x1="${ox+(a.x+236)*sx}" y1="${oy+(a.y+60)*sx}" x2="${ox+b.x*sx}" y2="${oy+(b.y+60)*sx}" stroke="var(--desk-dim)" stroke-width="1"/>`:''; }).join('');
+  h += nodes.map(n => `<rect x="${ox+n.x*sx}" y="${oy+n.y*sx}" width="${236*sx}" height="${(n.kind==='image'?380:190)*sx}" rx="2" fill="${n.id===sel?'var(--brand)':n.status==='run'?'var(--accent)':'var(--desk-dim)'}"/>`).join('');
+  const r = desk.getBoundingClientRect();
+  h += `<rect x="${ox+(-view.x/view.s)*sx}" y="${oy+(-view.y/view.s)*sx}" width="${r.width/view.s*sx}" height="${r.height/view.s*sx}" fill="none" stroke="var(--brand)" stroke-width="1" rx="2"/>`;
+  mm.innerHTML = h;
+}
+function updateProg(){
+  const spec = nodes.filter(n => !['bio','brief'].includes(n.kind));
+  $('#progTxt').textContent = `${spec.length} specialists · ${spec.filter(n=>n.status==='done').length} done`;
+  const running = spec.filter(n => n.status === 'run').length;
+  $('#tray').classList.toggle('on', running > 0);
+  $('#trayTxt').textContent = `Running ${running} specialist${running===1?'':'s'}`;
+}
+
+/* ───────── selection + inspector ───────── */
+function select(id){
+  sel = id; render();
+  const n = nodes.find(x => x.id === id);
+  $('#modelBar').classList.toggle('on', !!n && !['bio','brief'].includes(n.kind));
+  $('#insp').classList.toggle('on', !!n);
+  if (!n) return;
+  $('#iDept').innerHTML = `<i style="background:${DEPT[n.dept]}"></i>${n.dept}`;
+  $('#iName').textContent = n.title;
+  let b = '';
+  if (n.kind === 'bio') b = `<div class="kv"><span>Version</span><span>v3</span></div><div class="kv"><span>Certified by</span><span>M. Ortega</span></div><div class="kv"><span>Refusals</span><span>3</span></div><div class="kv"><span>Feeds</span><span>every node</span></div><button class="btn out">Open BIO →</button>`;
+  else if (n.kind === 'brief') b = `<div class="field"><label>Tension</label><div class="select">Clinical proof vs. ritual comfort</div></div><div class="field"><label>Crew</label><div style="font-size:12px;color:var(--text-2);line-height:1.6">Positioning Architect · Headlines · Email · Hero KV · Social Post Designer · Landing Page Architect</div></div><button class="btn out">◆ Re-sharpen with Brandolph</button>`;
+  else b = `
+    <div class="field"><label>Name</label><div class="select">${n.title}<span>⧉</span></div></div>
+    <div class="field"><label>Quality tier</label><div class="select" id="iTier">Auto (Premium for KVs) <span>▾</span></div></div>
+    ${n.kind==='image'?'<div class="field"><label>Format</label><div class="select">Vertical (4:5) · 2K <span>▾</span></div></div>':''}
+    <div class="field"><label>Context in</label><div style="display:flex;gap:4px;flex-wrap:wrap">${n.ins.map(p=>`<span class="tok"><i style="width:7px;height:7px;border-radius:50%;background:${PORT[p]};display:inline-block"></i>${p}</span>`).join('')}</div></div>
+    ${n.qa?`<div><div class="eyebrow">Quality gate</div><div class="score">Brand<div class="bar"><i style="width:${n.qa}%"></i></div><span class="mono">${n.qa}</span></div><div class="score" style="margin-top:5px">Voice<div class="bar"><i style="width:${n.qa-3}%"></i></div><span class="mono">${n.qa-3}</span></div></div>`:''}
+    ${n.kind==='image'&&n.img?`<div><div class="eyebrow">Tools — each creates a new node</div><div class="tools"><button><b>✎</b>Edit</button><button><b>◍</b>Inpaint</button><button><b>⌫</b>Remove</button><button><b>▢</b>Cut out</button><button><b>⤢</b>Upscale</button><button><b>⇲</b>Outpaint</button><button><b>⌗</b>Crop</button><button><b>⎘</b>Resize</button></div></div>`:''}
+    <div class="memo">◆ Brandolph memory: you approved 9 of your last 10 ${n.dept} runs at this tier.</div>
+    <div style="display:flex;gap:6px"><button class="btn dark" style="flex:1;justify-content:center" data-run="${n.id}">↑ Run · ≈ ${n.kind==='image'?620:60} cr</button><button class="btn out" data-go="review">⛶</button></div>`;
+  $('#iBody').innerHTML = b;
+}
+$('#iClose').onclick = () => select(null);
+
+/* ───────── pointer: pan, drag nodes, drag wires ───────── */
+let drag = null;
+const toStage = (cx, cy) => { const r = desk.getBoundingClientRect(); return [(cx - r.left - view.x)/view.s, (cy - r.top - view.y)/view.s]; };
+desk.addEventListener('pointerdown', e => {
+  if (e.button !== 0 || e.target.closest('.pop,.dock,.modelbar,.insp,.minimap,.tour,.tourpill,.chead')) return;
+  closePops();
+  const port = e.target.closest('.port.out');
+  const nodeEl = e.target.closest('.node');
+  const noteEl = e.target.closest('[data-note]');
+  if (e.target.closest('[data-run],[data-v],.cnt')) return;
+  if (port) {
+    const id = nodeEl.dataset.id; const type = port.dataset.type;
+    drag = { mode:'wire', from:id, type }; tmpWire = { a:portPos(id,'out'), b:toStage(e.clientX,e.clientY), type };
+  } else if (nodeEl) {
+    const n = nodes.find(x => x.id === nodeEl.dataset.id);
+    drag = { mode:'node', n, sx:e.clientX, sy:e.clientY, ox:n.x, oy:n.y, moved:false };
+  } else if (noteEl) {
+    drag = { mode:'note', sx:e.clientX, sy:e.clientY, ox:NOTE.x, oy:NOTE.y, moved:false };
+  } else {
+    drag = { mode:'pan', sx:e.clientX, sy:e.clientY, ox:view.x, oy:view.y, moved:false }; desk.classList.add('panning');
+  }
+  desk.setPointerCapture(e.pointerId);
+});
+desk.addEventListener('pointermove', e => {
+  const r = desk.getBoundingClientRect(); mouse = { x:e.clientX - r.left, y:e.clientY - r.top };
+  if (!drag) return;
+  const dx = e.clientX - (drag.sx||0), dy = e.clientY - (drag.sy||0);
+  if (drag.mode !== 'wire' && Math.abs(dx)+Math.abs(dy) > 3) drag.moved = true;
+  if (drag.mode === 'pan') { view.x = drag.ox + dx; view.y = drag.oy + dy; applyView(); }
+  else if (drag.mode === 'node' && drag.moved) { drag.n.x = drag.ox + dx/view.s; drag.n.y = drag.oy + dy/view.s; const el = nodesEl.querySelector(`[data-id="${drag.n.id}"]`); el.style.left = drag.n.x+'px'; el.style.top = drag.n.y+'px'; drawWires(); drawMini(); }
+  else if (drag.mode === 'note' && drag.moved) { NOTE.x = drag.ox + dx/view.s; NOTE.y = drag.oy + dy/view.s; const el = $('[data-note]'); el.style.left = NOTE.x+'px'; el.style.top = NOTE.y+'px'; }
+  else if (drag.mode === 'wire') { tmpWire.b = toStage(e.clientX, e.clientY); drawWires(); }
+});
+desk.addEventListener('pointerup', e => {
+  const d = drag; drag = null; desk.classList.remove('panning');
+  if (!d) return;
+  if (d.mode === 'node' && !d.moved) select(d.n.id);
+  if (d.mode === 'pan' && !d.moved) select(null);
+  if (d.mode === 'wire') {
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const target = under && under.closest('.node');
+    const pt = tmpWire.b; tmpWire = null;
+    if (target && target.dataset.id !== d.from) {
+      edges.push({ f:d.from, t:target.dataset.id }); toast(`Connected ${nodes.find(n=>n.id===d.from).title} → ${nodes.find(n=>n.id===target.dataset.id).title}`); render();
+    } else if (!target) {
+      pendingWire = { from:d.from, at:pt }; drawWires();
+      const r = desk.getBoundingClientRect(); openPicker(e.clientX - r.left, e.clientY - r.top);
+    } else drawWires();
+  }
+});
+desk.addEventListener('wheel', e => {
+  e.preventDefault(); const r = desk.getBoundingClientRect(); const cx = e.clientX - r.left, cy = e.clientY - r.top;
+  const s = Math.min(2, Math.max(.3, view.s * (e.deltaY < 0 ? 1.1 : 1/1.1))); const k = s / view.s;
+  view = { s, x: cx - (cx - view.x)*k, y: cy - (cy - view.y)*k }; applyView();
+}, { passive:false });
+desk.addEventListener('contextmenu', e => {
+  e.preventDefault(); const r = desk.getBoundingClientRect(); const x = e.clientX - r.left, y = e.clientY - r.top;
+  const nodeEl = e.target.closest('.node');
+  closePops();
+  if (nodeEl) { select(nodeEl.dataset.id); place($('#ctx'), x, y); }
+  else { pendingWire = null; openPicker(x, y); }
+});
+$('#zoomLbl').onclick = fit;
+function fit(){ const r = desk.getBoundingClientRect(); const minX = Math.min(...nodes.map(n=>n.x)), maxX = Math.max(...nodes.map(n=>n.x+236)), minY = Math.min(...nodes.map(n=>n.y)), maxY = Math.max(...nodes.map(n=>n.y+380)); const s = Math.min(1.2, Math.min((r.width-120)/(maxX-minX), (r.height-120)/(maxY-minY))); view = { s, x:(r.width-(maxX-minX)*s)/2 - minX*s, y:(r.height-(maxY-minY)*s)/2 - minY*s + 10 }; applyView(); }
+
+/* ───────── node buttons: run, variations ───────── */
+desk.addEventListener('click', e => {
+  const r = e.target.closest('[data-run]'); if (r) { e.stopPropagation(); runNode(r.dataset.run); return; }
+  const v = e.target.closest('[data-v]'); if (v) { const n = nodes.find(x => x.id === v.closest('.node').dataset.id); n.v[0] = ((n.v[0]-1 + +v.dataset.v + n.v[1]) % n.v[1]) + 1; if (n.img) n.img = n.img.replace(/\d$/,'') + n.v[0]; render(); }
+});
+let lastReady = null;
+function runNode(id, silent){
+  const n = nodes.find(x => x.id === id); if (!n) return;
+  if (n.status === 'run') { n.status = 'queue'; render(); return; }
+  n.status = 'run'; n.agent = true; render(); if (sel === id) select(id);
+  setTimeout(() => {
+    n.status = 'done'; n.agent = false; n.qa = 84 + Math.floor(Math.random()*10);
+    if (n.kind === 'image') { n.img = (n.id==='soc'?'soc':n.id)+'1'; n.v = [1,4]; }
+    else n.body = n.id==='mail' ? '<b style="color:var(--text-1)">Subject:</b> Your skin, on night shift.<br>Preview: The one clinical step worth staying up for.' : n.id==='lp' ? '<b style="color:var(--text-1)">Above the fold:</b> H1 · proof strip (3 clinicals) · ritual video · CTA' : (n.body||'Done.');
+    lastReady = n.id; render(); if (sel === id) select(id);
+    if (!silent) toast(`${n.title} is ready`, true);
+  }, 2600 + Math.random()*1200);
+}
+function toast(t, kbd){ $('#toastTxt').textContent = t; $('#toast kbd').style.display = kbd ? '' : 'none'; $('#toast').classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => $('#toast').classList.remove('on'), 2600); }
+
+/* ───────── picker ───────── */
+const SPECS = {
+  'Ask': [['◆','Ask Brandolph','Describe it; Brandolph wires the nodes','/']],
+  'Strategy': [['S','Positioning Architect'],['','Territory Mapper'],['','Audience Decoder'],['','Commercial Strategist']],
+  'Concept': [['','Big Idea'],['','Campaign Concept'],['','Naming'],['','Tagline'],['','Manifesto']],
+  'Copy': [['H','Headlines'],['','Long-form'],['','Social Captions'],['','Product Copy'],['E','Email'],['','Voice QA']],
+  'Visual': [['K','Hero KV'],['','Editorial Image'],['M','Mood Board'],['','Social Post Designer'],['','Ad Creative'],['','Product Mockup'],['','Iconography']],
+  'Web & UX': [['L','Landing Page Architect'],['','Microcopy'],['','Information Architecture'],['','Accessibility QA']],
+  'Research': [['','Competitive Scan'],['','Trend Watch'],['','Audit']],
+  'Motion & Sound': [['','Coming soon','',''] ],
+};
+const UTILS = [['✎','Edit image'],['◍','Inpaint'],['⌫','Remove object'],['▢','Remove background'],['⤢','Upscale'],['⇲','Outpaint'],['⌗','Crop'],['⎘','Resize for channels']];
+const INPUTS = [['⬆','Upload asset','','U'],['🔗','Import from URL'],['T','Text / reference note','','T'],['✦','BIO facet (palette, voice…)']];
+let pickTab = 'spec', pendingWire = null;
+function renderPicker(){
+  const q = $('#pickQ').value.toLowerCase(); let h = '';
+  if (pickTab === 'spec') {
+    for (const [dept, list] of Object.entries(SPECS)) {
+      const items = list.filter(([, name]) => name.toLowerCase().includes(q) || dept.toLowerCase().includes(q)); if (!items.length) continue;
+      if (dept !== 'Ask') h += `<div class="pgrp"><i style="background:${DEPT[dept]||'var(--d-research)'}"></i>${dept}</div>`;
+      h += items.map(([k, name, sub, key]) => `<button class="mi ${dept==='Motion & Sound'?'soon':''} ${dept==='Ask'?'hl':''}" data-add="${name}" data-dept="${dept}"><span class="ico" style="${dept==='Ask'?'background:var(--accent);color:#fff':''}">${dept==='Ask'?'◆':name[0]}</span><span>${name}${sub?`<span class="sub">${sub}</span>`:''}</span>${key||k?`<span class="k">${key||k}</span>`:''}</button>`).join('');
+      if (dept === 'Ask') h += '<div class="msep"></div>';
+    }
+  } else (pickTab === 'util' ? UTILS : INPUTS).filter(([,n]) => n.toLowerCase().includes(q)).forEach(([i, n, , k]) => h += `<button class="mi" data-add="${n}" data-dept="${pickTab==='util'?'Visual':'Research'}"><span class="ico">${i}</span>${n}${k?`<span class="k">${k}</span>`:''}</button>`);
+  $('#plist').innerHTML = h || '<div style="padding:14px;color:var(--text-3);font-size:12px">No specialist matches — <a style="color:var(--accent)">ask Brandolph to build it</a></div>';
+}
+function openPicker(x, y){ $('#pickQ').value = ''; renderPicker(); place($('#picker'), x, y); setTimeout(() => $('#pickQ').focus(), 0); }
+$('#pickQ').oninput = renderPicker;
+$$('.ptabs button').forEach(b => b.onclick = () => { pickTab = b.dataset.pt; $$('.ptabs button').forEach(x => x.classList.toggle('on', x === b)); renderPicker(); });
+$('#plist').onclick = e => {
+  const b = e.target.closest('[data-add]'); if (!b) return;
+  if (b.dataset.dept === 'Ask') { closePops(); openAsk(); return; }
+  const name = b.dataset.add, dept = b.dataset.dept, isImg = dept === 'Visual';
+  const p = $('#picker'); const at = pendingWire ? pendingWire.at : toStage(p.getBoundingClientRect().left, p.getBoundingClientRect().top);
+  const id = 'n' + (++seq);
+  nodes.push({ id, kind: isImg ? 'image' : 'text', x: at[0], y: at[1] - 60, title: name, dept, status:'queue', ins:['brief', isImg ? 'image' : 'text'], outs:[isImg ? 'image' : 'text'], prompt: isImg ? 'Describe the image, or @ to mention nodes' : null, body:'<span style="color:var(--text-4)">Ready to run — inherits BIO + brief automatically.</span>' });
+  edges.push({ f:'brief', t:id });
+  if (pendingWire) edges.push({ f:pendingWire.from, t:id, n:1 });
+  pendingWire = null; closePops(); select(id); toast(`${name} added · wired to BIO + brief`);
+};
+
+/* ───────── popovers, menus ───────── */
+function place(el, x, y){ el.classList.add('on'); const r = desk.getBoundingClientRect(); const w = el.offsetWidth, h = el.offsetHeight; el.style.left = Math.min(x, r.width - w - 10) + 'px'; el.style.top = Math.max(10, Math.min(y, r.height - h - 10)) + 'px'; }
+function closePops(){ $$('.pop').forEach(p => p.classList.remove('on')); $('#plusMenu').classList.remove('on'); if (pendingWire && !$('#picker').classList.contains('on')) { pendingWire = null; drawWires(); } }
+$('#dockAdd').onclick = e => { e.stopPropagation(); pendingWire = null; const r = desk.getBoundingClientRect(); const d = $('#dock').getBoundingClientRect(); openPicker(d.left - r.left, d.top - r.top - 380); };
+$('#ctx').onclick = e => { const a = e.target.closest('[data-act]'); if (!a) return; closePops();
+  if (a.dataset.act === 'del' && sel) { nodes = nodes.filter(n => n.id !== sel); edges = edges.filter(x => x.f !== sel && x.t !== sel); select(null); toast('Node deleted · ⌘Z to undo'); }
+  if (a.dataset.act === 'run' && sel) runNode(sel);
+  if (a.dataset.act === 'ask') openAsk();
+  if (a.dataset.act === 'dup' && sel) { const n = nodes.find(x => x.id === sel); const id = 'n'+(++seq); nodes.push({ ...n, id, x:n.x+30, y:n.y+30, status:'queue' }); edges.filter(x => x.t === sel).forEach(x => edges.push({ ...x, t:id })); select(id); }
+};
+function openAsk(){ const n = sel ? 1 : 0; $('#askSel').textContent = n ? `◆ ${nodes.find(x=>x.id===sel).title}` : 'Whole canvas'; place($('#ask'), mouse.x, mouse.y); setTimeout(() => $('#askIn').focus(), 0); }
+$('#askIn').onkeydown = e => { if (e.key === 'Enter') { const q = e.target.value || 'Make this feel more nocturnal'; closePops(); $('#chat').classList.remove('closed'); $('#chatToggle').textContent = '‹';
+  $('#chatBody').insertAdjacentHTML('beforeend', `<div class="umsg"><div class="ctoks"><span class="tok" style="background:var(--accent-soft);color:var(--accent)">◆ ${$('#askSel').textContent.replace('◆ ','')}</span></div>${q}</div><div class="who"><span class="bdot">B</span>Brandolph</div><div class="runlog"><div class="hd">Thinking… <span class="t">1.4s</span></div></div>`); $('#chatBody').scrollTop = 1e6; e.target.value = ''; } if (e.key === 'Escape') closePops(); };
+$('#tierBtn').onclick = e => { e.stopPropagation(); const r = desk.getBoundingClientRect(), b = e.currentTarget.getBoundingClientRect(); place($('#tierPop'), b.left - r.left, b.bottom - r.top + 6); };
+$('#tierPop').onclick = e => { const t = e.target.closest('.tier'); if (!t) return; $$('.tier').forEach(x => x.classList.toggle('on', x === t)); $('#tierLbl').textContent = t.querySelector('b').textContent; closePops(); };
+$('#tensionBtn').onclick = () => $('#cexp').classList.toggle('on');
+$('#chatToggle').onclick = () => { const c = $('#chat').classList.toggle('closed'); $('#chatToggle').textContent = c ? '›' : '‹'; setTimeout(drawMini, 250); };
+$('#plusBtn').onclick = e => { e.stopPropagation(); $('#plusMenu').classList.toggle('on'); };
+$('#logHd').onclick = () => { const s = $('#logSteps'); s.style.display = s.style.display === 'none' ? '' : 'none'; };
+$('#viewNodes').onclick = () => { fit(); nodes.forEach(n => n.agent = !['bio','brief'].includes(n.kind) && n.status !== 'done'); render(); setTimeout(() => { nodes.forEach(n => n.agent = false); render(); }, 1400); };
+$('#approveBtn').onclick = () => { $('#approveCard').innerHTML = '<b style="color:var(--plex-signal-strong)">✓ Approved · 1,240 credits</b><p style="margin:0">Running Hero KV re-pass and Social Post Designer…</p>'; ['soc'].forEach(id => runNode(id)); };
+$('#dockMap').onclick = () => { $('#minimap').classList.toggle('off'); $('#dockMap').classList.toggle('on'); };
+$('#mmX').onclick = () => { $('#minimap').classList.add('off'); $('#dockMap').classList.remove('on'); };
+$('#dockAsk').onclick = e => { e.stopPropagation(); const r = desk.getBoundingClientRect(); mouse = { x:r.width/2 - 170, y:r.height - 120 }; openAsk(); };
+$('#dockNote').onclick = () => toast('Note (S) · Comment (C) — click to place');
+$('#shareBtn').onclick = () => $('#shareModal').classList.add('on');
+$('#copyLink').onclick = () => { $('#shareModal').classList.remove('on'); toast('Link copied to clipboard'); };
+$$('[data-close]').forEach(b => b.onclick = () => b.closest('.scrim').classList.remove('on'));
+document.addEventListener('pointerdown', e => { if (!e.target.closest('.pop,#plusMenu,#plusBtn,#dockAdd,#tierBtn,#dockAsk')) closePops(); });
+
+/* ───────── keyboard ───────── */
+document.addEventListener('keydown', e => {
+  if (e.target.matches?.('input,textarea,select,[contenteditable]')) return;
+  const onCanvas = $('#s-canvas').classList.contains('on');
+  if (e.key === '?' || (e.metaKey && e.key === '/')) { $('#keysModal').classList.add('on'); e.preventDefault(); return; }
+  if (e.key === 'Escape') { closePops(); $$('.scrim').forEach(s => s.classList.remove('on')); select(null); return; }
+  if (!onCanvas) return;
+  if (e.key === 'n' || e.key === 'N') { e.preventDefault(); pendingWire = null; openPicker(mouse.x, mouse.y); }
+  if (e.key === '/') { e.preventDefault(); openAsk(); }
+  if ((e.key === 'Backspace' || e.key === 'Delete') && sel) { nodes = nodes.filter(n => n.id !== sel); edges = edges.filter(x => x.f !== sel && x.t !== sel); select(null); toast('Node deleted · ⌘Z to undo'); }
+  if (e.key === ' ' && lastReady) { e.preventDefault(); go('review'); }
+  if (e.key === '!' || (e.shiftKey && e.key === '1')) fit();
+  if (e.metaKey && e.key === 'Enter' && sel) runNode(sel);
+});
+
+/* ───────── first-run tour ───────── */
+const TOUR = [
+  { stage:'Brief',     node:'bio',  text:'This is your <b>BIO</b> — every node on this canvas inherits it. Drag its glowing port to start.' },
+  { stage:'Crew',      node:'brief',text:'I sharpened your ask into one tension. Press <b>N</b> to add any of 50 specialists, or let me assemble the crew.' },
+  { stage:'Run',       node:'kv',   text:'Each specialist runs on its own. Hit <b>↑</b> — this first one is on us.' },
+  { stage:'Approve',   node:'kv',   text:'Every output passes the QA gate. Press <b>Space</b> to review, pin comments and approve as steward.' },
+];
+let tourI = -1;
+function showTour(){
+  const t = TOUR[tourI]; if (!t) { $('#tour').classList.remove('on'); $('#tourPill').classList.remove('on'); return; }
+  go('canvas'); select(t.node);
+  const el = nodesEl.querySelector(`[data-id="${t.node}"]`); const r = desk.getBoundingClientRect(), b = el.getBoundingClientRect();
+  $('#tourTxt').innerHTML = t.text; const tr = $('#tour'); tr.classList.add('on'); tr.style.left = Math.min(r.width - 320, b.right - r.left + 18) + 'px'; tr.style.top = (b.top - r.top + 10) + 'px';
+  $('#tourPill').classList.add('on'); $('#tourN').textContent = `${tourI+1}/4`; $('#tourRing').style.background = `conic-gradient(var(--brand) ${(tourI+1)*25}%, var(--desk-line) 0)`;
+  $('#tourStages').innerHTML = TOUR.map((x,i) => i === tourI ? `<b>${x.stage}</b>` : x.stage).join(' → ');
+}
+$('#tourBtn').onclick = () => { tourI = 0; fit(); setTimeout(showTour, 50); };
+$('#tourNext').onclick = () => { tourI++; showTour(); };
+$('#tourExit').onclick = () => { tourI = -1; showTour(); };
+
+/* ───────── review: pin comments ───────── */
+$('#bigImg').onclick = e => { const r = e.currentTarget.getBoundingClientRect(); const n = e.currentTarget.querySelectorAll('.pin').length + 1;
+  e.currentTarget.insertAdjacentHTML('beforeend', `<span class="pin" style="left:${(e.clientX-r.left)/r.width*100-2}%;top:${(e.clientY-r.top)/r.height*100-4}%"><span>${n}</span></span>`); };
+$$('.vcard').forEach((c, i) => c.onclick = () => { $$('.vcard').forEach(x => x.classList.toggle('on', x === c)); $('#bigImg').style.backgroundImage = `url(https://picsum.photos/seed/kv${i+1}/840/1050)`; });
+
+/* ───────── library ───────── */
+const ASSETS = [
+  ['kv1','Hero KV · v4','Spring launch',91,true,true],['soc1','Social frame 1','Spring launch',89,true,false],['t:Proof you can sleep on.','Headlines · option 2','Spring launch',86,true,true],
+  ['soc2','Social frame 2','Spring launch',87,true,false],['pdp1','PDP hero — travertine','PDP refresh',93,false,true],['t:The clinical ritual.','Positioning territory','Spring launch',88,true,true],
+  ['kv3','Hero KV · v2','Spring launch',62,false,false],['pdp2','PDP hero — linen','PDP refresh',90,false,true],['mood1','Mood board · nocturne','Spring launch',84,true,false],
+  ['up1','night-serum.jpg (upload)','Uploads',null,true,false],['pdp3','PDP hero — glass','PDP refresh',81,false,false],['t:Your skin, on night shift.','Email · subject line','Spring launch',85,false,false],
+];
+$('#lgrid').innerHTML = ASSETS.map(([img, t, b, qa, oncv, ok], i) => `<div class="acard" data-i="${i}">
+  ${img.startsWith('t:') ? `<div class="txt">“${img.slice(2)}”</div>` : `<div class="im" style="background-image:url(https://picsum.photos/seed/${img}/380/475)"></div>`}
+  <span class="cb">✓</span>${oncv?'<span class="oncv">On canvas</span>':''}
+  <div class="ft"><div><b style="font-weight:600">${t}</b><small>${b}</small></div>${qa?`<span class="qchip ${ok?'s-done':qa<70?'s-flag':'s-queue'}">${ok?'✓ ':''}${qa}</span>`:''}</div></div>`).join('');
+$('#lgrid').onclick = e => { const c = e.target.closest('.acard'); if (!c) return; c.classList.toggle('sel'); syncSel(); };
+function syncSel(){ const n = $$('.acard.sel').length; $('#selN').textContent = `${n} selected`; $('#selbar').classList.toggle('on', n > 0); $('#lib').classList.toggle('selecting', n > 0); }
+$('#selX').onclick = () => { $$('.acard.sel').forEach(c => c.classList.remove('sel')); syncSel(); };
+
+/* boot */
+render(); setTimeout(fit, 60); window.addEventListener('resize', () => { applyView(); });
+</script>
+<script src="platform-study.js"></script>
+</body>
+</html>

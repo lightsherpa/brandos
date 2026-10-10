@@ -1,0 +1,2372 @@
+[
+  {
+    "id": "jev-00-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-00-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-00-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-00-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-00-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "image",
+      "brief": "Create a warm editorial coffee package hero on limestone, no invented lettering.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-01-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-01-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-01-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-01-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "video",
+      "brief": "Studio skincare bottle with restrained reflections and beige background.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-02-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-02-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-02-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-02-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "text",
+      "brief": "Natural-light still life of seasonal vegetables for a restaurant launch.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-03-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-03-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-03-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-03-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "image",
+      "brief": "Vertical running shoe campaign image with room for headline.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-04-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-04-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-04-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-04-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "video",
+      "brief": "Calm architectural exterior at dusk with neutral materials.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-05-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-05-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-05-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-05-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "text",
+      "brief": "Editorial adult maker portrait in a pottery studio.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-06-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-06-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-06-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-06-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "image",
+      "brief": "Single clean line illustration of a reusable bottle.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-07-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-07-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-07-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-07-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "video",
+      "brief": "Edit the approved package image background to pale blue; preserve product.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-08-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-08-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-08-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-08-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "text",
+      "brief": "Coastal hotel terrace with morning sun for a quiet travel brand.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-quality",
+    "scenario": "quality",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-cost_tie",
+    "scenario": "cost_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-latency_tie",
+    "scenario": "latency_tie",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-ambiguity",
+    "scenario": "ambiguity",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-09-unavailable",
+    "scenario": "unavailable",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-missing_feature",
+    "scenario": "missing_feature",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [
+        "reference"
+      ],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-over_budget",
+    "scenario": "over_budget",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 0.1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-malformed",
+    "scenario": "malformed",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "invalid": true
+    }
+  },
+  {
+    "id": "jev-09-unknown_model",
+    "scenario": "unknown_model",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "invented/model",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-low_confidence",
+    "scenario": "low_confidence",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.5
+    }
+  },
+  {
+    "id": "jev-09-explicit_override",
+    "scenario": "explicit_override",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality",
+      "fixture/value"
+    ],
+    "acceptedRoute": "fixture/value",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/value",
+      "confidence": 0.98
+    }
+  },
+  {
+    "id": "jev-09-single_candidate",
+    "scenario": "single_candidate",
+    "requirements": {
+      "modality": "image",
+      "brief": "Folded linen clothing arranged on a warm wooden surface.",
+      "features": [],
+      "budgetUsd": 1
+    },
+    "eligibleRoutes": [
+      "fixture/quality"
+    ],
+    "acceptedRoute": "fixture/quality",
+    "labelSource": "rule-authored fixture; requires human acceptance before active rollout",
+    "response": {
+      "route": "fixture/quality",
+      "confidence": 0.98
+    }
+  }
+]

@@ -1,11 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────
 // Anthropic — direct SDK adapter for the model router.
 //
-// Why direct: Anthropic's 5-minute prompt-cache TTL is the single
-// biggest cost lever in the system (apis-and-agents-plan.md §7).
-// Routing Claude calls through OpenRouter (or any proxy) makes
-// cache_control flaky — we don't risk it. Other text models go via
-// the OpenRouter adapter; Claude stays native.
+// Direct Anthropic remains the established production baseline. OpenRouter
+// also supports Claude cache_control; gateway comparisons must measure cache
+// reads/writes on identical model versions before replacing this route.
 //
 // Surface: async generator yielding normalized events shared with
 // openrouter.js so the router can dispatch by prefix without caring
@@ -37,7 +35,7 @@ export function hasKey() {
  * @param {number} [params.maxTokens]   - max output tokens; derived from spec.cr if omitted
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ model, system, messages, maxTokens = 800 }) {
+export async function* streamCompletion({ model, system, messages, maxTokens = 800, spendOptions }) {
   if (!client) {
     yield { type: "error", message: "Server has no ANTHROPIC_API_KEY configured." };
     return;
@@ -54,10 +52,12 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
         role: m.role === "assistant" ? "assistant" : "user",
         content: String(m.content ?? ""),
       })),
-    });
+    },spendOptions?.bounded?{maxRetries:0}:undefined);
 
     for await (const ev of run) {
-      if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta") {
+      if (ev.type === "message_start" && ev.message?.id) {
+        yield {type:"receipt",id:ev.message.id};
+      } else if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta") {
         yield { type: "token", text: ev.delta.text };
       } else if (ev.type === "message_delta") {
         if (ev.delta?.stop_reason) stopReason = ev.delta.stop_reason;

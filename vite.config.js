@@ -6,6 +6,7 @@ export default defineConfig({
   server: { port: 5173 },
   build: {
     rollupOptions: {
+      input: { app: "index.html", officePreview: "office-preview.html" },
       output: {
         manualChunks(id) {
           if (id.includes("node_modules/react")) return "react-vendor";

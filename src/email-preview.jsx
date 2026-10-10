@@ -1,0 +1,9 @@
+import React,{useState,useEffect} from 'react';
+import {ActionButton} from './design-system/primitives.jsx';
+import { apiFetch } from './lib/supabase-browser.js';
+export default function EmailPreview({outputId,email}) {
+  const [width,setWidth]=useState(600),[content,setContent]=useState(email),[error,setError]=useState(null);
+  useEffect(()=>{let active=true;if(outputId)apiFetch(`/api/email-deliverables/${outputId}/preview`).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error);if(active)setContent(j);}).catch(e=>active&&setError(e.message));return()=>{active=false;};},[outputId]);
+  async function download(format){try{const r=await apiFetch(`/api/email-deliverables/${outputId}/${format}`);if(!r.ok)throw new Error((await r.json()).error);const url=URL.createObjectURL(await r.blob());const a=document.createElement('a');a.href=url;a.download=`email.${format==='manifest'?'assets.json':format==='text'?'txt':'html'}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(e){setError(e.message);}}
+  return <section aria-label="HTML email preview"><p><strong>{content?.subject}</strong><br/>{content?.preheader}</p><div className="ds-action-row"><ActionButton onClick={()=>setWidth(375)} aria-pressed={width===375}>Mobile</ActionButton><ActionButton onClick={()=>setWidth(600)} aria-pressed={width===600}>Desktop</ActionButton>{outputId&&['html','text','manifest'].map(f=><ActionButton key={f} onClick={()=>download(f)}>Export {f}</ActionButton>)}</div>{error&&<p role="alert">{error}</p>}<div style={{overflow:'auto'}}><iframe title="Email preview" sandbox="" referrerPolicy="no-referrer" srcDoc={content?.html||''} className="ds-email-frame" style={{width,maxWidth:'100%'}}/></div><small>Preview only. Gmail, Outlook and Apple Mail have not been manually verified.</small></section>;
+}

@@ -81,17 +81,38 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"] } = {}
 
   // 3. Scrape each picked page. One dead page must not kill the crawl.
   const out = [];
+  const failures=[];
   for (const link of pages) {
     try {
       const result = await scrape(link, { formats, onlyMainContent: true });
+      if(!result.markdown?.trim())throw new Error("No readable page content");
       out.push({
         url: link,
         markdown: result.markdown,
         title: result.metadata?.title,
       });
-    } catch {
-      // skip dead/blocked page
+    } catch(error) {
+      failures.push(error.message);
     }
   }
+  // One bounded homepage fallback when every mapped page failed.
+  if(!out.length){
+    try{
+      const result=await scrape(url,{formats,onlyMainContent:true});
+      if(!result.markdown?.trim())throw new Error("No readable homepage content");
+      out.push({url,markdown:result.markdown,title:result.metadata?.title});
+    }catch(error){throw new Error(`Brand retrieval failed: ${error.message}; ${failures.length} initial page failures`);}
+  }
   return out;
+}
+
+// Bounded competitive discovery; search snippets alone are never evidence.
+export async function searchCompetitiveSources(query,{limit=4}={}){
+ const key=process.env.FIRECRAWL_API_KEY;
+ if(!key)throw new Error("FIRECRAWL_API_KEY not set");
+ const res=await fetch("https://api.firecrawl.dev/v2/search",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({query,limit:Math.min(limit,4),scrapeOptions:{formats:["markdown"]}})});
+ if(!res.ok)throw new Error(`Competitive search HTTP ${res.status}`);
+ const json=await res.json();
+ if(!json.success)throw new Error("Competitive search failed");
+ return (json.data?.web || []).filter(row=>row.url&&row.markdown).slice(0,4);
 }

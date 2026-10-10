@@ -1,4 +1,11 @@
 import React from "react";
+import {BioSelfCertification} from "./bio-self-certification.jsx";
+import {watchDiscoveryBio} from "./lib/discovery-progress.js";
+import {SectionTour} from "./section-tour.jsx";
+import {validateUpload} from "../server/src/lib/ingest-guards.js";
+import "./discovery-intake.css";
+import {DiscoverySourceReferences} from "./discovery-source-references.jsx";
+import {CompetitiveRecords,BioCompetitive} from "./bio-competitive.jsx";
 import { useLocale, t as tr } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
 import { BrandolphLine } from "./portal-shared.jsx";
@@ -14,7 +21,10 @@ const SOURCE_FILE_ACCEPT = ".pdf,.doc,.docx,.txt,.md,image/*";
 function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
   const [state, setState] = useDState({ brandId: null, brandName: null, brandUrl: null, bio: null, cert: null, review: null, diff: [], reviewPending: false, focusCount: 0, error: null, loading: true });
 
+  const requestVersion = React.useRef(0);
   const tick = React.useCallback(async () => {
+    const version = ++requestVersion.current;
+    const commit = value => { if (version === requestVersion.current) setState(value); };
     try {
       /* Resolve current user's brand. Prefers the workspace switcher's
          selection (from localStorage); falls back to the first brand. RLS
@@ -26,7 +36,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
         brand = data;
       }
       if (fixedBrandId && !brand) {
-        setState((s) => ({ ...s, brandId: fixedBrandId, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
+        commit((s) => ({ ...s, brandId: fixedBrandId, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
         return;
       }
       if (!brand) {
@@ -35,11 +45,11 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
         if (bErr) throw bErr;
         brand = brands?.[0];
       }
-      if (!brand) { setState((s) => ({ ...s, brandId: null, bio: null, cert: null, loading: false, error: "No brand in workspace" })); return; }
+      if (!brand) { commit((s) => ({ ...s, brandId: null, bio: null, cert: null, loading: false, error: "No brand in workspace" })); return; }
       const res = await apiFetch(`/api/bios/${brand.id}`);
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        setState({ brandId: brand.id, brandName: brand.name, brandUrl: brand.url, bio: null, cert: null, review: null, diff: [], focusCount: 0, loading: false, error: j.error || `HTTP ${res.status}` });
+        commit({ brandId: brand.id, brandName: brand.name, brandUrl: brand.url, bio: null, cert: null, review: null, diff: [], focusCount: 0, loading: false, error: j.error || `HTTP ${res.status}` });
         return;
       }
       const { bio, reviewPending, focusCount, review, diff } = await res.json();
@@ -52,18 +62,24 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
         }
         certInfo = { byName: certName, at: bio.certified_at, notes: bio.steward_notes || null };
       }
-      setState({ brandId: brand.id, brandName: brand.name, brandUrl: brand.url, bio, cert: certInfo, review: review || null, diff: Array.isArray(diff) ? diff : [], reviewPending: !!reviewPending, focusCount: Number(focusCount) || 0, loading: false, error: null });
+      commit({ brandId: brand.id, brandName: brand.name, brandUrl: brand.url, bio, cert: certInfo, review: review || null, diff: Array.isArray(diff) ? diff : [], reviewPending: !!reviewPending, focusCount: Number(focusCount) || 0, loading: false, error: null });
     } catch (e) {
-      setState((s) => ({ ...s, loading: false, error: e?.message || String(e) }));
+      commit((s) => ({ ...s, loading: false, error: e?.message || String(e) }));
     }
   }, [fixedBrandId]);
 
   useDEffect(() => {
     let alive = true;
-    tick();
+    const changed = () => {
+      ++requestVersion.current;
+      setState({ brandId: fixedBrandId || window.getCurrentBrandId?.() || null, brandName: null, brandUrl: null, bio: null, cert: null, review: null, diff: [], reviewPending: false, focusCount: 0, error: null, loading: true });
+      tick();
+    };
+    changed();
+    if (!fixedBrandId) window.addEventListener("brand:changed", changed);
     const interval = setInterval(() => { if (alive) tick(); }, pollMs);
-    return () => { alive = false; clearInterval(interval); };
-  }, [tick, pollMs]);
+    return () => { alive = false; ++requestVersion.current; clearInterval(interval); window.removeEventListener("brand:changed", changed); };
+  }, [tick, pollMs, fixedBrandId]);
 
   return { ...state, refresh: tick };
 }
@@ -85,36 +101,7 @@ function DiscoveryStepper({ step }) {
     { n:"02", label:t("discovery.stepper.extract") },
     { n:"03", label:t("discovery.stepper.confirm") },
   ];
-  return (
-    <div style={{display:"flex", alignItems:"center", gap: 12}}>
-      {steps.map((s, i) => {
-        const isActive = i + 1 === step;
-        const isDone = i + 1 < step;
-        return (
-          <React.Fragment key={s.n}>
-            <div style={{display:"flex", alignItems:"center", gap: 10}}>
-              <span style={{
-                width: 26, height: 26, borderRadius:"50%",
-                background: isActive ? "var(--yellow-500)" : isDone ? "var(--green-500)" : "transparent",
-                color: isActive ? "var(--c-ink)" : isDone ? "#fff" : "var(--c-faint)",
-                border: isActive || isDone ? "none" : "1.5px solid var(--c-line-2)",
-                display:"inline-flex", alignItems:"center", justifyContent:"center",
-                fontFamily:"var(--font-mono)", fontSize:11, fontWeight:600,
-              }}>
-                {isDone ? <Icon name="check" size={12} /> : s.n}
-              </span>
-              <span style={{
-                fontSize: 13, fontWeight: isActive ? 500 : 400,
-                color: isActive ? "var(--c-ink)" : isDone ? "var(--c-dim)" : "var(--c-faint)",
-              }}>{s.label}</span>
-            </div>
-            {i < 2 && <span style={{height: 1, flex: "0 0 60px", background: isDone ? "var(--green-300)" : "var(--c-line-2)"}} />}
-          </React.Fragment>
-        );
-      })}
-      <a href="#/home" className="btn btn--link" style={{marginLeft:"auto", fontSize:12}}>{t("discovery.stepper.skip")}</a>
-    </div>
-  );
+  return <nav className="discovery-stepper" aria-label={t("title.discovery")}><ol>{steps.map((item,i)=><li key={item.n} className={i+1===step?"is-active":i+1<step?"is-complete":""} aria-current={i+1===step?"step":undefined}><span>{i+1<step?<Icon name="check" size={12}/>:item.n}</span>{item.label}</li>)}</ol><a href="#/home">{t("discovery.stepper.skip")}</a></nav>;
 }
 
 /* Three-bucket source intake drop zone (rev-2 §5.3) — labelled per bucket
@@ -127,63 +114,24 @@ const BUCKETS = [
   { key:"voice" },
 ];
 
-function BucketDropZone({ bucket, files, onAdd, onRemove }) {
+const fileKey=(bucket,purpose,file)=>`${bucket}:${purpose}:${file.name}:${file.size}:${file.lastModified}`;
+
+function BucketDropZone({ bucket, files, onAdd, onRemove, statuses = {}, purpose }) {
   const { t } = useLocale();
   const [over, setOver] = useDState(false);
   const inputRef = React.useRef(null);
-  const onDrop = (e) => {
-    e.preventDefault(); setOver(false);
-    onAdd(Array.from(e.dataTransfer.files));
-  };
-  return (
-    <div
-      onDragOver={(e) => { e.preventDefault(); setOver(true); }}
-      onDragLeave={() => setOver(false)}
-      onDrop={onDrop}
-      onClick={() => inputRef.current && inputRef.current.click()}
-      style={{
-        border: over ? "1.5px dashed var(--yellow-500)" : "1.5px dashed var(--c-line-2)",
-        background: over ? "var(--yellow-50, rgba(252,211,77,0.08))" : "var(--c-bg)",
-        borderRadius: 12, padding: "16px 18px", cursor:"pointer",
-        transition: "border-color 120ms ease, background 120ms ease",
-      }}
-    >
-      <input
-        ref={inputRef} type="file" multiple
-        style={{display:"none"}}
-        onChange={(e) => { onAdd(Array.from(e.target.files || [])); e.target.value = ""; }}
-      />
-      <div style={{display:"flex", alignItems:"baseline", justifyContent:"space-between", gap:12, marginBottom:4}}>
-        <div style={{fontSize:13.5, fontWeight:600, color:"var(--c-ink)"}}>{t("discovery.bucket." + bucket.key + ".label")}</div>
-        <span className="eyebrow" style={{color:"var(--c-faint)"}}>{t("discovery.bucket." + bucket.key + ".readBy")}</span>
-      </div>
-      <div style={{fontSize:12, color:"var(--c-dim)", lineHeight:1.45, marginBottom: files.length ? 10 : 4}}>
-        {t("discovery.bucket." + bucket.key + ".help")}
-        {bucket.key === "visual" && <> Visual files are stored for Steward review; automated extraction currently reads the website only.</>}
-      </div>
-      {files.length > 0 && (
-        <div style={{display:"flex", flexWrap:"wrap", gap:6, marginTop: 8}}>
-          {files.map((f, i) => (
-            <span key={i} className="pill" style={{
-              display:"inline-flex", alignItems:"center", gap:6,
-              background:"var(--neutral-50)", color:"var(--c-ink)",
-              padding:"4px 6px 4px 10px", fontSize:11.5,
-            }}>
-              <span style={{maxWidth:160, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{f.name}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); onRemove(i); }}
-                aria-label={t("discovery.removeFile", { name: f.name })}
-                style={{border:"none", background:"transparent", cursor:"pointer", color:"var(--c-faint)", padding:"0 4px", lineHeight:1}}
-              >×</button>
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return <div className={`discovery-upload${over ? " is-over" : ""}`}
+    onDragOver={e=>{e.preventDefault();setOver(true);}}
+    onDragLeave={()=>setOver(false)} onDrop={e=>{e.preventDefault();setOver(false);onAdd(Array.from(e.dataTransfer.files));}}>
+    <input ref={inputRef} type="file" accept={SOURCE_FILE_ACCEPT} multiple hidden
+      onChange={e=>{onAdd(Array.from(e.target.files||[]));e.target.value="";}}/>
+    <div className="discovery-upload-line"><span>{t("discovery.bucket."+bucket.key+".help")}</span>
+      <button type="button" className="discovery-text-action" onClick={()=>inputRef.current?.click()}>{t("discovery.intake.browse")}</button></div>
+    {files.length>0&&<ul className="discovery-file-list">{files.map((file,i)=><li key={i}><span>{file.name}{statuses[fileKey(bucket.key,purpose,file)]&&<span className={`discovery-file-status ${statuses[fileKey(bucket.key,purpose,file)].state}`} role={statuses[fileKey(bucket.key,purpose,file)].state==="error"?"alert":"status"}>{statuses[fileKey(bucket.key,purpose,file)].message}</span>}</span><small>{Math.ceil(file.size/1024)} KB</small><button type="button" className="discovery-icon-action" onClick={()=>onRemove(i)} aria-label={t("discovery.removeFile",{name:file.name})}>×</button></li>)}</ul>}
+  </div>;
 }
 
-function DiscoveryStep1({ onNext, newBrand = false }) {
+function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
   const { t } = useLocale();
   /* Three-bucket source state (rev-2 §5.3). Empty arrays on mount.
      `Start extraction` fires the compile-bio Inngest event via
@@ -192,21 +140,32 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
   const [brandName, setBrandName] = useDState("");
   const [url, setUrl] = useDState("");
   const [instagram, setInstagram] = useDState("");
+  const generated=useLiveBio({pollMs:10000});
+  const [references, setReferences] = useDState([]);
+  const [sourcePurposes,setSourcePurposes]=useDState({foundations:"current",visual:"current",voice:"current"});
   const [busy, setBusy] = useDState(false);
   const [error, setError] = useDState(null);
+  const [fileStatuses,setFileStatuses]=useDState({});
   const [uploading, setUploading] = useDState(false);
   const [createdBrandId, setCreatedBrandId] = useDState(null);
   const uploadedFilesRef = React.useRef(new Set());
-  const addToBucket = (key) => (newFiles) =>
+  const addToBucket = (key) => (newFiles) => {
+    const errors={};
+    for(const file of newFiles){const checked=validateUpload({mime:file.type,size:file.size,filename:file.name});if(!checked.ok)errors[fileKey(key,sourcePurposes[key],file)]={state:"error",message:checked.message};}
+    setFileStatuses(prev=>({...prev,...errors}));
     setUploadsByBucket(prev => ({ ...prev, [key]: [...prev[key], ...newFiles] }));
+  };
   const removeFromBucket = (key) => (idx) =>
     setUploadsByBucket(prev => ({ ...prev, [key]: prev[key].filter((_, i) => i !== idx) }));
   const handleStart = async () => {
     if (newBrand && !brandName.trim()) { setError(t("discovery.step1.brandNameRequired")); return; }
+    const invalid={};
+    for(const bucket of BUCKETS)for(const file of uploadsByBucket[bucket.key]){const result=validateUpload({mime:file.type,size:file.size,filename:file.name});if(!result.ok)invalid[fileKey(bucket.key,sourcePurposes[bucket.key],file)]={state:"error",message:result.message};}
+    if(Object.keys(invalid).length){setFileStatuses(prev=>({...prev,...invalid}));return;}
     setBusy(true); setError(null);
     try {
       const cleaned = url.trim().replace(/^https?:\/\//i, "");
-      const targetUrl = cleaned.startsWith("http") ? cleaned : `https://${cleaned}`;
+      const targetUrl = cleaned ? `https://${cleaned}` : undefined;
       /* New-brand mode: create the brand first, then run the same
          discovery flow targeting it. Existing onboarding (newBrand=false)
          skips this block entirely and behaves exactly as before. */
@@ -250,12 +209,16 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
       );
       if (brandId && filesToUpload.length) {
         setUploading(true);
+        let failedUpload=false;
         for (const item of filesToUpload) {
-          const uploadKey = `${item.bucket}:${item.file.name}:${item.file.size}:${item.file.lastModified}`;
+          const uploadKey = fileKey(item.bucket,sourcePurposes[item.bucket],item.file);
           if (uploadedFilesRef.current.has(uploadKey)) continue;
           const form = new FormData();
           form.set("bucket", item.bucket);
+          form.set("purpose", sourcePurposes[item.bucket]);
           form.set("file", item.file);
+          setFileStatuses(prev=>({...prev,[uploadKey]:{state:"uploading",message:t("discovery.upload.uploading")}}));
+          try {
           const up = await apiFetch(`/api/bios/${brandId}/sources/upload`, {
             method: "POST",
             body: form,
@@ -265,11 +228,15 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
             throw new Error(`Upload failed for ${item.file.name}: ${err.error || `HTTP ${up.status}`}`);
           }
           uploadedFilesRef.current.add(uploadKey);
+          setFileStatuses(prev=>({...prev,[uploadKey]:{state:"uploaded",message:t("discovery.upload.uploaded")}}));
+          }catch(uploadError){failedUpload=true;setFileStatuses(prev=>({...prev,[uploadKey]:{state:"error",message:uploadError?.message||t("discovery.upload.failed")}}));}
+
         }
+        if(failedUpload)return;
       }
       const res = await apiFetch("/api/discovery/start", {
         method: "POST",
-        body: JSON.stringify({ url: targetUrl, instagram, brandId }),
+        body: JSON.stringify({ url: targetUrl, instagram, brandId, references }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
@@ -289,104 +256,51 @@ function DiscoveryStep1({ onNext, newBrand = false }) {
   };
   const totalFiles = BUCKETS.reduce((a, b) => a + uploadsByBucket[b.key].length, 0);
 
-  return (
-    <div style={{maxWidth: 580, margin:"40px auto 0"}}>
-      <Reveal>
-        <h1 style={{
-          fontFamily:"Georgia, serif", fontStyle:"italic",
-          fontSize: 38, letterSpacing:"-0.01em", lineHeight: 1.15,
-          margin:0, marginBottom: 14, color:"var(--c-ink)",
-        }}>
-          <em style={{background:"var(--yellow-200)", padding:"0 4px", fontStyle:"normal", fontWeight:500}}>
-            {newBrand ? t("discovery.step1.titleAddEm") : t("discovery.step1.titlePointEm")}
-          </em>
-          {" "}{newBrand ? t("discovery.step1.titleAddRest") : t("discovery.step1.titlePointRest")}
-        </h1>
-        <p style={{fontSize: 16, color:"var(--c-dim)", lineHeight: 1.55, marginBottom: 30}}>
-          {t("discovery.step1.lead")}
-        </p>
-      </Reveal>
-
-      <Reveal delay={150}>
-        <div className="card" style={{padding: 28}}>
-          <div style={{display:"flex", flexDirection:"column", gap: 18}}>
-            {newBrand && (
-              <div>
-                <label style={{display:"block", fontSize:12, fontWeight:500, color:"var(--c-ink)", marginBottom: 8}}>
-                  {t("discovery.step1.brandNameLabel")} <span style={{color:"var(--pink-500)"}}>·</span>
-                </label>
-                <input className="input" value={brandName} disabled={!!createdBrandId} onChange={(e) => setBrandName(e.target.value)} placeholder="e.g. North Star Studio" />
-                {createdBrandId && <div style={{fontSize:11.5, color:"var(--c-faint)", marginTop:6}}>Brand created. Retrying will reuse this brand and any sources already uploaded.</div>}
-              </div>
-            )}
-            <div>
-              <label style={{display:"block", fontSize:12, fontWeight:500, color:"var(--c-ink)", marginBottom: 8}}>
-                {t("discovery.step1.urlLabel")} <span style={{color:"var(--pink-500)"}}>·</span>
-              </label>
-              <input className="input" value={url} onChange={(e) => setUrl(e.target.value)} placeholder={t("discovery.step1.urlPlaceholder")} />
-            </div>
-            <div>
-              <label style={{display:"block", fontSize:12, fontWeight:500, color:"var(--c-ink)", marginBottom: 8}}>
-                {t("discovery.step1.igLabel")} <span style={{color:"var(--c-faint)", fontWeight:400}}>{t("discovery.step1.igOptional")}</span>
-              </label>
-              <input className="input" value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder={t("discovery.step1.igPlaceholder")} />
-            </div>
-
-            <div>
-              <label style={{display:"block", fontSize:12, fontWeight:500, color:"var(--c-ink)", marginBottom: 8}}>
-                {t("discovery.step1.sourcesLabel")} <span style={{color:"var(--c-faint)", fontWeight:400}}>{t("discovery.step1.sourcesOptional")}</span>
-              </label>
-              <div style={{display:"flex", flexDirection:"column", gap: 10}}>
-                {BUCKETS.map(b => (
-                  <BucketDropZone
-                    key={b.key}
-                    bucket={b}
-                    files={uploadsByBucket[b.key]}
-                    onAdd={addToBucket(b.key)}
-                    onRemove={removeFromBucket(b.key)}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div style={{
-            marginTop: 22, paddingTop: 18,
-            borderTop:"1px dashed var(--c-line-2)",
-            display:"flex", justifyContent:"space-between", alignItems:"center",
-          }}>
-            <div style={{display:"flex", gap: 14, alignItems:"center"}}>
-              <span style={{fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-faint)"}}>
-                {t("discovery.step1.timing")}{totalFiles > 0 ? t("discovery.step1.filesReady", { count: totalFiles }) : ""}
-              </span>
-            </div>
-            <button className="btn btn--primary" onClick={handleStart} disabled={busy || !url.trim() || (newBrand && !brandName.trim())}>
-              {uploading ? t("discovery.step1.uploading") : busy ? t("discovery.step1.starting") : <>{t("discovery.step1.startExtraction")} <Icon name="arrow" size={14} /></>}
-            </button>
-          </div>
-          {error && (
-            <div style={{marginTop: 12, padding: "8px 12px", background: "var(--pink-50, rgba(244,143,177,0.12))", color: "var(--pink-700, var(--pink-500))", borderRadius: 8, fontSize: 12}}>
-              {error}
-            </div>
-          )}
+  const referenceCount=references.filter(row=>row.url.trim()).length;
+  const sourceCount=(url.trim()?1:0)+referenceCount+totalFiles;
+  return <div className="discovery-intake">
+    <SectionTour scope="discovery-intake" steps={[
+      {target:"#discovery-brand-heading",title:t("discovery.tour.brandTitle"),text:t("discovery.tour.brandText")},
+      {target:"#discovery-reference-heading",title:t("discovery.tour.referencesTitle"),text:t("discovery.tour.referencesText")},
+      {target:".discovery-documents>details",title:t("discovery.tour.filesTitle"),text:t("discovery.tour.filesText")},
+      {target:".discovery-intake-footer",title:t("discovery.tour.generateTitle"),text:t("discovery.tour.generateText")},
+    ]}/>
+    <header className="discovery-intake-heading"><span className="discovery-kicker">{t("discovery.intake.kicker")}</span>
+      <h1>{t("discovery.intake.title")}</h1><p>{t("discovery.intake.lead")}</p></header>
+    <div className="discovery-intake-layout"><div className="discovery-intake-main">
+      <section className="discovery-intake-section" aria-labelledby="discovery-brand-heading">
+        <div className="discovery-section-heading"><span className="discovery-section-number">01</span><div><h2 id="discovery-brand-heading">{t("discovery.intake.brand")}</h2><p>{t("discovery.intake.brandHelp")}</p></div></div>
+        <div className="discovery-brand-fields">
+          {newBrand&&<label htmlFor="discovery-brand-name">{t("discovery.step1.brandNameLabel")}<input id="discovery-brand-name" value={brandName} disabled={!!createdBrandId} onChange={e=>setBrandName(e.target.value)} placeholder={t("discovery.intake.namePlaceholder")}/></label>}
+          <label htmlFor="discovery-brand-url">{t("discovery.step1.urlLabel")}<input id="discovery-brand-url" value={url} onChange={e=>setUrl(e.target.value)} placeholder={t("discovery.step1.urlPlaceholder")}/></label>
         </div>
-      </Reveal>
-
-      <div style={{display:"flex", gap: 18, justifyContent:"center", marginTop: 22}}>
-        <button className="btn btn--link" style={{fontSize: 12}}>{t("discovery.step1.fromScratch")}</button>
-        <span style={{color:"var(--c-line-2)"}}>·</span>
-        <button className="btn btn--link" style={{fontSize: 12}}>{t("discovery.step1.clone")}</button>
-      </div>
-    </div>
-  );
+        {createdBrandId&&<p className="discovery-helper">{t("discovery.intake.retryHelp")}</p>}
+        <details className="discovery-social"><summary>{t("discovery.intake.social")}</summary><label htmlFor="discovery-instagram">{t("discovery.step1.igLabel")}<input id="discovery-instagram" value={instagram} onChange={e=>setInstagram(e.target.value)} placeholder={t("discovery.step1.igPlaceholder")}/></label><p className="discovery-helper">{t("discovery.intake.socialHelp")}</p></details>
+      </section>
+      <DiscoverySourceReferences items={references} onChange={setReferences}/>
+      <section className="discovery-intake-section discovery-documents">
+        <details open={totalFiles>0?true:undefined}><summary><span className="discovery-section-number">03</span><span>{t("discovery.intake.documents")}</span><small>{totalFiles?t("discovery.intake.fileCount",{count:totalFiles}):t("discovery.intake.optional")}</small></summary>
+          <p className="discovery-helper">{t("discovery.intake.documentsHelp")}</p>
+          {BUCKETS.map(bucket=><div className="discovery-file-group" key={bucket.key}><div className="discovery-file-group-heading"><h3>{t("discovery.bucket."+bucket.key+".label")}</h3><label><span className="sr-only">{t("discovery.sourcesIntake.filePurpose",{bucket:t("discovery.bucket."+bucket.key+".label")})}</span><select value={sourcePurposes[bucket.key]} onChange={e=>setSourcePurposes(prev=>({...prev,[bucket.key]:e.target.value}))}>{["current","aspiration"].map(key=><option key={key} value={key}>{t("discovery.sourcesIntake."+key)}</option>)}</select></label></div>
+            <BucketDropZone bucket={bucket} statuses={fileStatuses} purpose={sourcePurposes[bucket.key]} files={uploadsByBucket[bucket.key]} onAdd={addToBucket(bucket.key)} onRemove={removeFromBucket(bucket.key)}/>
+          </div>)}
+          <p className="discovery-helper">{t("discovery.intake.visualLimit")}</p>
+        </details>
+      </section>
+      <footer className="discovery-intake-footer"><p>{t("discovery.intake.reviewHelp")}</p><button className="btn btn--primary" onClick={handleStart} disabled={busy||(!url.trim()&&!totalFiles&&!referenceCount)||(newBrand&&!brandName.trim())}>{uploading?t("discovery.step1.uploading"):busy?t("discovery.step1.starting"):t("discovery.step1.startExtraction")}<Icon name="arrow" size={14}/></button></footer>
+      {error&&<div className="discovery-intake-error" role="alert">{error}</div>}
+      {!newBrand&&generated.bio?.discovery_id&&<button className="discovery-text-action" onClick={()=>onReview({brandId:generated.brandId,baselineVersion:generated.bio.version})}>{t("discovery.sourcesIntake.resumeReview")}</button>}
+    </div><aside className="discovery-intake-aside" aria-label={t("discovery.intake.summary")}>
+      <div className="discovery-source-summary"><span className="discovery-kicker">{t("discovery.intake.summary")}</span><strong>{String(sourceCount).padStart(2,"0")}</strong><span>{t("discovery.intake.sourceCount",{count:sourceCount})}</span></div>
+      <h2>{t("discovery.intake.outputTitle")}</h2><ul><li>{t("discovery.intake.outputBrand")}</li><li>{t("discovery.intake.outputVisual")}</li><li>{t("discovery.intake.outputMarket")}</li></ul>
+      <div className="discovery-intent-guide"><h3>{t("discovery.sourcesIntake.current")}</h3><p>{t("discovery.intake.currentHelp")}</p><h3>{t("discovery.sourcesIntake.aspiration")}</h3><p>{t("discovery.intake.aspirationHelp")}</p></div>
+      {import.meta.env.VITE_DISCOVERY_TEST_ROUTE==="haiku-sonnet"&&<details className="discovery-test-details"><summary>{t("discovery.intake.testDetails")}</summary><p>Haiku 5.5 → Sonnet 5.5<br/>Gemini 3.8 Flash · {t("discovery.intake.visualRead")}</p><p>{t("discovery.intake.visualLimit")}</p></details>}
+    </aside></div>
+  </div>;
 }
 
 function DiscoveryStep2Running({ onDone, onExit, runContext }) {
-  /* Real BIO-compile polling. Captures the current latest BIO version
-     on mount; polls /api/bios/:brandId every 3s until a new (higher)
-     version appears — that's the Inngest compile-bio function finishing.
-     Falls back to onDone after 90s if the worker doesn't return so the
-     UI doesn't hang forever. */
+  /* Keep checking the correlated BIO until it completes or this view unmounts. */
   const { t } = useLocale();
   const [stage, setStage] = useDState("scrape");                /* scrape → vision → compile → done */
   const [elapsed, setElapsed] = useDState(0);
@@ -394,71 +308,44 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
   const [retryNonce, setRetryNonce] = useDState(0);
 
   const lines = [
-    { state: stage === "scrape" ? "running" : "ok", text: t("discovery.step2.reading1") },
-    { state: stage === "scrape" ? "queued" : stage === "vision" ? "running" : "ok", text: t("discovery.step2.reading2") },
-    { state: ["scrape","vision"].includes(stage) ? "queued" : stage === "compile" ? "running" : "ok", text: t("discovery.step2.reading3") },
+    { state: stage === "done" ? "ok" : "running", text: t("discovery.step2.reading1") },
+    { state: stage === "done" ? "ok" : "queued", text: t("discovery.step2.reading2") },
+    { state: stage === "done" ? "ok" : "queued", text: t("discovery.step2.reading3") },
     { state: stage === "done" ? "ok" : "queued", text: t("discovery.step2.reading4") },
   ];
 
   useDEffect(() => {
-    let alive = true;
-    const discoveryId = runContext?.discoveryId;
     const startedAt = Date.now();
     setError(null);
     setElapsed(0);
     setStage("scrape");
-
-    const tick = async () => {
-      if (!alive) return;
-      setElapsed(Math.floor((Date.now() - startedAt) / 1000));
-      /* Crude stage progression based on elapsed time — real status
-         tracking would require Inngest's GraphQL API. For visual
-         feedback only; truth is "did a new bios row appear?" */
-      const sec = (Date.now() - startedAt) / 1000;
-      if (sec < 6) setStage("scrape");
-      else if (sec < 12) setStage("vision");
-      else setStage("compile");
-
-      try {
-        const brandId = runContext?.brandId;
-        if (!brandId) return;
-        const res = await apiFetch(`/api/bios/${brandId}`);
-        if (!res.ok) return;
-        const { bio } = await res.json();
-        if (discoveryId && bio?.discovery_id === discoveryId) {
-          setStage("done");
-          alive = false;                 /* stop further polling */
-          clearTimeout(fallback);        /* the 90s safety net is no longer needed */
-          /* Brief beat so the user sees "done", then advance to Confirm.
-             Fire onDone UNCONDITIONALLY — do NOT gate on `alive`, which we
-             just set false. Gating here was the freeze bug: a new BIO landing
-             before the 90s fallback set alive=false, which then blocked BOTH
-             this transition and the fallback → the flow stuck on "done". */
-          setTimeout(onDone, 400);
-        }
-      } catch (e) { /* network blip — keep polling */ }
-    };
-
-    tick();
-    const id = setInterval(tick, 3000);
-    /* A timeout is a recoverable error, never a successful extraction. */
-    const fallback = setTimeout(() => {
-      if (alive) {
-        alive = false;
-        clearInterval(id);
-        setError("We haven't confirmed this extraction yet. It may still finish in the background; check again or open the BIO without activating this run.");
-      }
-    }, 90000);
-    return () => { alive = false; clearInterval(id); clearTimeout(fallback); };
+    let completionTimer;
+    const stop = watchDiscoveryBio({
+      discoveryId: runContext?.discoveryId,
+      read: async () => {
+        setElapsed(Math.floor((Date.now() - startedAt) / 1000));
+        const res = await apiFetch(`/api/bios/${runContext?.brandId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const {bio} = await res.json();
+        return bio;
+      },
+      onStatus: failed => setError(failed ? t("discovery.running.reconnecting") : null),
+      onComplete: () => {
+        setStage("done");
+        completionTimer = setTimeout(onDone, 400);
+      },
+    });
+    return () => { stop(); clearTimeout(completionTimer); };
   }, [onDone, retryNonce, runContext?.brandId, runContext?.discoveryId]);
 
-  const pct = Math.min(95, Math.round(elapsed * 4));            /* visual progress only */
+  const slow=elapsed>=120;
   return (
     <div style={{maxWidth: 760, margin:"40px auto 0"}}>
       <div style={{display:"flex", alignItems:"center", gap: 12, marginBottom: 18}}>
         <BrandolphDot state={stage === "done" ? "ok" : "thinking"} size={12} />
         <h2 style={{margin: 0, fontSize: 20}}>{stage === "done" ? t("discovery.step2.compiledTitle") : t("discovery.step2.readingTitle")}</h2>
       </div>
+      {slow&&!error&&stage!=="done"&&<p role="status">{t("discovery.running.slow")}</p>}
       {error && <div className="card" style={{padding:14, marginBottom:14, borderColor:"var(--pink-500)"}}>
         <div style={{color:"var(--pink-600)", marginBottom:10}}>{error}</div>
         <div style={{display:"flex", gap:8}}>
@@ -469,11 +356,11 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
       <div className="card" style={{padding: 0, overflow:"hidden"}}>
         <div style={{padding:"16px 20px", borderBottom:"1px solid var(--c-line)", background:"var(--c-bg)"}}>
           <div style={{display:"flex", justifyContent:"space-between", fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-dim)", letterSpacing:"0.06em"}}>
-            <span>{t("discovery.step2.extraction")} · <span style={{color: stage === "done" ? "var(--green-600)" : "var(--yellow-700)"}}>{stage === "done" ? "100%" : pct + "%"}</span></span>
+            <span>{t("discovery.step2.extraction")} · <span style={{color: stage === "done" ? "var(--green-600)" : "var(--yellow-700)"}}>{stage === "done" ? "100%" : t("discovery.running.processing")}</span></span>
             <span>{t("discovery.step2.elapsed", { sec: elapsed })}</span>
           </div>
           <div style={{height: 4, background:"var(--neutral-50)", borderRadius:999, marginTop: 10, overflow:"hidden"}}>
-            <div style={{height:"100%", width: (stage === "done" ? 100 : pct) + "%", background: stage === "done" ? "var(--green-500)" : "var(--yellow-500)", borderRadius:999, transition:"width 800ms ease"}} />
+            <div className={stage==="done"?"":"discovery-progress-indeterminate"} style={{height:"100%", width: (stage === "done" ? 100 : 35) + "%", background: stage === "done" ? "var(--green-500)" : "var(--yellow-500)", borderRadius:999, transition:"width 800ms ease"}} />
           </div>
         </div>
         <div style={{padding: "18px 22px", borderLeft: "3px solid var(--yellow-500)", display:"flex", flexDirection:"column", gap: 10}} className="stream">
@@ -520,6 +407,13 @@ const DISCO_CHAPTERS = [
     { key:"tertiary",  area:true },
     { key:"jtbd",      multi:true },
   ]},
+  { key:"positioning", fields:[
+    { key:"frameOfReference", area:true },
+    { key:"competitors", list:"competitors" },
+    { key:"pointsOfDifference", list:"differences" },
+    { key:"pointsOfParity", multi:true },
+    { key:"researchGaps", multi:true },
+  ]},
   { key:"voice", fields:[
     { key:"register",   area:true },
     { key:"rhythm",     area:true },
@@ -552,7 +446,7 @@ const fieldLabel = (chapterKey, f) => tr("discovery.field." + chapterKey + "." +
 
 function discoBlank(v) {
   if (v == null) return true;
-  if (Array.isArray(v)) return v.length === 0;
+  if (Array.isArray(v)) return !v.some(item => typeof item === "string" ? item.trim() : item && typeof item === "object" && Object.entries(item).some(([key,val])=> !["id","type"].includes(key) && typeof val === "string" && val.trim()));
   if (typeof v === "string") return v.trim() === "";
   return false;
 }
@@ -565,7 +459,7 @@ function discoFieldStatus({ value, meta, mark }) {
   if (mark === "accurate")     return { kind:"accurate",     color:"var(--green-600)" };
   if (mark === "aspirational") return { kind:"aspirational", color:"var(--purple-500)" };
   if (meta && meta.source)     return { kind:"inferred",     color:"var(--orange-600)" };
-  return { kind:"stated", color:"var(--green-600)" };
+  return { kind:"review", color:"var(--orange-600)" };
 }
 
 /* Section roll-up for the Draft Hub cards + attest summary. */
@@ -579,7 +473,7 @@ function discoAnalyzeSection(chapter, draft, confMap, attested) {
       mark: attested[`${chapter.key}.${f.key}`],
     });
     if (st.kind === "missing") gaps++;
-    else if (st.kind === "inferred") toConfirm++;
+    else if (["inferred", "review"].includes(st.kind)) toConfirm++;
     else confirmed++;
   }
   const total = chapter.fields.length;
@@ -672,6 +566,7 @@ function DiscoFieldRow({ field, chapterKey, value, meta, mark, onChange, onMark,
   const blank = st.kind === "missing";
 
   const renderValue = () => {
+    if (["competitors","differences"].includes(field.list)) return <CompetitiveRecords kind={field.list} items={value || []} />;
     if (field.list === "palette") return <DiscoPaletteView items={value || []} />;
     if (field.list === "type") return <DiscoTypeView items={value || []} />;
     if (field.multi) return <div style={{display:"flex", flexWrap:"wrap", gap:6}}>{(value || []).map((v, i) => <span key={i} className="pill">{v}</span>)}</div>;
@@ -679,6 +574,7 @@ function DiscoFieldRow({ field, chapterKey, value, meta, mark, onChange, onMark,
   };
 
   const renderEditor = () => {
+    if (["competitors","differences"].includes(field.list)) return <CompetitiveRecords kind={field.list} items={value || []} editing onChange={onChange} />;
     if (field.list === "palette") return <DiscoPaletteEdit items={value || []} onChange={onChange} />;
     if (field.list === "type") return <DiscoTypeEdit items={value || []} onChange={onChange} />;
     if (field.multi) return <ChipEditor items={value || []} onChange={onChange} />;
@@ -852,7 +748,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
 
   /* ── Debounced autosave ─────────────────────────────────────────── */
   const saveSession = React.useCallback(async () => {
-    if (!brandId || !hydratedRef.current) return;
+    if (!brandId || !hydratedRef.current) return false;
     setSaveState("saving");
     try {
       const res = await apiFetch(`/api/discovery/session/${brandId}`, {
@@ -866,8 +762,10 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSaveState("saved");
+      return true;
     } catch (e) {
       setSaveState("error");
+      return false;
     }
   }, [brandId]);
 
@@ -880,6 +778,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
   /* ── Field mutations (each bump schedules an autosave) ───────────── */
   const setFieldValue = (section, fkey, value) => {
     setDraft(d => ({ ...d, [section]: { ...(d[section] || {}), [fkey]: value } }));
+    setAttested(a => { const next={...a}; delete next[`${section}.${fkey}`]; return next; });
     bump();
   };
   const setMark = (section, fkey, mark) => {
@@ -900,13 +799,13 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
     setView("hub"); setCursor("hub"); bump();
   };
   const openAttest = () => { setView("attest"); setCursor("attest"); bump(); };
-  const saveAndExit = async () => { await saveSession(); flash(t("discovery.results.savedExit")); setTimeout(() => { window.location.hash = "#/home"; }, 700); };
+  const saveAndExit = async () => { if (!(await saveSession())) return; flash(t("discovery.results.savedExit")); setTimeout(() => { window.location.hash = "#/home"; }, 700); };
 
   /* ── Attest → promote draft to a certified BIO version ──────────── */
   const submitAttest = async () => {
     if (attestBusy || !brandId) return;
     setAttestBusy(true); setAttestErr(null);
-    await saveSession();                          // flush latest draft + marks first
+    if (!(await saveSession())) { setAttestErr(t("discovery.results.saveError")); setAttestBusy(false); return; }
     try {
       const res = await apiFetch(`/api/discovery/session/${brandId}/attest`, {
         method: "POST",
@@ -929,7 +828,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
     total: acc.total + a.total,
   }), { confirmed:0, toConfirm:0, gaps:0, total:0 });
 
-  const score = live.bio?.score ?? (totals.total ? Math.round(100 * totals.confirmed / totals.total) : 0);
+  const score = totals.total ? Math.round(100 * totals.confirmed / totals.total) : 0;
   const tone = score >= 85
     ? { color:"var(--green-600)", word:t("discovery.completion.well") }
     : score >= 65
@@ -948,7 +847,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
         meta: confMap[`${ch.key}.${f.key}`],
         mark: attested[`${ch.key}.${f.key}`],
       });
-      if (st.kind === "missing" || st.kind === "inferred") flaggedFields.push({ ch, f, st });
+      if (st.kind === "missing" || ["inferred", "review"].includes(st.kind)) flaggedFields.push({ ch, f, st });
     });
   });
   const allChecked = statements.authority && statements.reflects && statements.aspirationalMarked;
@@ -958,6 +857,10 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
 
   return (
     <div style={{maxWidth: 1080, margin:"24px auto 0"}}>
+      {!showLoader&&!noBrand&&<SectionTour key={view==="chapter"?activeChapter:view} scope={`discovery-review-${view==="chapter"?activeChapter:view}`} steps={[
+        {title:view==="chapter"?t("discovery.chapter."+activeChapter+".label"):t("discovery.tour.reviewTitle"),text:view==="chapter"?t("discovery.chapter."+activeChapter+".blurb")+" "+t("discovery.tour.chapterText"):t("discovery.tour.reviewText")},
+        {title:t("discovery.tour.confirmTitle"),text:t("discovery.tour.confirmText")},
+      ]}/>}
       {/* Utility row — save state + resume-anytime exit (on every screen) */}
       <div style={{display:"flex", justifyContent:"flex-end", alignItems:"center", gap:14, marginBottom:10}}>
         <span style={{color:"var(--c-faint)", fontFamily:"var(--font-mono)", fontSize:11}}>
@@ -977,20 +880,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       ) : (
         <>
           {/* Steward / cert chip — flips live if certification lands. */}
-          <Reveal>
-            <div style={{
-              background: live.cert ? "var(--green-50, rgba(127,163,122,0.10))" : "var(--yellow-50, rgba(252,211,77,0.10))",
-              border: `1px solid ${live.cert ? "var(--green-300, rgba(127,163,122,0.4))" : "var(--yellow-300, rgba(252,211,77,0.4))"}`,
-              borderRadius: 12, padding:"12px 18px", marginBottom:16, display:"flex", alignItems:"center", gap:12,
-            }}>
-              <span style={{width:8, height:8, borderRadius:"50%", background: live.cert ? "var(--green-500)" : "var(--yellow-500)", animation: live.cert ? "none" : "pulse 1.4s ease-in-out infinite", flexShrink:0}} />
-              <div style={{fontSize:13, color:"var(--c-ink)", lineHeight:1.5}}>
-                {live.cert
-                  ? <>{t("discovery.results.certifiedBy")} <span style={{color:"var(--green-600)", fontWeight:500}}>{live.cert.byName}</span>.</>
-                  : <>{t("discovery.results.certPending")}</>}
-              </div>
-            </div>
-          </Reveal>
+          <p className="bio-landscape-notice">{t("discovery.landscape.draftNotice")}</p>
 
           {/* Brand row + completion meter */}
           <Reveal>
@@ -1190,9 +1080,9 @@ function Discovery({ go, newBrand = false }) {
   const [phase, setPhase] = useDState("form"); // form | running | results
   const [runContext, setRunContext] = useDState(null);
   return (
-    <div style={{padding:"24px 36px 60px", maxWidth: 1180, margin:"0 auto"}}>
+    <div className="discovery-flow" style={{padding:"24px 36px 60px", maxWidth: 1180, margin:"0 auto"}}>
       <DiscoveryStepper step={step} />
-      {step === 1 && <DiscoveryStep1 newBrand={newBrand} onNext={(context) => { setRunContext(context); setStep(2); setPhase("running"); }} />}
+      {step === 1 && <DiscoveryStep1 newBrand={newBrand} onReview={context=>{setRunContext(context);setStep(2);setPhase("results");}} onNext={(context) => { setRunContext(context); setStep(2); setPhase("running"); }} />}
       {step === 2 && phase === "running"  && <DiscoveryStep2Running runContext={runContext} onDone={() => setPhase("results")} onExit={() => go("bio")} />}
       {step === 2 && phase === "results"  && <DiscoveryStep2Results runContext={runContext} onConfirm={() => setStep(3)} />}
       {step === 3 && <DiscoveryStep3 go={go} runContext={runContext} />}
@@ -1241,6 +1131,7 @@ function payloadToFields(payload) {
       { ...field("identity", "pillars", "Pillars", { multi: true }), value: p.identity?.pillars || [] },
       ...customFields("identity", ["positioning", "category", "founded", "pillars"]),
     ],
+    positioning: p.positioning || {},
     audience: [
       { ...field("audience", "primary", "Primary"),     value: p.audience?.primary || "" },
       { ...field("audience", "secondary", "Secondary"), value: p.audience?.secondary || "" },
@@ -1310,6 +1201,7 @@ function fieldsToPayload(bio, prevPayload) {
     audience: toSection(bio.audience),
     voice: toSection(bio.voice),
     goals: toSection(bio.goals),
+    positioning: bio.positioning || prevPayload?.positioning || {},
     strategic: {
       ...(prevPayload?.strategic || {}),
       watchouts: bio.strategic?.watchouts || [],
@@ -1331,67 +1223,6 @@ function fieldsToPayload(bio, prevPayload) {
    /self-certify → flips self_certified, which UNLOCKS briefing. Production
    still waits for a human Steward. (The richer per-field accurate/aspirational
    marking lands with the discovery S12 rebuild in M3.) */
-function SelfCertPanel({ brandId, bio, onDone }) {
-  const { t } = useLocale();
-  const [st, setSt] = useDState({ authority: false, reflects: false, aspirationalMarked: false });
-  const [busy, setBusy] = useDState(false);
-  const [err, setErr] = useDState(null);
-  const allChecked = st.authority && st.reflects && st.aspirationalMarked;
-
-  if (bio?.self_certified) {
-    return (
-      <div className="card" style={{padding:"10px 14px", marginBottom: 18, borderLeft:"3px solid var(--green-500)", display:"flex", alignItems:"center", gap: 10}}>
-        <Icon name="check" size={15} />
-        <div style={{fontSize: 13, color:"var(--c-ink)"}}>
-          <strong>{t("discovery.selfCert.attestedBold")}</strong> — {t("discovery.selfCert.attestedRest")}
-        </div>
-      </div>
-    );
-  }
-
-  const submit = async () => {
-    setBusy(true); setErr(null);
-    try {
-      const res = await apiFetch(`/api/bios/${brandId}/self-certify`, {
-        method: "POST",
-        body: JSON.stringify({ statements: { authority: st.authority, reflects: st.reflects, aspirationalMarked: st.aspirationalMarked }, statementVersion: "1" }),
-      });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        if (j.code === "HIGH_IMPORTANCE_GAPS") throw new Error(t("discovery.selfCert.fillBefore", { fields: (j.fields || []).join(", ") }));
-        if (j.code === "BELOW_MIN_SCORE") throw new Error(t("discovery.selfCert.belowScore", { score: j.score, minScore: j.minScore }));
-        throw new Error(j.error || `HTTP ${res.status}`);
-      }
-      if (onDone) onDone();
-    } catch (e) { setErr(e?.message || String(e)); } finally { setBusy(false); }
-  };
-
-  const Check = ({ k, children }) => (
-    <label style={{display:"flex", gap: 8, alignItems:"flex-start", fontSize: 12.5, color:"var(--c-ink)", cursor:"pointer", lineHeight: 1.45}}>
-      <input type="checkbox" checked={st[k]} onChange={(e) => setSt((s) => ({ ...s, [k]: e.target.checked }))} style={{marginTop: 2}} />
-      <span>{children}</span>
-    </label>
-  );
-
-  return (
-    <div className="card" style={{padding:"14px 16px", marginBottom: 18, borderLeft:"3px solid var(--yellow-500)"}}>
-      <div className="eyebrow eyebrow--yellow" style={{marginBottom: 8}}>{t("discovery.selfCert.eyebrow")}</div>
-      <div style={{fontSize: 12.5, color:"var(--c-dim)", marginBottom: 10, lineHeight: 1.5}}>
-        {t("discovery.selfCert.desc")}
-      </div>
-      <div style={{display:"flex", flexDirection:"column", gap: 8, marginBottom: 12}}>
-        <Check k="authority">{t("discovery.statement.authority")}</Check>
-        <Check k="reflects">{t("discovery.statement.reflects")}</Check>
-        <Check k="aspirationalMarked">{t("discovery.statement.aspirational")}</Check>
-      </div>
-      {err && <div style={{fontSize: 12, color:"var(--pink-500)", marginBottom: 8}}>{err}</div>}
-      <button className="btn btn--primary btn--sm" disabled={!allChecked || busy} onClick={submit}>
-        {busy ? t("discovery.selfCert.submitting") : t("discovery.selfCert.submit")}
-      </button>
-    </div>
-  );
-}
-
 /* humanizeReasonCode — turn a Steward `reject_reason_code` (snake_case enum)
    into human-readable copy. Known codes get curated phrasing; anything else
    falls back to Title Case so the client never sees a raw enum value. */
@@ -1567,10 +1398,14 @@ function BioViewer({ go, bioScore = 91 }) {
   const [sources, setSources] = useDState([]);
 
   useDEffect(() => {
-    if (live.bio?.payload) setBio(payloadToFields(live.bio.payload));
-  }, [live.bio?.id]);
+    setBio(live.bio?.payload ? payloadToFields(live.bio.payload) : null);
+    setEditing(false);
+    setSaveErr(null);
+    setHasUnappliedSourceChanges(false);
+  }, [live.brandId, live.bio?.id]);
 
   useDEffect(() => {
+    setSources([]);
     if (!live.brandId) return;
     let alive = true;
     supabase.from("bio_sources").select("id, kind, bucket, src, signals, raw_ref, created_at")
@@ -1661,7 +1496,7 @@ function BioViewer({ go, bioScore = 91 }) {
     : { color:"var(--pink-500)", word:t("discovery.bioTone.needs.word"), hint:t("discovery.bioTone.needs.hint") };
 
   return (
-    <div style={{padding:"24px 36px 60px"}}>
+    <div className="bio-viewer" style={{padding:"24px 36px 60px"}}>
       {/* Live cert chip — pulls real DB state, polls every 5s */}
       {live.brandId && (
         <div className="card" style={{
@@ -1719,13 +1554,8 @@ function BioViewer({ go, bioScore = 91 }) {
       {/* What your Steward changed — before → after diff of the Steward's edits */}
       {live.brandId && <StewardDiffPanel diff={live.diff} />}
 
-      {/* Stage-1 self-certification — unlocks briefing (shown until human cert lands) */}
-      {live.brandId && live.bio && !live.cert && (
-        <SelfCertPanel brandId={live.brandId} bio={live.bio} onDone={live.refresh} />
-      )}
-
       {/* Hero */}
-      <div style={{display:"grid", gridTemplateColumns:"1fr 320px", gap: 28, marginBottom: 28, alignItems:"end"}}>
+      <div className="bio-viewer-hero" style={{display:"grid", gridTemplateColumns:"1fr 320px", gap: 28, marginBottom: 28, alignItems:"end"}}>
         <div>
           <div className="eyebrow" style={{marginBottom: 6}}>{t("discovery.bio.eyebrow")} · {live.brandName || "Your brand"}</div>
           <div style={{display:"flex", alignItems:"baseline", gap: 14}}>
@@ -1749,6 +1579,13 @@ function BioViewer({ go, bioScore = 91 }) {
           </div>
         </div>
         <div style={{display:"flex", flexDirection:"column", gap: 10, alignItems:"flex-end"}}>
+          {live.brandId&&live.bio&&!live.cert&&<BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing||hasUnappliedSourceChanges} onDone={live.refresh} renderSection={section=>{
+            const snapshot=payloadToFields(live.bio.payload);
+            if(section==="positioning")return <BioCompetitive value={snapshot.positioning} aspirations={live.bio.payload?.aspirations} editing={false}/>;
+            if(section==="visual")return <BioVisual bio={snapshot} editing={false}/>;
+            if(section==="strategic")return <BioStrategic strat={snapshot.strategic} editing={false}/>;
+            return <BioFieldList items={snapshot[section]} editing={false}/>;
+          }}/>}
           <button className="btn btn--primary" onClick={() => setTab("sources")} disabled={!live.brandId}>
             <Icon name="plus" size={14} /> {t("discovery.bio.feedBrandolph")}
           </button>
@@ -1825,6 +1662,10 @@ function BioViewer({ go, bioScore = 91 }) {
             ))}
           </div>
           <div style={{padding: 28}}>
+            <SectionTour key={tab} scope={`bio-section-${tab}`} steps={[
+              {title:t("discovery.tab."+tab),text:t(tab==="sources"?"discovery.tour.sourceText":"discovery.tour.viewerText")},
+              {title:t("discovery.tour.confirmTitle"),text:t("discovery.tour.confirmText")},
+            ]}/>
             {["identity","audience","voice","goals"].includes(tab) && (
               <div style={{display:"grid", gridTemplateColumns:"180px 1fr 110px", gap:18, paddingBottom:10, marginBottom:2, borderBottom:"1px solid var(--c-line)", alignItems:"baseline"}}>
                 <div className="eyebrow" style={{margin:0}}>{t("discovery.table.field")}</div>
@@ -1837,11 +1678,7 @@ function BioViewer({ go, bioScore = 91 }) {
             )}
             {tab === "identity"    && <BioFieldList items={bio.identity}    editing={editing} onChange={v => patch("identity", v)} />}
             {tab === "audience"    && <BioFieldList items={bio.audience}    editing={editing} onChange={v => patch("audience", v)} />}
-            {tab === "competitive" && (
-              <div style={{padding: 24, textAlign:"center", color:"var(--c-faint)", fontSize: 13, fontStyle:"italic"}}>
-                {t("discovery.competitive.placeholder")}
-              </div>
-            )}
+            {tab === "competitive" && <BioCompetitive aspirations={live.bio?.payload?.aspirations} value={bio.positioning} editing={editing} onChange={value=>patch("positioning",value)} />}
             {tab === "voice"       && <BioFieldList items={bio.voice}       editing={editing} onChange={v => patch("voice", v)} />}
             {tab === "visual"      && <BioVisual bio={bio} patch={patch} editing={editing} />}
             {tab === "goals"       && <BioFieldList items={bio.goals}       editing={editing} onChange={v => patch("goals", v)} />}
@@ -2147,10 +1984,14 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
   const { t } = useLocale();
   const fileRef = React.useRef(null);
   const [uploadingFile, setUploadingFile] = useDState(false);
+  const [uploadError, setUploadError] = useDState(null);
   const total = sources.reduce((a, s) => a + s.n, 0);
   const onKey = (e) => { if (e.key === "Enter") { e.preventDefault(); addReference(); } };
   const uploadFile = async (file) => {
     if (!file || !brandId || uploadingFile) return;
+    setUploadError(null);
+    const validation=validateUpload({filename:file.name,mime:file.type,size:file.size});
+    if(!validation.ok){setUploadError(`${file.name}: ${validation.message}`);return;}
     setUploadingFile(true);
     try {
       const form = new FormData();
@@ -2161,6 +2002,8 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
       setSources(s => [{ src:file.name, date:t("discovery.sources.justNow"), n:0, fresh:true }, ...s]);
       onSourceAdded?.();
+    } catch(error) {
+      setUploadError(`${file.name}: ${error?.message||t("discovery.upload.failed")}`);
     } finally {
       setUploadingFile(false);
     }
@@ -2193,6 +2036,7 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
           <input ref={fileRef} type="file" accept={SOURCE_FILE_ACCEPT} style={{display:"none"}} onChange={(e) => { uploadFile(e.target.files?.[0]); e.target.value = ""; }} />
           <button className="btn btn--ghost btn--sm" disabled={reading || uploadingFile} onClick={() => fileRef.current?.click()}><Icon name="files" size={13} /> {uploadingFile ? "Uploading…" : t("discovery.sources.uploadDoc")}</button>
         </div>
+        {uploadError&&<p role="alert" className="discovery-file-status error">{uploadError}</p>}
       </div>
 
       {/* Ledger header */}
@@ -2224,3 +2068,5 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
 }
 
 Object.assign(window, { Discovery, BioViewer });
+
+export { Discovery, BioViewer, payloadToFields, fieldsToPayload, discoFieldStatus };

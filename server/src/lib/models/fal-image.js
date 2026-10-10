@@ -151,7 +151,9 @@ export async function* generate({ route, prompt, size }) {
         height:     img.height,
         content_type: img.content_type,
         model:      route,
-        cost_usd:   cfg.cost_estimate_usd,
+        cost_usd:   null,
+        estimated_cost_usd: cfg.cost_estimate_usd,
+        cost_source: "rate_card_estimate",
         seed:       result.seed,
         prompt_used: prompt,
       };
