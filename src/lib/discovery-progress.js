@@ -1,5 +1,5 @@
 // Keep watching the correlated run; elapsed time cannot establish completion.
-export function watchDiscoveryBio({discoveryId, read, onStatus, onComplete, schedule = setInterval, cancel = clearInterval}) {
+export function watchDiscoveryBio({discoveryId, read, onStatus, onComplete, onFailure, schedule = setInterval, cancel = clearInterval}) {
   let active = true;
   let reading = false;
   const tick = async () => {
@@ -14,8 +14,9 @@ export function watchDiscoveryBio({discoveryId, read, onStatus, onComplete, sche
         cancel(timer);
         onComplete(bio);
       }
-    } catch {
-      if (active) onStatus(true);
+    } catch(error) {
+      if(active&&error?.terminal){active=false;cancel(timer);onFailure?.(error);}
+      else if (active) onStatus(true);
     } finally {
       reading = false;
     }

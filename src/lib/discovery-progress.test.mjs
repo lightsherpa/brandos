@@ -29,3 +29,5 @@ test('leaving the screen ignores a pending response and duplicate polls do not o
   stop();resolve({discovery_id:'run'});await flush();
   assert.equal(completed,0);
 });
+
+ test('terminal worker failure stops polling and exposes recovery without generating again',async()=>{let cancelled=0,failed=null;watchDiscoveryBio({discoveryId:'run',read:async()=>{throw Object.assign(new Error('SOURCE_UNREADABLE'),{terminal:true});},onStatus:()=>{},onComplete:()=>assert.fail('Must not complete'),onFailure:e=>failed=e.message,schedule:()=>1,cancel:()=>cancelled++});await new Promise(r=>setTimeout(r,0));assert.equal(failed,'SOURCE_UNREADABLE');assert.equal(cancelled,1);});

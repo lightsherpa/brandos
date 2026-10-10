@@ -35,7 +35,12 @@ The focused release retains RC `20260815005000_platform_integrity.sql` and its e
 | 20261010010000_bio_review_attestation | M2 certification, bios/brands/users | Disable callers first; retain receipts | Deploy owner verifies history; not applied here |
 | 20261010020000_bio_client_acceptance | bios/users | Receipt export required before column removal | Deploy owner verifies history; not applied here |
 | 20261010030000_bio_client_acceptance_receipt | M2, client acceptance, workspace memberships | Disable callers before dropping service-only RPC | Deploy owner verifies history; not applied here |
+| 20261010040000_discovery_run_progress | brands, workspaces, bios, RC scoped-access helper | Disable progress readers/writers; export historical runs before dropping table | Deploy owner verifies history; not applied here |
 
 Freeze: Friday 16 October 2026, 18:00 Europe/Madrid. Full competitive agent, optional Brandfetch enrichment, library, approvals and templates remain post-VDS.
 
 Local verification: `supabase db reset --local --no-seed --workdir .bio-local` succeeded on isolated project `caastoros-bio-vds` (:57421/:57422). The active :57321 database was untouched. Certification/discovery DB scripts passed, including atomic receipt rollback and service-only privileges.
+
+The complete chain including `20261010040000` passed `supabase db reset --local --no-seed --workdir .bio-reset-check` in a second disposable project (`caastoros-bio-reset-check`, DB 57442). That project was stopped after verification. The seeded release-test database and existing 5184 database were preserved.
+
+Live results and limits: [two-brand test](2026-10-10-discovery-e2e.md). Demo, tests and freeze follow-ups: [runbook](2026-10-10-bio-demo-script.md). Local implementation is ready for PR review; hosted merge/deployment, final responsive/language visual checks and human visual approval remain outstanding. Geoking retrieval did not pass.

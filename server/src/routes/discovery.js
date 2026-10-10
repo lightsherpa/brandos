@@ -11,6 +11,7 @@ import { hasPermission } from "../lib/permissions.js";
 import { verifyOpexOverride } from "../lib/opex-override.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
 
+import {recordDiscoveryStage} from "../lib/discovery-run.js";
 import {normalizeDiscoveryReferences} from "../lib/discovery-intelligence.js";
 
 const app = new Hono();
@@ -88,6 +89,7 @@ app.post("/start", requireAuth, async (c) => {
   // Fire the event — compile-bio function picks it up asynchronously.
   // If the queue is unreachable (e.g. Inngest dev server not running in
   // local dev), surface a clear 503 instead of a bare 500.
+  await recordDiscoveryStage({discoveryId,brandId,workspaceId,stage:"queued",status:"queued"});
   let ids;
   const queueRequestId = crypto.randomUUID();
   const queueStarted = Date.now();
@@ -107,11 +109,19 @@ app.post("/start", requireAuth, async (c) => {
       feature: "discovery.queue", provider: "inngest", service: "events", operation: "send",
       status: "failed", latencyMs: Date.now() - queueStarted, costSource: "unpriced", errorCode: "QUEUE_UNAVAILABLE",
     });
-    console.error("[discovery] inngest.send failed:", err?.message || err);
+    await recordDiscoveryStage({discoveryId,brandId,workspaceId,stage:"queued",status:"failed",errorCode:"QUEUE_UNAVAILABLE"});
+    console.error("[discovery] queue unavailable");
     return c.json({ error: "Discovery queue unavailable — try again shortly" }, 503);
   }
 
   return c.json({ eventId: ids?.[0] || null, discoveryId, brandId, url, status: "queued" });
+});
+
+app.get("/:discoveryId/status",requireAuth,async c=>{
+ const {data:run,error}=await supabaseAdmin.from("discovery_runs").select("id,brand_id,workspace_id,stage,status,error_code,bio_id,created_at,updated_at").eq("id",c.req.param("discoveryId")).maybeSingle();
+ if(error)return c.json({error:"Progress temporarily unavailable"},503);
+ if(!run||!hasPermission(c.get("auth"),"bio.read",run.workspace_id))return c.json({error:"Discovery not available"},404);
+ return c.json({run});
 });
 
 export default app;

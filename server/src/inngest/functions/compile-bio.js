@@ -13,6 +13,7 @@
 // vision pass on screenshots fills those in P5 (image specialists).
 // ─────────────────────────────────────────────────────────────────────
 
+import {recordDiscoveryStage,publicDiscoveryError} from "../../lib/discovery-run.js";
 import { parseCompiledBio } from "../../lib/parse-compiled-bio.js";
 import {generateDiscoveryBrain,sourceBlock,normalizeDiscoveryReferences} from "../../lib/discovery-intelligence.js";
 import { inngest } from "../../lib/inngest.js";
@@ -152,12 +153,21 @@ export const compileBio = inngest.createFunction(
     name: "Compile BIO from URL",
     retries: process.env.DISCOVERY_PAID_TEST === "1" ? 0 : 2,
     triggers: [{ event: "discovery/start" }],
+    onFailure:async({event,error,step})=>{
+      const original=event.data?.event?.data||event.data?.event||event.data;
+      await step.run("record-terminal-discovery-failure",async()=>{
+        const {data:current}=await supabaseAdmin.from("discovery_runs").select("stage").eq("id",original.discoveryId).maybeSingle();
+        return recordDiscoveryStage({...original,stage:current?.stage||"scrape",status:"failed",errorCode:publicDiscoveryError(error)});
+      });
+    },
   },
   async ({ event, step, logger }) => {
     const { brandId, url, workspaceId, instagram, discoveryId, actorUserId, breakerOverride = false, references:rawReferences } = event.data || {};
     if (!brandId) throw new Error("Event missing brandId");
     const references=normalizeDiscoveryReferences(rawReferences);
     logger.info("BIO compile starting", { brandId, url, v2: V2 });
+    const progress=(stage,status='running',bioId=null)=>step.run(`progress-${stage}-${status}`,()=>recordDiscoveryStage({discoveryId,brandId,workspaceId,stage,status,bioId}));
+    await progress("scrape");
 
     // ── Step 1 · Scrape ───────────────────────────────────────────
     // V2: crawl ≤6 high-signal pages (one bio_sources row each), concat markdown.
@@ -286,24 +296,25 @@ export const compileBio = inngest.createFunction(
       }
       return {blocks,failures};
     });
+    await progress("visual");
     const visualEvidence = V2 ? await step.run("read-brand-and-reference-visuals", () => loadVisualAssets(brandId).then(assets=>collectDiscoveryVisuals({url,references,scrape,readImagery:extractImageryAvoid,assets,telemetry:{workspaceId,brandId,workflowId:discoveryId}}))) : null;
     const evidence=[scraped.markdown,...extraSources,...linkedSources.blocks,visualEvidence ? `VISUAL OBSERVATIONS (source declarations, not computed styles; preserve source purposes):\n${JSON.stringify(visualEvidence)}` : null].filter(Boolean).join("\n\n").slice(0,48000);
     let synthesisPass=0;
     const bioPayload=await generateDiscoveryBrain({
       evidence,
-      interpret:content=>step.run("extract-brand-evidence",async()=>{
+      interpret:async content=>{await progress("read");return step.run("extract-brand-evidence",async()=>{
         const result=await completeDiscoveryStep({step:"reader",system:EXTRACTION_SYSTEM,messages:[{role:"user",content}],parse:parseCompiledBio,telemetry:{workspaceId,brandId,workflowId:discoveryId,actorUserId,breakerOverride},onUsage:usage=>logger.info("Discovery extraction usage",usage)});
         return result.value;
-      }),
-      research:query=>step.run("research-competitive-landscape",async()=>{
+      });},
+      research:async query=>{await progress("research");return step.run("research-competitive-landscape",async()=>{
         const pages=await searchCompetitiveSources(query);
         for(const page of pages){
           const {error}=await supabaseAdmin.from("bio_sources").insert({brand_id:brandId,kind:"url_scrape",src:page.url,signals:{purpose:"competitive",title:page.title,checked_at:new Date().toISOString(),markdown_chars:page.markdown.length},raw_ref:null});
           if(error)throw error;
         }
         return pages;
-      }),
-      synthesize:content=>step.run(synthesisPass++===0?"interpret-brand-evidence":"synthesize-researched-bio",async()=>{
+      });},
+      synthesize:async content=>{await progress("synthesize");return step.run(synthesisPass++===0?"interpret-brand-evidence":"synthesize-researched-bio",async()=>{
       const result=await completeDiscoveryStep({
         step:"synthesis",system:COMPILER_SYSTEM,
         messages:[{role:"user",content}],parse:parseCompiledBio,
@@ -311,7 +322,7 @@ export const compileBio = inngest.createFunction(
         onUsage:usage=>logger.info("BIO compile usage",usage),
       });
       return result.value;
-      }),
+      });},
     });
     validateDiscoveryCandidate(bioPayload);
     bioPayload.discoverySources={references,unreadable:linkedSources.failures,instagram:instagram||null};
@@ -371,6 +382,7 @@ export const compileBio = inngest.createFunction(
     // When NOT V2, visual stays as the model emitted it (empty arrays) — as today.
 
     // ── Step 3 · Write bios row (uncertified) ────────────────────
+    await progress("save");
     const bioRow = await step.run("write-bio-row", async () => {
       const { data, error } = await supabaseAdmin
         .rpc("append_bio_version", {
@@ -471,6 +483,7 @@ export const compileBio = inngest.createFunction(
       }
     });
 
+    await progress("done","completed",bioRow.id);
     return { bioId: bioRow.id, version: bioRow.version, brandId, stewardJobId: stewardJob.id };
   }
 );

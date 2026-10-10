@@ -20,3 +20,5 @@ node_modules
 .mvp-local/
 .bio-local/
 output/
+
+.bio-reset-check/

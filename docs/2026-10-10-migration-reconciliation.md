@@ -50,3 +50,5 @@ The incoming handoff reports M1–M3 applied. M5/P3, RC integrity/scoped access/
 `20261010020000_bio_client_acceptance.sql` is the review-stream acceptance schema port, renamed before any application in this isolated release. It depends on bios/users. Rollback would discard acceptance receipts; backup/export them first. No hosted application authorized.
 
 `20261010030000_bio_client_acceptance_receipt.sql` adds a service-only exact-version Owner acceptance RPC. It locks the brand and current BIO and writes the decision receipt and acceptance timestamp atomically. Depends on the preceding acceptance columns, M2 decisions and scoped memberships. Disable callers before rollback.
+
+`20261010040000_discovery_run_progress.sql` adds service-written progress with workspace-scoped SELECT RLS. It depends on brands/workspaces/bios and `private.current_user_can_access_workspace`. It is later than all reconciled branch migrations. Disable progress callers and export run history before rollback. Full local reset through this migration passed on disposable project caastoros-bio-reset-check; no hosted migration was applied.
