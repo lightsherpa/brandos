@@ -1,4 +1,5 @@
 import React from "react";
+import {discoveryWebsiteError, bioIntegrityError} from "../server/src/lib/brand-source-integrity.js";
 import {BioSelfCertification} from "./bio-self-certification.jsx";
 import {watchDiscoveryBio} from "./lib/discovery-progress.js";
 import {SectionTour} from "./section-tour.jsx";
@@ -35,8 +36,8 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
         const { data } = await supabase.from("brands").select("id, name, url").eq("id", wantedId).maybeSingle();
         brand = data;
       }
-      if (fixedBrandId && !brand) {
-        commit((s) => ({ ...s, brandId: fixedBrandId, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
+      if (wantedId && !brand) {
+        commit((s) => ({ ...s, brandId: wantedId, brandName:null, brandUrl:null, review:null, diff:[], reviewPending:false, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
         return;
       }
       if (!brand) {
@@ -53,6 +54,8 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
         return;
       }
       const { bio, reviewPending, focusCount, review, diff } = await res.json();
+      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"The BIO does not match the selected brand"} : bioIntegrityError(bio, brand));
+      if (mismatch) throw new Error(mismatch.error);
       let certInfo = null;
       if (bio?.certified) {
         let certName = "your Brand Steward";
@@ -64,7 +67,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
       }
       commit({ brandId: brand.id, brandName: brand.name, brandUrl: brand.url, bio, cert: certInfo, review: review || null, diff: Array.isArray(diff) ? diff : [], reviewPending: !!reviewPending, focusCount: Number(focusCount) || 0, loading: false, error: null });
     } catch (e) {
-      commit((s) => ({ ...s, loading: false, error: e?.message || String(e) }));
+      commit((s) => ({ ...s, bio:null, cert:null, review:null, diff:[], reviewPending:false, loading: false, error: e?.message || String(e) }));
     }
   }, [fixedBrandId]);
 
@@ -198,8 +201,13 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
       }
       if (!brandId) throw new Error("No brand is available for Discovery.");
 
+      const {data: selectedBrand, error: selectedError} = await supabase.from("brands").select("id,name,url").eq("id",brandId).maybeSingle();
+      if(selectedError || !selectedBrand)throw new Error("The selected brand is unavailable");
+      const mismatch = discoveryWebsiteError(selectedBrand,targetUrl);
+      if(mismatch)throw new Error(mismatch.error);
       let baselineVersion = 0;
       const baselineRes = await apiFetch(`/api/bios/${brandId}`);
+      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "The BIO could not be checked before uploading sources");}
       if (baselineRes.ok) {
         const baseline = await baselineRes.json();
         baselineVersion = Number(baseline.bio?.version) || 0;
@@ -256,6 +264,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
   };
   const totalFiles = BUCKETS.reduce((a, b) => a + uploadsByBucket[b.key].length, 0);
 
+  const websiteMismatch=!newBrand && generated.brandUrl ? discoveryWebsiteError({name:generated.brandName,url:generated.brandUrl},url.trim()) : null;
   const referenceCount=references.filter(row=>row.url.trim()).length;
   const sourceCount=(url.trim()?1:0)+referenceCount+totalFiles;
   return <div className="discovery-intake">
@@ -274,6 +283,8 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
           {newBrand&&<label htmlFor="discovery-brand-name">{t("discovery.step1.brandNameLabel")}<input id="discovery-brand-name" value={brandName} disabled={!!createdBrandId} onChange={e=>setBrandName(e.target.value)} placeholder={t("discovery.intake.namePlaceholder")}/></label>}
           <label htmlFor="discovery-brand-url">{t("discovery.step1.urlLabel")}<input id="discovery-brand-url" value={url} onChange={e=>setUrl(e.target.value)} placeholder={t("discovery.step1.urlPlaceholder")}/></label>
         </div>
+        {!newBrand && generated.brandName && <p className="discovery-helper">{t("discovery.integrity.sourcesFor",{name:generated.brandName})}</p>}
+        {websiteMismatch && <p role="alert" className="discovery-helper">{websiteMismatch.error}</p>}
         {createdBrandId&&<p className="discovery-helper">{t("discovery.intake.retryHelp")}</p>}
         <details className="discovery-social"><summary>{t("discovery.intake.social")}</summary><label htmlFor="discovery-instagram">{t("discovery.step1.igLabel")}<input id="discovery-instagram" value={instagram} onChange={e=>setInstagram(e.target.value)} placeholder={t("discovery.step1.igPlaceholder")}/></label><p className="discovery-helper">{t("discovery.intake.socialHelp")}</p></details>
       </section>
@@ -1495,6 +1506,8 @@ function BioViewer({ go, bioScore = 91 }) {
     ? { color:"var(--orange-600)", word:t("discovery.bioTone.filling.word"), hint:t("discovery.bioTone.filling.hint") }
     : { color:"var(--pink-500)", word:t("discovery.bioTone.needs.word"), hint:t("discovery.bioTone.needs.hint") };
 
+  if(live.error)return <div className="cos-page cos-bio bio-viewer" style={{padding:"32px 36px"}}><h1 style={{fontFamily:"var(--font-serif)"}}>{live.brandName || t("discovery.results.yourBrand")}</h1><div className="card" role="alert" style={{padding:24}}><h2>{t("discovery.integrity.unavailable")}</h2><p>{live.error}</p><p>{t("discovery.integrity.preserved")}</p><button className="btn btn--ghost" onClick={live.refresh}>{t("discovery.integrity.retry")}</button></div></div>;
+
   return (
     <div className="bio-viewer" style={{padding:"24px 36px 60px"}}>
       {/* Live cert chip — pulls real DB state, polls every 5s */}
@@ -1633,6 +1646,7 @@ function BioViewer({ go, bioScore = 91 }) {
         <div className="card" style={{padding:"10px 14px", marginBottom: 14, borderLeft:"3px solid var(--pink-500)", color:"var(--c-ink)", fontSize: 13}}>{saveErr}</div>
       )}
 
+      {live.error && <div className="card" role="alert" style={{padding:24,marginBottom:20}}><strong>{live.brandName || "Selected brand"}</strong><p>{live.error}</p></div>}
       {/* Empty state — no BIO extracted yet */}
       {!live.loading && !live.bio && live.brandId && (
         <div className="card" style={{padding:"56px 32px", textAlign:"center", maxWidth: 580, margin:"40px auto"}}>
@@ -1654,7 +1668,7 @@ function BioViewer({ go, bioScore = 91 }) {
       )}
 
       {/* Tabs — only when we have a BIO */}
-      {bio && (
+      {bio && live.bio && (
         <div className="card" style={{padding: 0, overflow:"hidden"}}>
           <div className="tabs">
             {tabs.map((k) => (

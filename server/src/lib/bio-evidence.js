@@ -161,6 +161,10 @@ export function prepareClientBioEditPayload(payload = {}, previousPayload = {}) 
   const current = normalizeBio(payload);
   const previous = normalizeBio(previousPayload);
   const next = clone(current);
+  // Callers cannot replace server-owned source lineage or clear a quarantine.
+  delete next.sourceIdentity; delete next.sourceIntegrity;
+  if(previousPayload.sourceIdentity)next.sourceIdentity=clone(previousPayload.sourceIdentity);
+  if(previousPayload.sourceIntegrity)next.sourceIntegrity=clone(previousPayload.sourceIntegrity);
   next.confidence = {};
   next.evidence = {};
   next.fieldStatus = {};
@@ -195,6 +199,7 @@ export function prepareClientBioEditPayload(payload = {}, previousPayload = {}) 
 
 export function prepareStewardBioPatchPayload(previousPayload = {}, patchPayload = {}) {
   const patch = clone(patchPayload);
+  delete patch.sourceIdentity; delete patch.sourceIntegrity;
   delete patch.confidence;
   delete patch.evidence;
   delete patch.missing;

@@ -12,6 +12,7 @@
 // { ok:false, code, error, ... } (with an `error` message HTTP callers can
 // pass straight through); success returns { ok:true, score }.
 
+import {bioIntegrityError} from "./brand-source-integrity.js";
 import { supabaseAdmin } from "./supabase.js";
 import { scoreBio } from "./score-bio.js";
 import { computeFocus } from "./bio-focus.js";
@@ -31,6 +32,8 @@ import { DEFAULT_RUBRIC } from "./evaluate-certification.js";
  * @returns {Promise<{ok:true, score:number}|{ok:false, code:string, error:string}>}
  */
 export async function selfCertifyBio({ brandId, bioId, payload, userId, statements, fieldMarks, statementVersion, minScore, review = null }) {
+  const integrity=bioIntegrityError({payload},{id:brandId});
+  if(integrity)return {ok:false,...integrity};
   const marks = (fieldMarks && typeof fieldMarks === "object") ? fieldMarks : {};
   const s = statements || {};
   const version = String(statementVersion || "1");

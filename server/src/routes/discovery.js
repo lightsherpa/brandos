@@ -1,6 +1,7 @@
 // Discovery route — fires the compile-bio Inngest event.
 // SPA hits POST /api/discovery/start with { url, brandId? }.
 
+import {discoveryWebsiteError, bioIntegrityError} from "../lib/brand-source-integrity.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
@@ -38,20 +39,35 @@ app.post("/start", requireAuth, async (c) => {
   // Resolve brand — either the caller-supplied id (with workspace check)
   // or the workspace's default (first) brand.
   let brandId = body.brandId;
+  let selectedBrand;
   if (brandId) {
     const { data: brand } = await supabaseAdmin
-      .from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
+      .from("brands").select("id, name, url, workspace_id").eq("id", brandId).maybeSingle();
     if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
+    selectedBrand=brand;
   } else {
     const { data: brand } = await supabaseAdmin
-      .from("brands").select("id").eq("workspace_id", workspaceId)
+      .from("brands").select("id, name, url, workspace_id").eq("workspace_id", workspaceId)
       .order("created_at", { ascending: true }).limit(1).maybeSingle();
     if (!brand) return c.json({ error: "No brand in workspace yet" }, 400);
     brandId = brand.id;
+    selectedBrand = brand;
   }
 
+  const {data: latestBio,error: integrityLookupError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
+  if(integrityLookupError)return c.json({error:"BIO integrity check unavailable"},503);
+  const integrity=latestBio&&bioIntegrityError(latestBio,selectedBrand);
+  if(integrity)return c.json(integrity,409);
+  const mismatch = discoveryWebsiteError(selectedBrand, url);
+  if (mismatch) return c.json(mismatch, 409);
+
   // Update brand.url if it differs (so future discoveries can default to it)
-  if(url) await supabaseAdmin.from("brands").update({ url }).eq("id", brandId);
+  if (url && !selectedBrand.url) {
+    let claim = supabaseAdmin.from("brands").update({url}).eq("id",brandId);
+    claim = selectedBrand.url == null ? claim.is("url",null) : claim.eq("url",selectedBrand.url);
+    const {data: claimed,error}=await claim.select("id").maybeSingle();
+    if(error || !claimed)return c.json({code:"BRAND_SOURCE_MISMATCH",error:"The brand website changed. Reload Discovery before continuing."},409);
+  }
   if(!url && !references.length){
     const {data:sources,error}=await supabaseAdmin.from("bio_sources").select("id").eq("brand_id",brandId).eq("kind","file_upload").limit(1);
     if(error)return c.json({error:error.message},500);

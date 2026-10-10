@@ -1,3 +1,4 @@
+import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 // discovery-session.js — M3 draft lane.
 //
 // Mounted at /api/discovery. Backs the resumable discovery experience with a
@@ -47,6 +48,9 @@ app.get("/session/:brandId", requireAuth, async (c) => {
   const { data: latestBio } = await supabaseAdmin
     .from("bios").select("version, payload").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
+
+  const integrity=latestBio&&bioIntegrityError(latestBio,{id:brandId});
+  if(integrity)return c.json(integrity,409);
 
   let { data: session } = await supabaseAdmin
     .from("discovery_sessions").select(SESSION_COLS).eq("brand_id", brandId).maybeSingle();

@@ -1442,6 +1442,12 @@
       "processing": "Processing",
       "slow": "Still processing your sources. This can take several minutes; we are continuing to check for your BIO.",
       "reconnecting": "Unable to check the result right now. Reconnecting automatically; your sources are still saved."
+    },
+    "integrity": {
+      "unavailable": "BIO unavailable",
+      "preserved": "No BIO content or certification actions are shown until the brand and source identity are resolved.",
+      "retry": "Check again",
+      "sourcesFor": "Sources for {name}. A different brand needs its own record."
     }
   },
   "floater": {
