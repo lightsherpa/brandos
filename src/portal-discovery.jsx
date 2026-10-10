@@ -2306,7 +2306,7 @@ function BioStrategic({ strat, patchStrategic, editing }) {
         <div className="eyebrow eyebrow--purple" style={{marginBottom: 8}}>{t("discovery.strategic.diagnosis")}</div>
         {editing
           ? <EditInput area value={strat.diagnosis} onChange={(v) => patchStrategic("diagnosis", v)} />
-          : <p style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 16, lineHeight: 1.55, color:"var(--c-ink)", margin: 0}}>"{strat.diagnosis}"</p>}
+          : <p style={{fontSize: 16, lineHeight: 1.55, color:"var(--c-ink)", margin: 0}}>"{strat.diagnosis}"</p>}
       </div>
     </div>
   );
@@ -2353,7 +2353,7 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
             placeholder={t("discovery.sources.pastePlaceholder")}
             style={{flex:1, height:42, borderRadius:9, border:"1px solid var(--c-line-2)", background:"var(--c-bg)", padding:"0 14px", fontSize:14, color:"var(--c-ink)", outline:"none"}}
           />
-          <button className="btn btn--primary" disabled={reading || !feed.trim()} onClick={() => addReference()}>
+          <button className="btn btn--ghost" disabled={reading || !feed.trim()} onClick={() => addReference()}>
             {reading ? <><BrandolphDot state="thinking" size={11} /> {t("discovery.sources.reading")}</> : <><Icon name="plus" size={14} /> {t("discovery.sources.readIt")}</>}
           </button>
         </div>

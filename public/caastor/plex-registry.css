@@ -415,3 +415,19 @@ html[data-palette="plex-registry"] .cert-seal {
 }
 html[data-palette="plex-registry"] .dot-state--running { background: #1c1917; box-shadow: none; }
 html[data-palette="plex-registry"] .bio-hero { align-items: flex-start; }
+html[data-palette="plex-registry"] .cv-node {
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+/* Serif only on brand profile and Brand Book titles. Mono only on .num. */
+html[data-palette="plex-registry"] body,
+html[data-palette="plex-registry"] body * {
+  font-family: "Instrument Sans", "IBM Plex Sans Arabic", sans-serif !important;
+}
+html[data-palette="plex-registry"] .brand-title {
+  font-family: "Instrument Serif", Georgia, serif !important;
+}
+html[data-palette="plex-registry"] .num {
+  font-family: "Geist Mono", ui-monospace, monospace !important;
+}

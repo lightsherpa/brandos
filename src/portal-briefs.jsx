@@ -2988,11 +2988,11 @@ function BriefViewCanvas({ briefId, onClear, go }) {
       const flagged = node.status === "flagged";
       const sc = flagged ? "var(--pink-500)" : "var(--green-500)";
       return (
-        <div className="cv-node" style={{ background:"var(--c-card)", border:"1px solid var(--c-line)", borderLeft:`3px solid ${sc}`, borderRadius: 10, overflow:"hidden", boxShadow:"var(--shadow-md)", width:"100%", height: node.h || 172, boxSizing:"border-box", display:"flex", flexDirection:"column", cursor:"pointer" }}>
+        <div className="cv-node card" style={{ background:"var(--c-card)", overflow:"hidden", width:"100%", height: node.h || 172, boxSizing:"border-box", display:"flex", flexDirection:"column", cursor:"pointer" }}>
           {node.assetUrl && <div style={{ height: 90, backgroundImage:`url("${node.assetUrl}")`, backgroundSize:"cover", backgroundPosition:"center" }} />}
           <div style={{ padding:"10px 12px", flex:1, minHeight:0, display:"flex", flexDirection:"column" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: 4 }}>
-              <span className="eyebrow" style={{ fontSize: 9, color: sc }}>{(node.platform || t("briefs.run.generic")).toUpperCase()} · {flagged ? t("briefs.run.flagged") : t("briefs.run.ready")}</span>
+              <span className="eyebrow" style={{ fontSize: 12 }}>{node.platform || t("briefs.run.generic")} · {flagged ? t("briefs.run.flagged") : t("briefs.run.ready")}</span>
               {node.humanCraft && <span style={{ fontSize: 8.5, fontWeight: 700, letterSpacing:"0.06em", color:"var(--purple-600, #6b46c1)" }}>{t("briefs.run.inHumanCraft")}</span>}
             </div>
             {node.title && <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4, color:"var(--c-ink)" }}>{node.title}</div>}
@@ -3008,17 +3008,15 @@ function BriefViewCanvas({ briefId, onClear, go }) {
       done: "var(--green-500)", flagged: "var(--pink-500)",
     }[node.state || node.kind] || "var(--neutral-300)";
     return (
-      <div className={"cv-node cv-node--" + (node.state || node.kind)} style={{
-        background:"var(--c-card)", border:"1px solid var(--c-line)",
-        borderLeft:`3px solid ${stColor}`, borderRadius: 10, padding:"12px 14px",
-        boxShadow:"var(--shadow-md)",
+      <div className={"cv-node card cv-node--" + (node.state || node.kind)} style={{
+        background:"var(--c-card)", padding:"12px 14px",
         height: isSpec ? 116 : 104, boxSizing:"border-box", overflow:"hidden",
         cursor: isSpec ? "pointer" : "default",
       }}
       onClick={(e) => { if (isSpec) { e.stopPropagation(); setOpenId(node.specId); } }}>
         <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: 4}}>
           <div className="eyebrow" style={{fontSize: 9, color: stColor}}>
-            {(node.eyebrow || node.kind).toUpperCase()} · {node.state === "flagged" ? t("briefs.run.statusFlagged") : t("briefs.run.statusDone")}
+            {node.eyebrow || node.kind} · {node.state === "flagged" ? t("briefs.run.statusFlagged") : t("briefs.run.statusDone")}
           </div>
           {isSpec && <span style={{fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)"}}>{node.cr} cr</span>}
         </div>
