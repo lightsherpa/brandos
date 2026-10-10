@@ -5,7 +5,7 @@ import {assertPublicUrl} from './ingest-guards.js';
 import {extractPalette,extractFonts} from './extract-visual-deterministic.js';
 
 // Pin the checked public address for the connection; redirects are checked anew.
-export async function readPublicStylesheet(url,redirects=0){
+export async function readPublicStylesheet(url,redirects=0,mimePattern=/text\/css|text\/plain/i){
  const target=new URL(assertPublicUrl(url));
  const addresses=await dns.lookup(target.hostname,{all:true});
  if(!addresses.length)throw new Error('Stylesheet DNS returned no addresses');
@@ -15,11 +15,11 @@ export async function readPublicStylesheet(url,redirects=0){
   const request=(target.protocol==='https:'?https:http).get(target,{family:chosen.family,lookup:(_host,options,cb)=>options.all?cb(null,[chosen]):cb(null,chosen.address,chosen.family),timeout:8000,headers:{Accept:'text/css'}},response=>{
    if([301,302,303,307,308].includes(response.statusCode)){
     response.resume();if(redirects>=2||!response.headers.location)return reject(new Error('Stylesheet redirect limit'));
-    readPublicStylesheet(new URL(response.headers.location,target).href,redirects+1).then(resolve,reject);return;
+    readPublicStylesheet(new URL(response.headers.location,target).href,redirects+1,mimePattern).then(resolve,reject);return;
    }
    if(response.statusCode!==200){response.resume();return reject(new Error('Stylesheet request failed'));}
    const mime=String(response.headers['content-type']||'');
-   if(!/text\/css|text\/plain/i.test(mime)){response.resume();return reject(new Error('Unsupported stylesheet content type'));}
+   if(!mimePattern.test(mime)){response.resume();return reject(new Error('Unsupported stylesheet content type'));}
    let bytes=0,chunks=[];
    response.on('data',chunk=>{bytes+=chunk.length;if(bytes>1000000){response.destroy(new Error('Stylesheet size limit'));return;}chunks.push(chunk);});
    response.on('end',()=>resolve(Buffer.concat(chunks).toString('utf8')));response.on('error',reject);
@@ -35,17 +35,29 @@ export function stylesheetLinks(html,base){
   const href=tag.match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1];
   if(href){try{links.push(assertPublicUrl(new URL(href.replace(/&amp;/g,'&'),base).href));}catch{}}
  }
- return [...new Set(links)].slice(0,6);
+ return [...new Set(links)].sort((a,b)=>stylesheetPriority(b)-stylesheetPriority(a)).slice(0,6);
 }
 function luminance(hex){const c=hex.slice(1).match(/../g).map(x=>parseInt(x,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return c[0]*.2126+c[1]*.7152+c[2]*.0722;}
 export function contrastRatio(a,b){const x=luminance(a),y=luminance(b);return Math.round((Math.max(x,y)+.05)/(Math.min(x,y)+.05)*100)/100;}
+export function stylesheetPriority(url){
+ const path=new URL(url).pathname;
+ if(/fonts\.googleapis|use\.typekit|\/fonts\/|google-fonts/i.test(url))return 90;
+ if(/uploads\/elementor\/css\/post-|brand|custom|global/i.test(path))return 100;
+ if(/cookie|consent/i.test(path))return -10;
+ return /themes/i.test(path)?20:0;
+}
 export function paletteWithRoles(css){
- return extractPalette(css).map(color=>{
-  const occurrences=[];
-  for(const rule of css.match(/[^{}]+\{[^{}]*\}/g)||[]){if(rule.toLowerCase().includes(color.hex))occurrences.push(rule.slice(0,260));}
-  const evidence=occurrences.join(' '),rgb=color.hex.slice(1).match(/../g).map(x=>parseInt(x,16));
-  const role=/--[^:;]*(?:primary|brand|main)[^:;]*:/i.test(evidence)?'primary':/--[^:;]*(?:accent|highlight|cta)[^:;]*:/i.test(evidence)?'accent':/background(?:-color)?\s*:/i.test(evidence)?'background':Math.max(...rgb)-Math.min(...rgb)<24?'neutral':'accent';
-  return {...color,role,roleStatus:'inferred',evidence:occurrences.slice(0,2)};
+ const declarations=[...css.matchAll(/([\w-]+)\s*:\s*([^;{}]+)[;}]/g)].map(m=>({property:m[1],value:m[2].trim()}));
+ const branded=declarations.filter(d=>/--(?:brand|primary|accent|background)/i.test(d.property));
+ const weighted=branded.map(d=>`${d.property}:${d.value};`).join('\n').repeat(10)+css;
+ return extractPalette(weighted).map(color=>{
+  const evidence=declarations.filter(d=>d.value.toLowerCase().includes(color.hex)).slice(0,8);
+  const named=evidence.find(d=>/--.*(?:primary|brand)/i.test(d.property));
+  const accent=evidence.find(d=>/--.*(?:accent|highlight|cta)/i.test(d.property));
+  const rgb=color.hex.slice(1).match(/../g).map(x=>parseInt(x,16));
+  const neutral=Math.max(...rgb)-Math.min(...rgb)<24;
+  const role=named?'primary':accent?'accent':neutral&&evidence.some(d=>/^background(?:-color)?$|--.*(?:background|bg)$/i.test(d.property))?'background':neutral?'neutral':'accent';
+  return {...color,role,roleStatus:'inferred',evidence:evidence.slice(0,2).map(d=>`${d.property}: ${d.value}`)};
  });
 }
 export async function resolveVisualStyles({html,url,read=readPublicStylesheet}){
@@ -58,8 +70,21 @@ export async function resolveVisualStyles({html,url,read=readPublicStylesheet}){
    for(const match of css.matchAll(/@import\s+(?:url\()?\s*["']([^"']+)["']/gi)){try{queue.push(assertPublicUrl(new URL(match[1],href).href));}catch{}}
   }catch{failures.push(href);}
  }
- const css=String(html||'')+'\n'+sheets.map(s=>s.css).join('\n');
- const palette=paletteWithRoles(css),type=extractFonts(css);
+ const inline=[...String(html||'').matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(m=>m[1]).filter(css=>!/(?:cdc-cookie|cookie-consent)/i.test(css)).join('\n');
+ const inlineAttributes=[...String(html||'').matchAll(/\bstyle=["']([^"']+)["']/gi)].map(m=>`.inline{${m[1]}}`).join('\n');
+ const prioritySheets=sheets.filter(s=>stylesheetPriority(s.url)>=90);
+ const css=(prioritySheets.length?prioritySheets:sheets).map(s=>s.css).join('\n')+'\n'+inline+'\n'+inlineAttributes;
+ // Literal declarations on content selectors outrank unused builder defaults.
+ const used=[];
+ for(const rule of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)){
+  if(/@font-face/.test(rule[1]))continue;
+  const family=rule[2].match(/(?:^|;)\s*font-family\s*:\s*([^;}]+)/i)?.[1]?.split(',')[0].trim().replace(/^['"]|['"]$/g,'');
+  if(!family||/^(?:var\(|inherit|sans-serif|serif|system-ui|Arial|Roboto$)/i.test(family))continue;
+  used.push({kind:/heading|headline|hero|display|h[1-6]\b/i.test(rule[1])?'Display':'Body',family,sourceProperty:'font-family',selector:rule[1].trim().slice(0,160)});
+ }
+ const declared=[...css.matchAll(/(--[\w-]*font-family)\s*:\s*["']([^"']+)["']/gi)].filter(m=>!m[1].startsWith('--e-global-typography')).map(m=>({kind:/primary|heading|display/i.test(m[1])?'Display':'Body',family:m[2],sourceProperty:m[1]}));
+ const fonts=[...used,...declared,...extractFonts(css+'\n'+sheets.map(s=>(s.css.match(/@font-face\s*\{[^{}]*\}/gi)||[]).join('\n')).join('\n'))];
+ const palette=paletteWithRoles(css),type=fonts.filter((f,i)=>fonts.findIndex(x=>x.family.toLowerCase()===f.family.toLowerCase())===i).slice(0,4).map(f=>({...f,usageStatus:'declared-not-computed'}));
  const contrastPairs=palette.flatMap((a,i)=>palette.slice(i+1).map(b=>({foreground:a.hex,background:b.hex,ratio:contrastRatio(a.hex,b.hex),normalTextAA:contrastRatio(a.hex,b.hex)>=4.5})));
  return {palette,type,contrastPairs,stylesheets:sheets.map(({url})=>url),unreadableStylesheets:failures,method:'html-and-linked-css-declarations',computed:false};
 }

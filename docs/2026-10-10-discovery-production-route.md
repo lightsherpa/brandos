@@ -21,3 +21,6 @@ The paid test mode accepts only geoking.com and thecake-me.com. Additional refer
 Read <=6 linked/imported CSS files, <=1 MB each / <=3 MB combined, with 8-second request timeouts. Public-address DNS validation pins the actual connection, and redirect targets are rechecked. Google/Adobe CSS fonts are read as declarations. Palette roles are inferred from declarations and require review; contrast pairs are mathematically measured against extracted hexes. This is not computed-style extraction or designer approval.
 
 Uploaded visual images with confirmed rights are interpreted with their canonical/inspiration/avoid roles. Current and desired directions remain separate. PDF text is read; embedded PDF imagery is not rendered. Optional Brandfetch and a full multi-query competitor agent remain post-VDS.
+
+
+Live verification: Cake-me persisted a BIO in 113 seconds using the production route; Geoking failed at retrieval before model calls. Full results, the zero-provider CSS follow-up and quality limits are in `2026-10-10-discovery-e2e.md`. Literal content fonts now outrank unused builder defaults; brand CSS is prioritized before the six-sheet cap. Error-status/404 pages no longer qualify as readable competitive sources. Declared CSS does not establish computed usage; inferred roles and photographic descriptions require review.

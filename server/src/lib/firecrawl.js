@@ -10,6 +10,10 @@ import {reserveDiscoveryTestSpend} from "./discovery-test-budget.js";
 import { recordApiUsage } from "./api-usage.js";
 
 // Pages worth pulling for brand synthesis (homepage is always included first).
+export function isReadableSource(row){
+ const status=Number(row?.metadata?.statusCode||row?.statusCode||200);
+ return status<400&&!!row?.markdown?.trim()&&!/^\s*(?:404|page not found|not found)\b/i.test(row?.metadata?.title||row?.title||'')&&!/^\s*#?\s*404\b/i.test(row?.markdown||'');
+}
 const HIGH_SIGNAL = /(about|story|manifesto|mission|values|product|press|brand)/i;
 
 export async function scrape(url, opts = {}) {
@@ -102,7 +106,7 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telem
   for (const link of pages) {
     try {
       const result = await scrape(link, { formats, onlyMainContent: true, telemetry });
-      if(!result.markdown?.trim())throw new Error("No readable page content");
+      if(!isReadableSource(result))throw new Error("No readable page content");
       out.push({
         url: link,
         markdown: result.markdown,
@@ -115,8 +119,8 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telem
   // One bounded homepage fallback when every mapped page failed.
   if(!out.length){
     try{
-      const result=await scrape(url,{formats,onlyMainContent:true});
-      if(!result.markdown?.trim())throw new Error("No readable homepage content");
+      const result=await scrape(url,{formats,onlyMainContent:true,telemetry});
+      if(!isReadableSource(result))throw new Error("No readable homepage content");
       out.push({url,markdown:result.markdown,title:result.metadata?.title});
     }catch(error){throw new Error(`Brand retrieval failed: ${error.message}; ${failures.length} initial page failures`);}
   }
@@ -132,5 +136,5 @@ export async function searchCompetitiveSources(query,{limit=4}={}){
  if(!res.ok)throw new Error(`Competitive search HTTP ${res.status}`);
  const json=await res.json();
  if(!json.success)throw new Error("Competitive search failed");
- return (json.data?.web || []).filter(row=>row.url&&row.markdown).slice(0,4);
+ return (json.data?.web || []).filter(row=>row.url&&isReadableSource(row)).slice(0,4);
 }
