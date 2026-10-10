@@ -364,19 +364,57 @@ function SlaHeat({ text }) {
 }
 
 /* Section header — used inside the routed pages, below the yellow strip */
-function PageHeader({ eyebrow, title, sub, right }) {
+function PageHeader({ eyebrow, title, sub, right, titleClass }) {
   return (
-    <div style={{
-      display:"flex", justifyContent:"space-between", alignItems:"flex-start",
-      gap: 24, marginBottom: 24, paddingBottom: 18,
-      borderBottom: "1px solid var(--c-line)",
-    }}>
+    <div className="page-header">
       <div>
         {eyebrow && <div className="eyebrow" style={{marginBottom: 6}}>{eyebrow}</div>}
-        <h1 style={{margin:0, fontSize: 26, letterSpacing:"-0.01em"}}>{title}</h1>
-        {sub && <p style={{marginTop:8, fontSize: 14, color:"var(--c-dim)", maxWidth: 600}}>{sub}</p>}
+        <h1 className={titleClass || "page-title"}>{title}</h1>
+        {sub && <p className="page-sub">{sub}</p>}
       </div>
-      {right && <div style={{display:"flex", gap: 10, alignItems:"center"}}>{right}</div>}
+      {right && <div className="page-actions">{right}</div>}
+    </div>
+  );
+}
+
+/* One overflow menu per view. Items are { label, onClick, href, disabled }. */
+function OverflowMenu({ items = [] }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onPointer = (event) => {
+      if (!ref.current?.contains(event.target)) setOpen(false);
+    };
+    const onKey = (event) => { if (event.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+  return (
+    <div className="overflow-menu" ref={ref}>
+      <button
+        type="button"
+        className="btn btn--ghost btn--icon"
+        aria-label="More actions"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >⋯</button>
+      {open && (
+        <div className="overflow-menu__panel" role="menu">
+          {items.map((item) => (
+            item.href ? (
+              <a key={item.label} role="menuitem" className="overflow-menu__item" href={item.href} onClick={() => setOpen(false)}>{item.label}</a>
+            ) : (
+              <button key={item.label} type="button" role="menuitem" className="overflow-menu__item" disabled={item.disabled} onClick={() => { setOpen(false); item.onClick?.(); }}>{item.label}</button>
+            )
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -596,7 +634,7 @@ function PinButton({ kind, id, size = 15, style }) {
 
 /* Expose to other Babel files ------------------------------------- */
 Object.assign(window, {
-  BrandolphDot, BrandolphAvatar, LayerTag, ModelChip, Credit, Confidence,
+  BrandolphDot, BrandolphAvatar, LayerTag, ModelChip, Credit, Confidence, OverflowMenu,
   AgentCard, OutputCard, StatusPill, Reveal, Drawer, Counter, SlaHeat,
   PageHeader, Icon, useIsTeam, StreamedText, BrandolphLine, usePins, PinButton,
 });

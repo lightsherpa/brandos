@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocale, t as tt } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
+import { uiFixtureEnabled, FIXTURE_BRIEFS, FIXTURE_BRANDS } from "./lib/ui-fixture.js";
 const { AgentCard, BrandolphDot, Drawer, Icon, ModelChip, OutputCard, PageHeader, Reveal, StatusPill, useIsTeam, PinButton, usePins } = window;
 const { useState: useBrState, useEffect: useBrEffect } = React;
 
@@ -9,9 +10,12 @@ const { useState: useBrState, useEffect: useBrEffect } = React;
    actual runs (spec_id, model_used, token counts) and outputs (body text,
    QA status) that were persisted by POST /api/runs/stream in P3. */
 function useLiveBriefs() {
-  const [state, setState] = useBrState({ briefs: [], cert: null, brand: null, loading: true, error: null });
+  const [state, setState] = useBrState(uiFixtureEnabled
+    ? { briefs: FIXTURE_BRIEFS, cert: null, brand: FIXTURE_BRANDS[0], loading: false, error: null }
+    : { briefs: [], cert: null, brand: null, loading: true, error: null });
 
   const reload = React.useCallback(async () => {
+    if (uiFixtureEnabled) return;
     try {
       /* Resolve current brand. Prefer the workspace switcher's selection;
          fall back to the first brand if none picked. RLS scopes the
@@ -63,7 +67,7 @@ function useLiveBriefs() {
     }
   }, []);
 
-  useBrEffect(() => { reload(); }, [reload]);
+  useBrEffect(() => { if (!uiFixtureEnabled) reload(); }, [reload]);
   /* Refetch when the user picks a different brand from the dock switcher. */
   useBrEffect(() => {
     const onChange = () => reload();
@@ -339,8 +343,11 @@ function BriefsLibrary({ go }) {
         title={t("briefs.lib.title")}
         sub={t("briefs.lib.sub", { runs: t("briefs.runsCount", { count: totalRuns }), credits: totalCredits })}
         right={<>
-          <button className="btn btn--ghost btn--sm" onClick={reload}><Icon name="refresh" size={13} /> {t("briefs.lib.reload")}</button>
-          <a href="#/specialists" className="btn btn--primary">{t("briefs.lib.runSpecialist")} <Icon name="plus" size={14} /></a>
+          <a href="#/home" className="btn btn--primary">{t("briefs.lib.newBrief")}</a>
+          <window.OverflowMenu items={[
+            { label: t("briefs.lib.reload"), onClick: reload },
+            { label: t("briefs.lib.runSpecialist"), href: "#/specialists" },
+          ]} />
         </>}
       />
 
@@ -371,9 +378,8 @@ function BriefsLibrary({ go }) {
         </div>
         <div style={{display:"flex", gap: 4}}>
           {[["all",t("briefs.filter.all")],["approved",t("briefs.filter.approved")],["flagged",t("briefs.filter.flagged")]].map(([k, l]) => (
-            <button key={k} onClick={() => setStatusF(k)}
-              className={"pill" + (statusF === k ? " pill--dark" : "")}
-              style={{cursor:"pointer", height: 28, padding:"0 12px"}}>{l}</button>
+            <button key={k} type="button" onClick={() => setStatusF(k)}
+              className={"text-tab" + (statusF === k ? " text-tab--active" : "")}>{l}</button>
           ))}
         </div>
         {specialistsInUse.length > 0 && (
@@ -383,7 +389,7 @@ function BriefsLibrary({ go }) {
             {specialistsInUse.map((id) => <option key={id} value={id}>{specialistName(id)}</option>)}
           </select>
         )}
-        <span style={{marginLeft:"auto", fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-faint)"}}>
+        <span className="num" style={{marginLeft:"auto", fontSize: 12, color:"var(--c-faint)"}}>
           {t("briefs.lib.countOf", { shown: filtered.length, total: briefs.length })}
         </span>
       </div>
@@ -441,14 +447,9 @@ function BriefsLibrary({ go }) {
                 return (
                   <button key={b.id} onClick={() => openBrief(b.id)} className="card" style={{
                     width:"100%", textAlign:"left", padding: "12px 16px",
-                    border:"1px solid var(--c-line)",
-                    borderLeft: `3px solid ${st.stripe}`,
                     cursor:"pointer",
                     display:"flex", alignItems:"center", gap: 14,
-                    transition:"transform 100ms ease, box-shadow 100ms ease",
-                  }}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(0,0,0,0.06)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = ""; }}>
+                  }}>
                     <div style={{flex: 1, minWidth: 0}}>
                       <div style={{display:"flex", alignItems:"baseline", gap: 8, minWidth: 0}}>
                         <span style={{fontSize: 13.5, color:"var(--c-ink)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>
@@ -460,7 +461,7 @@ function BriefsLibrary({ go }) {
                           </span>
                         )}
                       </div>
-                      <div style={{display:"flex", gap: 10, marginTop: 4, fontFamily:"var(--font-mono)", fontSize: 10.5, color:"var(--c-faint)", letterSpacing:"0.04em", alignItems:"center"}}>
+                      <div style={{display:"flex", gap: 10, marginTop: 4, fontSize: 12, color:"var(--c-faint)", alignItems:"center"}}>
                         <span>{b.mode || t("briefs.mode.auto")}</span>
                         <span>·</span>
                         <span>{t("briefs.runsCount", { count: runs.length })}</span>
@@ -472,11 +473,11 @@ function BriefsLibrary({ go }) {
                         </>)}
                       </div>
                     </div>
-                    <span className="pill" style={{
-                      height: 20, padding:"0 9px", fontSize: 10,
-                      background: st.bg, color: st.fg,
-                    }}>{t("briefs.status." + st.label)}</span>
-                    <span style={{fontFamily:"var(--font-mono)", fontSize: 10.5, color:"var(--c-faint)", minWidth: 50, textAlign:"right"}}>
+                    <span className="status-line">
+                      <span className={"dot-state " + (flagged ? "dot-state--err" : "dot-state--ok")} />
+                      {t("briefs.status." + st.label)}
+                    </span>
+                    <span className="num" style={{fontSize: 12, color:"var(--c-faint)", minWidth: 50, textAlign:"right"}}>
                       {shortDate(b.created_at)}
                     </span>
                     <Icon name="arrow" size={14} />
@@ -2704,7 +2705,7 @@ function buildInitialRunNodes(ctx) {
   const midY = totalSpecH / 2 + 40;
 
   const nodes = [
-    { id: "bio",   x: cols.bio,   y: midY - 52, w: 260, kind: "bio",   eyebrow: "BIO",
+    { id: "bio",   x: cols.bio,   y: midY - 52, w: 260, kind: "bio",   eyebrow: "Brand profile",
       title: "Brand Intelligence Object", sub: "Certified canon · the source for every output" },
     { id: "brief", x: cols.brief, y: midY - 52, w: 280, kind: "brief", eyebrow: "BRIEF",
       title: shorten(ctx.title || humanize(ctx.sharpenedBrief || "") || humanize(ctx.rawBrief || "") || "Brief", 90),
@@ -2967,7 +2968,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
 
   const briefY = 40 + (Math.max(specs.length, 1) - 1) * rowH / 2;
   const nodes = [
-    { id: "bio",   x: 40,  y: briefY, w: 260, kind: "bio",   eyebrow: "BIO",
+    { id: "bio",   x: 40,  y: briefY, w: 260, kind: "bio",   eyebrow: "Brand profile",
       title: "Brand Intelligence Object", sub: state.cert ? t("briefs.view.certifiedByName", { name: state.cert.byName }) : t("briefs.view.certifiedCanon") },
     { id: "brief", x: 360, y: briefY, w: 280, kind: "brief", eyebrow: "BRIEF",
       title: briefTitle(state.brief),
@@ -3774,6 +3775,7 @@ function Library({ go }) {
       <PageHeader
         eyebrow={brand ? t("briefs.lib.eyebrowBrand", { name: brand.name }) : t("briefs.lib.eyebrow")}
         title={t("briefs.library.title")}
+        titleClass="brand-title"
         sub={t("briefs.library.sub")}
         right={<>
           <button className="btn btn--ghost btn--sm" onClick={reload}><Icon name="refresh" size={13} /> {t("briefs.lib.reload")}</button>

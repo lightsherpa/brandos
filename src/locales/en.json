@@ -23,7 +23,7 @@
   "nav": {
     "create": "Create",
     "briefs": "Briefs",
-    "bio": "BIO",
+    "bio": "Brand profile",
     "library": "Library",
     "specialists": "Specialists",
     "humans": "Humans",
@@ -32,8 +32,8 @@
   },
   "section": {
     "createBriefs": "Create / Briefs",
-    "bioLibrary": "BIO / Library",
-    "specialistsHumans": "Specialists / Humans",
+    "bioLibrary": "Brand",
+    "specialistsHumans": "Team",
     "creditsAccount": "Credits / Account",
     "team": "Team",
     "teamPortal": "Team portal",
@@ -322,7 +322,7 @@
   },
   "topbar": {
     "startBrief": "Start a brief",
-    "brandolphReading": "Brandolph is reading"
+    "brandolphReading": "Reading sources…"
   },
   "plans": {
     "eyebrow": "Plans",
@@ -457,8 +457,8 @@
       }
     },
     "status": {
-      "approved": "approved",
-      "flagged": "flagged"
+      "approved": "Approved",
+      "flagged": "Flagged"
     },
     "filter": {
       "all": "All",
@@ -503,6 +503,7 @@
       "title": "Briefs",
       "sub": "Every specialist run on this brand — auditable against the certified BIO. {runs} on record · {credits} cr spent.",
       "reload": "Reload",
+      "newBrief": "New brief",
       "runSpecialist": "Run a specialist",
       "searchPlaceholder": "Search briefs…",
       "countOf": "{shown} of {total}",
@@ -1200,7 +1201,7 @@
       "reviewingThis": "Your Brand Steward is reviewing this BIO",
       "awaitingCert": "Awaiting certification by your Brand Steward",
       "noBioYet": "No BIO yet — type a URL on Discovery to extract one",
-      "versionScore": "BIO v{version} · score {score}/100",
+      "versionScore": "Version {version} · score {score}/100",
       "flaggedAreas": {
         "plural": {
           "one": "Brandolph flagged {count} area for your Steward to confirm.",
@@ -1209,8 +1210,12 @@
       },
       "inReview": "in review",
       "within24h": "within 24h",
-      "eyebrow": "Brand Intelligence Object",
-      "of100": "OF 100",
+      "eyebrow": "Brand profile",
+      "of100": "of 100",
+      "certify": "Certify brand",
+      "openBook": "Open brand book",
+      "editProfile": "Edit profile",
+      "addSources": "Add sources",
       "certifiedDate": "Certified {date}",
       "uncertified": "Uncertified",
       "versionTitle": "BIO version {version}",
@@ -1313,8 +1318,8 @@
     "strategic": {
       "watchouts": "Strategic watchouts",
       "gaps": "Gaps",
-      "whatNot": "What Your brand is NOT",
-      "diagnosis": "Brandolph's diagnosis · this week"
+      "whatNot": "Brand is not",
+      "diagnosis": "Diagnosis"
     },
     "sources": {
       "feedBrandolph": "Feed Brandolph",

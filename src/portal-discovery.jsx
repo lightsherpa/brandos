@@ -1,6 +1,7 @@
 import React from "react";
 import { useLocale, t as tr } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
+import { uiFixtureEnabled, FIXTURE_BIO_STATE, FIXTURE_SOURCES, publishReadProgress } from "./lib/ui-fixture.js";
 import { BrandolphLine } from "./portal-shared.jsx";
 const { BrandolphAvatar, BrandolphDot, Confidence, Counter, Icon, Reveal } = window;
 /* Discovery (3-step intake) + BIO viewer. */
@@ -19,9 +20,12 @@ const defaultVisualMeta = (file) => FONT_FILE_EXTS.has(fileExt(file))
    Polls every `pollMs` while `pendingCert` is true (BIO not yet certified
    by Steward, or no BIO at all yet). Returns { brandId, bio, cert, refresh }. */
 function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
-  const [state, setState] = useDState({ brandId: null, brandName: null, brandUrl: null, bio: null, cert: null, review: null, diff: [], reviewPending: false, focusCount: 0, error: null, loading: true });
+  const [state, setState] = useDState(uiFixtureEnabled
+    ? FIXTURE_BIO_STATE
+    : { brandId: null, brandName: null, brandUrl: null, bio: null, cert: null, review: null, diff: [], reviewPending: false, focusCount: 0, error: null, loading: true });
 
   const tick = React.useCallback(async () => {
+    if (uiFixtureEnabled) return;
     try {
       /* Resolve current user's brand. Prefers the workspace switcher's
          selection (from localStorage); falls back to the first brand. RLS
@@ -66,6 +70,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
   }, [fixedBrandId]);
 
   useDEffect(() => {
+    if (uiFixtureEnabled) return undefined;
     let alive = true;
     tick();
     const interval = setInterval(() => { if (alive) tick(); }, pollMs);
@@ -501,9 +506,9 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
          tracking would require Inngest's GraphQL API. For visual
          feedback only; truth is "did a new bios row appear?" */
       const sec = (Date.now() - startedAt) / 1000;
-      if (sec < 6) setStage("scrape");
-      else if (sec < 12) setStage("vision");
-      else setStage("compile");
+      const step = sec < 6 ? 1 : sec < 12 ? 2 : 3;
+      setStage(step === 1 ? "scrape" : step === 2 ? "vision" : "compile");
+      publishReadProgress({ done: step, total: 4 });
 
       try {
         const brandId = runContext?.brandId;
@@ -513,6 +518,7 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
         const { bio } = await res.json();
         if (discoveryId && bio?.discovery_id === discoveryId) {
           setStage("done");
+          publishReadProgress(null);
           alive = false;                 /* stop further polling */
           clearTimeout(fallback);        /* the 90s safety net is no longer needed */
           /* Brief beat so the user sees "done", then advance to Confirm.
@@ -535,7 +541,7 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
         setError("We haven't confirmed this extraction yet. It may still finish in the background; check again or open the BIO without activating this run.");
       }
     }, 90000);
-    return () => { alive = false; clearInterval(id); clearTimeout(fallback); };
+    return () => { alive = false; clearInterval(id); clearTimeout(fallback); publishReadProgress(null); };
   }, [onDone, retryNonce, runContext?.brandId, runContext?.discoveryId]);
 
   const pct = Math.min(95, Math.round(elapsed * 4));            /* visual progress only */
@@ -1417,23 +1423,14 @@ function fieldsToPayload(bio, prevPayload) {
    /self-certify → flips self_certified, which UNLOCKS briefing. Production
    still waits for a human Steward. (The richer per-field accurate/aspirational
    marking lands with the discovery S12 rebuild in M3.) */
-function SelfCertPanel({ brandId, bio, onDone }) {
+function SelfCertPanel({ brandId, bio, onDone, onControls }) {
   const { t } = useLocale();
-  const [st, setSt] = useDState({ authority: false, reflects: false, aspirationalMarked: false });
+  const [st, setSt] = useDState(uiFixtureEnabled
+    ? { authority: true, reflects: true, aspirationalMarked: true }
+    : { authority: false, reflects: false, aspirationalMarked: false });
   const [busy, setBusy] = useDState(false);
   const [err, setErr] = useDState(null);
   const allChecked = st.authority && st.reflects && st.aspirationalMarked;
-
-  if (bio?.self_certified) {
-    return (
-      <div className="card" style={{padding:"10px 14px", marginBottom: 18, borderLeft:"3px solid var(--green-500)", display:"flex", alignItems:"center", gap: 10}}>
-        <Icon name="check" size={15} />
-        <div style={{fontSize: 13, color:"var(--c-ink)"}}>
-          <strong>{t("discovery.selfCert.attestedBold")}</strong> — {t("discovery.selfCert.attestedRest")}
-        </div>
-      </div>
-    );
-  }
 
   const submit = async () => {
     setBusy(true); setErr(null);
@@ -1451,6 +1448,27 @@ function SelfCertPanel({ brandId, bio, onDone }) {
       if (onDone) onDone();
     } catch (e) { setErr(e?.message || String(e)); } finally { setBusy(false); }
   };
+  const submitRef = React.useRef(submit);
+  submitRef.current = submit;
+  useDEffect(() => {
+    onControls?.({
+      canCertify: !bio?.self_certified && allChecked && !busy,
+      busy,
+      certified: !!bio?.self_certified,
+      submit: () => submitRef.current(),
+    });
+  }, [allChecked, busy, bio?.self_certified]);
+
+  if (bio?.self_certified) {
+    return (
+      <div className="card" style={{padding:"10px 14px", marginBottom: 18, borderLeft:"3px solid var(--green-500)", display:"flex", alignItems:"center", gap: 10}}>
+        <Icon name="check" size={15} />
+        <div style={{fontSize: 13, color:"var(--c-ink)"}}>
+          <strong>{t("discovery.selfCert.attestedBold")}</strong> — {t("discovery.selfCert.attestedRest")}
+        </div>
+      </div>
+    );
+  }
 
   const Check = ({ k, children }) => (
     <label style={{display:"flex", gap: 8, alignItems:"flex-start", fontSize: 12.5, color:"var(--c-ink)", cursor:"pointer", lineHeight: 1.45}}>
@@ -1460,7 +1478,7 @@ function SelfCertPanel({ brandId, bio, onDone }) {
   );
 
   return (
-    <div className="card" style={{padding:"14px 16px", marginBottom: 18, borderLeft:"3px solid var(--yellow-500)"}}>
+    <div className="card" style={{padding:"14px 16px", marginBottom: 18}}>
       <div className="eyebrow eyebrow--yellow" style={{marginBottom: 8}}>{t("discovery.selfCert.eyebrow")}</div>
       <div style={{fontSize: 12.5, color:"var(--c-dim)", marginBottom: 10, lineHeight: 1.5}}>
         {t("discovery.selfCert.desc")}
@@ -1470,10 +1488,7 @@ function SelfCertPanel({ brandId, bio, onDone }) {
         <Check k="reflects">{t("discovery.statement.reflects")}</Check>
         <Check k="aspirationalMarked">{t("discovery.statement.aspirational")}</Check>
       </div>
-      {err && <div style={{fontSize: 12, color:"var(--pink-500)", marginBottom: 8}}>{err}</div>}
-      <button className="btn btn--primary btn--sm" disabled={!allChecked || busy} onClick={submit}>
-        {busy ? t("discovery.selfCert.submitting") : t("discovery.selfCert.submit")}
-      </button>
+      {err && <div style={{fontSize: 12, color:"var(--c-dim)", marginBottom: 8}}>{err}</div>}
     </div>
   );
 }
@@ -1649,7 +1664,7 @@ const BIO_SURFACE_CSS = `
 
 function BioViewer({ go, bioScore = 91 }) {
   const { t } = useLocale();
-  const [tab, setTab] = useDState("identity");
+  const [tab, setTab] = useDState(uiFixtureEnabled ? "strategic" : "identity");
   const [feed, setFeed] = useDState("");
   const [reading, setReading] = useDState(false);
   const [toast, setToast] = useDState(null);
@@ -1658,6 +1673,16 @@ function BioViewer({ go, bioScore = 91 }) {
   const [saveErr, setSaveErr] = useDState(null);
   const [reviewBusy, setReviewBusy] = useDState(false);
   const [hasUnappliedSourceChanges, setHasUnappliedSourceChanges] = useDState(false);
+  const certifyRef = React.useRef({ canCertify: false, busy: false, submit() {} });
+  const [certifyUi, setCertifyUi] = useDState({ canCertify: false, busy: false, certified: false });
+  const onCertifyControls = React.useCallback((next) => {
+    certifyRef.current = next;
+    setCertifyUi((prev) => (
+      prev.canCertify === next.canCertify && prev.busy === next.busy && prev.certified === next.certified
+        ? prev
+        : { canCertify: next.canCertify, busy: next.busy, certified: next.certified }
+    ));
+  }, []);
 
   /* Live cert state + payload — polls /api/bios/:brandId. The BIO body
      below renders from `live.bio.payload`; the cert chip from `live.cert`. */
@@ -1675,7 +1700,8 @@ function BioViewer({ go, bioScore = 91 }) {
   }, [live.bio?.id]);
 
   useDEffect(() => {
-    if (!live.brandId) return;
+    if (uiFixtureEnabled) { setSources(FIXTURE_SOURCES); return undefined; }
+    if (!live.brandId) return undefined;
     let alive = true;
     supabase.from("bio_sources").select("id, kind, bucket, src, signals, raw_ref, created_at")
       .eq("brand_id", live.brandId).order("created_at", { ascending: false })
@@ -1736,6 +1762,7 @@ function BioViewer({ go, bioScore = 91 }) {
     const ref = (labelArg ?? feed).trim();
     if (!ref || reading || !live.brandId) return;
     setReading(true); setFeed("");
+    publishReadProgress({ done: sources.length, total: Math.max(sources.length + 1, 1) });
     try {
       const res = await apiFetch(`/api/bios/${live.brandId}/sources`, {
         method: "POST",
@@ -1752,6 +1779,7 @@ function BioViewer({ go, bioScore = 91 }) {
       flash(t("discovery.bio.couldntAdd", { error: e?.message || e }));
     } finally {
       setReading(false);
+      publishReadProgress(uiFixtureEnabled ? { done: 3, total: 7 } : null);
     }
   };
 
@@ -1767,17 +1795,72 @@ function BioViewer({ go, bioScore = 91 }) {
   return (
     <div className="cos-page cos-bio" style={{padding:"24px 36px 60px"}}>
       <style>{BIO_SURFACE_CSS}</style>
+      {/* Hero */}
+      <div className="bio-hero page-header" style={{marginBottom: 28}}>
+        <div>
+          <div className="eyebrow" style={{marginBottom: 6}}>{t("discovery.bio.eyebrow")}</div>
+          <h1 className="brand-title" style={{margin: "0 0 8px"}}>{live.brandName || "Brand profile"}</h1>
+          <div style={{display:"flex", alignItems:"center", gap: 8, fontSize: 13, color:"var(--c-dim)"}}>
+            <span className="dot-state" style={{background: tone.color}} />
+            <span>{tone.word}</span>
+            <span style={{color:"var(--c-faint)"}}>·</span>
+            <span className="num" title={tone.hint}><Counter to={conf} /> {t("discovery.bio.of100")}</span>
+            {live.cert ? (
+              <>
+                <span className="cert-seal" aria-hidden="true">
+                  <Icon name="check" size={10} stroke={2} />
+                </span>
+                <span>{t("discovery.bio.certifiedDate", { date: formatCertDate(live.cert.at) })}</span>
+              </>
+            ) : live.bio ? (
+              <span className="num" title={t("discovery.bio.versionTitle", { version: live.bio.version })}>{t("discovery.bio.uncertified")} · v{live.bio.version}</span>
+            ) : null}
+          </div>
+        </div>
+        <div className="page-actions">
+          {editing ? (
+            <>
+              <button className="btn btn--primary" disabled={saving || !bio} onClick={saveBio}>
+                {saving ? t("discovery.bio.savingChanges") : t("discovery.bio.saveChanges")}
+              </button>
+              <button className="btn btn--ghost" disabled={saving}
+                onClick={() => { setEditing(false); if (live.bio?.payload) setBio(payloadToFields(live.bio.payload)); setSaveErr(null); }}>
+                {t("discovery.common.cancel")}
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn--primary" disabled={!certifyUi.canCertify} onClick={() => certifyRef.current.submit()}
+                title={certifyUi.canCertify ? t("discovery.bio.certify") : t("discovery.selfCert.desc")}>
+                {certifyUi.busy ? t("discovery.selfCert.submitting") : t("discovery.bio.certify")}
+              </button>
+              <button className="btn btn--ghost" onClick={() => go("library")}>{t("discovery.bio.openBook")}</button>
+            </>
+          )}
+          <window.OverflowMenu items={[
+            { label: t("discovery.bio.editProfile"), disabled: editing || !bio, onClick: () => setEditing(true) },
+            { label: t("discovery.bio.rerunDiscovery"), onClick: () => go("discovery") },
+            { label: live.reviewPending ? t("discovery.bio.inReviewShort") : t("discovery.bio.requestHumanReview"), disabled: !live.bio || reviewBusy || live.reviewPending || hasUnappliedSourceChanges, onClick: requestReview },
+            { label: t("discovery.bio.addSources"), disabled: !live.brandId, onClick: () => setTab("sources") },
+          ]} />
+        </div>
+      </div>
+
       {/* Live cert chip — pulls real DB state, polls every 5s */}
       {live.brandId && (
         <div className="card" style={{
           padding:"10px 14px", marginBottom: 18,
-          borderLeft: `3px solid ${live.cert ? "var(--green-500)" : "var(--yellow-500)"}`,
           display:"flex", alignItems:"center", justifyContent:"space-between", gap: 12,
         }}>
           <div style={{display:"flex", alignItems:"center", gap: 10}}>
+            {live.cert && (
+              <span className="cert-seal" title="Certified" aria-hidden="true">
+                <Icon name="check" size={10} stroke={2} />
+              </span>
+            )}
             <span style={{
               width: 8, height: 8, borderRadius:"50%",
-              background: live.cert ? "var(--green-500)" : "var(--yellow-500)",
+              background: live.cert ? "var(--status-success)" : "var(--status-warning)",
               animation: live.cert ? "none" : "pulse 1.4s ease-in-out infinite",
             }} />
             <div>
@@ -1793,7 +1876,7 @@ function BioViewer({ go, bioScore = 91 }) {
                 )}
               </div>
               {live.bio && (
-                <div style={{fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-faint)", marginTop: 2}}>
+                <div style={{fontSize: 12, color:"var(--c-faint)", marginTop: 2}}>
                   {live.brandName} · {t("discovery.bio.versionScore", { version: live.bio.version, score: live.bio.score ?? "—" })}
                 </div>
               )}
@@ -1826,64 +1909,8 @@ function BioViewer({ go, bioScore = 91 }) {
 
       {/* Stage-1 self-certification — unlocks briefing (shown until human cert lands) */}
       {live.brandId && live.bio && !live.cert && (
-        <SelfCertPanel brandId={live.brandId} bio={live.bio} onDone={live.refresh} />
+        <SelfCertPanel brandId={live.brandId} bio={live.bio} onDone={live.refresh} onControls={onCertifyControls} />
       )}
-
-      {/* Hero */}
-      <div className="bio-hero" style={{display:"grid", gridTemplateColumns:"1fr 320px", gap: 28, marginBottom: 28, alignItems:"end"}}>
-        <div>
-          <div className="eyebrow" style={{marginBottom: 6}}>{t("discovery.bio.eyebrow")} · {live.brandName || "Your brand"}</div>
-          <div style={{display:"flex", alignItems:"baseline", gap: 14}}>
-            <span className="bio-score" style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 88, lineHeight: 1, color: tone.color, fontWeight: 500}}>
-              <Counter to={conf} />
-            </span>
-            <div>
-              <div style={{fontFamily:"var(--font-mono)", fontSize:11, color: tone.color, letterSpacing:"0.06em", textTransform:"uppercase"}} title={tone.hint}>{t("discovery.bio.of100")} · {tone.word}</div>
-              <div style={{fontSize: 13, color:"var(--c-faint)", marginTop: 4, lineHeight: 1.5, maxWidth: 320}}>{tone.hint}</div>
-              <div style={{fontSize: 14, color:"var(--c-dim)", marginTop: 6}}>
-                {live.cert
-                  ? t("discovery.bio.certifiedDate", { date: formatCertDate(live.cert.at) })
-                  : live.bio
-                  ? <>{t("discovery.bio.uncertified")} <span style={{color:"var(--c-faint)", fontFamily:"var(--font-mono)", fontSize:11}} title={t("discovery.bio.versionTitle", { version: live.bio.version })}>· v{live.bio.version}</span></>
-                  : ""}
-              </div>
-            </div>
-          </div>
-          <div style={{marginTop: 14, height: 6, background:"var(--neutral-50)", borderRadius:999, overflow:"hidden", maxWidth: 600}}>
-            <div style={{height:"100%", width: conf + "%", background: tone.color, borderRadius:999, transition:"width 800ms ease"}} />
-          </div>
-        </div>
-        <div className="bio-hero-actions" style={{display:"flex", flexDirection:"column", gap: 10, alignItems:"flex-end"}}>
-          <button className="btn btn--primary" onClick={() => setTab("sources")} disabled={!live.brandId}>
-            <Icon name="plus" size={14} /> {t("discovery.bio.feedBrandolph")}
-          </button>
-          {!editing ? (
-            <button className="btn btn--ghost btn--sm" onClick={() => setEditing(true)} disabled={!bio}>
-              <Icon name="edit" size={14} /> {t("discovery.bio.editBio")}
-            </button>
-          ) : (
-            <div style={{display:"flex", gap: 6, alignItems:"center"}}>
-              <button className="btn btn--ghost btn--sm" disabled={saving}
-                onClick={() => { setEditing(false); if (live.bio?.payload) setBio(payloadToFields(live.bio.payload)); setSaveErr(null); }}>
-                {t("discovery.common.cancel")}
-              </button>
-              <button className="btn btn--primary btn--sm" disabled={saving || !bio} onClick={saveBio}>
-                <Icon name="check" size={14} /> {saving ? t("discovery.bio.savingChanges") : t("discovery.bio.saveChanges")}
-              </button>
-            </div>
-          )}
-          <button className="btn btn--ghost btn--sm" onClick={() => go("discovery")}>
-            <Icon name="refresh" size={14} /> {t("discovery.bio.rerunDiscovery")}
-          </button>
-          {live.bio && (
-            <button className="btn btn--ghost btn--sm" onClick={requestReview}
-              disabled={reviewBusy || live.reviewPending || hasUnappliedSourceChanges}
-              title={hasUnappliedSourceChanges ? "Update the BIO with pending evidence before requesting review" : live.reviewPending ? t("discovery.bio.reviewInProgressTitle") : t("discovery.bio.requestReviewTitle")}>
-              <Icon name="mail" size={14} /> {live.reviewPending ? t("discovery.bio.inReviewShort") : reviewBusy ? t("discovery.bio.sending") : t("discovery.bio.requestHumanReview")}
-            </button>
-          )}
-        </div>
-      </div>
 
       {editing && (
         <div className="card" style={{padding:"10px 16px", marginBottom:14, borderLeft:"3px solid var(--brand, var(--yellow-500))", display:"flex", alignItems:"center", gap:10}}>
@@ -1894,7 +1921,7 @@ function BioViewer({ go, bioScore = 91 }) {
       {hasUnappliedSourceChanges && (
         <div className="card" style={{padding:"10px 14px", marginBottom:14, borderLeft:"3px solid var(--yellow-500)", display:"flex", justifyContent:"space-between", alignItems:"center", gap:12}}>
           <span style={{fontSize:13}}>Review the changes before requesting certification.</span>
-          <button className="btn btn--primary btn--sm" onClick={() => go("discovery")}>Update BIO</button>
+          <button className="btn btn--ghost" onClick={() => go("discovery")}>Update BIO</button>
         </div>
       )}
       {saveErr && (
@@ -2251,7 +2278,7 @@ function BioStrategic({ strat, patchStrategic, editing }) {
   const { t } = useLocale();
   return (
     <div style={{display:"grid", gridTemplateColumns: "1fr 1fr", gap: 18}}>
-      <div className="card" style={{padding: 18, borderLeft: "3px solid var(--yellow-500)"}}>
+      <div className="card" style={{padding: 18}}>
         <div className="eyebrow eyebrow--yellow" style={{marginBottom: 8}}>{t("discovery.strategic.watchouts")}</div>
         {editing
           ? <StringListEditor items={strat.watchouts} onChange={(v) => patchStrategic("watchouts", v)} />
@@ -2259,7 +2286,7 @@ function BioStrategic({ strat, patchStrategic, editing }) {
               {strat.watchouts.map((x, i) => <li key={i} style={{fontSize: 13.5, color:"var(--c-ink)"}}>{x}</li>)}
             </ul>}
       </div>
-      <div className="card" style={{padding: 18, borderLeft:"3px solid var(--orange-500)"}}>
+      <div className="card" style={{padding: 18}}>
         <div className="eyebrow" style={{color:"var(--orange-600)", marginBottom: 8}}>{t("discovery.strategic.gaps")}</div>
         {editing
           ? <StringListEditor items={strat.gaps} onChange={(v) => patchStrategic("gaps", v)} />
@@ -2267,12 +2294,12 @@ function BioStrategic({ strat, patchStrategic, editing }) {
               {strat.gaps.map((x, i) => <li key={i} style={{fontSize: 13.5, color:"var(--c-ink)"}}>{x}</li>)}
             </ul>}
       </div>
-      <div className="card" style={{padding: 18, borderLeft:"3px solid var(--pink-500)", gridColumn: "1 / -1"}}>
+      <div className="card" style={{padding: 18, gridColumn: "1 / -1"}}>
         <div className="eyebrow eyebrow--pink" style={{marginBottom: 8}}>{t("discovery.strategic.whatNot")}</div>
         {editing
           ? <StringListEditor items={strat.notList} onChange={(v) => patchStrategic("notList", v)} marker="✕" color="var(--pink-500)" />
-          : <ul style={{margin: 0, paddingLeft: 0, listStyle:"none", display:"grid", gridTemplateColumns: "1fr 1fr", gap: 10}}>
-              {strat.notList.map((x, i) => <li key={i} style={{fontSize:13.5}}>✕ {x}</li>)}
+          : <ul style={{margin: 0, paddingLeft: 18, display:"grid", gridTemplateColumns: "1fr 1fr", gap: 10}}>
+              {strat.notList.map((x, i) => <li key={i} style={{fontSize:13.5}}>{x}</li>)}
             </ul>}
       </div>
       <div className="card" style={{padding: 18, gridColumn: "1 / -1"}}>

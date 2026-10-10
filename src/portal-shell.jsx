@@ -1,5 +1,6 @@
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
+import { uiFixtureEnabled, FIXTURE_BRANDS, useReadProgress } from "./lib/ui-fixture.js";
 import { useLocale, t, fmtNumber, applyOverrides } from "./lib/i18n.js";
 const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, Discovery, BioViewer, BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard, CraftMarketplace, CreditsLedger, SettingsView, FloatingBrandolph, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
 /* Caastor Intelligence — app shell + router + sidebar + topbar.    */
@@ -89,16 +90,15 @@ function useShellTweaks() {
    v2 tokens key off. Persisted to localStorage so the look survives
    reloads. */
 const DS_KEY = "ci_ds";
-const DS_DEFAULTS = { theme: "light", palette: "plex-registry", font: "plex", density: "cozy" };
+const DS_DEFAULTS = { theme: "light", palette: "plex-registry", density: "cozy" };
 function useDesignSettings() {
   const [ds, setDs] = useShellState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(DS_KEY) || "{}");
-      /* Migrate pre-rebrand preferences so an existing browser session
-         cannot silently bring back the old yellow/purple visual world. */
+      /* Palette stays on the product skin. The font switcher is gone. */
       const migrated = { ...DS_DEFAULTS, ...stored };
+      delete migrated.font;
       if (!stored.palette || stored.palette !== "plex-registry") migrated.palette = "plex-registry";
-      if (!stored.font || stored.font !== "plex") migrated.font = "plex";
       return migrated;
     } catch (e) { return DS_DEFAULTS; }
   });
@@ -106,10 +106,10 @@ function useDesignSettings() {
     const r = document.documentElement;
     r.setAttribute("data-theme", ds.theme);
     r.setAttribute("data-palette", ds.palette);
-    r.setAttribute("data-font", ds.font);
+    r.removeAttribute("data-font");
     r.setAttribute("data-density", ds.density);
     try { localStorage.setItem(DS_KEY, JSON.stringify(ds)); } catch (e) {}
-  }, [ds.theme, ds.palette, ds.font, ds.density]);
+  }, [ds.theme, ds.palette, ds.density]);
   const setDsKey = (k, v) => setDs(prev => ({ ...prev, [k]: v }));
   return [ds, setDsKey];
 }
@@ -154,8 +154,11 @@ function useRoute() {
    every data hook (briefs, BIO, library, discovery) re-fetches.
    Mounted inside the AppDock, directly under the logo. */
 function useBrandList() {
-  const [state, setState] = useShellState({ brands: [], loading: true });
+  const [state, setState] = useShellState(uiFixtureEnabled
+    ? { brands: FIXTURE_BRANDS, loading: false }
+    : { brands: [], loading: true });
   useShellEffect(() => {
+    if (uiFixtureEnabled) return undefined;
     let cancelled = false;
     const load = async () => {
       const { data } = await supabase
@@ -578,6 +581,17 @@ function NotificationBell() {
   );
 }
 
+function ReadStatus() {
+  const progress = useReadProgress();
+  if (!progress?.total) return null;
+  return (
+    <div className="read-status" role="status">
+      <span className="dot-state dot-state--running" aria-hidden="true" />
+      <span>{`Reading sources… ${progress.done} of ${progress.total}`}</span>
+    </div>
+  );
+}
+
 function TopBar({ portal, route, brandName, go }) {
   const { t } = useLocale();
   const isClient = portal === "client" || CLIENT_ROUTES.some((item) => item.id === route) || ["home","brief-detail","discovery","specialist-new","canvas","board","upgrade"].includes(route);
@@ -624,27 +638,14 @@ function TopBar({ portal, route, brandName, go }) {
   const ws = portal === "team" ? "La Mesa team" : brandName;
   return (
     <div className="topbar">
-      <div className="titlestrip__crumb">{ws} · {crumb}</div>
-      <span style={{color:"rgba(48,48,48,0.4)"}}>/</span>
+      <div className="titlestrip__crumb">{ws} / {crumb}</div>
       <div className="topbar__title">{title}</div>
       <div style={{marginLeft:"auto", display:"flex", alignItems:"center", gap: 14}}>
         <NotificationBell />
-        {isClient && (
-          <button onClick={() => go && go("home")}
-            style={{
-              display:"inline-flex", alignItems:"center", gap:7, height:32, padding:"0 14px",
-              background:"var(--accent)", color:"#fff", border:"none", borderRadius:4,
-              fontFamily:"var(--font-sans)", fontWeight:600, fontSize:13, letterSpacing:"-0.01em",
-              cursor:"pointer", boxShadow:"0 2px 6px rgba(0,0,0,0.18)",
-            }}>
-            <Icon name="plus" size={14} /> {t("topbar.startBrief")}
-          </button>
+        {isClient && route !== "bio" && route !== "briefs" && (
+          <button className="btn btn--primary" onClick={() => go && go("home")}>{t("topbar.startBrief")}</button>
         )}
-        {isClient && (
-          <div style={{display:"flex", alignItems:"center", gap:6, fontFamily:"var(--font-mono)", fontSize:10.5, letterSpacing:"0.14em", textTransform:"uppercase", color:"rgba(48,48,48,0.7)"}}>
-            <BrandolphDot /> {t("topbar.brandolphReading")}
-          </div>
-        )}
+        {isClient && <ReadStatus />}
         <img src={isClient ? window.CI_USER.avatar : "caastor/assets/profile-1.jpg"} alt="" style={{width: 30, height: 30, borderRadius: "50%", objectFit:"cover", border:"1.5px solid rgba(0,0,0,0.12)"}} />
       </div>
     </div>
@@ -1062,12 +1063,6 @@ function PortalTweaks({ tweaks, setTweak, ds, setDs }) {
           onChange={v => setDs("palette", v)}
           options={[
             { value:"plex-registry", label:"Plex Registry (mineral · cobalt · signal)" },
-          ]} />
-        <TweakSelect label="Font"
-          value={ds.font}
-          onChange={v => setDs("font", v)}
-          options={[
-            { value:"plex", label:"IBM Plex (Registry)" },
           ]} />
         <TweakRadio label="Density"
           value={ds.density}

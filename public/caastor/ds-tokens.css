@@ -8,7 +8,7 @@
      Sans, Serif, and Mono into one editorial-operating system
    ────────────────────────────────────────────────────────────────── */
 
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap");
 
 /* ─────────────────────────────────────────────────────────────────
    ARABIC TYPOGRAPHY — IBM Plex Sans Arabic (SIL OFL, self-hosted)
@@ -65,13 +65,14 @@
    ROOT — fonts, scale, motion, radii (palette-agnostic)
    ================================================================= */
 :root {
-  /* Fonts — one family with clear role changes: Plex Sans for UI/body,
-     Plex Serif for editorial names, Plex Mono for IDs and measurements. */
-  --font-sans:    "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif;
-  --font-display: "IBM Plex Serif", Georgia, "IBM Plex Sans Arabic", serif;
-  --font-body:    "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif;
-  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --font-serif:   "IBM Plex Serif", Georgia, "IBM Plex Sans Arabic", serif;
+  /* Instrument Sans for interface copy. Instrument Serif is opt-in
+     (.brand-title) for the brand profile and Brand Book titles.
+     Geist Mono is for IDs, hex codes, and numbers only. */
+  --font-sans:    "Instrument Sans", system-ui, "IBM Plex Sans Arabic", sans-serif;
+  --font-display: "Instrument Sans", system-ui, "IBM Plex Sans Arabic", sans-serif;
+  --font-body:    "Instrument Sans", system-ui, "IBM Plex Sans Arabic", sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-serif:   "Instrument Serif", Georgia, "IBM Plex Sans Arabic", serif;
 
   /* Type scale — slightly tighter, Apple-feel */
   --text-display-lg: 72px;  --lh-display-lg: 76px;
@@ -95,13 +96,13 @@
   --text-code-md: 13px;     --lh-code-md: 20px;
   --text-code-sm: 11px;     --lh-code-sm: 16px;
 
-  /* Tighter Apple radii */
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 22px;
+  /* Three radii only: 4, 8, and full. */
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
   --radius-pill: 9999px;
 
   /* Spacing (kept compatible with old tokens) */
@@ -134,10 +135,10 @@
   --brand-strong: #C68B00;
   --brand-soft:   #FFF4D1;
   --brand-glow:   254 180 0;
-  --accent:       #4F46E5;   /* electric indigo */
-  --accent-strong:#3730A3;
-  --accent-soft:  #E6E4FF;
-  --accent-glow:  79 70 229;
+  --accent:       #1C1917;   /* near-black primary */
+  --accent-strong:#0C0A09;
+  --accent-soft:  #F5F5F4;
+  --accent-glow:  28 25 23;
 }
 
 /* AURORA — violet + acid lime */
@@ -192,11 +193,11 @@
    LIGHT MODE — white / light-gray surfaces, vivid brand
    ================================================================= */
 :root, [data-theme="light"] {
-  --bg-app:       #F9F9F9;        /* Figma/Metronic body — cool off-white */
+  --bg-app:       #FAFAF9;
   --bg-canvas:    #FFFFFF;
   --bg-elevated:  #FFFFFF;
-  --bg-sunken:    #FBFBFB;
-  --bg-muted:     #F1F1F4;        /* Metronic gray-100 */
+  --bg-sunken:    #F5F5F4;
+  --bg-muted:     #F5F5F4;
   --bg-overlay:   rgba(20, 20, 24, 0.48);
 
   --bg-inverse:   #0B0B0F;
@@ -206,19 +207,19 @@
   --glass-stroke: rgba(255, 255, 255, 0.85);
   --glass-shadow: 0 10px 40px rgba(20, 20, 30, 0.08), 0 1px 0 rgba(255,255,255,0.6) inset;
 
-  --text-primary:   #071437;      /* Metronic gray-900 — navy ink */
-  --text-secondary: #4B5675;      /* gray-600 */
-  --text-tertiary:  #78829D;      /* gray-500 */
-  --text-quaternary:#99A1B7;      /* gray-400 */
+  --text-primary:   #1C1917;
+  --text-secondary: #44403C;
+  --text-tertiary:  #78716C;
+  --text-quaternary:#A8A29E;
   --text-disabled:  #C4CADA;      /* gray-300 */
   --text-inverse:   #FFFFFF;
   --text-link:      var(--accent);
-  --text-on-brand:  #071437;
+  --text-on-brand:  #1C1917;
   --text-on-accent: #FFFFFF;
 
-  --border-default: #DBDFE9;      /* Metronic gray-200 — crisp card/table line */
-  --border-subtle:  #F1F1F4;      /* gray-100 */
-  --border-strong:  #C4CADA;      /* gray-300 */
+  --border-default: #E7E5E4;
+  --border-subtle:  #F5F5F4;
+  --border-strong:  #D6D3D1;
   --border-focus:   var(--accent);
 
   /* status — aligned to Figma (Metronic) */
@@ -325,20 +326,15 @@ body {
 .t-body-lg { font-size: var(--text-body-lg); line-height: var(--lh-body-lg); color: var(--text-secondary); }
 .t-body-md { font-size: var(--text-body-md); line-height: var(--lh-body-md); color: var(--text-secondary); }
 .t-body-sm { font-size: var(--text-body-sm); line-height: var(--lh-body-sm); color: var(--text-tertiary); }
-.t-overline { font-size: 11px; line-height: 14px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: var(--text-tertiary); }
+.t-overline { font-family: var(--font-sans); font-size: 12px; line-height: 16px; letter-spacing: 0; text-transform: none; font-weight: 500; color: var(--text-tertiary); }
 .t-mono { font-family: var(--font-mono); font-size: 12px; letter-spacing: -0.01em; }
 .t-serif-italic { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
 
 h1, h2, h3, h4, h5, h6 { margin: 0; font-family: var(--font-sans); color: var(--text-primary); }
 p { margin: 0; font-family: var(--font-body); }
 
-/* Font preset overrides (Tweaks-driven). "IBM Plex Sans Arabic" is kept as
-   the trailing family in every preset so Arabic codepoints always land on
-   it (via its unicode-range) regardless of which Latin face is selected. */
-[data-font="inter"] { --font-sans: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-display: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-body: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; }
-[data-font="geist"] { --font-sans: "Geist", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-display: "Geist", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-body: "Geist", system-ui, "IBM Plex Sans Arabic", sans-serif; }
-[data-font="plex"]  { --font-sans: "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-display: "IBM Plex Serif", Georgia, "IBM Plex Sans Arabic", serif; --font-body: "IBM Plex Sans", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; }
-[data-font="serif-mix"] { --font-display: "Instrument Serif", "IBM Plex Sans Arabic", serif; --font-sans: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; --font-body: "Inter Tight", system-ui, "IBM Plex Sans Arabic", sans-serif; }
+/* Runtime font presets were removed. Instrument Sans is the interface
+   face; Instrument Serif is limited to .brand-title. */
 
 /* =================================================================
    ARABIC / RTL TYPOGRAPHY TOKENS

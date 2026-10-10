@@ -1,5 +1,6 @@
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
+import { uiFixtureEnabled, FIXTURE_SESSION } from "./lib/ui-fixture.js";
 import { setLocale } from "./lib/i18n.js";
 import { prepareTotpFactor } from "./lib/mfa.js";
 
@@ -227,6 +228,7 @@ async function setNewPassword(password) {
 }
 
 function getSession() {
+  if (uiFixtureEnabled) return FIXTURE_SESSION;
   return currentProfile;   // synchronous; populated by the auth listener below
 }
 

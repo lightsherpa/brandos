@@ -29,7 +29,7 @@
   "nav": {
     "create": "إنشاء",
     "briefs": "الموجزات",
-    "bio": "BIO",
+    "bio": "ملف العلامة",
     "library": "المكتبة",
     "specialists": "المتخصصون",
     "humans": "البشر",
@@ -38,7 +38,7 @@
   },
   "section": {
     "createBriefs": "الإنشاء / الموجزات",
-    "bioLibrary": "BIO / المكتبة",
+    "bioLibrary": "العلامة",
     "specialistsHumans": "المتخصصون / البشر",
     "creditsAccount": "الرصيد / الحساب",
     "team": "الفريق",

@@ -7,48 +7,48 @@
  * grammar so every route reads as the same workspace.
  */
 :root {
-  --plex-paper: #f7f8f6;
+  --plex-paper: #fafaf9;
   --plex-surface: #ffffff;
-  --plex-surface-2: #f1f3f5;
-  --plex-ink: #15191f;
-  --plex-ink-2: #3d4652;
-  --plex-muted: #697482;
-  --plex-line: #dfe3e8;
-  --plex-line-strong: #c8ced7;
-  --plex-cobalt: #2457d6;
-  --plex-cobalt-strong: #163fa8;
-  --plex-cobalt-soft: #e9efff;
+  --plex-surface-2: #f5f5f4;
+  --plex-ink: #1c1917;
+  --plex-ink-2: #44403c;
+  --plex-muted: #78716c;
+  --plex-line: #e7e5e4;
+  --plex-line-strong: #d6d3d1;
+  --plex-cobalt: #1c1917;
+  --plex-cobalt-strong: #0c0a09;
+  --plex-cobalt-soft: #f5f5f4;
   --plex-signal: #1d9a63;
   --plex-signal-strong: #127348;
   --plex-signal-soft: #e5f6ed;
   --plex-danger: #c13a4a;
-  --plex-warning: #b97900;
-  --plex-font-ui: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, sans-serif;
-  --plex-font-display: "IBM Plex Serif", Georgia, serif;
-  --plex-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --plex-radius: 4px;
-  --plex-shadow: 0 8px 24px rgba(21, 25, 31, .08), 0 1px 2px rgba(21, 25, 31, .06);
+  --plex-warning: #b45309;
+  --plex-font-ui: "Instrument Sans", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --plex-font-display: "Instrument Sans", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --plex-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --plex-radius: 8px;
+  --plex-shadow: none;
 }
 
 html[data-palette="plex-registry"], html[data-font="plex"] {
-  --brand: var(--plex-cobalt);
-  --brand-strong: var(--plex-cobalt-strong);
-  --brand-soft: var(--plex-cobalt-soft);
-  --brand-glow: 36 87 214;
-  --accent: var(--plex-cobalt);
-  --accent-strong: var(--plex-cobalt-strong);
-  --accent-soft: var(--plex-cobalt-soft);
-  --accent-glow: 36 87 214;
-  --yellow-50: var(--plex-signal-soft);
-  --yellow-100: var(--plex-signal-soft);
-  --yellow-200: rgba(29, 154, 99, .22);
-  --yellow-300: rgba(29, 154, 99, .35);
-  --yellow-400: var(--plex-signal);
-  --yellow-500: var(--plex-signal);
-  --yellow-600: var(--plex-signal-strong);
-  --yellow-700: var(--plex-signal-strong);
-  --yellow-800: var(--plex-signal-strong);
-  --yellow-900: var(--plex-signal-strong);
+  --brand: #f5b400;
+  --brand-strong: #c68b00;
+  --brand-soft: #fff6d8;
+  --brand-glow: 245 180 0;
+  --accent: #1c1917;
+  --accent-strong: #0c0a09;
+  --accent-soft: #f5f5f4;
+  --accent-glow: 28 25 23;
+  --yellow-50: #fff6d8;
+  --yellow-100: #fff6d8;
+  --yellow-200: rgba(245, 180, 0, .35);
+  --yellow-300: rgba(245, 180, 0, .5);
+  --yellow-400: #f5b400;
+  --yellow-500: #f5b400;
+  --yellow-600: #c68b00;
+  --yellow-700: #c68b00;
+  --yellow-800: #c68b00;
+  --yellow-900: #c68b00;
   --purple-50: var(--plex-cobalt-soft);
   --purple-100: var(--plex-cobalt-soft);
   --purple-200: rgba(36, 87, 214, .22);
@@ -107,12 +107,12 @@ html[data-palette="plex-registry"] #app {
 /* Shell: an anchored registry rail and a crisp workspace header. */
 html[data-palette="plex-registry"] .app {
   min-width: 0;
-  padding-inline-start: 208px;
+  padding-inline-start: 240px;
   background: var(--plex-paper);
 }
 html[data-palette="plex-registry"] .app-dock {
   inset: 0 auto 0 0;
-  width: 208px;
+  width: 240px;
   padding: 22px 16px 18px;
   gap: 6px;
   background: var(--plex-surface);
@@ -129,7 +129,7 @@ html[data-palette="plex-registry"] .app-dock__logo {
   border-radius: 0;
 }
 html[data-palette="plex-registry"] .app-dock__logo .brand-logo,
-html[data-palette="plex-registry"] .brand-logo { filter: grayscale(1) contrast(1.3); }
+html[data-palette="plex-registry"] .brand-logo { filter: none; }
 html[data-palette="plex-registry"] .app-dock__os { font-family: var(--plex-font-ui); font-size: 15px; letter-spacing: -.02em; }
 html[data-palette="plex-registry"] .ws-switcher { margin: 10px 0 8px; }
 html[data-palette="plex-registry"] .ws-switcher__trigger { border-radius: var(--plex-radius); background: var(--plex-surface-2); border-color: var(--plex-line); }
@@ -307,3 +307,111 @@ html[data-palette="plex-registry"] .plex-inspector-tabcopy p { margin:0 0 20px; 
 @media (prefers-reduced-motion: reduce) {
   html[data-palette="plex-registry"] *, html[data-palette="plex-registry"] *::before, html[data-palette="plex-registry"] *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* UI test pass — sentence-case sans labels, ink buttons, plain cards.
+   These rules sit last so they win over the registry skin above. */
+html[data-palette="plex-registry"] .eyebrow,
+html[data-palette="plex-registry"] .app-dock__section,
+html[data-palette="plex-registry"] .titlestrip__crumb,
+html[data-palette="plex-registry"] .modelchip,
+html[data-palette="plex-registry"] .bf-header__sub,
+html[data-palette="plex-registry"] .cos-agent-registry__head,
+html[data-palette="plex-registry"] .plex-inspector-kicker {
+  font-family: var(--font-sans) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-weight: 500;
+}
+html[data-palette="plex-registry"] .eyebrow,
+html[data-palette="plex-registry"] .eyebrow--yellow,
+html[data-palette="plex-registry"] .eyebrow--green,
+html[data-palette="plex-registry"] .eyebrow--pink,
+html[data-palette="plex-registry"] .eyebrow--purple {
+  font-size: 12px;
+  color: #78716c !important;
+}
+html[data-palette="plex-registry"] .app-dock__section { font-size: 12px; color: #78716c; padding: 16px 8px 6px; }
+html[data-palette="plex-registry"] .app-dock__item { height: 32px; border-radius: 8px; font-size: 13px; }
+html[data-palette="plex-registry"] .app-dock__item--active { background: #f5f5f4; color: #1c1917; }
+html[data-palette="plex-registry"] .app-dock__item--active .app-dock__icon { color: #1c1917; }
+html[data-palette="plex-registry"] .app-dock__os { font-family: var(--font-sans); letter-spacing: -.02em; }
+html[data-palette="plex-registry"] .topbar__title { font-family: var(--font-sans); font-weight: 600; font-size: 20px; line-height: 28px; letter-spacing: -.01em; }
+html[data-palette="plex-registry"] .titlestrip__crumb { font-size: 13px; color: #78716c; }
+html[data-palette="plex-registry"] h1,
+html[data-palette="plex-registry"] h2,
+html[data-palette="plex-registry"] h3 { font-family: var(--font-sans); font-weight: 600; }
+html[data-palette="plex-registry"] .brand-title {
+  font-family: "Instrument Serif", Georgia, serif !important;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 28px;
+  line-height: 34px;
+  letter-spacing: -.01em;
+  color: #1c1917;
+}
+html[data-palette="plex-registry"] .card,
+html[data-palette="plex-registry"] .card--inset {
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  background: #fff;
+}
+html[data-palette="plex-registry"] .btn,
+html[data-palette="plex-registry"] .btn--sm,
+html[data-palette="plex-registry"] .btn--lg { height: 32px; border-radius: 8px; font-family: var(--font-sans); }
+html[data-palette="plex-registry"] .btn--link { height: auto; }
+html[data-palette="plex-registry"] .btn--primary { background: #1c1917; color: #fff; }
+html[data-palette="plex-registry"] .btn--primary:hover { background: #0c0a09; }
+html[data-palette="plex-registry"] .btn--ghost { background: #fff; border-color: #e7e5e4; color: #1c1917; }
+html[data-palette="plex-registry"] .pill,
+html[data-palette="plex-registry"] .pill--green,
+html[data-palette="plex-registry"] .pill--yellow,
+html[data-palette="plex-registry"] .pill--purple,
+html[data-palette="plex-registry"] .pill--pink,
+html[data-palette="plex-registry"] .pill--dark {
+  background: #fff !important;
+  color: #1c1917 !important;
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 999px !important;
+  font-family: var(--font-sans) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+html[data-palette="plex-registry"] .page-header {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;
+  margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e7e5e4;
+}
+html[data-palette="plex-registry"] .page-title {
+  margin: 0; font-family: var(--font-sans); font-size: 20px; font-weight: 600; line-height: 28px; letter-spacing: -.01em;
+}
+html[data-palette="plex-registry"] .page-sub { margin: 8px 0 0; max-width: 640px; font-size: 13px; line-height: 20px; color: #78716c; }
+html[data-palette="plex-registry"] .page-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+html[data-palette="plex-registry"] .overflow-menu { position: relative; }
+html[data-palette="plex-registry"] .overflow-menu__panel {
+  position: absolute; top: calc(100% + 4px); inset-inline-end: 0; z-index: 30;
+  min-width: 220px; padding: 4px; background: #fff; border: 1px solid #e7e5e4; border-radius: 8px;
+}
+html[data-palette="plex-registry"] .overflow-menu__item {
+  display: flex; align-items: center; width: 100%; height: 32px; padding: 0 10px;
+  border: 0; border-radius: 4px; background: transparent; color: #1c1917;
+  font: 500 13px/32px var(--font-sans); text-align: start; text-decoration: none; cursor: pointer;
+}
+html[data-palette="plex-registry"] .overflow-menu__item:hover { background: #f5f5f4; }
+html[data-palette="plex-registry"] .overflow-menu__item:disabled { color: #a8a29e; cursor: default; }
+html[data-palette="plex-registry"] .read-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-sans); font-size: 13px; line-height: 20px; color: #44403c;
+}
+html[data-palette="plex-registry"] .text-tab {
+  height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent;
+  color: #78716c; font: 500 13px/32px var(--font-sans); cursor: pointer;
+}
+html[data-palette="plex-registry"] .text-tab--active { background: #f5f5f4; color: #1c1917; }
+html[data-palette="plex-registry"] .status-line { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #1c1917; }
+html[data-palette="plex-registry"] .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+html[data-palette="plex-registry"] .cert-seal {
+  width: 16px; height: 16px; border-radius: 999px; background: #f5b400; color: #1c1917;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+html[data-palette="plex-registry"] .dot-state--running { background: #1c1917; box-shadow: none; }
+html[data-palette="plex-registry"] .bio-hero { align-items: flex-start; }

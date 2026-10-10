@@ -67,10 +67,11 @@ em.b-voice {
 
 /* Universal label (mono uppercase mini-label) ---------------------- */
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--c-faint);
   font-weight: 500;
 }
@@ -399,25 +400,26 @@ em.b-voice {
 .card {
   background: var(--c-card);
   border: 1px solid var(--c-line);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  box-shadow: none;
 }
-.card--inset { background: var(--c-bg); border-radius: 10px; box-shadow: none; }
+.card--inset { background: var(--c-bg); border-radius: 8px; box-shadow: none; }
 
 /* Buttons ----------------------------------------------------------- */
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
-  height: 38px; padding: 0 16px;
-  border-radius: 10px;
+  height: 32px; padding: 0 12px;
+  border-radius: 8px;
   border: 1px solid transparent;
   font-family: var(--font-sans); font-size: 13px; font-weight: 500;
-  letter-spacing: 0.01em;
-  transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 120ms ease;
+  letter-spacing: 0;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
   white-space: nowrap;
 }
-.btn--primary { background: var(--yellow-500); color: var(--neutral-900); }
-.btn--primary:hover { background: var(--yellow-600); }
-.btn--primary:active { background: var(--yellow-700); transform: translateY(1px); }
+.btn--primary { background: #1c1917; color: #fff; }
+.btn--primary:hover { background: #0c0a09; }
+.btn--primary:active { background: #0c0a09; }
+.btn--primary:disabled { background: #d6d3d1; color: #fff; cursor: default; }
 
 .btn--dark { background: var(--neutral-900); color: #fff; }
 .btn--dark:hover { background: var(--neutral-800); }
@@ -431,8 +433,8 @@ em.b-voice {
 .btn--danger { background: transparent; color: var(--pink-500); border-color: var(--pink-200); }
 .btn--danger:hover { background: var(--pink-50); }
 
-.btn--lg { height: 44px; padding: 0 22px; font-size: 14px; }
-.btn--sm { height: 30px; padding: 0 12px; font-size: 12px; border-radius: 8px; }
+.btn--lg { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
 .btn--icon { width: 32px; height: 32px; padding: 0; justify-content: center; border-radius: 8px; }
 
 /* Pills ------------------------------------------------------------- */
@@ -440,15 +442,15 @@ em.b-voice {
   display: inline-flex; align-items: center; gap: 6px;
   height: 22px; padding: 0 10px;
   border-radius: 9999px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0;
   font-weight: 500;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
   flex-shrink: 0;
-  background: var(--neutral-50);
-  color: var(--c-dim);
+  background: var(--bg-canvas);
+  color: var(--c-ink);
   border: 1px solid var(--c-line);
 }
 .pill--yellow { background: var(--yellow-50); color: var(--yellow-800); border-color: var(--yellow-200); }
@@ -533,9 +535,9 @@ textarea.input { padding: 12px 14px; height: auto; min-height: 80px; line-height
   flex-shrink: 0;
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
 }
-.app-dock__os { font-family: var(--font-mono); font-weight: 700; font-size: 17px; color: var(--c-ink); letter-spacing: 0.02em; align-self: center; }
+.app-dock__os { font-family: var(--font-sans); font-weight: 600; font-size: 15px; color: var(--c-ink); letter-spacing: -0.02em; align-self: center; }
 .app-dock__items { display: flex; flex-direction: column; gap: 2px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.app-dock__section { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--c-faint); padding: 14px 12px 6px; }
+.app-dock__section { font-family: var(--font-sans); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--c-faint); padding: 16px 8px 6px; }
 .app-dock__items > .app-dock__section:first-child { padding-top: 4px; }
 .app-dock__item {
   display: flex; align-items: center; gap: 11px; height: 40px; padding: 0 10px; width: 100%;

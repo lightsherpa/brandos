@@ -28,7 +28,7 @@
   "nav": {
     "create": "Crear",
     "briefs": "Briefs",
-    "bio": "BIO",
+    "bio": "Perfil de marca",
     "library": "Biblioteca",
     "specialists": "Especialistas",
     "humans": "Humanos",
@@ -37,7 +37,7 @@
   },
   "section": {
     "createBriefs": "Crear / Briefs",
-    "bioLibrary": "BIO / Biblioteca",
+    "bioLibrary": "Marca",
     "specialistsHumans": "Especialistas / Humanos",
     "creditsAccount": "Créditos / Cuenta",
     "team": "Equipo",

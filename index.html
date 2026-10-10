@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="light" data-palette="plex-registry" data-font="plex" data-density="cozy">
+<html lang="en" data-theme="light" data-palette="plex-registry" data-density="cozy">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,13 +16,13 @@
 </head>
 <body>
   <div id="app">
-    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; font-family: 'IBM Plex Sans Condensed', system-ui, sans-serif;">
-      <div style="width: 10px; height: 10px; border-radius: 50%; background: #1D9A63; box-shadow: 0 0 0 6px rgba(29,154,99,0.16); animation: bootpulse 1.6s ease-in-out infinite;"></div>
-      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #697482;">CaastorOS · Booting</div>
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; font-family: 'Instrument Sans', system-ui, sans-serif;">
+      <div style="width: 8px; height: 8px; border-radius: 50%; background: #1C1917; animation: bootpulse 1.6s ease-in-out infinite;"></div>
+      <div style="font-size: 13px; color: #78716C;">CaastorOS is starting</div>
       <style>
         @keyframes bootpulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 0 6px rgba(29,154,99,0.16); }
-          50%      { transform: scale(1.2); box-shadow: 0 0 0 12px rgba(29,154,99,0.05); }
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50%      { transform: scale(1.15); opacity: 0.55; }
         }
       </style>
     </div>
