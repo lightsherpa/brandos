@@ -1,3 +1,4 @@
+import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
@@ -304,18 +305,21 @@ app.get("/:brandId", requireAuth, async (c) => {
 
   const { data: brand } = await supabaseAdmin
     .from("brands")
-    .select("id, name, workspace_id")
+    .select("id, name, url, workspace_id")
     .eq("id", brandId)
     .maybeSingle();
   if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
 
   const { data: bio } = await supabaseAdmin
     .from("bios")
-    .select("id, version, payload, score, certified, certified_by, certified_at, cert_kind, steward_notes, self_certified, self_certified_at, discovery_id, created_at, created_by, cert_valid_until, client_acceptance_required, client_accepted_at, client_accepted_by")
+    .select("id, brand_id, version, payload, score, certified, certified_by, certified_at, cert_kind, steward_notes, self_certified, self_certified_at, discovery_id, created_at, created_by, cert_valid_until, client_acceptance_required, client_accepted_at, client_accepted_by")
     .eq("brand_id", brandId)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  const integrity = bio && bioIntegrityError(bio, brand);
+  if(integrity)return c.json(integrity,409);
 
   /* Surface whether a human review is already in flight for this BIO so
      the client can show "review requested" instead of offering the button

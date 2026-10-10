@@ -1,4 +1,5 @@
 import React from "react";
+import {discoveryWebsiteError, bioIntegrityError} from "../server/src/lib/brand-source-integrity.js";
 import {BioSelfCertification} from "./bio-self-certification.jsx";
 import {watchDiscoveryBio} from "./lib/discovery-progress.js";
 import {SectionTour} from "./section-tour.jsx";
@@ -43,8 +44,8 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         const { data } = await supabase.from("brands").select("id, name, url").eq("id", wantedId).maybeSingle();
         brand = data;
       }
-      if (fixedBrandId && !brand) {
-        commit((s) => ({ ...s, brandId: fixedBrandId, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
+      if (wantedId && !brand) {
+        commit((s) => ({ ...s, brandId: wantedId, brandName:null, brandUrl:null, review:null, diff:[], reviewPending:false, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
         return;
       }
       if (!brand) {
@@ -61,6 +62,8 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         return;
       }
       const { bio, reviewPending, focusCount, review, diff } = await res.json();
+      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"The BIO does not match the selected brand"} : bioIntegrityError(bio, brand));
+      if (mismatch) throw new Error(mismatch.error);
       let certInfo = null;
       if (bio?.certified) {
         let certName = "your Creative Director";
@@ -72,7 +75,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
       }
       commit({ brandId: brand.id, brandName: brand.name, brandUrl: brand.url, bio, cert: certInfo, review: review || null, diff: Array.isArray(diff) ? diff : [], reviewPending: !!reviewPending, focusCount: Number(focusCount) || 0, loading: false, error: null });
     } catch (e) {
-      commit((s) => ({ ...s, loading: false, error: e?.message || String(e) }));
+      commit((s) => ({ ...s, bio:null, cert:null, review:null, diff:[], reviewPending:false, loading: false, error: e?.message || String(e) }));
     }
   }, [fixedBrandId, enabled]);
 
@@ -245,8 +248,13 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
       }
       if (!brandId) throw new Error("No brand is available for Discovery.");
 
+      const {data: selectedBrand, error: selectedError} = await supabase.from("brands").select("id,name,url").eq("id",brandId).maybeSingle();
+      if(selectedError || !selectedBrand)throw new Error("The selected brand is unavailable");
+      const mismatch = discoveryWebsiteError(selectedBrand,targetUrl);
+      if(mismatch)throw new Error(mismatch.error);
       let baselineVersion = 0;
       const baselineRes = await apiFetch(`/api/bios/${brandId}`);
+      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "The BIO could not be checked before uploading sources");}
       if (baselineRes.ok) {
         const baseline = await baselineRes.json();
         baselineVersion = Number(baseline.bio?.version) || 0;
@@ -326,6 +334,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
     return meta.rightsConfirmed && (!FONT_FILE_EXTS.has(fileExt(file)) || (meta.fontFamily && meta.licenseType));
   });
 
+  const websiteMismatch=!newBrand && generated.brandUrl ? discoveryWebsiteError({name:generated.brandName,url:generated.brandUrl},url.trim()) : null;
   const referenceCount=references.filter(row=>row.url.trim()).length;
   const sourceCount=(url.trim()?1:0)+referenceCount+totalFiles;
   return <div className="discovery-intake">
@@ -344,6 +353,8 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
           {newBrand&&<label htmlFor="discovery-brand-name">{t("discovery.step1.brandNameLabel")}<input id="discovery-brand-name" value={brandName} disabled={!!createdBrandId} onChange={e=>setBrandName(e.target.value)} placeholder={t("discovery.intake.namePlaceholder")}/></label>}
           <label htmlFor="discovery-brand-url">{t("discovery.step1.urlLabel")}<input id="discovery-brand-url" value={url} onChange={e=>setUrl(e.target.value)} placeholder={t("discovery.step1.urlPlaceholder")}/></label>
         </div>
+        {!newBrand && generated.brandName && <p className="discovery-helper">{t("discovery.integrity.sourcesFor",{name:generated.brandName})}</p>}
+        {websiteMismatch && <p role="alert" className="discovery-helper">{websiteMismatch.error}</p>}
         {createdBrandId&&<p className="discovery-helper">{t("discovery.intake.retryHelp")}</p>}
         <details className="discovery-social"><summary>{t("discovery.intake.social")}</summary><label htmlFor="discovery-instagram">{t("discovery.step1.igLabel")}<input id="discovery-instagram" value={instagram} onChange={e=>setInstagram(e.target.value)} placeholder={t("discovery.step1.igPlaceholder")}/></label><p className="discovery-helper">{t("discovery.intake.socialHelp")}</p></details>
       </section>
@@ -357,7 +368,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
           <p className="discovery-helper">{t("discovery.intake.visualLimit")}</p>
         </details>
       </section>
-      <footer className="discovery-intake-footer"><p>{t("discovery.intake.reviewHelp")}</p><button className="btn btn--primary" onClick={handleStart} disabled={busy||invalidFiles||!visualAssetsReady||(!url.trim()&&!totalFiles&&!referenceCount)||(newBrand&&!brandName.trim())}>{uploading?t("discovery.step1.uploading"):busy?t("discovery.step1.starting"):t("discovery.step1.startExtraction")}<Icon name="arrow" size={14}/></button></footer>
+      <footer className="discovery-intake-footer"><p>{t("discovery.intake.reviewHelp")}</p><button className="btn btn--primary" onClick={handleStart} disabled={!!websiteMismatch||busy||invalidFiles||!visualAssetsReady||(!url.trim()&&!totalFiles&&!referenceCount)||(newBrand&&!brandName.trim())}>{uploading?t("discovery.step1.uploading"):busy?t("discovery.step1.starting"):t("discovery.step1.startExtraction")}<Icon name="arrow" size={14}/></button></footer>
       {error&&<div className="discovery-intake-error" role="alert">{error}</div>}
       {!newBrand&&generated.bio?.discovery_id&&<button className="discovery-text-action" onClick={()=>onReview({brandId:generated.brandId,baselineVersion:generated.bio.version})}>{t("discovery.sourcesIntake.resumeReview")}</button>}
     </div><aside className="discovery-intake-aside" aria-label={t("discovery.intake.summary")}>
@@ -1516,6 +1527,8 @@ function BioViewer({ go, bioScore = 91 }) {
     ? { color:"var(--orange-600)", word:t("discovery.bioTone.filling.word"), hint:t("discovery.bioTone.filling.hint") }
     : { color:"var(--pink-500)", word:t("discovery.bioTone.needs.word"), hint:t("discovery.bioTone.needs.hint") };
 
+  if(live.error)return <div className="cos-page cos-bio bio-viewer" style={{padding:"32px 36px"}}><h1 style={{fontFamily:"var(--font-serif)"}}>{live.brandName || t("discovery.results.yourBrand")}</h1><div className="card" role="alert" style={{padding:24}}><h2>{t("discovery.integrity.unavailable")}</h2><p>{live.error}</p><p>{t("discovery.integrity.preserved")}</p><button className="btn btn--ghost" onClick={live.refresh}>{t("discovery.integrity.retry")}</button></div></div>;
+
   return (
     <div className="cos-page cos-bio bio-viewer" style={{padding:"24px 36px 60px"}}>
       <style>{BIO_SURFACE_CSS}</style>
@@ -1650,6 +1663,7 @@ function BioViewer({ go, bioScore = 91 }) {
         <div className="card" style={{padding:"10px 14px", marginBottom: 14, borderLeft:"3px solid var(--pink-500)", color:"var(--c-ink)", fontSize: 13}}>{saveErr}</div>
       )}
 
+      {live.error && <div className="card" role="alert" style={{padding:24,marginBottom:20}}><strong>{live.brandName || "Selected brand"}</strong><p>{live.error}</p></div>}
       {/* Empty state — no BIO extracted yet */}
       {!live.loading && !live.bio && live.brandId && (
         <div className="card" style={{padding:"56px 32px", textAlign:"center", maxWidth: 580, margin:"40px auto"}}>
@@ -1671,7 +1685,7 @@ function BioViewer({ go, bioScore = 91 }) {
       )}
 
       {/* Tabs — only when we have a BIO */}
-      {bio && (
+      {bio && live.bio && (
         <div className="card" style={{padding: 0, overflow:"hidden"}}>
           <div className="tabs bio-tabs">
             {tabs.map((k) => (

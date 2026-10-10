@@ -21,6 +21,7 @@ export function awaitsClientAcceptance(row) {
  * @returns {null | {code:string, message:string}}  null = ready
  */
 export function productionBlocker(row, now = new Date()) {
+  if(row?.payload?.sourceIntegrity?.status==="quarantined")return {code:"BIO_SOURCE_QUARANTINED",message:"This BIO contains sources from another brand and cannot be used."};
   if (!row || !row.certified) {
     return { code: "BIO_NOT_CERTIFIED", message: "This brand's BIO is waiting for Creative Director certification." };
   }

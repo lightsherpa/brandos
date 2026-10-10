@@ -16,6 +16,7 @@
 // Returns { brand, bio, refusals } shaped for prompt.js consumption; the bio
 // is always run through normalizeBio, so every consumer gets a CanonicalBio.
 
+import {bioIntegrityError} from "./brand-source-integrity.js";
 import { supabaseAdmin } from "./supabase.js";
 import { productionBlocker } from "./bio-stage.js";
 import { normalizeBio } from "./bio-schema.js";
@@ -60,6 +61,11 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     brandRow = data;
   }
 
+  // Check latest lineage even when an older certified version is requested.
+  const {data:latest,error:latestError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandRow.id).order("version",{ascending:false}).limit(1).maybeSingle();
+  if(latestError)throw bioError("BIO_UNAVAILABLE","BIO integrity check unavailable",503);
+  const integrity=latest&&bioIntegrityError(latest,brandRow);
+  if(integrity)throw bioError(integrity.code,integrity.error);
   // Resolve the gated BIO version.
   let bioQuery = supabaseAdmin
     .from("bios")

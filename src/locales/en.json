@@ -1516,6 +1516,12 @@
         "DISCOVERY_FAILED": "Discovery could not complete. Your sources remain available.",
         "QUEUE_UNAVAILABLE": "Discovery could not start. Try again when the service is available."
       }
+    },
+    "integrity": {
+      "unavailable": "BIO unavailable",
+      "preserved": "No BIO content or certification actions are shown until the brand and source identity are resolved.",
+      "retry": "Check again",
+      "sourcesFor": "Sources for {name}. A different brand needs its own record."
     }
   },
   "floater": {

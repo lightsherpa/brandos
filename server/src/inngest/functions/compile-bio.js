@@ -14,6 +14,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import {recordDiscoveryStage,publicDiscoveryError} from "../../lib/discovery-run.js";
+import {discoveryWebsiteError, bioIntegrityError} from "../../lib/brand-source-integrity.js";
 import { parseCompiledBio } from "../../lib/parse-compiled-bio.js";
 import {generateDiscoveryBrain,sourceBlock,normalizeDiscoveryReferences} from "../../lib/discovery-intelligence.js";
 import { inngest } from "../../lib/inngest.js";
@@ -164,6 +165,17 @@ export const compileBio = inngest.createFunction(
   async ({ event, step, logger }) => {
     const { brandId, url, workspaceId, instagram, discoveryId, actorUserId, breakerOverride = false, references:rawReferences } = event.data || {};
     if (!brandId) throw new Error("Event missing brandId");
+    const brandContext=await step.run("validate-brand-identity",async()=>{
+      const {data:brand,error}=await supabaseAdmin.from("brands").select("id,name,url,workspace_id").eq("id",brandId).maybeSingle();
+      if(error || !brand || brand.workspace_id!==workspaceId)throw new Error("Discovery brand context unavailable");
+      const {data:latest,error:integrityError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
+      if(integrityError)throw new Error("BIO integrity check unavailable");
+      const blocked=latest&&bioIntegrityError(latest,brand);
+      if(blocked)throw Object.assign(new Error(blocked.error),{code:blocked.code});
+      const mismatch=discoveryWebsiteError(brand,url);
+      if(mismatch)throw Object.assign(new Error(mismatch.error),{code:mismatch.code});
+      return brand;
+    });
     const references=normalizeDiscoveryReferences(rawReferences);
     logger.info("BIO compile starting", { brandId, url, v2: V2 });
     const progress=(stage,status='running',bioId=null)=>step.run(`progress-${stage}-${status}`,()=>recordDiscoveryStage({discoveryId,brandId,workspaceId,stage,status,bioId}));
@@ -303,7 +315,7 @@ export const compileBio = inngest.createFunction(
     const bioPayload=await generateDiscoveryBrain({
       evidence,
       interpret:async content=>{await progress("read");return step.run("extract-brand-evidence",async()=>{
-        const result=await completeDiscoveryStep({step:"reader",system:EXTRACTION_SYSTEM,messages:[{role:"user",content}],parse:parseCompiledBio,telemetry:{workspaceId,brandId,workflowId:discoveryId,actorUserId,breakerOverride},onUsage:usage=>logger.info("Discovery extraction usage",usage)});
+        const result=await completeDiscoveryStep({step:"reader",system:EXTRACTION_SYSTEM,messages:[{role:"user",content:`Primary brand: ${brandContext.name}. Primary website: ${url || "uploaded brand sources"}. Interpret this brand only; reference brands are not its identity.\n${content}`}],parse:parseCompiledBio,telemetry:{workspaceId,brandId,workflowId:discoveryId,actorUserId,breakerOverride},onUsage:usage=>logger.info("Discovery extraction usage",usage)});
         return result.value;
       });},
       research:async query=>{await progress("research");return step.run("research-competitive-landscape",async()=>{
@@ -317,7 +329,7 @@ export const compileBio = inngest.createFunction(
       synthesize:async content=>{await progress("synthesize");return step.run(synthesisPass++===0?"interpret-brand-evidence":"synthesize-researched-bio",async()=>{
       const result=await completeDiscoveryStep({
         step:"synthesis",system:COMPILER_SYSTEM,
-        messages:[{role:"user",content}],parse:parseCompiledBio,
+        messages:[{role:"user",content:`Primary brand: ${brandContext.name}. Primary website: ${url || "uploaded brand sources"}. Interpret this brand only; reference brands are not its identity.\n${content}`}],parse:parseCompiledBio,
         telemetry:{workspaceId,brandId,workflowId:discoveryId,actorUserId,specialistId:"a30",breakerOverride},
         onUsage:usage=>logger.info("BIO compile usage",usage),
       });
@@ -384,6 +396,9 @@ export const compileBio = inngest.createFunction(
     // ── Step 3 · Write bios row (uncertified) ────────────────────
     await progress("save");
     const bioRow = await step.run("write-bio-row", async () => {
+      const {data:current,error:contextError}=await supabaseAdmin.from("brands").select("id,name,url,workspace_id").eq("id",brandId).maybeSingle();
+      if(contextError || !current || current.workspace_id!==workspaceId || discoveryWebsiteError(current,url))throw new Error("Brand identity changed during Discovery; no BIO saved");
+      bioPayload.sourceIdentity={brandId,brandName:brandContext.name,primaryUrl:url||null,discoveryId:discoveryId||null};
       const { data, error } = await supabaseAdmin
         .rpc("append_bio_version", {
           p_brand_id: brandId,

@@ -1521,6 +1521,12 @@
         "DISCOVERY_FAILED": "Discovery no pudo terminar. Tus fuentes siguen disponibles.",
         "QUEUE_UNAVAILABLE": "Discovery no pudo iniciarse. Reintenta cuando el servicio esté disponible."
       }
+    },
+    "integrity": {
+      "unavailable": "BIO no disponible",
+      "preserved": "No se muestra contenido del BIO ni acciones de certificación hasta resolver la identidad de la marca y sus fuentes.",
+      "retry": "Volver a comprobar",
+      "sourcesFor": "Fuentes para {name}. Otra marca necesita su propio registro."
     }
   },
   "floater": {

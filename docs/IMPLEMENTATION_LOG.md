@@ -44,3 +44,7 @@ Local verification: `supabase db reset --local --no-seed --workdir .bio-local` s
 The complete chain including `20261010040000` passed `supabase db reset --local --no-seed --workdir .bio-reset-check` in a second disposable project (`caastoros-bio-reset-check`, DB 57442). That project was stopped after verification. The seeded release-test database and existing 5184 database were preserved.
 
 Live results and limits: [two-brand test](2026-10-10-discovery-e2e.md). Demo, tests and freeze follow-ups: [runbook](2026-10-10-bio-demo-script.md). Local implementation is ready for PR review; hosted merge/deployment, final responsive/language visual checks and human visual approval remain outstanding. Geoking retrieval did not pass.
+
+## October 10 follow-up: brand/source isolation
+
+Fixed the reported Geoking/Cake-me source reassignment. Primary-site changes now fail closed, compiler and viewer verify brand lineage, and quarantine blocks downstream use. See `2026-10-10-brand-source-integrity.md` for local repair, tests and recovery limits. No new migration or hosted change.
