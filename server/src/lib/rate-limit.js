@@ -108,12 +108,24 @@ export function setRateLimitHeaders(c, result) {
   c.header("RateLimit-Reset", String(Math.max(0, Math.ceil((result.resetAt - Date.now()) / 1000))));
 }
 
+const RATE_LIMIT_MESSAGES = {
+  ip: "Too many requests from this network. Wait and try again.",
+  user: "Too many requests for this account. Wait and try again.",
+  global: "Too many requests right now. The shared demo limit is full — try again shortly.",
+};
+
 /** Uniform 429 body. Public error code, no internal detail. */
 export function rateLimitedResponse(c, result) {
   setRateLimitHeaders(c, result);
   c.header("Retry-After", String(result.retryAfterSeconds));
+  const scope = result.scope === "user" || result.scope === "global" ? result.scope : "ip";
   return c.json(
-    { error: "Too many requests", code: "RATE_LIMITED", retryAfterSeconds: result.retryAfterSeconds },
+    {
+      error: RATE_LIMIT_MESSAGES[scope],
+      code: "RATE_LIMITED",
+      scope,
+      retryAfterSeconds: result.retryAfterSeconds,
+    },
     429,
   );
 }

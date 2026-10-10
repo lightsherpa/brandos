@@ -614,6 +614,33 @@
       "sharpenedBrief": "Brandolph's sharpened brief",
       "hardRefusals": "Hard refusals for this brief"
     },
+    "formats": {
+      "open": "Formats",
+      "off": "Format preview is turned off.",
+      "loading": "Preparing formats…",
+      "unavailable": "Format preview isn't available.",
+      "back": "Back to the brief",
+      "eyebrow": "Demo preview",
+      "title": "One message, three formats",
+      "intro": "Email, landing page, and a three-slide deck from this brief and the brand BIO.",
+      "headline": "Shared headline",
+      "updating": "Updating all three…",
+      "headlineHelp": "This line is the email headline, the landing hero, and the title slide.",
+      "email": "Email",
+      "landing": "Landing page",
+      "deck": "Slides",
+      "print": "Print / Save PDF",
+      "pass": "Pass",
+      "flag": "Flag",
+      "trailEyebrow": "Certification",
+      "trailTitle": "Audit trail",
+      "trailBio": "BIO v{version} · {state}",
+      "certified": "Certified",
+      "selfCertified": "Self-certified",
+      "uncertified": "Not yet certified",
+      "trailEmpty": "No certification decisions recorded yet.",
+      "openBio": "Open the BIO"
+    },
     "run": {
       "deliverableCount": {
         "plural": {

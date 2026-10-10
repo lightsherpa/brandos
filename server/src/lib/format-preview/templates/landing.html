@@ -1,0 +1,36 @@
+<!doctype html><html lang="{{language}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{blocks.landing.hero.headline}} · {{brand.name}}</title>
+<style>
+:root{--bg:{{brand.tokens.bg}};--ink:{{brand.tokens.ink}};--accent:{{brand.tokens.accent}};--muted:{{brand.tokens.muted}};--fd:{{brand.tokens.font_display}};--fb:{{brand.tokens.font_body}};--r:{{brand.tokens.radius}}px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 var(--fb)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+.btn{display:inline-block;background:var(--accent);color:#fff;padding:14px 28px;border-radius:var(--r);text-decoration:none;font-weight:700}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+/* section: hero */
+.s-hero{padding:72px 0}.s-hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--accent);font-weight:700}
+.s-hero h1{font:400 clamp(40px,5vw,64px)/1.05 var(--fd);margin:12px 0 20px}.s-hero p{color:var(--muted);max-width:46ch}
+.s-hero img{width:100%;border-radius:var(--r);display:block}
+/* section: features */
+.s-features{padding:56px 0;border-top:1px solid #0002}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.s-features h3{font:400 24px/1.2 var(--fd);margin:0 0 8px}
+/* section: proof */
+.s-proof{padding:72px 0;background:var(--ink);color:var(--bg)}.s-proof blockquote{font:400 34px/1.3 var(--fd);margin:0;max-width:28ch}.s-proof cite{display:block;font:15px/1.4 var(--fb);margin-top:18px;font-style:normal;opacity:.75}
+/* section: cta */
+.s-cta{padding:80px 0;text-align:center}.s-cta h2{font:400 40px/1.15 var(--fd);margin:0 0 10px}.s-cta p{color:var(--muted)}
+/* section: footer */
+.s-footer{padding:28px 0;font-size:13px;color:var(--muted);border-top:1px solid #0002}
+@media(max-width:760px){.s-hero .wrap,.grid3{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:no-preference){.s-hero h1{animation:rise .6s ease-out both}@keyframes rise{from{opacity:0;transform:translateY(12px)}}}
+</style></head><body>
+<header class="s-hero" data-section="hero"><div class="wrap"><div>
+<div class="eyebrow">{{blocks.landing.hero.eyebrow}}</div><h1>{{blocks.landing.hero.headline}}</h1><p>{{blocks.landing.hero.subhead}}</p>
+<a class="btn" href="{{cta.url}}">{{cta.label}}</a></div>
+<img src="{{asset blocks.landing.hero.image.src}}" alt="{{blocks.landing.hero.image.alt}}"></div></header>
+<section class="s-features" data-section="features"><div class="wrap grid3">
+{{#each blocks.landing.features}}<div><h3>{{@.title}}</h3><p>{{@.text}}</p></div>{{/each}}
+</div></section>
+<section class="s-proof" data-section="proof" data-proof-id="{{blocks.landing.proof.proof_id}}"><div class="wrap"><blockquote>“{{blocks.landing.proof.quote}}”<cite>{{blocks.landing.proof.attribution}}</cite></blockquote></div></section>
+<section class="s-cta" data-section="cta"><div class="wrap"><h2>{{blocks.landing.cta.headline}}</h2><p>{{blocks.landing.cta.subhead}}</p><a class="btn" href="{{cta.url}}">{{cta.label}}</a></div></section>
+<footer class="s-footer" data-section="footer"><div class="wrap">{{blocks.landing.footer.text}}</div></footer>
+</body></html>

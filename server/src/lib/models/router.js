@@ -28,6 +28,7 @@ import {
   preflightApiUsage,
   recordApiUsage,
 } from "../api-usage.js";
+import { resolveTextTokenBudget } from "./token-budget.js";
 
 /* Browser-requested overrides are deliberately finite. Specs may still use
    other routes as their server-authored primary, but clients cannot turn the
@@ -65,7 +66,10 @@ export function routeCreditMultiplier(route) {
  *                                          object: { payload: { modelRouting: { primary: "anthropic/claude-sonnet-4-6" } } }.
  * @param {Array|string} params.system   - System prompt (array form preserves cache_control for Anthropic).
  * @param {Array} params.messages        - [{ role, content }, ...]
- * @param {number} [params.maxTokens]    - max output tokens; derived from spec.payload.cr_estimate if omitted
+ * @param {number} [params.maxTokens]    - explicit output budget. Omit it for specialist
+ *                                          text so resolveTextTokenBudget can apply the
+ *                                          ~2000 floor, the spec's max_output_tokens, and
+ *                                          the cap. The 16-token provider floor always holds.
  * @yields {object} normalized event
  */
 export async function* streamCompletion({ spec, system, messages, maxTokens, telemetry = {} }) {
@@ -75,13 +79,7 @@ export async function* streamCompletion({ spec, system, messages, maxTokens, tel
     return;
   }
 
-  // Derive a token budget from the credit estimate if caller didn't supply one.
-  // Rough conversion: 1 cr ≈ 100 output tokens (tunable later from real costs).
-  // Hard floor of 16 defends against provider-specific minimums — notably GPT-5
-  // rejects max_tokens<16. Caller-supplied values are also floored to keep the
-  // contract uniform across vendors.
-  const requested = maxTokens ?? Math.max(200, Math.min(4000, (spec?.payload?.cr_estimate ?? 8) * 100));
-  const budget = Math.max(16, requested);
+  const budget = resolveTextTokenBudget({ maxTokens, spec });
 
   let provider;
   let model;

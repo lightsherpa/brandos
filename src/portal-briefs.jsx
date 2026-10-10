@@ -530,7 +530,6 @@ function BriefDetail({ id, go }) {
           <div style={{display:"flex", gap: 8}}>
             {brief.status === "draft" && <button className="btn btn--primary btn--sm">{t("briefs.detail.approve")} <Icon name="check" size={13} /></button>}
             <button className="btn btn--ghost btn--sm">{t("briefs.detail.reviseWithBrandolph")}</button>
-            <button className="btn btn--ghost btn--icon" aria-label={t("briefs.detail.exportPdf")}><Icon name="download" size={14} /></button>
           </div>
         </div>
       </div>
@@ -1482,7 +1481,7 @@ function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = 
    a single line, an expandable Sharpened brief, a chip-row of the crew
    by department, and the refusals as small badges. Designed to feel
    like the brief, not a status bar. */
-function CanvasHeader({ title, tension, sharpenedBrief, refusals = [], deptBreakdown = [], totalCr, completed, running }) {
+function CanvasHeader({ title, tension, sharpenedBrief, refusals = [], deptBreakdown = [], totalCr, completed, running, onFormats }) {
   const { t } = useLocale();
   const [expanded, setExpanded] = useBrState(false);
   const stateColor = completed ? "var(--green-600)" : running ? "var(--yellow-700)" : "var(--neutral-500)";
@@ -1543,6 +1542,13 @@ function CanvasHeader({ title, tension, sharpenedBrief, refusals = [], deptBreak
               style={{height: 22, padding:"0 8px", fontSize: 10.5, fontFamily:"var(--font-mono)", letterSpacing:"0.04em"}}>
               {expanded ? t("briefs.canvas.hideBrief") : t("briefs.canvas.showBrief")}
               <span style={{display:"inline-block", marginLeft: 4, transform: expanded ? "rotate(180deg)" : "none", transition:"transform 160ms ease"}}>▾</span>
+            </button>
+          )}
+          {onFormats && (
+            <button type="button" onClick={onFormats}
+              className="btn btn--ghost btn--sm"
+              style={{height: 22, padding:"0 8px", fontSize: 10.5, fontFamily:"var(--font-mono)", letterSpacing:"0.04em"}}>
+              {t("briefs.formats.open")}
             </button>
           )}
         </div>
@@ -2059,6 +2065,7 @@ function BriefRunCanvas({ context, onClear, go }) {
         totalCr={context.totalCr}
         completed={completed}
         running={running}
+        onFormats={window.formatPreviewEnabled && briefId ? () => go("formats/" + briefId) : null}
       />
       <InteractiveCanvas
         nodeData={nodes}
@@ -3074,6 +3081,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         totalCr={totalCr}
         completed={!anyFlagged}
         running={false}
+        onFormats={window.formatPreviewEnabled ? () => go("formats/" + briefId) : null}
       />
       <InteractiveCanvas
         nodeData={nodes}

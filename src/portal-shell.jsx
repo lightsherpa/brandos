@@ -120,7 +120,7 @@ function useDesignSettings() {
    canvas, board); hover-reveal returns the labels. Driven by the
    `data-shell-mode` attribute on <html>, consumed by CSS rules in
    portal.css. Pure CSS for the visual transitions — no JS layout reads. */
-const WORKSPACE_ROUTES = new Set(["brief-detail", "canvas", "board"]);
+const WORKSPACE_ROUTES = new Set(["brief-detail", "canvas", "board", "formats"]);
 function useShellMode(routeId) {
   const mode = WORKSPACE_ROUTES.has(routeId) ? "workspace" : "default";
   useShellEffect(() => {
@@ -852,6 +852,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "specialists":  return <SpecialistsDirectory go={go} />;
     case "specialist-new": return <SpecialistAuthor go={go} />;
     case "canvas":       return <CanvasView go={go} prototype={route.param === "prototype"} />;
+    case "formats":      return <window.FormatPreviewView briefId={route.param} go={go} />;
     case "craft":        return <CraftMarketplace go={go} tier={tweaks.tier} />;
     case "credits":      return <SettingsView section="usage" go={go} onLogout={onLogout} />;
     case "settings":     return <SettingsView section={route.param} go={go} onLogout={onLogout} />;

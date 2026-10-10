@@ -49,8 +49,19 @@ export const PERIMETER_CLASSES = {
   upload: { windowMs: MINUTE, ipMax: 60, userMax: 20, bodyBytes: 16 * MB },
 
   // Anything that can start model work (specialist runs, Brandolph, discovery,
-  // craft, steward copilot, BIO compile/certify).
+  // craft, steward copilot, BIO compile/certify) and is NOT in a tighter paid class.
   generation: { windowMs: MINUTE, ipMax: 120, userMax: 60, bodyBytes: 1 * MB },
+
+  // Discovery start, brief sharpen, Brandolph ask, and the one-shot format
+  // preview compose. These call Firecrawl / Anthropic / OpenRouter directly.
+  // A 10-minute window with a low per-IP, per-user, and per-process ceiling
+  // keeps a fair-wifi crowd (and a crowd of distinct phones) from looping them.
+  // Tuned so one presenter can still sharpen, ask, and start discovery.
+  paid: { windowMs: 10 * MINUTE, ipMax: 15, userMax: 8, globalMax: 40, bodyBytes: 1 * MB },
+
+  // POST /api/runs/stream. Same threat, separate bucket: one brief fires a
+  // whole specialist crew at once, so it cannot share the orchestration ceiling.
+  paidRun: { windowMs: 10 * MINUTE, ipMax: 48, userMax: 30, globalMax: 100, bodyBytes: 1 * MB },
 
   // Everything else under /api — reads, polling, settings, billing UI calls.
   api: { windowMs: MINUTE, ipMax: 600, userMax: 300, bodyBytes: 1 * MB },
@@ -91,6 +102,16 @@ export function classifyRequest(method, path) {
   if (!p.startsWith("/api/")) return "asset";
 
   if (m === "POST" && (p === "/api/me/avatar" || /^\/api\/bios\/[^/]+\/evidence$/.test(p))) return "upload";
+
+  // Cost surface. Checked before the generation prefix so these writes do not
+  // inherit the loose 120/min generation ceiling. Audited 2026-10-10: every
+  // route that calls a paid provider (Anthropic, OpenRouter, fal, Firecrawl)
+  // requires a verified user except these triggers — there is no unauthenticated
+  // model route. Delegation links do not call a provider.
+  if (m === "POST" && (p === "/api/discovery/start" || p === "/api/briefs/sharpen" || p === "/api/brandolph/ask")) {
+    return "paid";
+  }
+  if (m === "POST" && p === "/api/runs/stream") return "paidRun";
 
   if (WRITE_METHODS.has(m) && GENERATION_PREFIXES.some((prefix) => p === prefix || p.startsWith(`${prefix}/`))) {
     return "generation";
@@ -194,6 +215,7 @@ export function resolvePerimeterConfig(env = process.env) {
       ipMax: base.ipMax == null ? null : envInt(env, `RATE_LIMIT_${upper}_IP_MAX`, base.ipMax),
       userMax: base.userMax == null ? null : envInt(env, `RATE_LIMIT_${upper}_USER_MAX`, base.userMax),
       bodyBytes: envInt(env, `BODY_LIMIT_${upper}_BYTES`, base.bodyBytes),
+      globalMax: base.globalMax == null ? null : envInt(env, `RATE_LIMIT_${upper}_GLOBAL_MAX`, base.globalMax),
     };
   }
   return {
@@ -220,6 +242,7 @@ export function resolvePerimeterConfig(env = process.env) {
 let activeConfig = null;
 const ipLimiters = new Map();
 const userLimiters = new Map();
+const globalLimiters = new Map();
 
 function limiterFor(cache, className, windowMs, max) {
   const key = `${className}:${windowMs}:${max}`;
@@ -236,6 +259,7 @@ export function resetPerimeter() {
   activeConfig = null;
   ipLimiters.clear();
   userLimiters.clear();
+  globalLimiters.clear();
 }
 
 export function perimeterConfig() {
@@ -275,8 +299,40 @@ export function enforceUserRateLimit(c, userId, config = perimeterConfig()) {
 
   const limiter = limiterFor(userLimiters, className, policy.windowMs, policy.userMax);
   const result = limiter.hit(`${className}:${userId}`);
-  if (!result.allowed) return rateLimitedResponse(c, result);
+  if (!result.allowed) return rateLimitedResponse(c, { ...result, scope: "user" });
   setRateLimitHeaders(c, result);
+  return null;
+}
+
+/**
+ * Spend a class budget from inside a handler. Used when the cost is decided
+ * by the body (format-preview compose) rather than the path alone, so a
+ * deterministic preview does not consume the paid ceiling and a compose call
+ * shares it with discovery / sharpen / Brandolph.
+ *
+ * Returns a 429 Response, or null. Hits IP, then the process-wide ceiling,
+ * then the verified user. A denied earlier bucket does not consume the later ones.
+ */
+export function enforceClassRateLimit(c, className, { userId } = {}, config = perimeterConfig()) {
+  if (!config.rateLimitEnabled) return null;
+  const policy = config.classes[className];
+  if (!policy) return null;
+
+  if (policy.ipMax != null) {
+    const limiter = limiterFor(ipLimiters, className, policy.windowMs, policy.ipMax);
+    const result = limiter.hit(`${className}:${requestIp(c, config)}`);
+    if (!result.allowed) return rateLimitedResponse(c, { ...result, scope: "ip" });
+  }
+  if (policy.globalMax != null) {
+    const limiter = limiterFor(globalLimiters, className, policy.windowMs, policy.globalMax);
+    const result = limiter.hit(`${className}:global`);
+    if (!result.allowed) return rateLimitedResponse(c, { ...result, scope: "global" });
+  }
+  if (userId && policy.userMax != null) {
+    const limiter = limiterFor(userLimiters, className, policy.windowMs, policy.userMax);
+    const result = limiter.hit(`${className}:${userId}`);
+    if (!result.allowed) return rateLimitedResponse(c, { ...result, scope: "user" });
+  }
   return null;
 }
 
@@ -290,7 +346,14 @@ export function perIpRateLimit(config = perimeterConfig()) {
 
     const limiter = limiterFor(ipLimiters, className, policy.windowMs, policy.ipMax);
     const result = limiter.hit(`${className}:${requestIp(c, config)}`);
-    if (!result.allowed) return rateLimitedResponse(c, result);
+    if (!result.allowed) return rateLimitedResponse(c, { ...result, scope: "ip" });
+
+    if (policy.globalMax != null) {
+      const globalLimiter = limiterFor(globalLimiters, className, policy.windowMs, policy.globalMax);
+      const globalResult = globalLimiter.hit(`${className}:global`);
+      if (!globalResult.allowed) return rateLimitedResponse(c, { ...globalResult, scope: "global" });
+    }
+
     setRateLimitHeaders(c, result);
     return next();
   };

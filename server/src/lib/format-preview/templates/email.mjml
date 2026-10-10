@@ -1,0 +1,28 @@
+<mjml lang="{{language}}">
+  <mj-head>
+    <mj-title>{{blocks.email.subject}}</mj-title>
+    <mj-preview>{{blocks.email.preheader}}</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="{{brand.tokens.font_body}}" color="{{brand.tokens.ink}}" />
+      <mj-text font-size="16px" line-height="1.55" />
+      <mj-button background-color="{{brand.tokens.accent}}" color="#ffffff" border-radius="{{brand.tokens.radius}}px" font-weight="bold" inner-padding="14px 28px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="{{brand.tokens.bg}}" width="600px">
+    <mj-section padding="24px 0 8px"><mj-column>
+      <mj-text font-family="{{brand.tokens.font_display}}" font-size="20px" align="center">{{brand.name}}</mj-text>
+    </mj-column></mj-section>
+    <mj-section padding="0"><mj-column>
+      <mj-image src="{{asset blocks.email.image.src}}" alt="{{blocks.email.image.alt}}" padding="0" />
+    </mj-column></mj-section>
+    <mj-section background-color="#ffffff" padding="28px 24px"><mj-column>
+      <mj-text font-family="{{brand.tokens.font_display}}" font-size="30px" line-height="1.2">{{blocks.email.headline}}</mj-text>
+      <mj-text>{{blocks.email.body}}</mj-text>
+      {{#each blocks.email.bullets}}<mj-text padding="2px 25px">— {{@}}</mj-text>{{/each}}
+      <mj-button href="{{cta.url}}" padding-top="24px">{{cta.label}}</mj-button>
+    </mj-column></mj-section>
+    <mj-section padding="16px 24px"><mj-column>
+      <mj-text font-size="12px" color="{{brand.tokens.muted}}" align="center">{{blocks.email.footer}}</mj-text>
+    </mj-column></mj-section>
+  </mj-body>
+</mjml>

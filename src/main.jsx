@@ -16,6 +16,7 @@ import "./portal-shared.jsx";     // shared UI primitives
 import "./portal-brandolph.jsx";  // screens
 import "./portal-discovery.jsx";
 import "./portal-briefs.jsx";
+import "./format-preview.jsx";
 import "./portal-craft.jsx";
 import "./portal-team.jsx";
 import "./portal-floater.jsx";

@@ -67,8 +67,12 @@ test("classifyRequest maps every perimeter surface to its abuse class", () => {
     ["POST", "/api/discovery/delegation", "generation"], // authenticated create
     ["POST", "/api/bios/brand-1/evidence", "upload"],
     ["POST", "/api/me/avatar", "upload"],
-    ["POST", "/api/brandolph/ask", "generation"],
-    ["POST", "/api/runs/stream", "generation"],
+    ["POST", "/api/brandolph/ask", "paid"],
+    ["POST", "/api/discovery/start", "paid"],
+    ["POST", "/api/briefs/sharpen", "paid"],
+    ["GET", "/api/briefs/brief-1/formats", "api"],
+    ["POST", "/api/briefs/brief-1/formats", "api"],
+    ["POST", "/api/runs/stream", "paidRun"],
     ["POST", "/api/craft", "generation"],
     ["PATCH", "/api/steward/jobs/1", "generation"],
     ["GET", "/api/runs/abc", "api"], // reads/polling are never generation
@@ -82,12 +86,12 @@ test("classifyRequest maps every perimeter surface to its abuse class", () => {
   }
 });
 
-test("the public delegation class is the strictest rate limit on the perimeter", () => {
-  const ceilings = Object.entries(PERIMETER_CLASSES)
-    .filter(([, p]) => p.ipMax != null)
-    .map(([name, p]) => [name, p.ipMax]);
-  const strictest = ceilings.reduce((a, b) => (b[1] < a[1] ? b : a));
-  assert.equal(strictest[0], "publicToken");
+test("paid model routes allow fewer requests per minute than the public token surface", () => {
+  const perMinute = (policy) => policy.ipMax / (policy.windowMs / 60_000);
+  assert.ok(perMinute(PERIMETER_CLASSES.paid) < perMinute(PERIMETER_CLASSES.publicToken));
+  assert.ok(perMinute(PERIMETER_CLASSES.paid) < perMinute(PERIMETER_CLASSES.generation));
+  assert.ok(perMinute(PERIMETER_CLASSES.paidRun) < perMinute(PERIMETER_CLASSES.generation));
+  assert.ok(PERIMETER_CLASSES.publicToken.ipMax < PERIMETER_CLASSES.api.ipMax);
 });
 
 /* ── 429 behaviour ────────────────────────────────────────────────────────── */
@@ -109,6 +113,8 @@ test("the public delegation route 429s past its per-IP ceiling", async () => {
   assert.ok(Number(blocked.headers.get("Retry-After")) >= 1);
   const body = await blocked.json();
   assert.equal(body.code, "RATE_LIMITED");
+  assert.equal(body.scope, "ip");
+  assert.match(body.error, /this network/);
   assert.ok(body.retryAfterSeconds >= 1);
 });
 
@@ -157,7 +163,7 @@ test("RATE_LIMIT_DISABLED turns the limiter off for local scripts", async () => 
 test("per-user limits key on the verified user id and 429 past the ceiling", async () => {
   const app = new Hono();
   resetPerimeter();
-  const config = applyPerimeter(app, { ...PROD_ENV, RATE_LIMIT_GENERATION_USER_MAX: "3" });
+  const config = applyPerimeter(app, { ...PROD_ENV, RATE_LIMIT_PAID_USER_MAX: "3", RATE_LIMIT_PAID_IP_MAX: "100", RATE_LIMIT_PAID_GLOBAL_MAX: "100" });
   app.post("/api/brandolph/ask", (c) => {
     const throttled = enforceUserRateLimit(c, c.req.header("x-test-user"), config);
     return throttled || c.json({ ok: true });
@@ -167,8 +173,51 @@ test("per-user limits key on the verified user id and 429 past the ceiling", asy
   assert.equal((await call("user-a")).status, 200);
   assert.equal((await call("user-a")).status, 200);
   assert.equal((await call("user-a")).status, 200);
-  assert.equal((await call("user-a")).status, 429, "fourth call exceeds the per-user ceiling");
+  const blocked = await call("user-a");
+  assert.equal(blocked.status, 429, "fourth call exceeds the per-user ceiling");
+  assert.equal((await blocked.json()).scope, "user");
   assert.equal((await call("user-b")).status, 200, "a second user has an independent budget");
+});
+
+test("discovery, sharpen, and brandolph share a paid ceiling separate from specialist runs", async () => {
+  const app = buildApp({
+    ...PROD_ENV,
+    RATE_LIMIT_PAID_IP_MAX: "1",
+    RATE_LIMIT_PAID_GLOBAL_MAX: "100",
+    RATE_LIMIT_PAID_RUN_IP_MAX: "3",
+    RATE_LIMIT_PAID_RUN_GLOBAL_MAX: "100",
+  }, (a) => {
+    a.post("/api/discovery/start", (c) => c.json({ ok: true }));
+    a.post("/api/briefs/sharpen", (c) => c.json({ ok: true }));
+    a.post("/api/brandolph/ask", (c) => c.json({ ok: true }));
+    a.post("/api/runs/stream", (c) => c.json({ ok: true }));
+  });
+  const post = (path) => app.request(path, from("203.0.113.9", { method: "POST" }));
+  assert.equal((await post("/api/discovery/start")).status, 200);
+  const blocked = await post("/api/briefs/sharpen");
+  assert.equal(blocked.status, 429);
+  assert.equal((await blocked.json()).scope, "ip");
+  assert.equal((await post("/api/brandolph/ask")).status, 429);
+  assert.equal((await post("/api/runs/stream")).status, 200, "a specialist crew must not inherit the orchestration ceiling");
+});
+
+test("the paid global ceiling stops a crowd of distinct IPs", async () => {
+  const app = buildApp({
+    ...PROD_ENV,
+    RATE_LIMIT_PAID_IP_MAX: "10",
+    RATE_LIMIT_PAID_GLOBAL_MAX: "2",
+  }, (a) => {
+    a.post("/api/discovery/start", (c) => c.json({ ok: true }));
+  });
+  const post = (ip) => app.request("/api/discovery/start", from(ip, { method: "POST" }));
+  assert.equal((await post("203.0.113.10")).status, 200);
+  assert.equal((await post("203.0.113.11")).status, 200);
+  const blocked = await post("203.0.113.12");
+  assert.equal(blocked.status, 429);
+  const body = await blocked.json();
+  assert.equal(body.scope, "global");
+  assert.match(body.error, /shared demo limit/);
+  assert.equal(body.code, "RATE_LIMITED");
 });
 
 test("per-user limits do not apply to classes without a user ceiling", async () => {
@@ -359,10 +408,13 @@ test("every ceiling is env-overridable so ops can tighten without a deploy", () 
   const config = resolvePerimeterConfig({
     RATE_LIMIT_PUBLIC_TOKEN_IP_MAX: "5",
     RATE_LIMIT_GENERATION_USER_MAX: "9",
+    RATE_LIMIT_PAID_GLOBAL_MAX: "4",
     BODY_LIMIT_UPLOAD_BYTES: "1234",
   });
   assert.equal(config.classes.publicToken.ipMax, 5);
   assert.equal(config.classes.generation.userMax, 9);
+  assert.equal(config.classes.paid.globalMax, 4);
   assert.equal(config.classes.upload.bodyBytes, 1234);
+  assert.equal(config.classes.api.globalMax, null);
   assert.equal(config.classes.api.ipMax, PERIMETER_CLASSES.api.ipMax, "untouched classes keep defaults");
 });

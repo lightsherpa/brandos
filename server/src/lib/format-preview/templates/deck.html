@@ -1,0 +1,17 @@
+<!doctype html><html lang="{{language}}"><head><meta charset="utf-8"><title>{{brand.name}} deck</title>
+<style>
+@page{size:1280px 720px;margin:0}*{box-sizing:border-box}body{margin:0;font-family:{{brand.tokens.font_body}};color:{{brand.tokens.ink}}}
+.slide{width:1280px;height:720px;padding:72px 88px;background:{{brand.tokens.bg}};position:relative;overflow:hidden;page-break-after:always;display:flex;flex-direction:column;justify-content:center}
+.kicker{text-transform:uppercase;letter-spacing:.14em;font-size:16px;color:{{brand.tokens.accent}};font-weight:700}
+h1{font:400 64px/1.08 {{brand.tokens.font_display}};margin:16px 0 0;max-width:15ch}
+h2{font:400 48px/1.1 {{brand.tokens.font_display}};margin:14px 0 28px;max-width:22ch}
+ul{margin:0;padding:0;list-style:none}li{font-size:26px;padding:12px 0;border-top:1px solid #0002}
+.l-title img{position:absolute;right:0;top:0;height:100%;width:46%;object-fit:cover}.l-title .txt{max-width:52%}
+.l-closing{background:{{brand.tokens.ink}};color:{{brand.tokens.bg}}}.l-closing li{border-color:#fff3}
+.foot{position:absolute;left:88px;bottom:36px;font-size:14px;opacity:.6}
+</style></head><body>
+{{#each blocks.deck.slides}}<section class="slide l-{{@.layout}}" data-notes="{{@.notes}}"><div class="txt"><div class="kicker">{{@.kicker}}</div>
+{{#if @.layout=title}}<h1>{{@.title}}</h1>{{/if}}{{#if @.layout!=title}}<h2>{{@.title}}</h2>{{/if}}
+{{#if @.points}}<ul>{{#eachp @.points}}<li>{{$}}</li>{{/eachp}}</ul>{{/if}}</div>
+{{#if @.image}}<img src="{{asset @.image.src}}" alt="{{@.image.alt}}">{{/if}}<div class="foot">{{root.brand.name}}</div></section>{{/each}}
+</body></html>

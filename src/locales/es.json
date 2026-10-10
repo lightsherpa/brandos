@@ -619,6 +619,33 @@
       "sharpenedBrief": "El brief afinado de Brandolph",
       "hardRefusals": "Rechazos absolutos para este brief"
     },
+    "formats": {
+      "open": "Formatos",
+      "off": "La vista previa de formatos está desactivada.",
+      "loading": "Preparando formatos…",
+      "unavailable": "La vista previa de formatos no está disponible.",
+      "back": "Volver al brief",
+      "eyebrow": "Vista previa de demo",
+      "title": "Un mensaje, tres formatos",
+      "intro": "Email, página de aterrizaje y una presentación de tres diapositivas a partir de este brief y del BIO de la marca.",
+      "headline": "Titular compartido",
+      "updating": "Actualizando los tres…",
+      "headlineHelp": "Esta línea es el titular del email, el héroe de la página y la diapositiva de título.",
+      "email": "Email",
+      "landing": "Página de aterrizaje",
+      "deck": "Diapositivas",
+      "print": "Imprimir / Guardar PDF",
+      "pass": "Aprobado",
+      "flag": "Marcado",
+      "trailEyebrow": "Certificación",
+      "trailTitle": "Registro de auditoría",
+      "trailBio": "BIO v{version} · {state}",
+      "certified": "Certificado",
+      "selfCertified": "Autocertificado",
+      "uncertified": "Aún no certificado",
+      "trailEmpty": "Todavía no hay decisiones de certificación.",
+      "openBio": "Abrir el BIO"
+    },
     "run": {
       "deliverableCount": {
         "plural": {

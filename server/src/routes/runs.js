@@ -406,9 +406,13 @@ app.post("/stream", requireAuth, async (c) => {
           spec: effectiveSpec,
           system,
           messages: [{ role: "user", content: effectiveBriefText }],
+          // Deliverable JSON is sized per item. Every other text run omits
+          // maxTokens so the router can honor spec.payload.max_output_tokens
+          // and the ~2000 floor — cr_estimate * 100 was truncating Social
+          // Captions and the other low-credit agents.
           maxTokens: isDeliverableText
             ? maxTokensForDeliverables({ count: Number(dlv.count), baseCr: effectiveSpec.payload?.cr_estimate ?? 8 })
-            : (effectiveSpec.payload?.cr_estimate ?? 8) * 100,
+            : undefined,
           telemetry: {
             operationKey: "specialist.text",
             feature: "specialist.run",

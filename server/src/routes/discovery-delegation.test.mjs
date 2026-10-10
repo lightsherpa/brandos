@@ -82,16 +82,16 @@ class Query {
 const sentEmails = [];
 
 mock.module(new URL("lib/supabase.js", ROOT).href, {
-  exports: { supabaseAdmin: { from: (table) => new Query(table) }, userClient: () => null },
+  namedExports: { supabaseAdmin: { from: (table) => new Query(table) }, userClient: () => null },
 });
 mock.module(new URL("lib/email.js", ROOT).href, {
-  exports: { sendEmail: async (msg) => { sentEmails.push(msg); } },
+  namedExports: { sendEmail: async (msg) => { sentEmails.push(msg); } },
 });
 mock.module(new URL("lib/notify.js", ROOT).href, {
-  exports: { notify: async () => {}, brandOwnerUserId: async () => "owner-user" },
+  namedExports: { notify: async () => {}, brandOwnerUserId: async () => "owner-user" },
 });
 mock.module(new URL("middleware/auth.js", ROOT).href, {
-  exports: {
+  namedExports: {
     requireAuth: async (c, next) => {
       c.set("auth", { userId: "user-1", workspaceId: "ws-1", role: "owner" });
       return next();
@@ -100,7 +100,7 @@ mock.module(new URL("middleware/auth.js", ROOT).href, {
 });
 // Key rate limits off a per-test header so one test's budget cannot starve the next.
 mock.module(new URL("lib/http-policy.js", ROOT).href, {
-  exports: { requestIp: (c) => c.req.header("x-test-ip") || "203.0.113.1" },
+  namedExports: { requestIp: (c) => c.req.header("x-test-ip") || "203.0.113.1" },
 });
 
 const { default: app } = await import("../routes/discovery-delegation.js");

@@ -26,6 +26,12 @@ services:
         value: "1"
       - key: DISCOVERY_V2
         value: "1"
+      # Demo multi-format preview stays off in production. A booth build sets
+      # both to 1 before `npm run build` — VITE_FORMAT_PREVIEW is baked into the SPA.
+      - key: FORMAT_PREVIEW
+        value: "0"
+      - key: VITE_FORMAT_PREVIEW
+        value: "0"
       - key: EMAIL_FROM
         value: CaastorOS <notifications@caastoros.com>
       - key: VITE_SUPABASE_URL

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brandos.dev/schemas/message-spec.v0.json",
+  "title": "BrandOS Message Spec v0 (per campaign)",
+  "type": "object",
+  "required": ["message_spec_id", "bio_version", "brand", "language", "audience", "goal", "smp", "messages", "proof", "cta", "blocks"],
+  "properties": {
+    "message_spec_id": {"type": "string"},
+    "brief_id": {"type": "string"},
+    "bio_version": {"type": "integer"},
+    "brand": {"type": "object", "required": ["name", "tokens"], "properties": {
+      "name": {"type": "string"}, "logo_url": {"type": "string"}, "url": {"type": "string"},
+      "tokens": {"type": "object", "required": ["bg", "ink", "accent", "font_display", "font_body"], "properties": {
+        "bg": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "ink": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+        "accent": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "muted": {"type": "string"},
+        "font_display": {"type": "string"}, "font_body": {"type": "string"}, "radius": {"type": "integer"}}}}},
+    "language": {"type": "string", "enum": ["es", "en"]},
+    "audience": {"type": "object", "required": ["segment"], "properties": {"segment": {"type": "string"}, "belief": {"type": "string"}, "tension": {"type": "string"}}},
+    "goal": {"type": "object", "required": ["objective"], "properties": {"objective": {"type": "string"}, "metric": {"type": "string"}}},
+    "smp": {"type": "string", "maxLength": 160},
+    "territory": {"type": "object", "properties": {"name": {"type": "string"}, "core_thought": {"type": "string"}, "set_by": {"type": "string"}}},
+    "spine": {"type": "object", "properties": {"line": {"type": "string", "maxLength": 60}, "set_by": {"type": "string"}}},
+    "messages": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "object", "required": ["id", "text"], "properties": {"id": {"type": "string"}, "text": {"type": "string"}, "proof_ids": {"type": "array", "items": {"type": "string"}}}}},
+    "proof": {"type": "array", "items": {"type": "object", "required": ["id", "claim", "source"], "properties": {"id": {"type": "string"}, "claim": {"type": "string"}, "source": {"type": "string"}, "verified": {"type": "boolean"}}}},
+    "cta": {"type": "object", "required": ["label", "url"], "properties": {"label": {"type": "string", "maxLength": 28}, "url": {"type": "string"}}},
+    "refusals": {"type": "array", "items": {"type": "string"}},
+    "blocks": {"type": "object", "required": ["email", "landing", "deck"], "properties": {
+      "email": {"type": "object", "required": ["subject", "preheader", "headline", "body", "image"], "properties": {
+        "subject": {"type": "string", "maxLength": 60}, "preheader": {"type": "string", "maxLength": 100},
+        "headline": {"type": "string", "maxLength": 70}, "body": {"type": "string", "maxLength": 600},
+        "image": {"$ref": "#/$defs/image"}, "bullets": {"type": "array", "maxItems": 3, "items": {"type": "string"}}, "footer": {"type": "string"}}},
+      "landing": {"type": "object", "required": ["hero", "features", "proof", "cta"], "properties": {
+        "hero": {"type": "object", "required": ["eyebrow", "headline", "subhead", "image"], "properties": {"eyebrow": {"type": "string"}, "headline": {"type": "string", "maxLength": 70}, "subhead": {"type": "string", "maxLength": 200}, "image": {"$ref": "#/$defs/image"}}},
+        "features": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "object", "required": ["title", "text"], "properties": {"title": {"type": "string", "maxLength": 40}, "text": {"type": "string", "maxLength": 160}}}},
+        "proof": {"type": "object", "required": ["quote", "attribution"], "properties": {"quote": {"type": "string", "maxLength": 220}, "attribution": {"type": "string"}, "proof_id": {"type": "string"}}},
+        "cta": {"type": "object", "required": ["headline"], "properties": {"headline": {"type": "string"}, "subhead": {"type": "string"}}},
+        "footer": {"type": "object", "properties": {"text": {"type": "string"}}}}},
+      "deck": {"type": "object", "required": ["slides"], "properties": {"slides": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "object", "required": ["layout", "title"], "properties": {
+        "layout": {"enum": ["title", "points", "closing"]}, "kicker": {"type": "string"}, "title": {"type": "string", "maxLength": 80},
+        "points": {"type": "array", "maxItems": 4, "items": {"type": "string", "maxLength": 120}}, "image": {"$ref": "#/$defs/image"}, "notes": {"type": "string"}}}}}}}},
+    "history": {"type": "array", "items": {"type": "object"}}
+  },
+  "$defs": {"image": {"type": "object", "required": ["src", "alt"], "properties": {"src": {"type": "string"}, "alt": {"type": "string", "maxLength": 125}, "direction": {"type": "string"}}}}
+}

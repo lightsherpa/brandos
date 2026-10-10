@@ -17,9 +17,11 @@ import { verifyOpexOverride } from "../lib/opex-override.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
 
 import { createBriefDraftRoutes } from "./brief-drafts.js";
+import formatPreview from "./format-preview.js";
 
 const app = new Hono();
 app.route("/drafts", createBriefDraftRoutes({ db: supabaseAdmin, authenticate: requireAuth }));
+app.route("/", formatPreview);
 
 app.post("/sharpen", requireAuth, async (c) => {
   const auth = c.get("auth");
