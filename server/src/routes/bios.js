@@ -5,6 +5,7 @@ import { assignSteward } from "../lib/assign-steward.js";
 import { scoreBio } from "../lib/score-bio.js";
 import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
+import {validateCertificationReview} from "../lib/certification-review.js";
 import { selfCertifyBio } from "../lib/self-certify.js";
 import { diffBio } from "../lib/bio-diff.js";
 import { loadBioForRun } from "../lib/load-brand-bio.js";
@@ -90,6 +91,8 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   if (!form) return c.json({ error: "multipart/form-data required" }, 400);
   const file = form.get("file");
   const bucket = String(form.get("bucket") || "").trim();
+  const purpose=form.get("purpose") || "current";
+  if(!["current","aspiration"].includes(purpose))return c.json({error:"Invalid source purpose"},400);
   if (!file || typeof file === "string") return c.json({ error: "file required" }, 400);
   if (!["foundations","visual","voice"].includes(bucket)) return c.json({ error: "bucket must be foundations|visual|voice" }, 400);
   const filename = file.name || "upload.bin";
@@ -158,7 +161,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
         size: file.size,
         mime,
         upload_id: uploadRow?.id,
-        ext,
+        ext, purpose,
         ...visualMetadata,
         ...(bucket === "visual" ? { rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() } : {}),
       },
@@ -409,16 +412,19 @@ app.post("/:brandId/self-certify", requireAuth, async (c) => {
     .from("bios").select("id, version, payload").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
   if (!bio) return c.json({ error: "No BIO to certify yet", code: "NO_BIO" }, 400);
+  const review = validateCertificationReview({body,bio});
+  if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
 
   // Shared gate: statements + field marks + high-importance gaps + min score,
   // then the attestation write + self_certified flip (see lib/self-certify.js).
   const result = await selfCertifyBio({
     brandId, bioId: bio.id, payload: bio.payload || {}, userId,
     statements: body.statements, fieldMarks: body.fieldMarks, statementVersion: body.statementVersion,
+    review: review.review,
   });
-  if (!result.ok) { const { ok, ...err } = result; return c.json(err, 400); }
+  if (!result.ok) { const { ok, ...err } = result; return c.json(err, result.code==="STALE_BIO"?409:result.code==="ATTESTATION_FAILED"?500:400); }
 
-  return c.json({ ok: true, self_certified: true, version: bio.version, score: result.score });
+  return c.json({ ok: true, self_certified: true, version: bio.version, score: result.score, attestationId:result.attestationId, attestedAt:result.attestedAt });
 });
 
 /* POST /api/bios/:brandId/request-review

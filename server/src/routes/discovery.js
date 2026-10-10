@@ -11,6 +11,8 @@ import { hasPermission } from "../lib/permissions.js";
 import { verifyOpexOverride } from "../lib/opex-override.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
 
+import {normalizeDiscoveryReferences} from "../lib/discovery-intelligence.js";
+
 const app = new Hono();
 
 /* POST /api/discovery/start
@@ -27,13 +29,16 @@ app.post("/start", requireAuth, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const url = typeof body.url === "string" ? body.url.trim() : "";
   const instagram = typeof body.instagram === "string" ? body.instagram.trim() : undefined;
-  if (!url) return c.json({ error: "url required" }, 400);
+
   const discoveryId = crypto.randomUUID();
+  let references;
+  try { references=normalizeDiscoveryReferences(body.references); }
+  catch(e){return c.json({error:e.message},400);}
 
   // SSRF guard — the URL is scraped server-side. Block non-public targets
   // before it reaches the scrape pipeline.
   const probeUrl = /^https?:\/\//i.test(url) ? url : `https://${url}`;
-  try { assertPublicUrl(probeUrl); }
+  try { if(url) assertPublicUrl(probeUrl); }
   catch (e) { return c.json({ error: `Invalid or blocked URL (${e.code || "URL"})`, code: e.code || "BAD_URL" }, 400); }
 
   // Resolve brand — either the caller-supplied id (with workspace check)
@@ -67,7 +72,12 @@ app.post("/start", requireAuth, async (c) => {
   });
 
   // Update brand.url if it differs (so future discoveries can default to it)
-  await supabaseAdmin.from("brands").update({ url }).eq("id", brandId);
+  if(url) await supabaseAdmin.from("brands").update({ url }).eq("id", brandId);
+  if(!url && !references.length){
+    const {data:sources,error}=await supabaseAdmin.from("bio_sources").select("id").eq("brand_id",brandId).eq("kind","file_upload").limit(1);
+    if(error)return c.json({error:error.message},500);
+    if(!sources?.length)return c.json({error:"Add a brand source or reference before generating the BIO"},400);
+  }
 
   // Fire the event — compile-bio function picks it up asynchronously.
   // If the queue is unreachable (e.g. Inngest dev server not running in
@@ -78,7 +88,7 @@ app.post("/start", requireAuth, async (c) => {
   try {
     ({ ids } = await inngest.send({
       name: "discovery/start",
-      data: { brandId, url, workspaceId, instagram, discoveryId, actorUserId: userId, breakerOverride: !!override },
+      data: { brandId, url, workspaceId, instagram, discoveryId, references, actorUserId: userId, breakerOverride: !!override },
     }));
     await recordApiUsage({
       requestId: queueRequestId, workflowId: discoveryId, workspaceId, brandId, actorUserId: userId,

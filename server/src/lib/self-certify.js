@@ -30,14 +30,14 @@ import { DEFAULT_RUBRIC } from "./evaluate-certification.js";
  * @param {number}  [args.minScore]         override; else read the active rubric
  * @returns {Promise<{ok:true, score:number}|{ok:false, code:string, error:string}>}
  */
-export async function selfCertifyBio({ brandId, bioId, payload, userId, statements, fieldMarks, statementVersion, minScore }) {
+export async function selfCertifyBio({ brandId, bioId, payload, userId, statements, fieldMarks, statementVersion, minScore, review = null }) {
   const marks = (fieldMarks && typeof fieldMarks === "object") ? fieldMarks : {};
   const s = statements || {};
   const version = String(statementVersion || "1");
   const bio = payload || {};
 
   // 1) All three attestation statements must be affirmed.
-  if (!(s.authority && s.reflects && s.aspirationalMarked)) {
+  if (![s.authority, s.reflects, s.aspirationalMarked].every(value => value === true)) {
     return { ok: false, code: "STATEMENTS_REQUIRED", error: "All three attestation statements must be confirmed" };
   }
 
@@ -66,15 +66,13 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
     return { ok: false, code: "BELOW_MIN_SCORE", error: `BIO score ${score} is below the ${floor} needed to self-certify`, score, minScore: floor };
   }
 
-  // 5) Bind an immutable attestation to the exact payload, then flip the flag.
-  await supabaseAdmin.from("bio_attestations").insert({
-    bio_id: bioId, brand_id: brandId, attested_by: userId,
-    payload_hash: payloadHash(bio), statement_version: version,
-    field_marks: marks, self_score: score,
+  // Record and unlock atomically; a failed attestation must never unlock briefing.
+  const {data, error} = await supabaseAdmin.rpc("record_bio_self_certification", {
+    p_bio_id:bioId, p_brand_id:brandId, p_user_id:userId,
+    p_payload_hash:payloadHash(bio), p_statement_version:version,
+    p_field_marks:marks, p_score:score, p_review:review,
   });
-  await supabaseAdmin.from("bios")
-    .update({ self_certified: true, self_certified_at: new Date().toISOString() })
-    .eq("id", bioId);
-
-  return { ok: true, score };
+  if(error)return {ok:false,code:"ATTESTATION_FAILED",error:"Could not record certification. Please retry."};
+  if(!data?.ok)return data||{ok:false,code:"ATTESTATION_FAILED",error:"Certification was not recorded."};
+  return {...data, score};
 }
