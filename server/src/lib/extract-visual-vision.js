@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────
 // Visual extraction (vision half) — imagery direction + avoid-list.
 //
-// One Gemini 2.5 Flash vision call (~$0.0014/BIO via OpenRouter) on the
+// A bounded Gemini 3.8 Flash vision call (with one Sonnet 5.5 fallback) on the
 // brand's homepage screenshot. Palette + type are handled deterministically
 // from rawHtml elsewhere ($0) — NOT here. This call only describes the
 // IMAGERY style (subjects, lighting, composition) and infers what the brand
@@ -13,18 +13,7 @@
 // so the BIO stays valid if vision fails (Increment 4 degrades to []).
 // ─────────────────────────────────────────────────────────────────────
 
-import { streamCompletion } from "./models/router.js";
-
-const VISUAL_VISION_SPEC = {
-  payload: {
-    name: "Visual Imagery Extractor",
-    modelRouting: {
-      primary: process.env.DISCOVERY_TEST_ROUTE === "haiku-sonnet" ? "openrouter/google/gemini-3.8-flash" : "openrouter/google/gemini-2.5-flash",
-      reason: "one-shot vision read of brand imagery; cheap + reliable JSON",
-    },
-    cr_estimate: 1,
-  },
-};
+import {completeDiscoveryStep} from "./discovery-models.js";
 
 export const VISUAL_VISION_SYSTEM = `You are a brand visual analyst. You read a brand's website and explicitly-labelled visual references, then describe the approved IMAGERY system.
 
@@ -76,32 +65,12 @@ export async function extractImageryAvoid({ screenshotUrl, referenceImages = [],
     userContent.push({ type:"image_url", image_url:{ url:reference.url } });
   }
 
-  let text = "";
   try {
-    for await (const ev of streamCompletion({
-      spec: VISUAL_VISION_SPEC,
-      system: VISUAL_VISION_SYSTEM,
-      messages: [{ role: "user", content: userContent }],
-      maxTokens: process.env.DISCOVERY_TEST_ROUTE === "haiku-sonnet" ? 2000 : 300,
-      telemetry: { operationKey: "discovery.compile", feature: "discovery.visual", ...telemetry },
-    })) {
-      if (ev.type === "token")      text += ev.text;
-      else if (ev.type === "error") throw new Error(ev.message);
-    }
-  } catch {
-    /* Vision failures shouldn't invalidate the BIO — the rest of the
-       visual block (palette/type) is extracted deterministically. Degrade
-       to empty arrays so synthesis stays valid. */
-    return { imagery: [], avoid: [] };
-  }
-
-  const stripped = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
-  let parsed;
-  try { parsed = JSON.parse(stripped); }
-  catch { return { imagery: [], avoid: [] }; }
-
-  return {
-    imagery: Array.isArray(parsed.imagery) ? parsed.imagery : [],
-    avoid:   Array.isArray(parsed.avoid)   ? parsed.avoid   : [],
-  };
+    const result=await completeDiscoveryStep({step:"vision",system:VISUAL_VISION_SYSTEM,messages:[{role:"user",content:userContent}],telemetry,parse:text=>{
+      const parsed=JSON.parse(text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim());
+      if(!Array.isArray(parsed.imagery)||!Array.isArray(parsed.avoid))throw new Error("Invalid visual observations");
+      return {imagery:parsed.imagery.filter(x=>typeof x==='string'),avoid:parsed.avoid.filter(x=>typeof x==='string')};
+    }});
+    return result.value;
+  }catch{return {imagery:[],avoid:[],limitations:["Imagery interpretation failed after bounded fallback; no photographic style inferred."]};}
 }

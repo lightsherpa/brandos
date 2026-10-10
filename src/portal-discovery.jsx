@@ -318,6 +318,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
     }
   };
   const totalFiles = BUCKETS.reduce((a, b) => a + uploadsByBucket[b.key].length, 0);
+  const invalidFiles=BUCKETS.some(bucket=>uploadsByBucket[bucket.key].some(file=>!validateUpload({mime:file.type,size:file.size,filename:file.name}).ok));
   const visualAssetsReady = uploadsByBucket.visual.every((file) => {
     const meta = visualMeta[visualFileKey(file)] || defaultVisualMeta(file);
     return meta.rightsConfirmed && (!FONT_FILE_EXTS.has(fileExt(file)) || (meta.fontFamily && meta.licenseType));
@@ -354,7 +355,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
           <p className="discovery-helper">{t("discovery.intake.visualLimit")}</p>
         </details>
       </section>
-      <footer className="discovery-intake-footer"><p>{t("discovery.intake.reviewHelp")}</p><button className="btn btn--primary" onClick={handleStart} disabled={busy||!visualAssetsReady||(!url.trim()&&!totalFiles&&!referenceCount)||(newBrand&&!brandName.trim())}>{uploading?t("discovery.step1.uploading"):busy?t("discovery.step1.starting"):t("discovery.step1.startExtraction")}<Icon name="arrow" size={14}/></button></footer>
+      <footer className="discovery-intake-footer"><p>{t("discovery.intake.reviewHelp")}</p><button className="btn btn--primary" onClick={handleStart} disabled={busy||invalidFiles||!visualAssetsReady||(!url.trim()&&!totalFiles&&!referenceCount)||(newBrand&&!brandName.trim())}>{uploading?t("discovery.step1.uploading"):busy?t("discovery.step1.starting"):t("discovery.step1.startExtraction")}<Icon name="arrow" size={14}/></button></footer>
       {error&&<div className="discovery-intake-error" role="alert">{error}</div>}
       {!newBrand&&generated.bio?.discovery_id&&<button className="discovery-text-action" onClick={()=>onReview({brandId:generated.brandId,baselineVersion:generated.bio.version})}>{t("discovery.sourcesIntake.resumeReview")}</button>}
     </div><aside className="discovery-intake-aside" aria-label={t("discovery.intake.summary")}>

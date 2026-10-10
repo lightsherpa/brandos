@@ -6,6 +6,7 @@
 const FIRECRAWL_URL = "https://api.firecrawl.dev/v1/scrape";
 const FIRECRAWL_MAP_URL = "https://api.firecrawl.dev/v1/map";
 import crypto from "node:crypto";
+import {reserveDiscoveryTestSpend} from "./discovery-test-budget.js";
 import { recordApiUsage } from "./api-usage.js";
 
 // Pages worth pulling for brand synthesis (homepage is always included first).
@@ -17,6 +18,7 @@ export async function scrape(url, opts = {}) {
 
   const started = Date.now();
   const requestId = crypto.randomUUID();
+  reserveDiscoveryTestSpend(.10,"firecrawl:scrape");
   const res = await fetch(FIRECRAWL_URL, {
     method: "POST",
     headers: {
@@ -59,6 +61,7 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telem
   try {
     const started = Date.now();
     const requestId = crypto.randomUUID();
+    reserveDiscoveryTestSpend(.25,"firecrawl:map");
     const res = await fetch(FIRECRAWL_MAP_URL, {
       method: "POST",
       headers: {
@@ -124,6 +127,7 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telem
 export async function searchCompetitiveSources(query,{limit=4}={}){
  const key=process.env.FIRECRAWL_API_KEY;
  if(!key)throw new Error("FIRECRAWL_API_KEY not set");
+ reserveDiscoveryTestSpend(.10,"firecrawl:search");
  const res=await fetch("https://api.firecrawl.dev/v2/search",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({query,limit:Math.min(limit,4),scrapeOptions:{formats:["markdown"]}})});
  if(!res.ok)throw new Error(`Competitive search HTTP ${res.status}`);
  const json=await res.json();

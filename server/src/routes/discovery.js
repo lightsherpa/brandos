@@ -30,6 +30,12 @@ app.post("/start", requireAuth, async (c) => {
   const url = typeof body.url === "string" ? body.url.trim() : "";
   const instagram = typeof body.instagram === "string" ? body.instagram.trim() : undefined;
 
+  if(process.env.DISCOVERY_PAID_TEST==='1'){
+    let host;try{host=new URL(/^https?:\/\//i.test(url)?url:`https://${url}`).hostname.replace(/^www\./,'');}catch{}
+    if(!['geoking.com','thecake-me.com'].includes(host))return c.json({error:'The approved local paid test is limited to Geoking and Cake-me'},403);
+    if(body.references?.length)return c.json({error:'Paid test references must be reviewed within the approved budget first'},400);
+  }
+
   const discoveryId = crypto.randomUUID();
   let references;
   try { references=normalizeDiscoveryReferences(body.references); }

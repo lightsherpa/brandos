@@ -1449,7 +1449,7 @@
       "optional": "Opcional",
       "fileCount": "{count} archivos",
       "documentsHelp": "Añade lo que tu web no cubre. Arrastra los archivos a la fila correspondiente o selecciónalos.",
-      "visualLimit": "Las imágenes subidas se guardan para revisión. Para el análisis visual automático de esta prueba, añade un enlace público.",
+      "visualLimit": "Analizamos imágenes y enlaces públicos. Leemos el texto de los PDF; sus imágenes integradas aún necesitan revisión.",
       "browse": "Seleccionar archivos",
       "reviewHelp": "Revisarás la interpretación antes de confirmar tu BIO.",
       "summary": "Fuentes",

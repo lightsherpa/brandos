@@ -1444,7 +1444,7 @@
       "optional": "Optional",
       "fileCount": "{count} files",
       "documentsHelp": "Add material that your website doesn’t cover. Drag files into the relevant row or browse.",
-      "visualLimit": "Image uploads are stored for review. For automated visual analysis in this test, add a public reference link.",
+      "visualLimit": "Uploaded images and public links are analysed for imagery. PDF text is read; embedded PDF images still need review.",
       "browse": "Browse files",
       "reviewHelp": "You’ll review the interpretation before confirming your BIO.",
       "summary": "Source set",
