@@ -12,6 +12,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # supabase-js 2.106 constructs a Realtime client at import and requires
+      # Node's native WebSocket (Node 22+). Node 20 fails that import.
+      - key: NODE_VERSION
+        value: "22"
       - key: APP_URL
         value: https://app.getcaastor.co
       - key: ALLOWED_ORIGINS
