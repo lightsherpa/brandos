@@ -622,14 +622,14 @@ function TopBar({ portal, route, brandName, go }) {
      mental model (sidebar says "My brand", login said "Client portal"). */
   const ws = portal === "team" ? "La Mesa team" : brandName;
   return (
-    <div className="topbar">
+    <div className={`topbar ${route==="brand-book"?"topbar--brand-book":""}`}>
       <div className="titlestrip__crumb">{ws} · {crumb}</div>
       <span style={{color:"rgba(48,48,48,0.4)"}}>/</span>
       <div className="topbar__title">{title}</div>
-      <div style={{marginLeft:"auto", display:"flex", alignItems:"center", gap: 14}}>
+      <div className="topbar__actions" style={{marginLeft:"auto", display:"flex", alignItems:"center", gap: 14}}>
         <NotificationBell />
         {isClient && (
-          <button onClick={() => go && go("home")}
+          <button className="topbar__start-brief" onClick={() => go && go("home")}
             style={{
               display:"inline-flex", alignItems:"center", gap:7, height:32, padding:"0 14px",
               background:"var(--accent)", color:"#fff", border:"none", borderRadius:4,
@@ -640,7 +640,7 @@ function TopBar({ portal, route, brandName, go }) {
           </button>
         )}
         {isClient && (
-          <div style={{display:"flex", alignItems:"center", gap:6, fontFamily:"var(--font-mono)", fontSize:10.5, letterSpacing:"0.14em", textTransform:"uppercase", color:"rgba(48,48,48,0.7)"}}>
+          <div className="topbar__reading" style={{display:"flex", alignItems:"center", gap:6, fontFamily:"var(--font-mono)", fontSize:10.5, letterSpacing:"0.14em", textTransform:"uppercase", color:"rgba(48,48,48,0.7)"}}>
             <BrandolphDot /> {t("topbar.brandolphReading")}
           </div>
         )}

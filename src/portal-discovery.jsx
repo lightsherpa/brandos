@@ -1770,10 +1770,10 @@ function EditableField({ f, editing, onChange, onRemove }) {
         </div>
         <div style={{fontSize: 14, color:"var(--c-ink)", lineHeight: 1.55}}>
           {f.multi
-            ? <div style={{display:"flex", flexWrap:"wrap", gap: 6}}>{(f.value || []).map((v, i) => <span key={i} className="pill">{v}</span>)}</div>
-            : (f.italic ? <em style={{fontStyle:"italic"}}>{f.value}</em> : f.value)}
+            ? (["jtbd","signatures"].includes(f.key)?<ul style={{paddingInlineStart:18,margin:0}}>{(f.value||[]).map((v,i)=><li key={i} style={{marginBottom:8}}>{v}</li>)}</ul>:<div style={{display:"flex", flexWrap:"wrap", gap: 6}}>{(f.value || []).map((v, i) => <span key={i} className="pill">{v}</span>)}</div>)
+            : (f.value==null||f.value===""?<span style={{color:"var(--c-dim)"}}>{t("discovery.certification.missing")}</span>:f.italic ? <em style={{fontStyle:"italic"}}>{f.value}</em> : f.value)}
         </div>
-        <div style={{textAlign:"right"}}><Confidence value={f.conf} /></div>
+        <div style={{textAlign:"right"}}>{typeof f.conf==='number'&&<Confidence value={f.conf} />}</div>
       </div>
     );
   }

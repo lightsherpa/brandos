@@ -33,7 +33,7 @@ Regenerate with `node scripts/build-bio-replay.mjs`. The live/CSS follow-up fixt
 
 ## Remaining freeze checks
 
-- Complete Brand Book 390px/1440px and ES/AR visual inspection after the browser connection recovers.
+- Brand Book 390px/1440px and EN/ES/AR layout checks are complete; audit broader mobile dock/overlay interactions and legacy account translations before a platform-wide release.
 - Have Oscar/designer validate the complete visual system and photographic direction.
 - Geoking needs a readable source, uploaded brand materials, or a separately approved retrieval retry.
 - Recheck competitive evidence freshness before using comparisons in production.

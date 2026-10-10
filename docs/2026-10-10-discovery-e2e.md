@@ -43,6 +43,8 @@ Website screenshots and rights-confirmed uploaded images can produce imagery obs
 - Local Brand Book: `http://127.0.0.1:5185/#/brand-book/replay/cake-me`
 - Failure replay: `http://127.0.0.1:5185/#/brand-book/replay/geoking`
 - Portable replay: `http://127.0.0.1:5185/demo/bio/replay.html` (also opens as a standalone file)
-- Saved desktop screenshot: ignored `output/bio-vds/brand-book-cake-desktop.png` (actual browser width 1280px).
+- Browser screenshots: ignored `output/bio-vds/brand-book-cake-{desktop,mobile,es-mobile,ar-mobile}.png`.
 
-A later viewport override did not change the reported 1280px browser width. The nominal mobile screenshot was not treated as mobile proof. The browser connection subsequently timed out. Brand Book has responsive CSS, but its final 390px/1440px and ES/AR visual checks remain a freeze follow-up. Earlier intake checks are separately recorded in `2026-10-10-discovery-intake-checks.md`.
+Final browser checks used actual 390px and 1440px viewports (document width matched the viewport without horizontal overflow). English, Spanish and Arabic Brand Book navigation/status labels were inspected; Arabic uses RTL. The stored BIO content remains in its original generated language. Mobile fixes reduce header crowding, wrap provenance/pills, stack fields, and render long jobs-to-be-done/voice phrases as readable lists. No missing confidence is presented as a stray percentage. Earlier intake checks are separately recorded in `2026-10-10-discovery-intake-checks.md`.
+
+This validates Brand Book presentation, not a complete mobile platform audit. A mobile Account navigation attempt opened the floating Brandolph panel; broader dock/overlay interaction needs follow-up. The account language surface still contains legacy untranslated copy and CaastorOS references outside this focused view.
