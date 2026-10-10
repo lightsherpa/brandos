@@ -1,0 +1,841 @@
+{
+  "brandName": "Cake-me · live test with visual follow-up",
+  "bio": {
+    "id": "cake-me-refined-candidate",
+    "version": 2,
+    "payload": {
+      "goals": {
+        "q2": null,
+        "q3": null,
+        "northStar": "Grow Cake-me into a larger cheesecake chain through new stores and franchises ('El único lugar que nos falta es el tuyo')."
+      },
+      "voice": {
+        "rhythm": "Short, punchy headline fragments and direct imperatives ('Pide tu tarta entera'), with a light, conversational wink ('aunque, casi todo...').",
+        "register": "Warm, friendly, informal and emotional. Positive, celebratory and playful, with emojis, written in Spanish.",
+        "forbidden": [
+          "Exclusivo",
+          "Sofisticado",
+          "Industrial",
+          "Premium (as a price signal)",
+          "Corporativo",
+          "Aburrido"
+        ],
+        "signatures": [
+          "Emotional tagline built on happiness: 'La Felicidad en cada Bocado'",
+          "Heart-first craft language: 'Cheesecake artesano, hecho con corazón'",
+          "Price-forward hooks with emojis (POR 0,99€ 💛🩷)"
+        ]
+      },
+      "visual": {
+        "type": [
+          {
+            "kind": "Display",
+            "family": "Meaty Nineties",
+            "sourceProperty": "font-family",
+            "selector": ".elementor-2762 .elementor-element.elementor-element-229d0db .elementor-heading-title",
+            "usageStatus": "declared-not-computed"
+          },
+          {
+            "kind": "Display",
+            "family": "Lexend",
+            "sourceProperty": "font-family",
+            "selector": ".elementor-2762 .elementor-element.elementor-element-3b97311 .elementor-heading-title",
+            "usageStatus": "declared-not-computed"
+          },
+          {
+            "kind": "Body",
+            "family": "Outfit",
+            "sourceProperty": "font-family",
+            "selector": ".elementor-1121 .elementor-element.elementor-element-3023492 .elementor-nav-menu .elementor-item",
+            "usageStatus": "declared-not-computed"
+          },
+          {
+            "kind": "Display",
+            "family": "Poppins",
+            "sourceProperty": "font-family",
+            "selector": ".elementor-1121 .elementor-element.elementor-element-143c8b7 .elementor-heading-title",
+            "usageStatus": "declared-not-computed"
+          }
+        ],
+        "avoid": [
+          "Cold, clinical studio lighting",
+          "Stiff formal fine-dining tableware",
+          "Distant wide shots lacking texture",
+          "Desaturated or unnatural food colors"
+        ],
+        "imagery": [
+          "Macro top-down views of baked cheesecake textures",
+          "Warm, natural golden ambient lighting",
+          "Rustic parchment paper and kraft packaging",
+          "Candid handheld slices in casual settings",
+          "Appetizing golden-brown and creamy tones"
+        ],
+        "palette": [
+          {
+            "hex": "#ffffff",
+            "name": "white",
+            "role": "background",
+            "roleStatus": "inferred",
+            "evidence": [
+              "color: #FFFFFF",
+              "color: #FFFFFF"
+            ]
+          },
+          {
+            "hex": "#f40041",
+            "name": "red",
+            "role": "accent",
+            "roleStatus": "inferred",
+            "evidence": [
+              "color: #F40041",
+              "fill: #F40041"
+            ]
+          },
+          {
+            "hex": "#e50736",
+            "name": "red",
+            "role": "accent",
+            "roleStatus": "inferred",
+            "evidence": [
+              "background-color: #E50736",
+              "color: #E50736"
+            ]
+          },
+          {
+            "hex": "#ffd115",
+            "name": "yellow",
+            "role": "accent",
+            "roleStatus": "inferred",
+            "evidence": [
+              "background-color: #FFD115",
+              "color: #FFD115"
+            ]
+          },
+          {
+            "hex": "#86a8d6",
+            "name": "slate",
+            "role": "accent",
+            "roleStatus": "inferred",
+            "evidence": [
+              "background-color: #86A8D6",
+              "color: #86A8D6"
+            ]
+          }
+        ],
+        "references": [],
+        "contrastPairs": [
+          {
+            "foreground": "#ffffff",
+            "background": "#f40041",
+            "ratio": 4.27,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#ffffff",
+            "background": "#e50736",
+            "ratio": 4.76,
+            "normalTextAA": true
+          },
+          {
+            "foreground": "#ffffff",
+            "background": "#ffd115",
+            "ratio": 1.46,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#ffffff",
+            "background": "#86a8d6",
+            "ratio": 2.45,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#f40041",
+            "background": "#e50736",
+            "ratio": 1.11,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#f40041",
+            "background": "#ffd115",
+            "ratio": 2.92,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#f40041",
+            "background": "#86a8d6",
+            "ratio": 1.74,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#e50736",
+            "background": "#ffd115",
+            "ratio": 3.26,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#e50736",
+            "background": "#86a8d6",
+            "ratio": 1.94,
+            "normalTextAA": false
+          },
+          {
+            "foreground": "#ffd115",
+            "background": "#86a8d6",
+            "ratio": 1.68,
+            "normalTextAA": false
+          }
+        ]
+      },
+      "missing": [
+        {
+          "why": "no founding year or city stated in the sources",
+          "field": "identity.founded"
+        },
+        {
+          "why": "no basis for a third audience segment",
+          "field": "audience.tertiary"
+        },
+        {
+          "why": "no near-term priorities or roadmap surfaced",
+          "field": "goals.q2"
+        },
+        {
+          "why": "no roadmap or later priorities surfaced",
+          "field": "goals.q3"
+        }
+      ],
+      "audience": {
+        "jtbd": [
+          "Get a good cheesecake slice for very little money when I want a quick sweet treat.",
+          "Order a whole cheesecake, personalized with toppings, for a birthday or celebration without a complicated process.",
+          "Share a dessert plan with friends and try several flavours without overspending."
+        ],
+        "primary": "Urban dessert lovers in Barcelona and Madrid, including locals, young people and groups of friends, who want an affordable, indulgent cheesecake slice or a whole cake for a celebration. Price tiers, the 'plan con amigos' offer and the whole-cake ordering CTAs point to this group.",
+        "tertiary": null,
+        "secondary": "Customers with dietary needs, such as the weekend gluten-free option, and visitors who discover the shops by chance."
+      },
+      "identity": {
+        "founded": null,
+        "pillars": [
+          "Accessible price",
+          "Customizable toppings",
+          "Cheesecake variety",
+          "Shareable happiness"
+        ],
+        "category": "Food & beverage / specialty dessert retail — cheesecake shop (by the slice and whole cakes, toppings customization, WhatsApp pre-orders, franchise offer)",
+        "positioning": "Cake-me is a cheesecake-focused shop chain in Barcelona and Madrid that sells accessible, customizable cheesecake by the slice (classic from 0,99€) or whole, under the tagline 'La Felicidad en cada Bocado'."
+      },
+      "refusals": [
+        "Never present Cake-me as luxury, exclusive or fine-dining; keep the tone accessible and everyday.",
+        "Do not drop the warm, heart-first voice for cold corporate language or industrial wording.",
+        "Do not claim 'el mejor cheesecake de Barcelona' or any artisan or quality superiority without independent proof.",
+        "Never publish a rating that conflicts with the Google data (4.7 from 800 reviews) without a stated source.",
+        "Do not use cold, clinical studio lighting or stiff fine-dining tableware in imagery.",
+        "Do not promise gluten-free availability beyond weekends, or state allergen safety claims the allergen sheet does not support."
+      ],
+      "research": {
+        "query": "Artisan cheesecake bakery and shop (cheesecakes sold by slice or whole cake, with customizable toppings and sauces; in-store and WhatsApp ordering; Barcelona an alternatives competitors Urban consumers in Barcelona and Madrid who want affordable, shareable cheesecake slices or whole cakes for friends, groups, celebrations, or casual treats (inf",
+        "status": "evidence_gathered",
+        "sources": [
+          {
+            "url": "https://covetedcakes.com/cheesecake-barcelona-spain/",
+            "title": "TOP Cheesecake Barcelona, Spain: Host The ... - Coveted Cakes",
+            "checkedAt": "2026-10-10T19:04:51.484Z"
+          },
+          {
+            "url": "https://barcelonaurbana.com/en/blog/best-cheesecake-barcelona",
+            "title": "Barcelona cheesecake, three styles and which one travels",
+            "checkedAt": "2026-10-10T19:04:51.484Z"
+          },
+          {
+            "url": "https://www.thenewbarcelonapost.com/en/the-home-delivery-cakes-that-are-a-hit-in-barcelona/",
+            "title": "The home delivery cakes that are a hit in Barcelona",
+            "checkedAt": "2026-10-10T19:04:51.484Z"
+          }
+        ],
+        "limitations": []
+      },
+      "strategic": {
+        "notList": [
+          "Not a formal fine-dining or luxury patisserie",
+          "Not a high-priced boutique",
+          "Not a general bakery: the focus is cheesecake ('casi todo' is cheesecake)",
+          "Not a delivery-only or hidden-kitchen operation"
+        ],
+        "watchouts": [
+          "A 0,99€ hero price and 'artesano / hecho con corazón' craft claims can pull against each other: low price may undermine the artisan perception unless quality is evidenced.",
+          "Franchise scaling needs consistent product quality and consistent proof points, such as one reconciled rating. The homepage shows 4.8/5 (+512) while Google shows 4.7 from 800 reviews.",
+          "Whole-cake sales depend on WhatsApp ordering with 24h notice, which can conflict with the impulse, in-store ease of the slice offer. The gluten-free option is weekend-only."
+        ]
+      },
+      "confidence": {
+        "visual.type": {
+          "conf": 80,
+          "source": "Linked website CSS · https://thecake-me.com/wp-content/uploads/elementor/css/post-6.css?ver=1791350742 · https://thecake-me.com/wp-content/uploads/elementor/css/post-2762.css?ver=1791350743 · https://thecake-me.com/wp-content/uploads/elementor/css/post-1121.css?ver=1791350742 · https://thecake-me.com/wp-content/uploads/elementor/css/post-2764.css?ver=1791350743 · https://thecake-me.com/wp-content/uploads/elementor/css/post-2768.css?ver=1791350743 · https://thecake-me.com/wp-content/plugins/ele-custom-skin/assets/css/ecs-style.css?ver=3.1.9"
+        },
+        "visual.avoid": {
+          "conf": 45,
+          "source": "model visual observations, not a brand style guide"
+        },
+        "voice.rhythm": {
+          "conf": 60,
+          "source": "homepage headlines and CTAs"
+        },
+        "audience.jtbd": {
+          "conf": 55,
+          "source": "inferred from homepage offers and reviews"
+        },
+        "visual.imagery": {
+          "conf": 50,
+          "source": "model visual observations of the screenshot"
+        },
+        "visual.palette": {
+          "conf": 80,
+          "source": "Linked website CSS · https://thecake-me.com/wp-content/uploads/elementor/css/post-6.css?ver=1791350742 · https://thecake-me.com/wp-content/uploads/elementor/css/post-2762.css?ver=1791350743 · https://thecake-me.com/wp-content/uploads/elementor/css/post-1121.css?ver=1791350742 · https://thecake-me.com/wp-content/uploads/elementor/css/post-2764.css?ver=1791350743 · https://thecake-me.com/wp-content/uploads/elementor/css/post-2768.css?ver=1791350743 · https://thecake-me.com/wp-content/plugins/ele-custom-skin/assets/css/ecs-style.css?ver=3.1.9"
+        },
+        "voice.register": {
+          "conf": 72,
+          "source": "homepage copy, emojis, blog header"
+        },
+        "goals.northStar": {
+          "conf": 50,
+          "source": "homepage franchise CTA; inferred"
+        },
+        "voice.forbidden": {
+          "conf": 40,
+          "source": "inferred from tone and notList; not stated by the brand"
+        },
+        "audience.primary": {
+          "conf": 55,
+          "source": "inferred from price tiers, group plan and ordering CTAs"
+        },
+        "identity.pillars": {
+          "conf": 65,
+          "source": "inferred from homepage offers, customization menu and tagline"
+        },
+        "voice.signatures": {
+          "conf": 70,
+          "source": "homepage hero and tagline"
+        },
+        "identity.category": {
+          "conf": 85,
+          "source": "homepage, product category pages"
+        },
+        "strategic.notList": {
+          "conf": 45,
+          "source": "inferred from positioning and pricing; not stated by the brand"
+        },
+        "audience.secondary": {
+          "conf": 40,
+          "source": "inferred from gluten-free option and review content"
+        },
+        "strategic.watchouts": {
+          "conf": 60,
+          "source": "analysis of homepage claims and review data"
+        },
+        "identity.positioning": {
+          "conf": 82,
+          "source": "homepage hero, price list, store list"
+        },
+        "aspirations.direction": {
+          "conf": 70,
+          "source": "homepage franchise CTA"
+        },
+        "aspirations.notYetTrue": {
+          "conf": 60,
+          "source": "homepage and blog claims versus supplied evidence"
+        },
+        "aspirations.references": {
+          "conf": 80,
+          "source": "homepage and blog pages"
+        },
+        "positioning.competitors": {
+          "conf": 65,
+          "source": "Barcelona Urbana guide and New Barcelona Post article (third-party, partly truncated)"
+        },
+        "positioning.researchGaps": {
+          "conf": 85,
+          "source": "reader observations and evidence review"
+        },
+        "positioning.pointsOfParity": {
+          "conf": 50,
+          "source": "homepage and competitor research"
+        },
+        "positioning.frameOfReference": {
+          "conf": 60,
+          "source": "external research: Barcelona Urbana guide; homepage"
+        },
+        "positioning.pointsOfDifference": {
+          "conf": 55,
+          "source": "homepage pricing and customization menu versus competitor research"
+        }
+      },
+      "aspirations": {
+        "direction": "Expand through franchising and more locations, building on the current six stores in Barcelona and Madrid.",
+        "notYetTrue": [
+          "A proven franchise network: franchise terms and results are not evidenced",
+          "'El mejor Cheesecake de Barcelona': a self-description not independently verified",
+          "Nationwide or large-scale presence beyond Barcelona and Madrid"
+        ],
+        "references": [
+          "https://thecake-me.com (franchise CTA 'Franquicias Abiertas')",
+          "https://thecake-me.com/category/productos/especiales (blog header superlative)"
+        ]
+      },
+      "positioning": {
+        "competitors": [
+          {
+            "url": "",
+            "name": "Jon Cake",
+            "type": "direct",
+            "source": "https://barcelonaurbana.com/en/blog/best-cheesecake-barcelona; https://www.thenewbarcelonapost.com/en/the-home-delivery-cakes-that-are-a-hit-in-barcelona/",
+            "difference": "Evidence shows a whole-cake, delivery-led maker with a cheese-forward recipe (mascarpone, parmesan, Grana Padano, gorgonzola). Cake-me's evidence shows a store network with slice sales and toppings customization.",
+            "sourceDate": "2022-11-17",
+            "positioning": "Barcelona cheesecake maker. A Barcelona Urbana guide lists whole cakes from €13 and notes that queues are part of the experience. A 2022 New Barcelona Post article describes a home-delivery business that makes six types of cheesecake and presents its cheesecake as 'crowned the best in Barcelona'. It started in a shared kitchen during lockdown.",
+            "reasonToChoose": "Lowest listed whole-cake entry price in the Barcelona Urbana guide; strong press reputation and a recipe built on famous cheesecakes (per the cited articles)."
+          },
+          {
+            "url": "",
+            "name": "Pasté BCN",
+            "type": "direct",
+            "source": "https://barcelonaurbana.com/en/blog/best-cheesecake-barcelona",
+            "difference": "Positioned around cheese-course-style cheesecake and shipping. Cake-me's evidence emphasises low-priced slices and a customizable topping menu.",
+            "sourceDate": "",
+            "positioning": "Whole cheesecakes of six to eight slices, in ten versions, priced €15–€32 per the Barcelona Urbana guide. Uses strong cheeses (manchego, gorgonzola, Blau de Joglars) and ships nationwide.",
+            "reasonToChoose": "Cheese-forward flavour, a broad range of versions, and nationwide shipping."
+          },
+          {
+            "url": "",
+            "name": "Funky Bakers",
+            "type": "indirect",
+            "source": "https://barcelonaurbana.com/en/blog/best-cheesecake-barcelona",
+            "difference": "Defined by a specific regional style. Cake-me's supplied evidence does not state a style tradition and leads with variety and toppings.",
+            "sourceDate": "",
+            "positioning": "Basque (San Sebastián) style cheesecake at Passeig del Born 10, made to the Bar La Viña recipe: caramelised outside, creamy inside, no biscuit base.",
+            "reasonToChoose": "An authentic Basque-style cheesecake, best eaten freshly made."
+          },
+          {
+            "url": "",
+            "name": "Cotó Cake",
+            "type": "indirect",
+            "source": "https://barcelonaurbana.com/en/blog/best-cheesecake-barcelona",
+            "difference": "A different texture tradition (airy cotton). Cake-me's supplied evidence shows classic and flavoured cheesecakes, with no evidence of this style.",
+            "sourceDate": "",
+            "positioning": "Japanese cotton-style cheesecake at Consell de Cent 187, served cold, warm or hot. The guide says no other house in the city offers this choice.",
+            "reasonToChoose": "A light, soufflé-like texture and the choice of serving temperature."
+          }
+        ],
+        "researchGaps": [
+          "Verified competitor URLs, slice prices and store counts for Jon Cake, Pasté BCN, Funky Bakers and Cotó Cake",
+          "Competitive evidence for Madrid, where Cake-me has one listed store",
+          "Cake-me's cheesecake style or recipe tradition is not stated, so it cannot be compared with Basque, Japanese or strong-cheese styles",
+          "The 'artesano' and ingredient-quality claims have no verified basis beyond brand wording and one review",
+          "The 4.8/5 (+512) homepage rating has no stated source and conflicts with the 4.7 (800 reviews) Google rating",
+          "Delivery, takeaway and minimum order terms",
+          "Quantitative customer research confirming the audience",
+          "The allergen and nutrition PDF contents were not inspected",
+          "Barcelona Urbana article is partly truncated; the Brunells entry and other listings were not fully read. The covetedcakes.com source returned a 404 and no competitor was evidenced from it"
+        ],
+        "pointsOfParity": [
+          "Whole cheesecakes available for celebrations with pre-order",
+          "Classic plus flavoured/specialty cheesecake range",
+          "Published allergen information",
+          "Social channels (Instagram, TikTok) as key brand touchpoints"
+        ],
+        "frameOfReference": "Cheesecake shops and bakeries in Barcelona, where supplied research shows several distinct styles (Basque, Japanese cotton, strong-cheese bakery style) and whole-cake takeaway/delivery options.",
+        "pointsOfDifference": [
+          {
+            "claim": "Very low entry price at slice level: classic slice 0,99€, group plan of 4 specials plus a free classic for 11,99€.",
+            "proof": "Cake-me homepage price list and offers. Brand-stated; not independently compared.",
+            "source": "https://thecake-me.com",
+            "rationale": "Supports an 'accessible indulgence' frame. The cited competitor whole-cake price (Jon Cake from €13) is close to Cake-me's classic whole cake (13,99€), so the price edge is clearest at slice level."
+          },
+          {
+            "claim": "Build-your-own customization: sauces, jams and crunchy toppings at 0,99€ each; up to 3 toppings on a whole cake for 4,99€.",
+            "proof": "Cake-me homepage customization menu and a customer review praising topping options.",
+            "source": "https://thecake-me.com",
+            "rationale": "Turns a standard product into a personalized one. Equivalent customization is not described for the competitors in the supplied research, but that absence is not proof competitors lack it."
+          },
+          {
+            "claim": "Multi-store walk-in presence (5 Barcelona locations, 1 Madrid) open daily 11:00–22:00, plus a franchise offer.",
+            "proof": "Cake-me homepage store list and hours. Store openings are brand-stated.",
+            "source": "https://thecake-me.com",
+            "rationale": "Gives an impulse, in-store slice occasion alongside whole-cake pre-orders. The supplied competitor evidence emphasises whole cakes and delivery."
+          }
+        ]
+      },
+      "visualEvidence": {
+        "sources": [
+          {
+            "url": "https://thecake-me.com",
+            "note": "",
+            "status": "partial",
+            "styles": {
+              "palette": [
+                {
+                  "hex": "#ffffff",
+                  "name": "white",
+                  "role": "background",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "color: #FFFFFF",
+                    "color: #FFFFFF"
+                  ]
+                },
+                {
+                  "hex": "#f40041",
+                  "name": "red",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "color: #F40041",
+                    "fill: #F40041"
+                  ]
+                },
+                {
+                  "hex": "#e50736",
+                  "name": "red",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "background-color: #E50736",
+                    "color: #E50736"
+                  ]
+                },
+                {
+                  "hex": "#ffd115",
+                  "name": "yellow",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "background-color: #FFD115",
+                    "color: #FFD115"
+                  ]
+                },
+                {
+                  "hex": "#86a8d6",
+                  "name": "slate",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "background-color: #86A8D6",
+                    "color: #86A8D6"
+                  ]
+                }
+              ],
+              "type": [
+                {
+                  "kind": "Display",
+                  "family": "Meaty Nineties",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-2762 .elementor-element.elementor-element-229d0db .elementor-heading-title",
+                  "usageStatus": "declared-not-computed"
+                },
+                {
+                  "kind": "Display",
+                  "family": "Lexend",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-2762 .elementor-element.elementor-element-3b97311 .elementor-heading-title",
+                  "usageStatus": "declared-not-computed"
+                },
+                {
+                  "kind": "Body",
+                  "family": "Outfit",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-1121 .elementor-element.elementor-element-3023492 .elementor-nav-menu .elementor-item",
+                  "usageStatus": "declared-not-computed"
+                },
+                {
+                  "kind": "Display",
+                  "family": "Poppins",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-1121 .elementor-element.elementor-element-143c8b7 .elementor-heading-title",
+                  "usageStatus": "declared-not-computed"
+                }
+              ],
+              "contrastPairs": [
+                {
+                  "foreground": "#ffffff",
+                  "background": "#f40041",
+                  "ratio": 4.27,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#ffffff",
+                  "background": "#e50736",
+                  "ratio": 4.76,
+                  "normalTextAA": true
+                },
+                {
+                  "foreground": "#ffffff",
+                  "background": "#ffd115",
+                  "ratio": 1.46,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#ffffff",
+                  "background": "#86a8d6",
+                  "ratio": 2.45,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#f40041",
+                  "background": "#e50736",
+                  "ratio": 1.11,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#f40041",
+                  "background": "#ffd115",
+                  "ratio": 2.92,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#f40041",
+                  "background": "#86a8d6",
+                  "ratio": 1.74,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#e50736",
+                  "background": "#ffd115",
+                  "ratio": 3.26,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#e50736",
+                  "background": "#86a8d6",
+                  "ratio": 1.94,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#ffd115",
+                  "background": "#86a8d6",
+                  "ratio": 1.68,
+                  "normalTextAA": false
+                }
+              ],
+              "stylesheets": [
+                "https://thecake-me.com/wp-content/uploads/elementor/css/post-6.css?ver=1791350742",
+                "https://thecake-me.com/wp-content/uploads/elementor/css/post-2762.css?ver=1791350743",
+                "https://thecake-me.com/wp-content/uploads/elementor/css/post-1121.css?ver=1791350742",
+                "https://thecake-me.com/wp-content/uploads/elementor/css/post-2764.css?ver=1791350743",
+                "https://thecake-me.com/wp-content/uploads/elementor/css/post-2768.css?ver=1791350743",
+                "https://thecake-me.com/wp-content/plugins/ele-custom-skin/assets/css/ecs-style.css?ver=3.1.9"
+              ],
+              "unreadableStylesheets": [],
+              "method": "html-and-linked-css-declarations",
+              "computed": false,
+              "manualComputedTypography": {
+                "heading": "Meaty Nineties",
+                "navigation": "Lexend",
+                "checkedAt": "2026-10-10T19:11:49.374Z"
+              },
+              "note": "Zero-provider-cost CSS follow-up; original saved BIO is unchanged."
+            },
+            "visual": {
+              "type": [
+                {
+                  "kind": "Display",
+                  "family": "Meaty Nineties",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-2762 .elementor-element.elementor-element-229d0db .elementor-heading-title",
+                  "usageStatus": "declared-not-computed"
+                },
+                {
+                  "kind": "Display",
+                  "family": "Lexend",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-2762 .elementor-element.elementor-element-3b97311 .elementor-heading-title",
+                  "usageStatus": "declared-not-computed"
+                },
+                {
+                  "kind": "Body",
+                  "family": "Outfit",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-1121 .elementor-element.elementor-element-3023492 .elementor-nav-menu .elementor-item",
+                  "usageStatus": "declared-not-computed"
+                },
+                {
+                  "kind": "Display",
+                  "family": "Poppins",
+                  "sourceProperty": "font-family",
+                  "selector": ".elementor-1121 .elementor-element.elementor-element-143c8b7 .elementor-heading-title",
+                  "usageStatus": "declared-not-computed"
+                }
+              ],
+              "avoid": [
+                "Cold, clinical studio lighting",
+                "Stiff formal fine-dining tableware",
+                "Distant wide shots lacking texture",
+                "Desaturated or unnatural food colors"
+              ],
+              "imagery": [
+                "Macro top-down views of baked cheesecake textures",
+                "Warm, natural golden ambient lighting",
+                "Rustic parchment paper and kraft packaging",
+                "Candid handheld slices in casual settings",
+                "Appetizing golden-brown and creamy tones"
+              ],
+              "palette": [
+                {
+                  "hex": "#ffffff",
+                  "name": "white",
+                  "role": "background",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "color: #FFFFFF",
+                    "color: #FFFFFF"
+                  ]
+                },
+                {
+                  "hex": "#f40041",
+                  "name": "red",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "color: #F40041",
+                    "fill: #F40041"
+                  ]
+                },
+                {
+                  "hex": "#e50736",
+                  "name": "red",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "background-color: #E50736",
+                    "color: #E50736"
+                  ]
+                },
+                {
+                  "hex": "#ffd115",
+                  "name": "yellow",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "background-color: #FFD115",
+                    "color: #FFD115"
+                  ]
+                },
+                {
+                  "hex": "#86a8d6",
+                  "name": "slate",
+                  "role": "accent",
+                  "roleStatus": "inferred",
+                  "evidence": [
+                    "background-color: #86A8D6",
+                    "color: #86A8D6"
+                  ]
+                }
+              ],
+              "contrastPairs": [
+                {
+                  "foreground": "#ffffff",
+                  "background": "#f40041",
+                  "ratio": 4.27,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#ffffff",
+                  "background": "#e50736",
+                  "ratio": 4.76,
+                  "normalTextAA": true
+                },
+                {
+                  "foreground": "#ffffff",
+                  "background": "#ffd115",
+                  "ratio": 1.46,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#ffffff",
+                  "background": "#86a8d6",
+                  "ratio": 2.45,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#f40041",
+                  "background": "#e50736",
+                  "ratio": 1.11,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#f40041",
+                  "background": "#ffd115",
+                  "ratio": 2.92,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#f40041",
+                  "background": "#86a8d6",
+                  "ratio": 1.74,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#e50736",
+                  "background": "#ffd115",
+                  "ratio": 3.26,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#e50736",
+                  "background": "#86a8d6",
+                  "ratio": 1.94,
+                  "normalTextAA": false
+                },
+                {
+                  "foreground": "#ffd115",
+                  "background": "#86a8d6",
+                  "ratio": 1.68,
+                  "normalTextAA": false
+                }
+              ],
+              "references": []
+            },
+            "purpose": "current",
+            "checkedAt": "2026-10-10T19:03:06.352Z",
+            "limitations": []
+          }
+        ],
+        "limitations": [
+          "Palette and typography are source declarations, not verified computed styles. Palette roles are inferred and require review.",
+          "Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.",
+          "PDF text is read, but embedded PDF images are not rendered or inspected."
+        ]
+      },
+      "discoverySources": {
+        "instagram": null,
+        "references": [],
+        "unreadable": []
+      },
+      "discoveryWorkflow": {
+        "route": "production-v1",
+        "vision": "google/gemini-3.8-flash",
+        "synthesis": "anthropic/claude-sonnet-5.5",
+        "extraction": "anthropic/claude-haiku-5.5",
+        "limitations": [
+          "Palette and typography are source declarations, not verified computed styles. Palette roles are inferred and require review.",
+          "Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.",
+          "PDF text is read, but embedded PDF images are not rendered or inspected."
+        ]
+      },
+      "visualRefresh": {
+        "method": "zero-provider-linked-css-follow-up",
+        "previousVersion": 1,
+        "checkedAt": "2026-10-10T19:17:24.890Z",
+        "manualTypography": {
+          "heading": "Meaty Nineties",
+          "navigation": "Lexend",
+          "checkedAt": "2026-10-10T19:11:49.374Z"
+        },
+        "limitations": [
+          "CSS declarations do not prove actual usage. Heading and navigation fonts were checked in the browser; other faces remain declared-only.",
+          "Roles remain inferred. Contrast ratios are mathematical pairs, not proof of accessible text placement."
+        ]
+      }
+    },
+    "certified": false,
+    "self_certified": false
+  }
+}

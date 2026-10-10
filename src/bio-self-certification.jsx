@@ -50,7 +50,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
   <header><div><span className="bio-cert-kicker">{t('discovery.certification.kicker')}</span><h2 id="bio-cert-title">{t(receipt?'discovery.certification.success':step?'discovery.certification.confirm':'discovery.certification.review')}</h2></div><button type="button" className="bio-cert-close" disabled={busy} aria-label={t('discovery.certification.close')} onClick={close}>×</button></header>
   <div className="bio-cert-meta"><strong>{brandName}</strong><span>BIO v{bio.version}</span></div>
   {receipt?<>
-   <div className="bio-cert-body"><p>{t('discovery.certification.successText')}</p><dl className="bio-cert-record"><dt>{t('discovery.certification.account')}</dt><dd>{window.CI_USER?.name||window.CI_USER?.email||t('discovery.certification.signedIn')}</dd><dt>{t('discovery.certification.recorded')}</dt><dd>{new Date(receipt.attestedAt).toLocaleString()}</dd></dl></div>
+   <div className="bio-cert-body"><p>{t(accepting?'discovery.certification.acceptedText':'discovery.certification.successText')}</p>{receipt.reviewQueued===false&&<p role="status">{t('discovery.certification.queuePending')}</p>}<dl className="bio-cert-record"><dt>{t('discovery.certification.account')}</dt><dd>{window.CI_USER?.name||window.CI_USER?.email||t('discovery.certification.signedIn')}</dd><dt>{t('discovery.certification.recorded')}</dt><dd>{new Date(receipt.attestedAt).toLocaleString()}</dd></dl></div>
    <footer><button className="btn btn--primary" onClick={()=>{onClose();onDone?.();}}>{t('discovery.certification.done')}</button></footer>
   </>:<>
    <ol className="bio-cert-steps"><li aria-current={step===0?'step':undefined}>01 {t('discovery.certification.reviewStep')}</li><li aria-current={step===1?'step':undefined}>02 {t('discovery.certification.confirmStep')}</li></ol>
@@ -64,11 +64,11 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
     </>:<>
      <div className="bio-cert-record"><span>{t('discovery.certification.account')}</span><strong>{window.CI_USER?.name||window.CI_USER?.email||t('discovery.certification.signedIn')}</strong><span>{t('discovery.certification.reviewCount',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</span></div>
      <fieldset className="bio-cert-declarations"><legend>{t('discovery.certification.declarations')}</legend>{[['authority','authority'],['reflects','reflects'],['aspirationalMarked','aspirational']].map(([key,msg])=><label className="bio-cert-check" key={key}><input type="checkbox" disabled={busy} checked={statements[key]} onChange={e=>setStatements(prev=>({...prev,[key]:e.target.checked}))}/><span>{t('discovery.statement.'+msg)}</span></label>)}</fieldset>
-     <p className="bio-cert-consequence">{t('discovery.certification.consequence')}</p>
+     <p className="bio-cert-consequence">{t(accepting?'discovery.certification.acceptConsequence':'discovery.certification.consequence')}</p>
     </>}
     {error&&<p role="alert" className="bio-cert-error">{error}</p>}
    </div>
-   <footer><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&blocking.length>0)} onClick={()=>setStep(1)}>{t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)} onClick={submit}>{t(busy?'discovery.selfCert.submitting':'discovery.certification.submit')}</button>}</footer>
+   <footer><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&blocking.length>0)} onClick={()=>setStep(1)}>{t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)} onClick={submit}>{t(busy?'discovery.selfCert.submitting':accepting?'discovery.certification.acceptChanges':'discovery.certification.submit')}</button>}</footer>
   </>}
  </dialog>;
 }

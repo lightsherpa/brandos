@@ -1318,7 +1318,14 @@
       "webAlt": "Alternativa web",
       "grade": "Grado",
       "shootThis": "Fotografía así",
-      "neverThis": "Nunca así"
+      "neverThis": "Nunca así",
+      "role": {
+        "primary": "Principal",
+        "accent": "Acento",
+        "neutral": "Neutro",
+        "background": "Fondo",
+        "unclassified": "Revisar función"
+      }
     },
     "strategic": {
       "watchouts": "Puntos de atención estratégicos",
@@ -1371,7 +1378,10 @@
       "recorded": "Fecha de registro",
       "done": "Volver al BIO",
       "close": "Cerrar certificación",
-      "acceptChanges": "Revisar los cambios del Director Creativo"
+      "acceptChanges": "Revisar los cambios del Director Creativo",
+      "acceptedText": "Los cambios del Director Creativo han sido aceptados para esta versión del BIO. La producción puede continuar mientras la certificación siga vigente.",
+      "acceptConsequence": "Aceptar registra tu aprobación de los cambios del Director Creativo a esta versión exacta del BIO.",
+      "queuePending": "Tu aprobación se ha guardado. La asignación del Director Creativo está pendiente; la producción sigue bloqueada."
     },
     "landscape": {
       "label": "Panorama competitivo",
@@ -1495,7 +1505,22 @@
     "running": {
       "processing": "Procesando",
       "slow": "Seguimos procesando las fuentes. Puede tardar varios minutos; continuamos comprobando tu BIO.",
-      "reconnecting": "No podemos comprobar el resultado ahora. Reconectamos automáticamente; tus fuentes siguen guardadas."
+      "reconnecting": "No podemos comprobar el resultado ahora. Reconectamos automáticamente; tus fuentes siguen guardadas.",
+      "stage": {
+        "scrape": "Leer las fuentes de la marca",
+        "visual": "Leer la evidencia visual",
+        "read": "Organizar la evidencia",
+        "research": "Investigar el contexto competitivo",
+        "synthesize": "Interpretar y construir el BIO",
+        "save": "Guardar el candidato para revisión"
+      },
+      "errors": {
+        "SOURCE_UNREADABLE": "No pudimos leer las fuentes. Comprueba la web o añade documentos legibles.",
+        "BUDGET_BLOCKED": "Discovery se ha detenido por el límite del espacio. Revísalo antes de reintentar.",
+        "INTERPRETATION_FAILED": "La interpretación no terminó. Tus fuentes están guardadas; vuelve a Discovery.",
+        "DISCOVERY_FAILED": "Discovery no pudo terminar. Tus fuentes siguen disponibles.",
+        "QUEUE_UNAVAILABLE": "Discovery no pudo iniciarse. Reintenta cuando el servicio esté disponible."
+      }
     }
   },
   "floater": {
@@ -1564,5 +1589,34 @@
       "blocked": "Bloqueado",
       "live": "En vivo"
     }
+  },
+  "brandBook": {
+    "title": "Brand Book",
+    "loading": "Leyendo el BIO…",
+    "noBio": "Genera el BIO a partir de fuentes para ver el Brand Book.",
+    "startDiscovery": "Iniciar Discovery",
+    "certified": "Certificado por {name} · BIO v{version}",
+    "director": "Director Creativo",
+    "pending": "Inferido — pendiente de revisión",
+    "certifiedLabel": "Certificado",
+    "back": "Volver al BIO",
+    "sections": "Secciones del Brand Book",
+    "provenance": "Fuentes de evidencia",
+    "sourceGap": "La evidencia necesita revisión",
+    "replayUnavailable": "Esta reproducción guardada no está disponible.",
+    "replayLabel": "Ejecución guardada · solo lectura",
+    "tourTitle": "Lee la marca en conjunto",
+    "tourText": "Cada sección refleja el mismo BIO. Las fuentes aparecen bajo cada bloque; el contenido no certificado necesita revisión.",
+    "visualTourTitle": "Comprueba la evidencia visual",
+    "visualTourText": "Los colores y fuentes proceden de las declaraciones originales. Los roles de color y descripciones visuales requieren revisión humana.",
+    "section": {
+      "identity": "Esencia",
+      "positioning": "Posicionamiento y competencia",
+      "audience": "Audiencia",
+      "voice": "Voz",
+      "visual": "Identidad visual",
+      "strategic": "Qué hacer y qué evitar"
+    },
+    "sourceFailure": "No se han podido leer las fuentes. No se ha generado ningún BIO. Añade una fuente pública accesible o sube materiales de la marca."
   }
 }

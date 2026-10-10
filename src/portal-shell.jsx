@@ -1,7 +1,7 @@
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
 import { useLocale, t, fmtNumber, applyOverrides } from "./lib/i18n.js";
-const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, Discovery, BioViewer, BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard, CraftMarketplace, CreditsLedger, SettingsView, FloatingBrandolph, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
+const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, Discovery, BioViewer, BrandBook, BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard, CraftMarketplace, CreditsLedger, SettingsView, FloatingBrandolph, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
 /* Caastor Intelligence — app shell + router + sidebar + topbar.    */
 /* Internal hash router; supports client + team portals.            */
 
@@ -307,9 +307,7 @@ function WorkspaceSwitcher() {
 function Brandmark() {
   return (
     <div style={{display:"flex", alignItems:"baseline", gap: 5}}>
-      <img src="caastor/assets/logo-full-yellow.png" alt="CaastorOS"
-        className="brand-logo" style={{height: 34, width:"auto", display:"block", alignSelf:"center"}} />
-      <span style={{fontFamily:"var(--font-mono)", fontSize: 15, fontWeight: 600, color:"var(--c-ink)", letterSpacing:"0.01em"}}>OS</span>
+      <span style={{fontFamily:"IBM Plex Sans, sans-serif",fontSize:21,fontWeight:600,letterSpacing:"-.04em",color:"var(--c-ink)"}}>BrandOS</span>
     </div>
   );
 }
@@ -366,7 +364,7 @@ function Sidebar({ portal, currentRoute, onNav, onLogout, tweaks, brandName, bio
             const showSection = i === 0 || r.sectionKey !== routes[i - 1].sectionKey;
             const active = currentRoute === r.id
               || (r.id === "briefs" && currentRoute === "brief-detail")
-              || (r.id === "bio" && currentRoute === "discovery")
+              || (r.id === "bio" && ["discovery","brand-book"].includes(currentRoute))
               || (r.id === "specialists" && currentRoute === "specialist-new")
               || (r.id === "team" && currentRoute === "team-job");
             return (
@@ -580,7 +578,7 @@ function NotificationBell() {
 
 function TopBar({ portal, route, brandName, go }) {
   const { t } = useLocale();
-  const isClient = portal === "client" || CLIENT_ROUTES.some((item) => item.id === route) || ["home","brief-detail","discovery","specialist-new","canvas","board","upgrade"].includes(route);
+  const isClient = portal === "client" || CLIENT_ROUTES.some((item) => item.id === route) || ["home","brief-detail","discovery","brand-book","specialist-new","canvas","board","upgrade"].includes(route);
   /* TopBar titles — eyebrows now match the rev-2 §2 section structure
      (slash-joined section eyebrows that ARE the contents). Built from
      i18n keys at render time via t(); the specialists title interpolates
@@ -590,6 +588,7 @@ function TopBar({ portal, route, brandName, go }) {
   const titles = {
     home:        [t("nav.create"),      t("section.createBriefs")],
     discovery:   [t("title.discovery"), t("section.bioLibrary")],
+    "brand-book": [t("brandBook.title"), t("section.bioLibrary")],
     bio:         [t("nav.bio"),         t("section.bioLibrary")],
     briefs:      [t("nav.briefs"),      t("section.createBriefs")],
     library:     [t("nav.library"),     t("section.bioLibrary")],
@@ -671,7 +670,7 @@ function AppDock({ portal, currentRoute, onNav }) {
     || (id === "admin-account" && currentRoute === "credits")
     || (id === "team-account" && currentRoute === "team-me")
     || (id === "briefs" && currentRoute === "brief-detail")
-    || (id === "bio" && currentRoute === "discovery")
+    || (id === "bio" && ["discovery","brand-book"].includes(currentRoute))
     || (id === "specialists" && currentRoute === "specialist-new")
     || (id === "team" && currentRoute === "team-job");
 
@@ -688,14 +687,13 @@ function AppDock({ portal, currentRoute, onNav }) {
         className={"app-dock__logo" + (isHome ? "" : " app-dock__logo--linked")}
         onClick={isHome ? undefined : goHome}
         disabled={isHome}
-        title={isHome ? "CaastorOS" : t("a11y.backToDashboard")}
-        aria-label={isHome ? "CaastorOS" : t("a11y.backToDashboard")}
+        title={isHome ? "BrandOS" : t("a11y.backToDashboard")}
+        aria-label={isHome ? "BrandOS" : t("a11y.backToDashboard")}
       >
         {!isHome && (
           <span className="app-dock__back" aria-hidden="true"><Icon name="arrowLeft" size={13} /></span>
         )}
-        <img src="caastor/assets/logo-full-yellow.png" alt="CaastorOS" className="brand-logo" style={{height:30, width:"auto", flexShrink:0}} />
-        <span className="app-dock__os">OS</span>
+        <span style={{fontFamily:"IBM Plex Sans, sans-serif",fontSize:21,fontWeight:600,letterSpacing:"-.04em"}}>BrandOS</span>
       </button>
       {portal !== "team" && <WorkspaceSwitcher />}
       <div className="app-dock__items">
@@ -765,7 +763,7 @@ function App() {
     if (route.id === "credits") { go(`${portal === "admin" || portal === "super_admin" ? "admin-account" : "settings"}/usage`); return; }
     if ((portal === "admin" || portal === "super_admin") && route.id === "settings") { go(`admin-account/${route.param || "workspace"}`); return; }
     if (portal === "team" && route.id === "team-me") { go("team-account/profile"); return; }
-    const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "upgrade";
+    const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "upgrade";
     const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || route.id === "team-job" || route.id === "team-account";
     const isAdminRoute = route.id === "admin-account" || [...ADMIN_ROUTES,...SUPER_ADMIN_ROUTES].some(r => r.id === route.id);
     const legacySection = LEGACY_ADMIN_SECTION[route.id];
@@ -844,6 +842,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
   switch(route.id) {
     case "home":         return <BrandolphHome tweaks={tweaks} setTweak={setTweak} go={go} />;
     case "discovery":    return <Discovery go={go} newBrand={route.param === "new"} />;
+    case "brand-book": return <BrandBook go={go} param={route.param}/>;
     case "bio":          return <BioViewer go={go} bioScore={tweaks.bioScore} />;
     case "briefs":       return <BriefsLibrary go={go} />;
     case "library":      return <Library go={go} />;

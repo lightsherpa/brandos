@@ -1313,7 +1313,14 @@
       "webAlt": "Web alternative",
       "grade": "Grade",
       "shootThis": "Shoot this",
-      "neverThis": "Never this"
+      "neverThis": "Never this",
+      "role": {
+        "primary": "Primary",
+        "accent": "Accent",
+        "neutral": "Neutral",
+        "background": "Background",
+        "unclassified": "Role needs review"
+      }
     },
     "strategic": {
       "watchouts": "Strategic watchouts",
@@ -1366,7 +1373,10 @@
       "recorded": "Recorded at",
       "done": "Return to BIO",
       "close": "Close certification",
-      "acceptChanges": "Review Creative Director changes"
+      "acceptChanges": "Review Creative Director changes",
+      "acceptedText": "The Creative Director’s changes are accepted for this BIO version. Production can continue while its certification remains valid.",
+      "acceptConsequence": "Accepting records your approval of the Creative Director’s changes to this exact BIO version.",
+      "queuePending": "Your approval was saved. Creative Director assignment is pending; production remains locked."
     },
     "landscape": {
       "label": "Competitive landscape",
@@ -1490,7 +1500,22 @@
     "running": {
       "processing": "Processing",
       "slow": "Still processing your sources. This can take several minutes; we are continuing to check for your BIO.",
-      "reconnecting": "Unable to check the result right now. Reconnecting automatically; your sources are still saved."
+      "reconnecting": "Unable to check the result right now. Reconnecting automatically; your sources are still saved.",
+      "stage": {
+        "scrape": "Read brand sources",
+        "visual": "Read visual evidence",
+        "read": "Organise the evidence",
+        "research": "Research competitive context",
+        "synthesize": "Interpret and build the BIO",
+        "save": "Save the review candidate"
+      },
+      "errors": {
+        "SOURCE_UNREADABLE": "We could not read the brand sources. Check the website or add readable documents.",
+        "BUDGET_BLOCKED": "Discovery paused at the workspace limit. Review the limit before trying again.",
+        "INTERPRETATION_FAILED": "The interpretation did not complete. Your sources are saved; try again from Discovery.",
+        "DISCOVERY_FAILED": "Discovery could not complete. Your sources remain available.",
+        "QUEUE_UNAVAILABLE": "Discovery could not start. Try again when the service is available."
+      }
     }
   },
   "floater": {
@@ -1559,5 +1584,34 @@
       "blocked": "Blocked",
       "live": "Live"
     }
+  },
+  "brandBook": {
+    "title": "Brand Book",
+    "loading": "Reading the BIO…",
+    "noBio": "Generate your BIO from sources to see the Brand Book.",
+    "startDiscovery": "Start Discovery",
+    "certified": "Certified by {name} · BIO v{version}",
+    "director": "Creative Director",
+    "pending": "Inferred — pending review",
+    "certifiedLabel": "Certified",
+    "back": "Back to BIO",
+    "sections": "Brand Book sections",
+    "provenance": "Evidence sources",
+    "sourceGap": "Source evidence needs review",
+    "replayUnavailable": "This stored replay is unavailable.",
+    "replayLabel": "Stored run · read-only replay",
+    "tourTitle": "Read the brand as a whole",
+    "tourText": "Each section is a view of the same BIO. Evidence appears beneath each block; missing or uncertified material still needs review.",
+    "visualTourTitle": "Check the visual evidence",
+    "visualTourText": "Colors and fonts come from source declarations. Palette roles and imagery descriptions require human review.",
+    "section": {
+      "identity": "Essence",
+      "positioning": "Positioning & competition",
+      "audience": "Audience",
+      "voice": "Voice",
+      "visual": "Visual identity",
+      "strategic": "Do & don’t"
+    },
+    "sourceFailure": "Source retrieval failed. No BIO was generated. Add a readable public source or upload brand materials."
   }
 }

@@ -25,11 +25,12 @@ const defaultVisualMeta = (file) => FONT_FILE_EXTS.has(fileExt(file))
 /* useLiveBio — fetches the user's first brand + latest BIO + cert state.
    Polls every `pollMs` while `pendingCert` is true (BIO not yet certified
    by Steward, or no BIO at all yet). Returns { brandId, bio, cert, refresh }. */
-function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
+function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = true } = {}) {
   const [state, setState] = useDState({ brandId: null, brandName: null, brandUrl: null, bio: null, cert: null, review: null, diff: [], reviewPending: false, focusCount: 0, error: null, loading: true });
 
   const requestVersion = React.useRef(0);
   const tick = React.useCallback(async () => {
+    if (!enabled) return;
     const version = ++requestVersion.current;
     const commit = value => { if (version === requestVersion.current) setState(value); };
     try {
@@ -73,9 +74,10 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
     } catch (e) {
       commit((s) => ({ ...s, loading: false, error: e?.message || String(e) }));
     }
-  }, [fixedBrandId]);
+  }, [fixedBrandId, enabled]);
 
   useDEffect(() => {
+    if (!enabled) return;
     let alive = true;
     const changed = () => {
       ++requestVersion.current;
@@ -86,7 +88,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null } = {}) {
     if (!fixedBrandId) window.addEventListener("brand:changed", changed);
     const interval = setInterval(() => { if (alive) tick(); }, pollMs);
     return () => { alive = false; ++requestVersion.current; clearInterval(interval); window.removeEventListener("brand:changed", changed); };
-  }, [tick, pollMs, fixedBrandId]);
+  }, [tick, pollMs, fixedBrandId, enabled]);
 
   return { ...state, refresh: tick };
 }
@@ -375,12 +377,9 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
   const [error, setError] = useDState(null);
   const [retryNonce, setRetryNonce] = useDState(0);
 
-  const lines = [
-    { state: stage === "done" ? "ok" : "running", text: t("discovery.step2.reading1") },
-    { state: stage === "done" ? "ok" : "queued", text: t("discovery.step2.reading2") },
-    { state: stage === "done" ? "ok" : "queued", text: t("discovery.step2.reading3") },
-    { state: stage === "done" ? "ok" : "queued", text: t("discovery.step2.reading4") },
-  ];
+  const stages=['scrape','visual','read','research','synthesize','save'];
+  const activeStage=stages.indexOf(stage);
+  const lines=stages.map((key,index)=>({state:stage==='done'||index<activeStage?'ok':index===activeStage?'running':'queued',text:t('discovery.running.stage.'+key)}));
 
   useDEffect(() => {
     const startedAt = Date.now();
@@ -392,12 +391,17 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
       discoveryId: runContext?.discoveryId,
       read: async () => {
         setElapsed(Math.floor((Date.now() - startedAt) / 1000));
+        if(runContext?.discoveryId){
+          const progress=await apiFetch(`/api/discovery/${runContext.discoveryId}/status`);
+          if(progress.ok){const {run}=await progress.json();if(run?.stage)setStage(run.stage);if(run?.status==='failed')throw Object.assign(new Error(run.error_code||'DISCOVERY_FAILED'),{terminal:true});}
+        }
         const res = await apiFetch(`/api/bios/${runContext?.brandId}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const {bio} = await res.json();
         return bio;
       },
       onStatus: failed => setError(failed ? t("discovery.running.reconnecting") : null),
+      onFailure: failure=>setError(t("discovery.running.errors."+failure.message)),
       onComplete: () => {
         setStage("done");
         completionTimer = setTimeout(onDone, 400);
@@ -1598,6 +1602,7 @@ function BioViewer({ go, bioScore = 91 }) {
         </div>
         <div className="bio-hero-actions" style={{display:"flex", flexDirection:"column", gap: 10, alignItems:"flex-end"}}>
           {live.brandId&&live.bio&&(!live.cert||(live.bio.client_acceptance_required&&!live.bio.client_accepted_at))&&<BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing||hasUnappliedSourceChanges} onDone={live.refresh} renderSection={section=><BioReviewSection payload={live.bio.payload} section={section}/>}/>}
+          <button className="btn btn--ghost btn--sm" onClick={()=>go("brand-book")}>{t("brandBook.title")}</button>
           <button className="btn btn--primary" onClick={() => setTab("sources")} disabled={!live.brandId}>
             <Icon name="plus" size={14} /> {t("discovery.bio.feedBrandolph")}
           </button>
@@ -1761,7 +1766,7 @@ function EditableField({ f, editing, onChange, onRemove }) {
       <div className="bio-field-row" style={{display:"grid", gridTemplateColumns: "180px 1fr 110px", gap: 18, padding:"14px 0", borderBottom:"1px solid var(--c-line)", alignItems:"start"}}>
         <div>
           <div style={{fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-faint)", letterSpacing:"0.06em", textTransform:"uppercase"}}>{bioFieldLabel(f.label)}</div>
-          {f.source && <div style={{fontSize: 11, color:"var(--c-faint)", marginTop: 4, fontStyle:"italic"}}>{t("discovery.field.from", { source: f.source })}</div>}
+          {f.source && <div style={{fontSize: 11, color:"var(--c-faint)", marginTop: 4, fontStyle:"italic"}}>{t("discovery.field.from", { source: f.source === "steward edit" ? "Creative Director" : f.source })}</div>}
         </div>
         <div style={{fontSize: 14, color:"var(--c-ink)", lineHeight: 1.55}}>
           {f.multi
@@ -1887,8 +1892,8 @@ function BioVisual({ bio, patch, editing, brandId }) {
                   : <>
                       <div style={{fontSize:13.5, fontWeight:600, color:"var(--c-ink)"}}>{c.name}</div>
                       <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:8}}>
-                        <span className="pill" style={{height:18, padding:"0 8px", fontSize:9.5}}>{t("discovery.visual.wcag", { value: c.wcag })}</span>
-                        <span style={{fontFamily:"var(--font-mono)", fontSize:10, color: c.conf >= 85 ? "var(--green-600)" : c.conf >= 65 ? "var(--orange-600)" : "var(--pink-500)"}}>{c.conf}%</span>
+                        <span className="pill" style={{height:18, padding:"0 8px", fontSize:9.5}}>{c.wcag?t("discovery.visual.wcag", { value: c.wcag }):t("discovery.visual.role."+(c.role||"unclassified"))}</span>
+                        <span style={{fontFamily:"var(--font-mono)", fontSize:10, color: c.conf >= 85 ? "var(--green-600)" : c.conf >= 65 ? "var(--orange-600)" : "var(--pink-500)"}}>{typeof c.conf==='number'?`${c.conf}%`:t("discovery.certification.verify")}</span>
                       </div>
                     </>}
               </div>
@@ -1905,7 +1910,7 @@ function BioVisual({ bio, patch, editing, brandId }) {
 
       {/* TYPOGRAPHY */}
       <section>
-        <BioSectionHead label={t("discovery.visual.typographyHead")} source={t("discovery.visual.typographySource")} conf={88} />
+        <BioSectionHead label={t("discovery.visual.typographyHead")} source={t("discovery.visual.typographySource")} />
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
           {bio.type.map((tf, i) => {
             const serif = /sectra|serif|display/i.test(tf.family) && tf.kind === "Body";
@@ -1944,7 +1949,7 @@ function BioVisual({ bio, patch, editing, brandId }) {
                           <span style={{fontSize:13, fontWeight:500, color:"var(--c-ink)"}}>{tf.family}</span>
                           <span style={{fontFamily:"var(--font-mono)", fontSize:10.5, color:"var(--c-faint)"}}>{tf.size}</span>
                         </div>
-                        <div style={{fontSize:11.5, color:"var(--c-faint)", marginTop:4}}>{t("discovery.visual.webAlt")} · {tf.suggest}</div>
+                        {tf.suggest&&<div style={{fontSize:11.5, color:"var(--c-faint)", marginTop:4}}>{t("discovery.visual.webAlt")} · {tf.suggest}</div>}
                       </>}
                 </div>
               </div>
@@ -1962,12 +1967,12 @@ function BioVisual({ bio, patch, editing, brandId }) {
       {/* IMAGERY */}
       <section>
         <BioSectionHead label={t("discovery.visual.imageryHead")} source="visual evidence" />
-        <div className="card card--inset" style={{padding:"14px 16px", marginBottom:12}}>
+        {(editing||bio.grade)&&<div className="card card--inset" style={{padding:"14px 16px", marginBottom:12}}>
           <div className="eyebrow" style={{marginBottom:6}}>{t("discovery.visual.grade")}</div>
           {editing
             ? <EditInput area value={bio.grade} onChange={(v) => patch("grade", v)} />
             : <p style={{fontSize:14, color:"var(--c-ink)", lineHeight:1.5, margin:0}}>{bio.grade}</p>}
-        </div>
+        </div>}
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
           <div className="card" style={{padding:16, borderLeft:"3px solid var(--green-600)"}}>
             <div className="eyebrow eyebrow--green" style={{marginBottom:10}}>{t("discovery.visual.shootThis")}</div>
@@ -2019,12 +2024,12 @@ function BioStrategic({ strat, patchStrategic, editing }) {
               {strat.notList.map((x, i) => <li key={i} style={{fontSize:13.5}}>✕ {x}</li>)}
             </ul>}
       </div>
-      <div className="card" style={{padding: 18, gridColumn: "1 / -1"}}>
+      {(editing||strat.diagnosis)&&<div className="card" style={{padding: 18, gridColumn: "1 / -1"}}>
         <div className="eyebrow eyebrow--purple" style={{marginBottom: 8}}>{t("discovery.strategic.diagnosis")}</div>
         {editing
           ? <EditInput area value={strat.diagnosis} onChange={(v) => patchStrategic("diagnosis", v)} />
           : <p style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 16, lineHeight: 1.55, color:"var(--c-ink)", margin: 0}}>"{strat.diagnosis}"</p>}
-      </div>
+      </div>}
     </div>
   );
 }
@@ -2117,7 +2122,7 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
 
 Object.assign(window, { Discovery, BioViewer });
 
-export { Discovery, BioViewer, payloadToFields, fieldsToPayload, discoFieldStatus };
+export { Discovery, BioViewer, useLiveBio, payloadToFields, fieldsToPayload, discoFieldStatus };
 
 export function BioReviewSection({payload,section}){
  const snapshot=payloadToFields(payload);
