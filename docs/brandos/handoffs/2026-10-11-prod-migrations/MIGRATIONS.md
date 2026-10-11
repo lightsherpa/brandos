@@ -15,11 +15,15 @@ Git records a 100% rename:
 
 The bytes are the same migration. Main also has `20260815000000_m1_gate_and_hardening.sql`, so the old platform-integrity filename shared a version with M1. Dev moved platform integrity to `20260815005000` so the version is unique.
 
-Do not apply `20260815005000_platform_integrity.sql` on a database where `public.reserve_workspace_credits` already exists. That means the renamed SQL already ran. Applying it again repeats grants, policies, and functions. If the function is absent, the version was never applied and the command below is the one to run.
+Do not apply `20260815005000_platform_integrity.sql` on a database where `public.reserve_workspace_credits` already exists. That means the renamed SQL already ran. Applying it again repeats grants, policies, and functions. If the function is absent, the version was never applied and it needs separate review.
 
 ## 1. `20260815005000_platform_integrity.sql`
 
-Apply only when the verify query below returns no row.
+Safe before the merge.
+
+Run the verify query first. Skip the file when a row comes back. If it was never applied (the verify query returns no row), it needs separate review before anyone runs the apply command.
+
+
 
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20260815005000_platform_integrity.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20260815005000', 'platform_integrity')" -c 'commit'
@@ -35,6 +39,8 @@ where n.nspname = 'public' and p.proname = 'reserve_workspace_credits';
 ```
 
 ## 2. `20260901000000_delegation_token_hash.sql`
+
+Apply together with or immediately after the main deploy. `origin/main`'s `server/src/routes/discovery-delegation.js` still inserts and looks up `discovery_delegations.token`. This migration drops that column. Applying it while that server is live breaks delegation links.
 
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20260901000000_delegation_token_hash.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20260901000000', 'delegation_token_hash')" -c 'commit'
@@ -52,6 +58,8 @@ select
 
 ## 3. `20260910000000_brief_drafts.sql`
 
+Safe before the merge. Run the verify query first and skip if a row comes back.
+
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20260910000000_brief_drafts.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20260910000000', 'brief_drafts')" -c 'commit'
 ```
@@ -59,10 +67,14 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/202
 Verify:
 
 ```sql
-select to_regclass('public.brief_drafts') as brief_drafts;
+select to_regclass('public.brief_drafts') as brief_drafts
+where to_regclass('public.brief_drafts') is not null;
 ```
 
 ## 4. `20261010010000_bio_review_attestation.sql`
+
+Safe before the merge.
+
 
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261010010000_bio_review_attestation.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261010010000', 'bio_review_attestation')" -c 'commit'
@@ -77,6 +89,9 @@ where table_schema = 'public' and table_name = 'bio_attestations' and column_nam
 ```
 
 ## 5. `20261010020000_bio_client_acceptance.sql`
+
+Safe before the merge.
+
 
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261010020000_bio_client_acceptance.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261010020000', 'bio_client_acceptance')" -c 'commit'
@@ -94,6 +109,9 @@ order by column_name;
 
 ## 6. `20261010030000_bio_client_acceptance_receipt.sql`
 
+Safe before the merge.
+
+
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261010030000_bio_client_acceptance_receipt.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261010030000', 'bio_client_acceptance_receipt')" -c 'commit'
 ```
@@ -109,6 +127,8 @@ where n.nspname = 'public' and p.proname = 'accept_bio_client_changes';
 
 ## 7. `20261010040000_discovery_run_progress.sql`
 
+Safe before the merge. Run the verify query first and skip if a row comes back.
+
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261010040000_discovery_run_progress.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261010040000', 'discovery_run_progress')" -c 'commit'
 ```
@@ -116,10 +136,14 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/202
 Verify:
 
 ```sql
-select to_regclass('public.discovery_runs') as discovery_runs;
+select to_regclass('public.discovery_runs') as discovery_runs
+where to_regclass('public.discovery_runs') is not null;
 ```
 
 ## 8. `20261011000000_output_needs_review.sql`
+
+Safe before the merge.
+
 
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261011000000_output_needs_review.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261011000000', 'output_needs_review')" -c 'commit'
@@ -136,6 +160,9 @@ where conname = 'outputs_status_check';
 `def` includes `needs_review`.
 
 ## 9. `20261011010000_hero_model_rate_cards.sql`
+
+Safe before the merge.
+
 
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261011010000_hero_model_rate_cards.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261011010000', 'hero_model_rate_cards')" -c 'commit'

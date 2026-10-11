@@ -40,6 +40,24 @@ test("the production handoff lists every dev migration missing from main, in ord
     assert.match(section, /```sql\nselect\b/);
     cursor = at + file.length;
   }
+  const sectionOf = (file) => {
+    const at = doc.indexOf(file);
+    const next = pending[pending.indexOf(file) + 1];
+    const end = next ? doc.indexOf(next, at + file.length) : doc.length;
+    return doc.slice(at, end === -1 ? doc.length : end);
+  };
+  assert.match(sectionOf("20260815005000_platform_integrity.sql"), /Safe before the merge/);
+  assert.match(sectionOf("20260815005000_platform_integrity.sql"), /If it was never applied \(the verify query returns no row\), it needs separate review/);
+  assert.match(sectionOf("20260901000000_delegation_token_hash.sql"), /Apply together with or immediately after the main deploy/);
+  assert.match(sectionOf("20260901000000_delegation_token_hash.sql"), /discovery-delegation\.js/);
+  assert.doesNotMatch(sectionOf("20260901000000_delegation_token_hash.sql"), /Safe before the merge/);
+  for (const file of pending.filter((name) => name !== "20260901000000_delegation_token_hash.sql")) {
+    assert.match(sectionOf(file), /Safe before the merge/, file);
+  }
+  assert.match(sectionOf("20260910000000_brief_drafts.sql"), /Run the verify query first and skip if a row comes back/);
+  assert.match(sectionOf("20261010040000_discovery_run_progress.sql"), /Run the verify query first and skip if a row comes back/);
+  assert.match(sectionOf("20260910000000_brief_drafts.sql"), /where to_regclass\('public\.brief_drafts'\) is not null/);
+  assert.match(sectionOf("20261010040000_discovery_run_progress.sql"), /where to_regclass\('public\.discovery_runs'\) is not null/);
   assert.deepEqual(pending, [
     "20260815005000_platform_integrity.sql",
     "20260901000000_delegation_token_hash.sql",
