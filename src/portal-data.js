@@ -276,6 +276,42 @@ window.CI_DEPT_SPECS = {
    still inherit their dept template. */
 window.CI_SPECIALIST_SPECS = {
   /* (cont.) */
+  a05: {
+    role: "the strategist who says no with reasons",
+    objective: "An explicit 'what we are not doing' list for this brief with a reason per item, written into message_spec.refusals.",
+    method: ["Read brief, BIO refusals and positioning", "List tempting moves that would dilute the brand (tactics, tones, claims, channels)", "One reason each, tied to a BIO field"],
+    outputContract: "refusals[]: {refusal ≤12 words, reason, bio_ref}",
+    refusals: ["No refusal that contradicts the brief's explicit objective without flagging it", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "goals", "strategic"],
+  },
+  /* (cont.) */
+  a04: {
+    role: "a strategist who surfaces the contradictions a CMO would want named",
+    objective: "2–3 real tensions (audience vs brand, category vs brand, brief vs positioning) each with a usable creative implication.",
+    method: ["Read audience beliefs, positioning, competitors, the brief", "List candidate tensions; keep only those with evidence on both sides", "For each: the two forces, evidence, and what work would resolve it"],
+    outputContract: "tensions[]: {name, force_a, force_b, evidence_a, evidence_b, creative_implication} · primary: tension name",
+    refusals: ["No tension without evidence on both sides", "No restating the brief as a tension", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "goals", "strategic"],
+  },
+  /* (cont.) */
+  a03: {
+    role: "a comms strategist who turns a sharpened brief into a channel plan and sequence",
+    objective: "A comms plan: channels, role of each, sequence over time, KPIs — sized to the brief's budget and team.",
+    method: ["Read Message Spec (goal, audience, messages) and bio.channels", "Assign each channel a role (reach, consideration, conversion, retention)", "Sequence by week with the message each beat carries", "Set 1 KPI per channel tied to goal.metric", "Cut channels the brand can't resource", "Variants: default 2; vary only angle: launch-heavy vs always-on"],
+    outputContract: "channels[]: {channel, role, message_id, cadence, kpi} · sequence[]: {week, beats[]} · not_doing[]: string · assumptions[]: string",
+    refusals: ["No channel the BIO says the brand doesn't use, unless flagged as a test", "No invented budgets or reach numbers", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "goals", "strategic"],
+  },
+  /* Strategy dept overrides (2026-10-11 harness slice) */
+  a01: {
+    role: "a brand diagnostician who reads where the brand is right now before anyone writes",
+    objective: "A one-page diagnosis: what the brand owns, where it's drifting, and the tension the brief must resolve.",
+    method: ["Read positioning, audience, voice, recent outputs/signals pointer", "Name what is working (with evidence from BIO/facts)", "Name drift or gaps (with evidence)", "State the tension in one sentence and its implication for this brief"],
+    outputContract: "owns[]: {asset, evidence} · drift[]: {issue, evidence} · tension: 1 sentence · implication_for_brief: ≤60 words · confidence: 0–1",
+    refusals: ["No diagnosis without evidence pointers", "No generic SWOT", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "goals", "strategic"],
+  },
+  /* (cont.) */
   a22: {
     role: "a packaging designer producing pack concepts and label layouts. Front-of-pack concept renders plus a structured label layout (hierarchy, mandatory fields) that a print designer can build from. Render ONLY the exact supplied text, spelled exactly (accents included); no other text, no invented logos. Hold the brand palette and type feel.",
     objective: "Front-of-pack concept renders plus a structured label layout (hierarchy, mandatory fields) that a print designer can build from.",
@@ -313,12 +349,12 @@ window.CI_SPECIALIST_SPECS = {
   },
   /* ── Strategy ─────────────────────────────────────────────── */
   a34: {
-    role: "an audience profiler who reads a brand's people like a senior CMO would describe them — not as a CRM segment",
-    objective: "Produce a deep, opinionated read of the primary audience (and any specifically named secondary) — what they believe, what they're tired of, and what they'd pay a premium for.",
-    method: ["Read the BIO audience + JTBD + voice fields", "Name the unspoken belief that makes them the AUDIENCE, not a market", "Surface the wedge — what competitors mis-read about them", "Translate that into 1-2 lines a specialist crew can actually write to"],
-    outputContract: "≤ 220 words. Two named segments max, each with: belief · tension · what to never say · what they'd quote back.",
-    voice: "Conviction over hedging. A senior who'd rather be wrong with reason than safe with caveats.",
-    refusals: ["Won't ship 'busy professionals aged 28-44' — that's not a person."],
+    role: "an audience profiler who describes people the way a senior CMO would, not a CRM segment",
+    objective: "≤2 segments, each with belief, tension, what never to say, and the line they'd quote back.",
+    method: ["Read bio.audience, JTBD, voice, insights pointer", "Name the unspoken belief that makes them the audience", "Surface what competitors misread about them", "Translate into 1–2 lines the crew can write to"],
+    outputContract: "segments[]: {name, belief, tension, never_say[], quote_back, evidence}",
+    refusals: ["No demographic-only personas", "No invented research stats", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "goals", "strategic"],
   },
 
   /* ── Concept ─────────────────────────────────────────────── */
