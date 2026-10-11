@@ -466,7 +466,7 @@ window.CI_SPECIALIST_SPECS = {
   },
   /* (cont.) */
   a22: {
-    role: "a packaging designer producing pack concepts and label layouts. Front-of-pack concept renders plus a structured label layout (hierarchy, mandatory fields) that a print designer can build from. Render ONLY the exact supplied text, spelled exactly (accents included); no other text, no invented logos. Hold the brand palette and type feel.",
+    role: "a packaging designer rendering exactly one coffee package concept per run: one bag, one front-facing view, on one plain background. Render only exact text supplied in the brief; no invented origins, weights, certifications or logos. Hold the brand palette. Do not combine angles, alternate packages, label diagrams, palette swatches or annotations. One image with one package; never a collage, grid, split-screen or contact sheet.",
     objective: "Front-of-pack concept renders plus a structured label layout (hierarchy, mandatory fields) that a print designer can build from.",
     method: ["Read product facts (name, origin, weight, roast, legal mandatories from bio.facts / brief)", "Define the label hierarchy (brand, product name, descriptor, mandatory info) as JSON", "Render 2 pack concepts on the specified format (bag, box, can) with exact on-pack text only from the hierarchy", "Flag every mandatory field that is missing from the facts", "Variants: default 2; vary only layout: hierarchy (brand-led / product-led)"],
     outputContract: "label_layout: {format, dimensions_mm, zones[{name, content, type_style, priority}]} · renders[]: {url, angle, overlay_text_exact[]} · missing_mandatories[]: string",
@@ -493,7 +493,7 @@ window.CI_SPECIALIST_SPECS = {
   },
   /* Visual dept overrides (2026-10-11 harness slice) */
   a19: {
-    role: "an identity designer producing first-cut logo and mark directions for a human designer to craft. 3 distinct identity directions (wordmark/monogram/symbol) as clean SVG drafts with rationale — explicitly drafts, handed to L3 for craft. Flat vector, brand palette only (plus white/black), no gradients unless the BIO allows, clean geometry legible at 16px.",
+    role: "an identity designer producing exactly one standalone geometric symbol draft per run. One flat mark centered on a plain background in the brand palette, legible at small size. No text, letters, logos, mockups, applications, alternative directions, palette swatches, annotations or presentation boards. One image with one symbol; never a collage, grid, split-screen or contact sheet.",
     objective: "3 distinct identity directions (wordmark/monogram/symbol) as clean SVG drafts with rationale — explicitly drafts, handed to L3 for craft.",
     method: ["Read brand name, positioning, personality, visual.type, palette", "Define 3 directions on different construction ideas", "Generate each as vector (SVG) in 1–2 brand colours on white and reversed", "Explain the idea in ≤40 words each and list risks (legibility at 16px, similarity to known marks)", "Variants: default 3; vary only construction: wordmark / monogram / symbol"],
     outputContract: "directions[]: {name, idea ≤40 words, svg_url, svg_reversed_url, colours_hex[], min_size_px, risks[]} · handoff_note: what a designer must refine",
@@ -512,7 +512,7 @@ window.CI_SPECIALIST_SPECS = {
 
   /* ── Concept ─────────────────────────────────────────────── */
   a35: {
-    role: "an art director assembling a mood board from imagery tiles plus the brand palette and type. 3–4 cohesive imagery tiles (texture, scene, detail, material) under one art direction; the app composes them with swatches and type. No text, no logos, no watermarks in the image. Hold the brand palette and imagery rules; avoid the BIO avoid-list.",
+    role: "an art director conveying one mood direction through exactly one continuous photographic scene per run. Depict one specific moment with consistent light, lens and brand palette. No text, logos, color chips, reference thumbnails, inset photos or multiple scenes. A mood direction is expressed by one image; never a collage, mood-board layout, grid, split-screen or contact sheet.",
     objective: "3–4 cohesive imagery tiles (texture, scene, detail, material) under one art direction; the app composes them with swatches and type.",
     method: ["Read territory, visual.imagery, palette", "Define one direction: lens, light, palette, mood words", "Generate tiles that differ in subject, not style", "Return composition order and swatch suggestions", "Variants: default 2; vary only direction: two art directions"],
     outputContract: "direction: {lens, light, mood_words[3], palette_hex[]} · tiles[]: {role(texture|scene|detail|material), url, alt} · layout_order: tile roles",
@@ -660,7 +660,7 @@ window.CI_SPECIALIST_SPECS = {
     bioSlices: ["palette", "type", "voice"],
   },
   a44: {
-    role: "a motion art director producing style frames that set the look of a film before anything is shot. 3–5 cinematic frames from the treatment that lock palette, light, lens and grade for the video team. No text, no logos, no watermarks in the image. Hold the brand palette and imagery rules; avoid the BIO avoid-list.",
+    role: "a motion art director rendering exactly one cinematic style frame per run: one shot, one camera view, one continuous scene. Hold the brand palette, light and lens language. No text, logos, shot labels, captions, annotations or adjacent frames. Multiple film moments need separate runs. One image with one scene; never a collage, storyboard grid, split-screen or contact sheet.",
     objective: "3–5 cinematic frames from the treatment that lock palette, light, lens and grade for the video team.",
     method: ["Read motion_spec/treatment shots if present, else the territory", "Pick 3–5 key moments; one frame each at 16:9 (and 9:16 if social-first)", "Hold one grade and lens language across frames", "Annotate each frame with camera move and transition intent", "Variants: default 2; vary only visual: grade (two looks)"],
     outputContract: "frames[]: {shot_id, url, ratio, camera, lens, light, transition_in, alt} · look: {grade, contrast, grain, palette_hex[]}",
