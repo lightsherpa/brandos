@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-10-11T10:01:57.656Z",
+  "syntheticBrand": true,
+  "forcedFallback": true,
+  "samples": [
+    {
+      "id": "a16",
+      "after": {
+        "output": "Your website is the first thing a stranger reads about your work. It should sound like you wrote it — because you did.\n\nWe help you shape it. Book a studio consultation.\n\n---\n\nMost independent founders write their own site. We just make sure the words are doing the right job.\n\nBook a consultation at the link.\n\n---\n\nSay less. Show the work. That's the whole philosophy — and it fits on a webpage.\n\nIf your site isn't doing that yet, let's look at it together.",
+        "usage": {
+          "prompt_tokens": 1189,
+          "completion_tokens": 111,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-4-6",
+          "fallback_from": "anthropic/claude-sonnet-5-5",
+          "cost_usd": 0.005232,
+          "cost_source": "rate_card_estimate",
+          "rate_card_id": "7763b95b-d906-4246-844c-2a0676848843"
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.005232,
+          "source": "rate_card_estimate"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+ "type": "object",
+ "required": [
+  "agent",
+  "buckets"
+ ],
+ "properties": {
+  "agent": {
+   "const": "a37"
+  },
+  "buckets": {
+   "type": "object",
+   "properties": {
+    "declarative": {
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "object",
+      "required": [
+       "text"
+      ],
+      "properties": {
+       "text": {
+        "type": "string",
+        "maxLength": 70
+       },
+       "recommended": {
+        "type": "boolean"
+       }
+      }
+     }
+    },
+    "question": {
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "object",
+      "required": [
+       "text"
+      ],
+      "properties": {
+       "text": {
+        "type": "string",
+        "maxLength": 70
+       },
+       "recommended": {
+        "type": "boolean"
+       }
+      }
+     }
+    },
+    "fragment": {
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "object",
+      "required": [
+       "text"
+      ],
+      "properties": {
+       "text": {
+        "type": "string",
+        "maxLength": 70
+       },
+       "recommended": {
+        "type": "boolean"
+       }
+      }
+     }
+    },
+    "anti": {
+     "type": "array",
+     "maxItems": 5,
+     "items": {
+      "type": "object",
+      "required": [
+       "text"
+      ],
+      "properties": {
+       "text": {
+        "type": "string",
+        "maxLength": 70
+       },
+       "recommended": {
+        "type": "boolean"
+       }
+      }
+     }
+    }
+   }
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "what": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

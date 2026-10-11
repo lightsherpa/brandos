@@ -1,0 +1,61 @@
+{
+ "agent_id": "a23",
+ "name": "Iconography",
+ "dept": "Web & UX",
+ "job": "Custom icons consistent with the visual identity \u2014 UI primitives, not identity marks.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "recraft",
+ "context": {
+  "bio_slices": [
+   "visual.tokens",
+   "visual.type",
+   "voice",
+   "refusals",
+   "facts"
+  ],
+  "pointers": [
+   "bio.components",
+   "renderers/templates"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a23"
+ ],
+ "output_schema_ref": "schemas/render_block.schema.json",
+ "checks": [
+  "D-SCHEMA",
+  "D-RENDER",
+  "D-CONTRAST",
+  "D-ALT",
+  "D-LEN",
+  "D-FORBID",
+  "D-LINKS",
+  "J-VISION"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 6,
+  "max_output_tokens": 2000
+ }
+}

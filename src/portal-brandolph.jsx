@@ -270,7 +270,7 @@ function HomeCreate({ tweaks, go }) {
   /* Wired models — text (Anthropic + OpenRouter) AND image (fal.ai).
      Other vendors (exa/v0/gamma/framer/elevenlabs) aren't dispatched
      through /api/runs/stream yet so we filter them out of the assembly. */
-  const TEXT_MODELS  = new Set(["opus", "sonnet", "haiku", "gpt5", "gemPro", "gemFlash"]);
+  const TEXT_MODELS  = new Set(["opus", "sonnet", "haiku", "gpt5", "gemPro", "gemFlash", "sonnet55", "haiku55", "gemFlash38"]);
   const IMAGE_MODELS = new Set(["flux", "fluxSchnell", "gptimage", "recraft"]);
   const RUNNABLE = (m) => TEXT_MODELS.has(m) || IMAGE_MODELS.has(m);
   const rawAssembly = useBMemo(() => getAssembly(tweaks.assemblyDensity || 7), [tweaks.assemblyDensity]);

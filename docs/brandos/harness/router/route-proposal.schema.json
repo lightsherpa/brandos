@@ -1,0 +1,11 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://brandos.dev/schemas/route-proposal.v0.json","type":"object",
+ "required":["output_type","difficulty","current_route","candidate_route","metrics","samples","status"],
+ "properties":{"output_type":{"$ref":"triage.schema.json#/properties/output_type"},"difficulty":{"enum":["low","standard","high"]},
+  "current_route":{"type":"string"},"candidate_route":{"type":"string"},
+  "metrics":{"type":"object","required":["quality","value","cost_per_output","hard_check_regressions"],"properties":{
+   "quality":{"type":"object","properties":{"current":{"type":"number"},"candidate":{"type":"number"}}},
+   "value":{"type":"object","properties":{"current":{"type":"number"},"candidate":{"type":"number"}}},
+   "first_pass_rate":{"type":"object"},"p95_ms":{"type":"object"},"cost_per_output":{"type":"object"},
+   "hard_check_regressions":{"type":"integer","maximum":0},"monthly_delta_usd":{"type":"number"},"n_briefs":{"type":"integer","minimum":5}}},
+  "samples":{"type":"array","minItems":3,"maxItems":3,"items":{"type":"object","properties":{"brief_id":{"type":"string"},"current_ref":{"type":"string"},"candidate_ref":{"type":"string"}}}},
+  "status":{"enum":["open","approved","rejected","superseded"]}}}

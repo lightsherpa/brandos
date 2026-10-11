@@ -1,0 +1,212 @@
+diff --git a/scripts/seed-specs.mjs b/scripts/seed-specs.mjs
+index 27e9e33..b5c8771 100644
+--- a/scripts/seed-specs.mjs
++++ b/scripts/seed-specs.mjs
+@@ -74,10 +74,14 @@ const MODEL_MAP = {
+   opus:        "anthropic/claude-opus-4-7",
+   sonnet:      "anthropic/claude-sonnet-4-6",
+   haiku:       "anthropic/claude-haiku-4-5-20251001",
++  // Hero crew only (approved 2026-10-11): Claude 5.5 family, direct API ids (dashes)
++  sonnet55:    "anthropic/claude-sonnet-5-5",
++  haiku55:     "anthropic/claude-haiku-5-5",
+   // Non-Claude text → OpenRouter
+   gpt5:        "openrouter/openai/gpt-5",
+   gemPro:      "openrouter/google/gemini-2.5-pro",
+   gemFlash:    "openrouter/google/gemini-2.5-flash",
++  gemFlash38:  "openrouter/google/gemini-3.8-flash",   /* hero crew only */
+   // Image — all via fal.ai (one key, one bill, multiple models)
+   gptimage:    "vendor/fal/gpt-image-2",      /* real GPT Image 2 via fal (openai/gpt-image-2) */
+   flux:        "vendor/fal/flux-1.1-pro",     /* Pro — Hero, OOH, Identity, Pack: $0.04/img */
+@@ -91,6 +95,14 @@ const MODEL_MAP = {
+   framer:      "vendor/framer",
+ };
+ 
++/* Fallback route per short key — used by router.js when the primary errors,
++   times out before the first token, or is rate-limited. Hero keys only. */
++const FALLBACK_MAP = {
++  sonnet55:   "anthropic/claude-sonnet-4-6",
++  haiku55:    "anthropic/claude-haiku-4-5-20251001",
++  gemFlash38: "openrouter/google/gemini-2.5-flash",
++};
++
+ function resolveRoute(shortKey) {
+   if (MODEL_MAP[shortKey]) return MODEL_MAP[shortKey];
+   console.warn(`Unknown model short key "${shortKey}" — defaulting to anthropic/claude-sonnet-4-6`);
+@@ -127,7 +139,7 @@ function buildPayload(agent) {
+     tools: pick("tools") ?? [],
+     refusals: pick("refusals") ?? [],
+     // Routing — vendor-prefixed route string the model router dispatches on
+-    modelRouting: { primary: resolveRoute(agent.model), fallback: null, reason: `seeded from CI_AGENTS (model: ${agent.model})` },
++    modelRouting: { primary: resolveRoute(agent.model), fallback: FALLBACK_MAP[agent.model] ?? null, reason: `seeded from CI_AGENTS (model: ${agent.model})` },
+     // Department-inherited
+     capabilities: deptMeta.capabilities ?? [],
+     turnaround: deptMeta.turnaround,
+diff --git a/server/src/lib/models/router.js b/server/src/lib/models/router.js
+index 9d88ce1..7e20ee0 100644
+--- a/server/src/lib/models/router.js
++++ b/server/src/lib/models/router.js
+@@ -29,6 +29,10 @@ export const ALLOWED_MODEL_OVERRIDES = new Set([
+   "anthropic/claude-opus-4-7",
+   "anthropic/claude-sonnet-4-6",
+   "anthropic/claude-haiku-4-5-20251001",
++  // Hero crew upgrade (2026-10-11)
++  "anthropic/claude-sonnet-5-5",
++  "anthropic/claude-haiku-5-5",
++  "openrouter/google/gemini-3.8-flash",
+   "openrouter/google/gemini-2.5-pro",
+   "openrouter/google/gemini-2.5-flash",
+   "vendor/fal/flux-1.1-pro",
+@@ -44,7 +48,7 @@ export function isAllowedModelOverride(route) {
+    server-side and applied to the specialist's base credit estimate. */
+ export function routeCreditMultiplier(route) {
+   if (/opus|gemini-2\.5-pro|flux-1\.1-pro|recraft-v3/i.test(route || "")) return 2;
+-  if (/haiku|gemini-2\.5-flash|flux-schnell/i.test(route || "")) return 0.75;
++  if (/haiku|gemini-2\.5-flash|gemini-3\.8-flash|flux-schnell/i.test(route || "")) return 0.75;
+   return 1;
+ }
+ 
+@@ -61,8 +65,46 @@ export function routeCreditMultiplier(route) {
+  * @param {number} [params.maxTokens]    - max output tokens; derived from spec.payload.cr_estimate if omitted
+  * @yields {object} normalized event
+  */
++/* Fallback policy (hero crew, 2026-10-11). Switch to modelRouting.fallback ONLY when
++   the primary fails before emitting any token, and the failure is transient:
++   HTTP 429 / 5xx / 529 overloaded, network error, missing model (404), or no first
++   token within FIRST_TOKEN_TIMEOUT_MS. Never switch mid-stream (would duplicate text). */
++export const FIRST_TOKEN_TIMEOUT_MS = Number(process.env.MODEL_FIRST_TOKEN_TIMEOUT_MS || 20000);
++const RETRYABLE = /\b(429|500|502|503|504|529|404)\b|overloaded|rate.?limit|timeout|network|ECONNRESET|ETIMEDOUT|not.?found|no such model/i;
++export function isRetryableError(message) { return RETRYABLE.test(String(message || "")); }
++
+ export async function* streamCompletion({ spec, system, messages, maxTokens }) {
+-  const route = spec?.payload?.modelRouting?.primary;
++  const primary = spec?.payload?.modelRouting?.primary;
++  const fallback = spec?.payload?.modelRouting?.fallback;
++  if (typeof fallback !== "string" || fallback === primary) {
++    yield* streamRoute({ route: primary, spec, system, messages, maxTokens });
++    return;
++  }
++  const it = streamRoute({ route: primary, spec, system, messages, maxTokens })[Symbol.asyncIterator]();
++  let first;
++  try {
++    first = await Promise.race([
++      it.next(),
++      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout: no first token")), FIRST_TOKEN_TIMEOUT_MS)),
++    ]);
++  } catch (err) {
++    it.return?.().catch(() => {});
++    first = { done: false, value: { type: "error", message: err?.message || String(err) } };
++  }
++  const failedEarly = !first.done && first.value?.type === "error" && isRetryableError(first.value.message);
++  if (failedEarly) {
++    console.warn(`[router] primary ${primary} failed (${first.value.message}); falling back to ${fallback}`);
++    for await (const ev of streamRoute({ route: fallback, spec, system, messages, maxTokens })) {
++      if (ev?.type === "done" && ev.usage) ev.usage = { ...ev.usage, fallback_from: primary };
++      yield ev;
++    }
++    return;
++  }
++  if (!first.done) yield first.value;
++  for (let n = await it.next(); !n.done; n = await it.next()) yield n.value;
++}
++
++async function* streamRoute({ route, spec, system, messages, maxTokens }) {
+   if (typeof route !== "string" || !route.includes("/")) {
+     yield { type: "error", message: `Invalid model route: ${JSON.stringify(route)}. Expected "anthropic/<model>" or "openrouter/<model>".` };
+     return;
+diff --git a/server/src/lib/qa-vision.js b/server/src/lib/qa-vision.js
+index d2eb0a0..fa171ee 100644
+--- a/server/src/lib/qa-vision.js
++++ b/server/src/lib/qa-vision.js
+@@ -19,7 +19,8 @@ const QA_SPEC = {
+   payload: {
+     name: "a24 Brand Consistency QA",
+     modelRouting: {
+-      primary: "openrouter/google/gemini-2.5-flash",
++      primary: "openrouter/google/gemini-3.8-flash",
++      fallback: "openrouter/google/gemini-2.5-flash",
+       reason: "high-volume vision QA; cheap + reliable JSON verdicts",
+     },
+     cr_estimate: 1,
+diff --git a/server/src/lib/qa-voice.js b/server/src/lib/qa-voice.js
+index 8be1da7..a713433 100644
+--- a/server/src/lib/qa-voice.js
++++ b/server/src/lib/qa-voice.js
+@@ -22,7 +22,8 @@ const QA_SPEC = {
+   payload: {
+     name: "a18 Voice QA",
+     modelRouting: {
+-      primary: "openrouter/google/gemini-2.5-flash",
++      primary: "anthropic/claude-haiku-5-5",
++      fallback: "openrouter/google/gemini-2.5-flash",   /* previous primary, proven JSON verdicts */
+       reason: "high-volume reliability check; local regex handles hard violations",
+     },
+     cr_estimate: 1,
+diff --git a/server/src/lib/sharpener.js b/server/src/lib/sharpener.js
+index 89ca6d5..4497a06 100644
+--- a/server/src/lib/sharpener.js
++++ b/server/src/lib/sharpener.js
+@@ -21,7 +21,7 @@ import { normalizePlan, wrapLegacy } from "./delivery-plan.js";
+ const SHARPENER_SPEC = {
+   payload: {
+     name: "a02 The Sharpener",
+-    modelRouting: { primary: "anthropic/claude-sonnet-4-6", reason: "CMO-grade strategic synthesis on the brand's BIO" },
++    modelRouting: { primary: "anthropic/claude-sonnet-5-5", fallback: "anthropic/claude-sonnet-4-6", reason: "CMO-grade strategic synthesis on the brand's BIO" },
+     cr_estimate: 5,
+   },
+ };
+diff --git a/src/portal-brandolph.jsx b/src/portal-brandolph.jsx
+index 7297a41..3f0fe30 100644
+--- a/src/portal-brandolph.jsx
++++ b/src/portal-brandolph.jsx
+@@ -268,7 +268,7 @@ function HomeCreate({ tweaks, go }) {
+   /* Wired models — text (Anthropic + OpenRouter) AND image (fal.ai).
+      Other vendors (exa/v0/gamma/framer/elevenlabs) aren't dispatched
+      through /api/runs/stream yet so we filter them out of the assembly. */
+-  const TEXT_MODELS  = new Set(["opus", "sonnet", "haiku", "gpt5", "gemPro", "gemFlash"]);
++  const TEXT_MODELS  = new Set(["opus", "sonnet", "haiku", "gpt5", "gemPro", "gemFlash", "sonnet55", "haiku55", "gemFlash38"]);
+   const IMAGE_MODELS = new Set(["flux", "fluxSchnell", "gptimage", "recraft"]);
+   const RUNNABLE = (m) => TEXT_MODELS.has(m) || IMAGE_MODELS.has(m);
+   const rawAssembly = useBMemo(() => getAssembly(tweaks.assemblyDensity || 7), [tweaks.assemblyDensity]);
+diff --git a/src/portal-data.js b/src/portal-data.js
+index c150678..e5fab52 100644
+--- a/src/portal-data.js
++++ b/src/portal-data.js
+@@ -60,7 +60,7 @@ window.CI_MODELS = {
+ window.CI_AGENTS = [
+   // Strategy (6) — was "CMO Suite"
+   { id:"a01", code:"L2-01", dept:"Strategy", name:"The Diagnostician",  job:"Reads the brand right now. Names tensions before assembly.",                                              model:"sonnet",     cr:8,  status:"live" },
+-  { id:"a02", code:"L2-02", dept:"Strategy", name:"The Sharpener",      job:"Turns vague briefs into single-minded propositions.",                                                     model:"sonnet",   cr:5,  status:"live" },
++  { id:"a02", code:"L2-02", dept:"Strategy", name:"The Sharpener",      job:"Turns vague briefs into single-minded propositions.",                                                     model:"sonnet55",   cr:5,  status:"live" },
+   { id:"a03", code:"L2-03", dept:"Strategy", name:"The Strategist",     job:"Comms plan, channel rationale, sequencing.",                                                              model:"sonnet",   cr:6,  status:"live" },
+   { id:"a04", code:"L2-04", dept:"Strategy", name:"The Tension-Finder", job:"Surfaces the contradictions a CMO would want named.",                                                     model:"sonnet",     cr:8,  status:"live" },
+   { id:"a05", code:"L2-05", dept:"Strategy", name:"The Refuser",        job:"Says no with reasons. Owns the 'what we are not doing'.",                                                 model:"haiku",   cr:4,  status:"live" },
+@@ -77,14 +77,14 @@ window.CI_AGENTS = [
+   { id:"a36", code:"L2-36", dept:"Concept", name:"Campaign Architect",   job:"The big idea — one campaign spine that holds 10+ outputs together.",                                     model:"opus",     cr:9,  status:"live" },
+ 
+   // Copy (11) — added Headlines, Ad Copy, Product Copy, Press & Bio
+-  { id:"a12", code:"L2-12", dept:"Copy", name:"Conversion Copy",   job:"Landing, pricing, hero work that has to move a number.",                                                      model:"sonnet",   cr:12, status:"live" },
+-  { id:"a13", code:"L2-13", dept:"Copy", name:"Email Sequence",    job:"Onboarding, lifecycle, retention sequences.",                                                                  model:"sonnet",   cr:12, status:"live" },
+-  { id:"a14", code:"L2-14", dept:"Copy", name:"Subject Lines",     job:"Subjects, previews, A/B variants by intent.",                                                                  model:"gemFlash", cr:2,  status:"live" },
++  { id:"a12", code:"L2-12", dept:"Copy", name:"Conversion Copy",   job:"Landing, pricing, hero work that has to move a number.",                                                      model:"sonnet55",   cr:12, status:"live" },
++  { id:"a13", code:"L2-13", dept:"Copy", name:"Email Sequence",    job:"Onboarding, lifecycle, retention sequences.",                                                                  model:"sonnet55",   cr:12, status:"live" },
++  { id:"a14", code:"L2-14", dept:"Copy", name:"Subject Lines",     job:"Subjects, previews, A/B variants by intent.",                                                                  model:"gemFlash38", cr:2,  status:"live" },
+   { id:"a15", code:"L2-15", dept:"Copy", name:"Long-form Editor",  job:"Essays, manifestos, foundational doc copy.",                                                                   model:"opus",     cr:14, status:"live" },
+-  { id:"a16", code:"L2-16", dept:"Copy", name:"Social Captions",   job:"Captions that hold voice across platforms.",                                                                   model:"sonnet",  cr:3,  status:"live" },
++  { id:"a16", code:"L2-16", dept:"Copy", name:"Social Captions",   job:"Captions that hold voice across platforms.",                                                                   model:"sonnet55",  cr:3,  status:"live" },
+   { id:"a17", code:"L2-17", dept:"Copy", name:"Microcopy & UX",    job:"Form labels, error states, onboarding micro.",                                                                 model:"haiku",    cr:2,  status:"live" },
+-  { id:"a18", code:"L2-18", dept:"Copy", name:"Voice QA",          job:"Reads finished copy against the BIO. Flags drift.",                                                            model:"haiku",    cr:2,  status:"live" },
+-  { id:"a37", code:"L2-37", dept:"Copy", name:"Headlines",         job:"20 headline variants in one pass — for the press, the page, the deck.",                                       model:"gemPro",   cr:3,  status:"live" },
++  { id:"a18", code:"L2-18", dept:"Copy", name:"Voice QA",          job:"Reads finished copy against the BIO. Flags drift.",                                                            model:"haiku55",    cr:2,  status:"live" },
++  { id:"a37", code:"L2-37", dept:"Copy", name:"Headlines",         job:"20 headline variants in one pass — for the press, the page, the deck.",                                       model:"sonnet55",   cr:3,  status:"live" },
+   { id:"a38", code:"L2-38", dept:"Copy", name:"Ad Copy",           job:"Paid social, search, display variants — sized per platform spec.",                                              model:"gemPro",   cr:5,  status:"live" },
+   { id:"a39", code:"L2-39", dept:"Copy", name:"Product Copy",      job:"Descriptions, features, benefit ladders. The ecom workhorse.",                                                  model:"gemFlash",   cr:6,  status:"live" },
+   { id:"a40", code:"L2-40", dept:"Copy", name:"Press & Bio",       job:"Releases, founder bios, about pages, partnership announcements.",                                              model:"sonnet",   cr:8,  status:"live" },
+@@ -94,7 +94,7 @@ window.CI_AGENTS = [
+   { id:"a20", code:"L2-20", dept:"Visual", name:"Hero KV",                  job:"Hero visuals for campaigns and launches.",                                                             model:"gptimage",     cr:14, status:"live" },
+   { id:"a21", code:"L2-21", dept:"Visual", name:"Editorial Image",          job:"Image-led storytelling. In-feed + content.",                                                          model:"gptimage", cr:10, status:"live" },
+   { id:"a22", code:"L2-22", dept:"Visual", name:"Pack & Packaging",         job:"Pack architecture, dielines, label layouts.",                                                          model:"gptimage",     cr:18, status:"live" },
+-  { id:"a24", code:"L2-24", dept:"Visual", name:"Brand Consistency QA",     job:"Vision check — scores every visual against BIO + asset rules.",                                       model:"gemFlash",    cr:2,  status:"live" },
++  { id:"a24", code:"L2-24", dept:"Visual", name:"Brand Consistency QA",     job:"Vision check — scores every visual against BIO + asset rules.",                                       model:"gemFlash38",    cr:2,  status:"live" },
+   { id:"a41", code:"L2-41", dept:"Visual", name:"Social Post Designer",     job:"Instagram squares, stories, carousels, LinkedIn graphics, TikTok thumbnails — by platform spec.",     model:"fluxSchnell",     cr:8,  status:"live" },
+   { id:"a42", code:"L2-42", dept:"Visual", name:"Ad Creative",              job:"Display banners + paid social ads, sized per platform spec.",                                          model:"flux",     cr:9,  status:"live" },
+   { id:"a43", code:"L2-43", dept:"Visual", name:"OOH / Print",              job:"Billboard layouts, magazine ads, posters — in print-ready formats.",                                  model:"gptimage",     cr:12, status:"live" },

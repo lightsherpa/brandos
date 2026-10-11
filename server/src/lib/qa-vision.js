@@ -19,7 +19,8 @@ const QA_SPEC = {
   payload: {
     name: "a24 Brand Consistency QA",
     modelRouting: {
-      primary: "openrouter/google/gemini-2.5-flash",
+      primary: "openrouter/google/gemini-3.8-flash",
+      fallback: "openrouter/google/gemini-2.5-flash",
       reason: "high-volume vision QA; cheap + reliable JSON verdicts",
     },
     cr_estimate: 1,
@@ -73,7 +74,8 @@ export async function visionQa({ assetUrl, bio, telemetry = {} }) {
       spec: QA_SPEC,
       system: QA_SYSTEM,
       messages: [{ role: "user", content: userContent }],
-      maxTokens: 300,
+      // Gemini 3.8 Flash exhausted 300 tokens before closing its JSON verdict.
+      maxTokens: 1000,
       telemetry: { operationKey: "specialist.text", feature: "qa.vision", ...telemetry },
     })) {
       if (ev.type === "token")      text += ev.text;

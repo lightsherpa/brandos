@@ -1,0 +1,63 @@
+{
+ "agent_id": "a07",
+ "name": "The Namer",
+ "dept": "Concept",
+ "job": "Names for products, lines, campaigns \u2014 with rationale.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "opus",
+ "context": {
+  "bio_slices": [
+   "positioning",
+   "audience",
+   "voice",
+   "refusals",
+   "facts",
+   "competitors",
+   "visual.imagery"
+  ],
+  "pointers": [
+   "bio.examples.campaigns",
+   "competitive_snapshot"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a07"
+ ],
+ "output_schema_ref": "schemas/concept_set.schema.json",
+ "checks": [
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-CLAIM",
+  "D-SCHEMA",
+  "D-COUNT",
+  "J-VOICE",
+  "J-STRAT",
+  "J-DISTINCT"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 7,
+  "max_output_tokens": 2000
+ }
+}

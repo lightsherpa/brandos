@@ -1,0 +1,278 @@
+{
+ "version": "0.1",
+ "order": "deterministic first (cheap, parallel); judges only if no hard deterministic fail",
+ "checks": [
+  {
+   "id": "D-SCHEMA",
+   "kind": "deterministic",
+   "applies_to": "all",
+   "severity": "hard",
+   "pass": "Output validates against contract.output_schema (ajv)",
+   "remediation": "Your output failed schema validation: {errors}. Return the same content as valid JSON matching the schema; fix only the listed paths."
+  },
+  {
+   "id": "D-LEN",
+   "kind": "deterministic",
+   "applies_to": "copy, web",
+   "severity": "hard",
+   "pass": "Every string \u2264 its maxLength / field limit",
+   "remediation": "'{field}' is {n} chars; limit {max}. Shorten to \u2264{max} keeping the same message."
+  },
+  {
+   "id": "D-LEN-PLATFORM",
+   "kind": "deterministic",
+   "applies_to": "a16",
+   "severity": "hard",
+   "pass": "hook \u2264125 (IG) / \u2264210 (LinkedIn); total \u22642200 IG, \u22643000 LI, \u2264150 rec TikTok, \u2264280 X",
+   "remediation": "{platform} {part} is {n} chars (limit {max}). Cut to fit; keep the hook first."
+  },
+  {
+   "id": "D-FORBID",
+   "kind": "deterministic",
+   "applies_to": "all text",
+   "severity": "hard",
+   "pass": "No token/phrase from bio.voice.forbidden_words (case/accents-insensitive, word boundary, lemma list)",
+   "remediation": "'{word}' is on the brand's never-say list (BIO rule {rule_id}). Replace it with a word that keeps the meaning; do not use synonyms listed in the same rule."
+  },
+  {
+   "id": "D-REFUSAL",
+   "kind": "deterministic",
+   "applies_to": "all",
+   "severity": "hard",
+   "pass": "No content matching message_spec.refusals / bio.refusals patterns (regex + keyword list per refusal)",
+   "remediation": "This output does what the brief refuses: '{refusal}'. Remove {evidence}."
+  },
+  {
+   "id": "D-URGENCY",
+   "kind": "deterministic",
+   "applies_to": "copy",
+   "severity": "hard",
+   "pass": "No fake-urgency patterns (ES/EN list: 'solo hoy','\u00faltima oportunidad','limited time','hurry','!!') unless brief has dated offer",
+   "remediation": "Fake urgency '{match}' is not allowed (no dated offer in the brief). Remove it or replace with the real time cue from the Message Spec ({cta})."
+  },
+  {
+   "id": "D-SUPERLATIVE",
+   "kind": "deterministic",
+   "applies_to": "copy",
+   "severity": "hard",
+   "pass": "No 'best/#1/only/mejor/\u00fanico' claims without proof id",
+   "remediation": "Unprovable superlative '{match}'. Remove it or replace with a specific fact from proof[]."
+  },
+  {
+   "id": "D-CLAIM",
+   "kind": "deterministic",
+   "applies_to": "copy, strategy, concept",
+   "severity": "hard",
+   "pass": "Every number, date, place, price, named person/award in output appears in proof[] / bio.facts / brief (entity match) and proof_ids set",
+   "remediation": "'{entity}' isn't in the brand facts or brief. Remove it or use a fact from: {available_facts}."
+  },
+  {
+   "id": "D-BAIT",
+   "kind": "deterministic",
+   "applies_to": "a16",
+   "severity": "hard",
+   "pass": "No engagement bait patterns ('tag a friend','comenta S\u00cd') unless bio.voice.do allows",
+   "remediation": "Engagement bait '{match}' is off-policy. Replace with the CTA from the Message Spec."
+  },
+  {
+   "id": "D-EMOJI",
+   "kind": "deterministic",
+   "applies_to": "a16",
+   "severity": "soft",
+   "pass": "emoji count \u2264 bio.voice.emoji_policy.max (default 0 if policy=none)",
+   "remediation": "{n} emoji used; brand allows {max}. Remove extras."
+  },
+  {
+   "id": "D-HASHTAG",
+   "kind": "deterministic",
+   "applies_to": "a16",
+   "severity": "soft",
+   "pass": "hashtag count \u2264 bio policy per platform; no banned tags",
+   "remediation": "{n} hashtags; limit {max}. Keep the most specific."
+  },
+  {
+   "id": "D-ORTHO",
+   "kind": "deterministic",
+   "applies_to": "text ES",
+   "severity": "hard",
+   "pass": "ES: LanguageTool/hunspell 0 errors on accents, \u00bf\u00a1 pairing",
+   "remediation": "Spelling/orthography: {errors}. Fix only these."
+  },
+  {
+   "id": "D-CAPS",
+   "kind": "deterministic",
+   "applies_to": "a14",
+   "severity": "soft",
+   "pass": "No word \u22654 letters in ALL CAPS (except acronyms in BIO)",
+   "remediation": "Remove ALL CAPS from '{word}'."
+  },
+  {
+   "id": "D-PUNCT",
+   "kind": "deterministic",
+   "applies_to": "a14, a16",
+   "severity": "soft",
+   "pass": "No '!!', '??', or more than 1 '!' per item",
+   "remediation": "Reduce exclamation marks to at most one."
+  },
+  {
+   "id": "D-DUP",
+   "kind": "deterministic",
+   "applies_to": "a14, a37",
+   "severity": "soft",
+   "pass": "preheader \u2260 subject (token Jaccard <0.6); headline variants Jaccard <0.8",
+   "remediation": "'{a}' and '{b}' are near-duplicates. Rewrite '{b}' with a different angle."
+  },
+  {
+   "id": "D-COUNT",
+   "kind": "deterministic",
+   "applies_to": "a02, a06, a37",
+   "severity": "hard",
+   "pass": "Required counts (messages 1\u20133, territories =3, headlines \u226420 in 4 buckets)",
+   "remediation": "Expected {expected} {item}; got {n}."
+  },
+  {
+   "id": "D-PALETTE",
+   "kind": "deterministic",
+   "applies_to": "visual",
+   "severity": "hard",
+   "pass": "Top-5 dominant colours each within \u0394E2000 \u226410 of a BIO palette colour or neutral (k-means)",
+   "remediation": "Colour {hex} ({pct}% of image) is off-palette. Regenerate with palette {palette_hex} and 'no {colour_name}'."
+  },
+  {
+   "id": "D-OCR",
+   "kind": "deterministic",
+   "applies_to": "visual with overlay_text",
+   "severity": "hard",
+   "pass": "OCR(text) == overlay_text (normalized; accents must match)",
+   "remediation": "Rendered text reads '{ocr}', expected '{overlay_text}'. Regenerate with the exact string in quotes, or drop the overlay and let the renderer add it."
+  },
+  {
+   "id": "D-SIZE",
+   "kind": "deterministic",
+   "applies_to": "visual",
+   "severity": "hard",
+   "pass": "width\u00d7height matches platform spec",
+   "remediation": "Size {w}\u00d7{h}; required {spec}. Regenerate at {spec}."
+  },
+  {
+   "id": "D-NOLOGO",
+   "kind": "deterministic",
+   "applies_to": "visual",
+   "severity": "hard",
+   "pass": "No logo/wordmark detected unless supplied asset (vision OCR + logo detector)",
+   "remediation": "An invented logo/text mark appears. Regenerate with 'no logos, no text'."
+  },
+  {
+   "id": "D-ALT",
+   "kind": "deterministic",
+   "applies_to": "visual, web",
+   "severity": "hard",
+   "pass": "Every image has alt 5\u2013125 chars, not 'image of'",
+   "remediation": "Add alt text describing the image content (\u2264125 chars)."
+  },
+  {
+   "id": "D-RENDER",
+   "kind": "deterministic",
+   "applies_to": "web, email, deck",
+   "severity": "hard",
+   "pass": "Renderer returns 0 errors (MJML strict), 0 unresolved tokens, screenshot non-blank, no horizontal overflow at 375px",
+   "remediation": "Render failed: {error}. Fix the block field {path}."
+  },
+  {
+   "id": "D-CONTRAST",
+   "kind": "deterministic",
+   "applies_to": "web, email",
+   "severity": "hard",
+   "pass": "WCAG AA: text/bg contrast \u22654.5 (\u22653 for \u226524px)",
+   "remediation": "Contrast {ratio} on '{selector}' < {min}. Use token {suggested}."
+  },
+  {
+   "id": "D-LINKS",
+   "kind": "deterministic",
+   "applies_to": "web, email",
+   "severity": "soft",
+   "pass": "All hrefs absolute https, CTA url == message_spec.cta.url",
+   "remediation": "Link '{href}' invalid; use {cta.url}."
+  },
+  {
+   "id": "D-SOURCE",
+   "kind": "deterministic",
+   "applies_to": "research",
+   "severity": "hard",
+   "pass": "Every external claim has url+quote+fetched_at",
+   "remediation": "Claim '{claim}' lacks a source. Add one from the provided pages or remove it."
+  },
+  {
+   "id": "D-FRESH",
+   "kind": "deterministic",
+   "applies_to": "a54",
+   "severity": "hard",
+   "pass": "Sources \u226430 days old",
+   "remediation": "Source {url} is {age} days old; replace or drop."
+  },
+  {
+   "id": "D-DURATION",
+   "kind": "deterministic",
+   "applies_to": "motion",
+   "severity": "hard",
+   "pass": "Total duration within spec \u00b10.5s",
+   "remediation": "Duration {d}s; required {spec}s."
+  },
+  {
+   "id": "J-VOICE",
+   "kind": "judge",
+   "applies_to": "copy, concept, QA",
+   "severity": "soft\u2192hard if \u22642",
+   "pass": "Judge (Haiku 5.5) scores voice 1\u20135 vs 3 BIO examples; pass \u22654 (demo \u22653)",
+   "remediation": "Voice drift: {evidence}. Match BIO example rhythm: {example_snippet}. Change {spans} only."
+  },
+  {
+   "id": "J-STRAT",
+   "kind": "judge",
+   "applies_to": "strategy, copy",
+   "severity": "soft",
+   "pass": "Judge scores 'answers goal & SMP' 1\u20135; pass \u22653",
+   "remediation": "The output doesn't carry message {message_id} / goal '{goal}'. Make {span} do that."
+  },
+  {
+   "id": "J-DISTINCT",
+   "kind": "judge",
+   "applies_to": "a06, variants",
+   "severity": "soft",
+   "pass": "Judge: variants differ on declared axis, not just wording; pass yes",
+   "remediation": "Variants {a} and {b} are the same idea. Make {b} differ on {axis}."
+  },
+  {
+   "id": "J-VISION",
+   "kind": "judge",
+   "applies_to": "visual, rendered web/email/deck",
+   "severity": "hard if brand-breaking",
+   "pass": "Vision judge (Gemini 3.8 Flash) on screenshot: imagery rules, logo clear space, hierarchy, no artefacts; 1\u20135 pass \u22653",
+   "remediation": "Visual issue: {issue} at {region}. {fix}."
+  },
+  {
+   "id": "J-VOICE-IMG",
+   "kind": "judge",
+   "applies_to": "a41",
+   "severity": "soft",
+   "pass": "Image mood matches visual.imagery do/don't (1\u20135 \u22653)",
+   "remediation": "Image reads '{observed}', brand imagery is '{rule}'. Regenerate with {direction}."
+  },
+  {
+   "id": "J-GROUNDED",
+   "kind": "judge",
+   "applies_to": "research",
+   "severity": "hard",
+   "pass": "Judge: every synthesized statement supported by quoted sources",
+   "remediation": "Unsupported statement '{s}'. Remove or cite."
+  },
+  {
+   "id": "J-CLAIM-RISK",
+   "kind": "judge",
+   "applies_to": "copy (prod)",
+   "severity": "escalate",
+   "pass": "Judge flags health/legal/comparative claims",
+   "remediation": "Possible regulated claim '{s}' \u2192 escalate to human; don't auto-fix."
+  }
+ ]
+}

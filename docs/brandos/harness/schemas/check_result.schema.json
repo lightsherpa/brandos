@@ -1,0 +1,86 @@
+{
+ "type": "object",
+ "required": [
+  "run_id",
+  "output_id",
+  "pass_no",
+  "results",
+  "verdict"
+ ],
+ "properties": {
+  "run_id": {
+   "type": "string"
+  },
+  "output_id": {
+   "type": "string"
+  },
+  "pass_no": {
+   "type": "integer",
+   "minimum": 0,
+   "maximum": 3
+  },
+  "results": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "kind",
+     "status"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "kind": {
+      "enum": [
+       "deterministic",
+       "judge"
+      ]
+     },
+     "status": {
+      "enum": [
+       "pass",
+       "fail",
+       "warn",
+       "skip",
+       "error"
+      ]
+     },
+     "severity": {
+      "enum": [
+       "hard",
+       "soft"
+      ]
+     },
+     "evidence": {
+      "type": "string"
+     },
+     "location": {
+      "type": "string"
+     },
+     "remediation": {
+      "type": "string"
+     },
+     "score": {
+      "type": [
+       "number",
+       "null"
+      ]
+     }
+    }
+   }
+  },
+  "verdict": {
+   "enum": [
+    "pass",
+    "fix",
+    "escalate"
+   ]
+  },
+  "cost_usd": {
+   "type": "number"
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

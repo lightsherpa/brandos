@@ -1,0 +1,58 @@
+{
+ "agent_id": "a51",
+ "name": "Voiceover Script",
+ "dept": "Motion & Sound",
+ "job": "VO scripts with timing, intonation cues, brand-voice fit.",
+ "tier": "standard",
+ "status": "soon",
+ "runnable_today": false,
+ "model_key": "sonnet",
+ "context": {
+  "bio_slices": [
+   "voice",
+   "visual.palette",
+   "visual.imagery",
+   "refusals",
+   "motion",
+   "sonic"
+  ],
+  "pointers": [
+   "bio.examples.motion"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a51"
+ ],
+ "output_schema_ref": "schemas/motion_spec.schema.json",
+ "checks": [
+  "D-SCHEMA",
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-DURATION",
+  "J-VOICE"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 6,
+  "max_output_tokens": 2000
+ }
+}

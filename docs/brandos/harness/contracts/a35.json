@@ -1,0 +1,63 @@
+{
+ "agent_id": "a35",
+ "name": "The Mood Board",
+ "dept": "Concept",
+ "job": "Imagery tiles + palette + type composed into a real mood board \u2014 the way an art director walks a CMO through direction.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "fluxSchnell",
+ "context": {
+  "bio_slices": [
+   "positioning",
+   "audience",
+   "voice",
+   "refusals",
+   "facts",
+   "competitors",
+   "visual.imagery"
+  ],
+  "pointers": [
+   "bio.examples.campaigns",
+   "competitive_snapshot"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a35"
+ ],
+ "output_schema_ref": "schemas/concept_set.schema.json",
+ "checks": [
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-CLAIM",
+  "D-SCHEMA",
+  "D-COUNT",
+  "J-VOICE",
+  "J-STRAT",
+  "J-DISTINCT"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 14,
+  "max_output_tokens": 2000
+ }
+}
