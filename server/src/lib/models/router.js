@@ -31,6 +31,7 @@ import {
   recordApiUsage,
 } from "../api-usage.js";
 import { resolveTextTokenBudget } from "./token-budget.js";
+import { resolveCompletionCost } from "./model-prices.js";
 
 /* Browser-requested overrides are deliberately finite. Specs may still use
    other routes as their server-authored primary, but clients cannot turn the
@@ -137,12 +138,12 @@ async function* streamRoute({ route, spec, system, messages, maxTokens, telemetr
     let recorded = false;
     for await (const event of adapter({ model, system, messages, maxTokens: budget, signal })) {
       if (event.type === "done") {
-        const estimated = event.usage?.cost_usd == null ? calculateTokenCost(event.usage || {}, rate) : null;
+        const priced = resolveCompletionCost(event.usage || {}, rate, event.usage?.model || model);
         event.usage = {
           ...(event.usage || {}),
           ...(telemetry.fallbackFrom ? { fallback_from: telemetry.fallbackFrom } : {}),
-          cost_usd: event.usage?.cost_usd ?? estimated,
-          cost_source: event.usage?.cost_usd != null ? "provider_reported" : estimated != null ? "rate_card_estimate" : "unpriced",
+          cost_usd: priced.cost_usd,
+          cost_source: priced.cost_source,
           rate_card_id: rate?.id || null,
         };
         await recordApiUsage(completionTelemetryEvent({
