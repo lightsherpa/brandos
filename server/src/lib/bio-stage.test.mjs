@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bioStage, productionBlocker } from "./bio-stage.js";
+import { readFileSync } from "node:fs";
+import { bioStage, productionBlocker, selectProductionBio } from "./bio-stage.js";
 
 const now = new Date("2026-10-03T12:00:00Z");
 const future = "2027-01-01T00:00:00Z";
@@ -17,9 +18,29 @@ test("stage follows the agreed journey", () => {
   assert.equal(bioStage({ certified: true, cert_valid_until: past }, false, now), "expired");
 });
 
-test("self-certification alone never unlocks production or analysis", () => {
+test("self-certification below 80 never unlocks production", () => {
   assert.equal(productionBlocker({ self_certified: true }, now).code, "BIO_NOT_CERTIFIED");
+  assert.equal(productionBlocker({ self_certified: true, score: 79 }, now).code, "BIO_NOT_CERTIFIED");
   assert.equal(productionBlocker(null, now).code, "BIO_NOT_CERTIFIED");
+});
+
+test("specialist runs use the newest certified BIO, including a self-cert at or above 80", () => {
+  const v1 = { version: 1, certified: true, score: 90 };
+  const v2 = { version: 2, certified: false, self_certified: true, score: 82 };
+  const low = { version: 3, self_certified: true, score: 70 };
+  const expired = { version: 4, certified: true, cert_valid_until: past };
+  const awaiting = { version: 5, certified: true, client_acceptance_required: true };
+  assert.equal(productionBlocker({ self_certified: true, score: 80, version: 2 }, now), null);
+  assert.equal(selectProductionBio([v1, v2], now).version, 2);
+  assert.equal(selectProductionBio([v1, low], now).version, 1);
+  assert.equal(selectProductionBio([low], now), null);
+  assert.equal(selectProductionBio([v2], now).version, 2);
+  assert.equal(selectProductionBio([v1, expired], now).version, 1);
+  assert.equal(selectProductionBio([v1, v2, awaiting], now).version, 5);
+  assert.equal(productionBlocker(awaiting, now).code, "BIO_AWAITING_ACCEPTANCE");
+  const source = readFileSync(new URL("./load-brand-bio.js", import.meta.url), "utf8");
+  assert.match(source, /selectProductionBio\(rows \|\| \[\]\)/);
+  assert.match(source, /function loadBioForRun/);
 });
 
 test("unchanged Creative Director certification unlocks directly", () => {

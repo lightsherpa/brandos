@@ -4,7 +4,9 @@
 //
 // Two tiers, per the two-stage certification model:
 //   • production (specialist runs, human craft)  → requireCertified: reads the
-//     highest CERTIFIED version; throws BIO_NOT_CERTIFIED (409) otherwise.
+//     newest certified version. Creative Director certification qualifies at
+//     any score; a self-certified version qualifies only at score >= 80.
+//     Throws BIO_NOT_CERTIFIED (409) otherwise.
 //   • briefing (sharpener, brief authoring)       → requireSelfCertified: reads
 //     the highest SELF-certified version; throws NOT_SELF_CERTIFIED (409).
 //   • read-only (Brandolph Q&A)                   → neither flag: latest version;
@@ -18,7 +20,8 @@
 
 import {bioIntegrityError} from "./brand-source-integrity.js";
 import { supabaseAdmin } from "./supabase.js";
-import { productionBlocker } from "./bio-stage.js";
+import { productionBlocker, selectProductionBio } from "./bio-stage.js";
+import { SELF_CERT_MIN_SCORE } from "./self-cert-floor.js";
 import { normalizeBio } from "./bio-schema.js";
 
 function bioError(code, message, status = 409) {
@@ -67,29 +70,40 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   const integrity=latest&&bioIntegrityError(latest,brandRow);
   if(integrity)throw bioError(integrity.code,integrity.error);
   // Resolve the gated BIO version.
-  let bioQuery = supabaseAdmin
-    .from("bios")
-    .select("id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at, client_acceptance_required, client_accepted_at, client_accepted_by")
-    .eq("brand_id", brandRow.id);
+  const bioColumns = "id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at, client_acceptance_required, client_accepted_at, client_accepted_by";
+  let bioRow;
+  let bioErr;
   if (requireCertified) {
-    // Production gate also honors the cert TTL (P3 M1): an expired certification
-    // no longer serves. Null cert_valid_until = never-expires (legacy certs).
-    bioQuery = bioQuery.eq("certified", true)
-      .or(`cert_valid_until.is.null,cert_valid_until.gt.${new Date().toISOString()}`);
-  } else if (requireSelfCertified) {
-    bioQuery = bioQuery.eq("self_certified", true);
+    // Newest CD certification, or a newer self-cert at the floor. Expired
+    // rows are skipped in selectProductionBio. Acceptance still blocks.
+    const { data: rows, error } = await supabaseAdmin
+      .from("bios")
+      .select(bioColumns)
+      .eq("brand_id", brandRow.id)
+      .or(`certified.eq.true,and(self_certified.eq.true,score.gte.${SELF_CERT_MIN_SCORE})`)
+      .order("version", { ascending: false })
+      .limit(20);
+    bioErr = error;
+    bioRow = selectProductionBio(rows || []);
+  } else {
+    let bioQuery = supabaseAdmin
+      .from("bios")
+      .select(bioColumns)
+      .eq("brand_id", brandRow.id);
+    if (requireSelfCertified) bioQuery = bioQuery.eq("self_certified", true);
+    const result = await bioQuery
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    bioRow = result.data;
+    bioErr = result.error;
   }
-
-  const { data: bioRow, error: bioErr } = await bioQuery
-    .order("version", { ascending: false })
-    .limit(1)
-    .maybeSingle();
   if (bioErr) throw new Error(`BIO lookup failed: ${bioErr.message}`);
 
   if (!bioRow) {
     let err;
     if (requireCertified) {
-      err = bioError("BIO_NOT_CERTIFIED", `BIO for brand ${brandRow.id} is not certified by a Creative Director`);
+      err = bioError("BIO_NOT_CERTIFIED", `BIO for brand ${brandRow.id} has no certified version a run can use`);
     } else if (requireSelfCertified) {
       err = bioError("NOT_SELF_CERTIFIED", `BIO for brand ${brandRow.id} has not been self-certified`);
     } else {
@@ -128,8 +142,9 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
 
 /**
  * Production gate — specialist runs and human craft MUST go through this.
- * Reads the highest human-certified BIO version; throws BIO_NOT_CERTIFIED
- * (409) if the brand has no certified version. This is the moat contract.
+ * Reads the newest certified BIO: Creative Director certification, or a
+ * self-certified version whose score is at least 80. Throws
+ * BIO_NOT_CERTIFIED (409) when neither exists. This is the moat contract.
  */
 export function loadBioForRun({ workspaceId, brandId }) {
   return loadBrandBio({ workspaceId, brandId, requireCertified: true });
