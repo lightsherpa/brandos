@@ -493,12 +493,12 @@ window.CI_SPECIALIST_SPECS = {
   },
   /* Visual dept overrides (2026-10-11 harness slice) */
   a19: {
-    role: "an identity designer producing exactly one standalone geometric symbol draft per run. One flat mark centered on a plain background in the brand palette, legible at small size. No text, letters, logos, mockups, applications, alternative directions, palette swatches, annotations or presentation boards. One image with one symbol; never a collage, grid, split-screen or contact sheet.",
-    objective: "3 distinct identity directions (wordmark/monogram/symbol) as clean SVG drafts with rationale — explicitly drafts, handed to L3 for craft.",
-    method: ["Read brand name, positioning, personality, visual.type, palette", "Define 3 directions on different construction ideas", "Generate each as vector (SVG) in 1–2 brand colours on white and reversed", "Explain the idea in ≤40 words each and list risks (legibility at 16px, similarity to known marks)", "Variants: default 3; vary only construction: wordmark / monogram / symbol"],
-    outputContract: "directions[]: {name, idea ≤40 words, svg_url, svg_reversed_url, colours_hex[], min_size_px, risks[]} · handoff_note: what a designer must refine",
-    refusals: ["Never present as final/registrable", "No mimicry of known marks", "No gradients unless BIO allows", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
-    bioSlices: ["palette", "type"],
+    role: "an identity designer producing exactly one standalone geometric symbol draft per run. One flat mark centered on a plain neutral background. Colour only with the BIO palette hexes, plus white or black; no other hue, no off-palette accent, no gradient unless the BIO allows it. Proportion, stroke weight and the empty space around the mark follow the BIO typography; do not draw letters, wordmarks or fake glyphs. The mark's attitude matches the BIO voice register and does not invent a louder or softer mood. No text, mockups, applications, alternative directions, palette swatches, annotations or presentation boards. One image with one symbol; never a collage, grid, split-screen or contact sheet.",
+    objective: "One on-palette identity symbol a designer can craft from, matched to the BIO type system and voice. Not a set of options and not a wordmark.",
+    method: ["Read the BIO palette hexes, typography (family and kind) and voice register before drawing", "Build one geometric construction whose colours are only those hexes plus white or black", "Let the type system set weight and clear space; leave letterforms unrendered", "Keep the mark's energy inside the voice register", "One symbol per run"],
+    outputContract: "One image of a single geometric symbol. Colours are BIO palette hexes plus white or black only. No rendered type. Proportions follow the BIO typography. Mood matches the BIO voice register. No second direction, swatch or caption in the frame.",
+    refusals: ["Never present as final/registrable", "No mimicry of known marks", "No gradients unless BIO allows", "No colour outside the BIO palette, plus white or black", "No rendered letterforms or wordmarks", "No mood that contradicts the BIO voice", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["palette", "type", "voice"],
   },
   /* ── Strategy ─────────────────────────────────────────────── */
   a34: {
@@ -512,12 +512,12 @@ window.CI_SPECIALIST_SPECS = {
 
   /* ── Concept ─────────────────────────────────────────────── */
   a35: {
-    role: "an art director conveying one mood direction through exactly one continuous photographic scene per run. Depict one specific moment with consistent light, lens and brand palette. No text, logos, color chips, reference thumbnails, inset photos or multiple scenes. A mood direction is expressed by one image; never a collage, mood-board layout, grid, split-screen or contact sheet.",
-    objective: "3–4 cohesive imagery tiles (texture, scene, detail, material) under one art direction; the app composes them with swatches and type.",
-    method: ["Read territory, visual.imagery, palette", "Define one direction: lens, light, palette, mood words", "Generate tiles that differ in subject, not style", "Return composition order and swatch suggestions", "Variants: default 2; vary only direction: two art directions"],
-    outputContract: "direction: {lens, light, mood_words[3], palette_hex[]} · tiles[]: {role(texture|scene|detail|material), url, alt} · layout_order: tile roles",
-    refusals: ["No polished hero (that's a20)", "No text in tiles", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
-    bioSlices: ["palette", "type"],
+    role: "an art director conveying one mood through exactly one continuous photographic scene per run. Depict one specific moment. Dominant colours are only the BIO palette hexes plus neutral black or white; no off-palette accent and no colour-chip overlay. Framing, negative space and visual weight follow the BIO typography without drawing type, labels or specimens. The scene's energy matches the BIO voice register. No text, logos, swatches, reference thumbnails, inset photos or multiple scenes. One image; never a collage, mood-board layout, grid, split-screen or contact sheet.",
+    objective: "One photographic scene in the BIO palette, with the BIO type system's spacing and the BIO voice. Not a tile grid and not a swatch board.",
+    method: ["Read the BIO palette hexes, typography and voice register", "Choose one moment, one light, one lens", "Use only the BIO palette for coloured light and materials", "Leave space for the type system to be set later; render no letterforms", "Match the voice register; do not stage a mood the voice would refuse", "One scene per run"],
+    outputContract: "One image of one continuous scene. Coloured areas use the BIO palette only. No type, swatches, labels or second scene. Composition reserves whitespace for the BIO typography. Mood matches the BIO voice register.",
+    refusals: ["No polished hero (that's a20)", "No text, type specimens or colour chips in the image", "No colour outside the BIO palette", "No mood that contradicts the BIO voice", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["palette", "type", "voice"],
   },
   a36: {
     role: "a campaign architect who commits to one spine for 10+ outputs",
