@@ -173,7 +173,7 @@ function shorten(s, max = 72) {
    Parses SSE from POST /api/runs/stream. The endpoint is the P3 kernel
    — composes the four-layer prompt, calls the routed model, runs Voice
    QA, and persists runs + outputs + qa_results + ledger rows. */
-async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, onToken, onProgress, onQa, onDone, onError, __body }) {
+async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, onToken, onReplace, onProgress, onQa, onDone, onError, __body }) {
   /* __body is the per-call escape hatch — any extra fields the caller
      wants to send (e.g. modelOverride for re-runs) get merged. */
   const body = { specialistId, briefText, brandId, briefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, ...(__body || {}) };
@@ -204,6 +204,7 @@ async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, 
       let data;
       try { data = JSON.parse(dataLine.slice(5).trim()); } catch { continue; }
       if (eventType === "token")         onToken && onToken(data);
+      else if (eventType === "replace")  onReplace && onReplace(data);
       else if (eventType === "progress") onProgress && onProgress(data);
       else if (eventType === "qa")       onQa && onQa(data);
       else if (eventType === "done")     onDone && onDone(data);
@@ -905,8 +906,9 @@ function TryPanel({ agent, onClose }) {
       specialistId: agent.id,
       briefText: brief.trim(),
       onToken:  ({ text }) => setOutput((o) => o + text),
+      onReplace: ({ text }) => setOutput(typeof text === "string" ? text : ""),
       onQa:     (data) => setQa(data),
-      onDone:   (data) => setDone(data),
+      onDone:   (data) => { if (typeof data?.output?.text === "string") setOutput(data.output.text); setDone(data); },
       onError:  ({ message }) => setError(message),
     });
     setRunning(false);
@@ -1923,6 +1925,11 @@ function BriefRunCanvas({ context, onClear, go }) {
           setNodes((prev) => prev.map((n) => n.id === "spec-" + agent.id
             ? { ...n, outputText: text, tokenCount } : n));
         },
+        onReplace: ({ text: next }) => {
+          text = typeof next === "string" ? next : text;
+          setNodes((prev) => prev.map((n) => n.id === "spec-" + agent.id
+            ? { ...n, outputText: text } : n));
+        },
         onProgress: ({ stage, pct }) => {
           /* Image specialists emit `progress` instead of `token`. We
              surface the stage label as the sub-line and drive the
@@ -2369,6 +2376,10 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
       brandId,
       onToken: ({ text: t }) => {
         text += t;
+        setRerunState((s) => ({ ...s, output: text }));
+      },
+      onReplace: ({ text: next }) => {
+        text = typeof next === "string" ? next : text;
         setRerunState((s) => ({ ...s, output: text }));
       },
       onProgress: ({ stage, pct }) => {

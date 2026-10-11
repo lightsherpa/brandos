@@ -9,7 +9,7 @@ const { BrandolphAvatar, BrandolphDot, Icon, LayerTag, Reveal, StatusPill, Strea
 
 /* Same SSE helper as portal-briefs's TryPanel — duplicated here to keep
    portal-brandolph self-contained. Parses /api/runs/stream events. */
-async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, onToken, onProgress, onQa, onDone, onError }) {
+async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, onToken, onReplace, onProgress, onQa, onDone, onError }) {
   const res = await apiFetch("/api/runs/stream", {
     method: "POST",
     body: JSON.stringify({ specialistId, briefText, brandId, briefId }),
@@ -36,6 +36,7 @@ async function streamSpecialistRun({ specialistId, briefText, brandId, briefId, 
       const eventType = eventLine?.slice(6).trim();
       let data; try { data = JSON.parse(dataLine.slice(5).trim()); } catch { continue; }
       if (eventType === "token")         onToken && onToken(data);
+      else if (eventType === "replace")  onReplace && onReplace(data);
       else if (eventType === "progress") onProgress && onProgress(data);
       else if (eventType === "qa")       onQa && onQa(data);
       else if (eventType === "done")     onDone && onDone(data);
@@ -486,6 +487,10 @@ function HomeCreate({ tweaks, go }) {
         onToken: ({ text: t }) => {
           text += t;
           /* Live-update the output so the user sees tokens stream in */
+          setAgentOutputs((prev) => ({ ...prev, [agent.id]: { ...(prev[agent.id] || {}), text } }));
+        },
+        onReplace: ({ text: next }) => {
+          text = typeof next === "string" ? next : text;
           setAgentOutputs((prev) => ({ ...prev, [agent.id]: { ...(prev[agent.id] || {}), text } }));
         },
         onQa:    (data) => { qa = data; setAgentOutputs((prev) => ({ ...prev, [agent.id]: { ...(prev[agent.id] || {}), qa } })); },

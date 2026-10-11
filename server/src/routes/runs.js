@@ -32,6 +32,7 @@ import { composeSpecialistPrompt } from "../lib/compose-specialist-prompt.js";
 import { composeImagePrompt } from "../lib/compose-image-prompt.js";
 import { resolveRunOutputLocale } from "../lib/locale.js";
 import { outputStatusForQa, voiceQa } from "../lib/qa-voice.js";
+import { mergeUsage, selfCorrectText } from "../lib/self-correction.js";
 import { visionQa } from "../lib/qa-vision.js";
 import { recordSignal } from "../lib/brandolph-memory.js";
 import { generateWithFallback as generateImage, isImageRoute, resolveImageRequest } from "../lib/models/fal-image.js";
@@ -98,8 +99,9 @@ app.post("/stream", requireAuth, async (c) => {
     .maybeSingle();
   if (specErr || !spec) return c.json({ error: `Spec ${specialistId} not active or not found` }, 400);
 
-  /* Brand + BIO — PRODUCTION gate. A specialist run may only read a
-     human-certified BIO; loadBioForRun throws BIO_NOT_CERTIFIED otherwise.
+  /* Brand + BIO — PRODUCTION gate. A specialist run reads the newest
+     certified BIO (Creative Director, or self-certified at score >= 80).
+     loadBioForRun throws BIO_NOT_CERTIFIED otherwise.
      This is the data-layer gate (the assembly runner is a client-side loop,
      so there is no server orchestrator to gate — every run re-checks here). */
   let brandBio;
@@ -342,6 +344,44 @@ app.post("/stream", requireAuth, async (c) => {
     let imageQaAssetUrl = null;      // fal CDN URL remains reachable by the vision provider
     let imageResult = null;          /* { asset_url, model, cost_usd, prompt_used, ... } */
 
+    const textTelemetry = {
+      operationKey: "specialist.text",
+      feature: "specialist.run",
+      parentRunId: runId,
+      workspaceId,
+      brandId: brandBio.brand.id,
+      actorUserId: userId,
+      specialistId,
+      breakerOverride: !!guardrailOverride,
+    };
+    const collectText = async (messages, { streamTokens }) => {
+      let text = "";
+      let nextUsage = null;
+      let model = null;
+      for await (const ev of streamCompletion({
+        spec: effectiveSpec,
+        system,
+        messages,
+        maxTokens: isDeliverableText
+          ? maxTokensForDeliverables({ count: Number(dlv.count), baseCr: effectiveSpec.payload?.cr_estimate ?? 8 })
+          : resolveTextTokenBudget({ spec: effectiveSpec }),
+        telemetry: textTelemetry,
+      })) {
+        if (ev.type === "token") {
+          text += ev.text;
+          if (streamTokens) await stream.writeSSE({ event: "token", data: JSON.stringify({ text: ev.text }) });
+        } else if (ev.type === "done") {
+          nextUsage = ev.usage;
+          model = ev.usage?.model || model;
+        } else if (ev.type === "error") {
+          const error = new Error(ev.message || "generation failed");
+          error.code = "generation_failed";
+          throw error;
+        }
+      }
+      return { text, usage: nextUsage, model };
+    };
+
     try {
       if (isImage) {
         /* Image pipeline — single asset, no token streaming */
@@ -419,90 +459,109 @@ app.post("/stream", requireAuth, async (c) => {
           }
         }
       } else {
-        /* Text pipeline — existing behaviour */
-        for await (const ev of streamCompletion({
-          spec: effectiveSpec,
-          system,
-          messages: [{ role: "user", content: effectiveBriefText }],
-          // Deliverable JSON is sized per item. Every other text run passes
-          // the resolved budget (spec max, credit estimate, 2000 floor, cap)
-          // so the adapter's own default cannot clip the run at 800 tokens.
-          maxTokens: isDeliverableText
-            ? maxTokensForDeliverables({ count: Number(dlv.count), baseCr: effectiveSpec.payload?.cr_estimate ?? 8 })
-            : resolveTextTokenBudget({ spec: effectiveSpec }),
-          telemetry: {
-            operationKey: "specialist.text",
-            feature: "specialist.run",
-            parentRunId: runId,
-            workspaceId,
-            brandId: brandBio.brand.id,
-            actorUserId: userId,
-            specialistId,
-            breakerOverride: !!guardrailOverride,
-          },
-        })) {
-          if (ev.type === "token") {
-            output += ev.text;
-            await stream.writeSSE({ event: "token", data: JSON.stringify({ text: ev.text }) });
-          } else if (ev.type === "done") {
-            usage = ev.usage;
-            modelUsed = ev.usage?.model;
-          } else if (ev.type === "error") {
-            await failRun(ev.message);
-            return;
-          }
+        /* Text pipeline. The first pass streams. A needs_review or failed
+           check revises the same agent at most twice, then QA runs again. */
+        try {
+          const first = await collectText([{ role: "user", content: effectiveBriefText }], { streamTokens: true });
+          output = first.text;
+          usage = first.usage;
+          modelUsed = first.model;
+        } catch (err) {
+          await failRun(err?.message || String(err));
+          return;
         }
       }
 
       /* 4. QA pass.
-            Text → a18 Voice QA (regex + Gemini Flash voice-drift).
+            Text → a18 Voice QA. needs_review or a failed check revises once
+            or twice against that check, then QA runs again. Never approve
+            a verdict that still fails or cannot be read.
             Image → a24 Brand Consistency QA (Gemini Flash vision) —
                     scores the rendered image against the BIO visual
                     rules. Verdict {passed, brand_match, violations}. */
       let qa;
       let deliverables = null;        /* set on the deliverable-text path */
+      const qaTelemetry = { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId };
       if (isImage) {
         const v = await visionQa({
           assetUrl: imageQaAssetUrl || imageResult?.asset_url,
           bio: brandBio.bio,
-          telemetry: { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId },
+          telemetry: qaTelemetry,
         });
         qa = { ...v, kind: "image_a24" };
-      } else if (isDeliverableText) {
-        /* One LLM call produced N items; QA each so a single weak post is
-           flagged individually instead of passing the whole batch. The QA
-           calls are independent (cheap tier) → run them concurrently so the
-           output card isn't stalled by N serial round-trips. (If a provider
-           rate limit ever bites at high count, cap concurrency here.) */
-        const parsed = parseDeliverables(output);
-        const dqResults = await Promise.all(
-          parsed.deliverables.map((d) => voiceQa({
-            body: d.body,
-            bio: brandBio.bio,
-            refusals: brandBio.refusals,
-            telemetry: { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId },
-          }))
-        );
-        deliverables = [];
-        let passedAll = true;
-        const qaUsage = { cost_usd: 0 };
-        parsed.deliverables.forEach((d, i) => {
-          const dq = dqResults[i];
-          if (!dq.passed) passedAll = false;
-          if (typeof dq.usage?.cost_usd === "number") qaUsage.cost_usd += dq.usage.cost_usd;
-          const { usage: _qaUsage, ...clientDq } = dq;
-          deliverables.push({ ...d, platform: dlv.platform || "generic", qa: clientDq, status: outputStatusForQa(dq) });
-        });
-        qa = { passed: passedAll, voice_match: null, violations: [], usage: qaUsage, malformed: parsed.malformed, deliverable_count: deliverables.length };
       } else {
-        qa = await voiceQa({
-          body: output,
-          bio: brandBio.bio,
-          refusals: brandBio.refusals,
-          telemetry: { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId },
+        let qaSpend = 0;
+        const reviewText = async (body) => {
+          if (!isDeliverableText) {
+            const verdict = await voiceQa({
+              body,
+              bio: brandBio.bio,
+              refusals: brandBio.refusals,
+              telemetry: qaTelemetry,
+            });
+            if (typeof verdict.usage?.cost_usd === "number") qaSpend += verdict.usage.cost_usd;
+            return verdict;
+          }
+          const parsed = parseDeliverables(body);
+          const dqResults = await Promise.all(
+            parsed.deliverables.map((d) => voiceQa({
+              body: d.body,
+              bio: brandBio.bio,
+              refusals: brandBio.refusals,
+              telemetry: qaTelemetry,
+            }))
+          );
+          const items = [];
+          let passedAll = true;
+          let needsReview = false;
+          const violations = [];
+          const qaUsage = { cost_usd: 0 };
+          parsed.deliverables.forEach((d, i) => {
+            const dq = dqResults[i];
+            if (!dq.passed || dq.status === "needs_review") passedAll = false;
+            if (dq.status === "needs_review") needsReview = true;
+            for (const violation of dq.violations || []) violations.push(violation);
+            if (typeof dq.usage?.cost_usd === "number") qaUsage.cost_usd += dq.usage.cost_usd;
+            const { usage: _qaUsage, ...clientDq } = dq;
+            items.push({ ...d, platform: dlv.platform || "generic", qa: clientDq, status: outputStatusForQa(dq) });
+          });
+          qaSpend += qaUsage.cost_usd;
+          return {
+            passed: passedAll && !needsReview,
+            status: needsReview ? "needs_review" : undefined,
+            voice_match: null,
+            violations,
+            usage: qaUsage,
+            malformed: parsed.malformed,
+            deliverable_count: items.length,
+            deliverables: items,
+          };
+        };
+        const initialQa = await reviewText(output);
+        const corrected = await selfCorrectText({
+          output,
+          qa: initialQa,
+          revise: async (instruction, passNo, previousOutput) => {
+            await stream.writeSSE({ event: "progress", data: JSON.stringify({ stage: "revising", pct: passNo }) });
+            const again = await collectText([
+              { role: "user", content: effectiveBriefText },
+              { role: "assistant", content: previousOutput },
+              { role: "user", content: instruction },
+            ], { streamTokens: false });
+            usage = mergeUsage(usage, again.usage);
+            if (again.model) modelUsed = again.model;
+            return again.text;
+          },
+          review: reviewText,
         });
+        if (corrected.output !== output) {
+          output = corrected.output;
+          await stream.writeSSE({ event: "replace", data: JSON.stringify({ text: output }) });
+        }
+        qa = { ...corrected.qa, usage: { ...(corrected.qa.usage || {}), cost_usd: qaSpend } };
+        deliverables = Array.isArray(qa.deliverables) ? qa.deliverables : null;
       }
-      const { usage: _clientHiddenQaUsage, ...clientQa } = qa;
+      const { usage: _clientHiddenQaUsage, deliverables: _items, ...clientQa } = qa;
       await stream.writeSSE({ event: "qa", data: JSON.stringify(clientQa) });
 
       /* 5. Prepare completion stats. Persistence is committed atomically below. */
@@ -633,8 +692,8 @@ app.post("/stream", requireAuth, async (c) => {
                   imagery: brandBio.bio?.visual?.imagery || [],
                 } }
             : isDeliverableText
-            ? { kind: "deliverables", type: dlv.type, part: dlv.part, platform: dlv.platform || "generic", deliverables, status: qa.passed ? "approved" : "flagged" }
-            : { text: output, status: qa.passed ? "approved" : "flagged" },
+            ? { kind: "deliverables", type: dlv.type, part: dlv.part, platform: dlv.platform || "generic", deliverables, status: outputStatusForQa(qa) }
+            : { text: output, status: outputStatusForQa(qa) },
           brand: {
             id: brandBio.brand.id,
             name: brandBio.brand.name,
