@@ -91,11 +91,13 @@ const MODEL_MAP = {
 };
 
 /* Fallback route per short key — used by router.js when the primary errors,
-   times out before the first token, or is rate-limited. Hero keys only. */
+   times out before the first token, or is rate-limited. Includes existing image-route fallbacks. */
 const FALLBACK_MAP = {
   sonnet55:   "anthropic/claude-sonnet-4-6",
   haiku55:    "anthropic/claude-haiku-4-5-20251001",
   gemFlash38: "openrouter/google/gemini-2.5-flash",
+  gptimage: "vendor/fal/flux-1.1-pro",
+  flux: "vendor/fal/flux-schnell",
 };
 
 function resolveRoute(shortKey) {
@@ -148,10 +150,10 @@ export function buildPayload(agent) {
     // Per-specialist override wins (hero crew contracts, 2026-10-11); else dept default.
     bioSlices: Array.isArray(override.bioSlices) ? override.bioSlices
             : agent.dept === "Copy"           ? ["voice", "forbidden"]
-            : agent.dept === "Visual"          ? ["palette", "type", "imagery"]
+            : agent.dept === "Visual"          ? ["palette", "type"]
             : agent.dept === "Concept"         ? ["positioning", "audience"]
             : agent.dept === "Web & UX"        ? ["voice", "palette", "type"]
-            : agent.dept === "Motion & Sound"  ? ["voice", "imagery"]
+            : agent.dept === "Motion & Sound"  ? ["voice", "palette"]
             : agent.dept === "Strategy"        ? ["positioning", "audience", "goals", "strategic"]
             : agent.dept === "Research & Ops"  ? ["positioning"]
             :                                    ["positioning", "voice"],

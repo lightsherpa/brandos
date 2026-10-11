@@ -20,14 +20,14 @@ const previousRoutes = {
   gptimage: "vendor/fal/gpt-image-2", flux: "vendor/fal/flux-1.1-pro", fluxSchnell: "vendor/fal/flux-schnell", recraft: "vendor/fal/recraft-v3",
   exa: "vendor/exa", elevenlabs: "vendor/elevenlabs", v0: "vendor/v0", gamma: "vendor/gamma", framer: "vendor/framer",
 };
-test("exactly eight hero rows upgrade; every non-hero primary and null fallback is preserved", () => {
+test("exactly eight hero rows upgrade; non-hero primaries stay unchanged with approved image fallbacks", () => {
   assert.deepEqual(rows.map(row=>row.specialist_id).sort(),Object.keys(baseline).sort());
   for (const row of rows) {
     const route = row.payload.modelRouting;
     if (heroes[row.specialist_id]) assert.deepEqual([route.primary, route.fallback], heroes[row.specialist_id]);
-    else { assert.equal(route.primary, previousRoutes[baseline[row.specialist_id]], row.specialist_id); assert.equal(route.fallback,null); }
+    else { assert.equal(route.primary, previousRoutes[baseline[row.specialist_id]], row.specialist_id); assert.equal(route.fallback, { gptimage: "vendor/fal/flux-1.1-pro", flux: "vendor/fal/flux-schnell" }[baseline[row.specialist_id]] ?? null, row.specialist_id); }
   }
-  assert.equal(rows.filter(row=>row.payload.modelRouting.fallback).length,8);
+  assert.equal(rows.filter(row=>row.payload.modelRouting.fallback).length, Object.keys(heroes).length + Object.values(baseline).filter(key => ["gptimage", "flux"].includes(key)).length);
 });
 test("--only selects eight rows and rejects invalid ids or arguments", () => {
   assert.equal(selectRows(["--only",Object.keys(heroes).join(",")]).length,8);
