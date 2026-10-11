@@ -88,6 +88,23 @@ async function collectVerdict(complete, { system, messages, telemetry }) {
   return { text, usage };
 }
 
+function malformedVerdict(localViolations, usage) {
+  return {
+    passed: false,
+    status: "needs_review",
+    voice_match: null,
+    violations: [...localViolations, "qa_malformed_verdict"],
+    usage,
+  };
+}
+
+function acceptedVerdict(verdict) {
+  if (!verdict || typeof verdict !== "object" || Array.isArray(verdict)) return null;
+  if (typeof verdict.passed !== "boolean") return null;
+  if (typeof verdict.voice_match !== "number" || !Number.isFinite(verdict.voice_match)) return null;
+  return verdict;
+}
+
 function unavailableVerdict(localViolations, error, usage) {
   const detail = String(error?.message || error || "").trim();
   return {
@@ -175,13 +192,12 @@ export async function voiceQa({ body, bio, refusals, telemetry = {}, complete = 
     }
   }
 
-  const violations = [...localViolations, ...(Array.isArray(llmVerdict.violations) ? llmVerdict.violations : [])];
-  const voiceMatch = typeof llmVerdict.voice_match === "number" ? llmVerdict.voice_match : 70;
-  const llmPassed = llmVerdict.passed !== false;
-
+  const shaped = acceptedVerdict(llmVerdict);
+  if (!shaped) return malformedVerdict(localViolations, usage);
+  const violations = [...localViolations, ...(Array.isArray(shaped.violations) ? shaped.violations.filter((v) => typeof v === "string") : [])];
   return {
-    passed: localViolations.length === 0 && llmPassed && voiceMatch >= 70,
-    voice_match: voiceMatch,
+    passed: localViolations.length === 0 && shaped.passed === true && shaped.voice_match >= 70,
+    voice_match: shaped.voice_match,
     violations,
     usage,
   };

@@ -84,6 +84,18 @@ test("qa_unavailable on the retry is needs_review and never approved", async () 
   assert.notEqual(outputStatusForQa(qa), "approved");
 });
 
+test("a malformed verdict is needs_review and never approved", async () => {
+  for (const text of ["{}", '{"violations":[]}', '{"passed":"yes","voice_match":90}']) {
+    const { complete } = completer([{ text }]);
+    const qa = await voiceQa({ body: "A quiet cup.", bio: { voice: {} }, refusals: [], complete });
+    assert.equal(qa.passed, false, text);
+    assert.equal(qa.status, "needs_review", text);
+    assert.ok(qa.violations.includes("qa_malformed_verdict"), text);
+    assert.equal(outputStatusForQa(qa), "needs_review", text);
+    assert.notEqual(outputStatusForQa(qa), "approved", text);
+  }
+});
+
 test("JSON wrapped in prose still parses", () => {
   const verdict = parseVoiceQaJson('Here you go: {"passed":true,"voice_match":72,"violations":[]} thanks');
   assert.equal(verdict.voice_match, 72);
