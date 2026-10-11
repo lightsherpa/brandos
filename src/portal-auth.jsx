@@ -406,7 +406,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
         <img className="auth-story__img" src="caastor/assets/login-story.png" alt="" />
         <div className="auth-story__veil" />
         <div className="auth-story__copy">
-          <div className="auth-story__eyebrow">CaastorOS</div>
+          <div className="auth-story__eyebrow">BrandOS</div>
           <h2 className="auth-story__head">Your brand,<br />made certifiable.</h2>
           <p className="auth-story__sub">Brandolph reads your brand into a living, human-certified BIO, assembles the crew, and lands the work on a canvas — with optional human finishing when the work needs it.</p>
           <div className="auth-story__dots"><span className="is-active" /><span /><span /><span /></div>
@@ -417,8 +417,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
       <div className="auth-panel">
         <form className="auth-form" onSubmit={submit}>
           <div className="auth-mark">
-            <img src="caastor/assets/logo-full-yellow.png" alt="CaastorOS" className="brand-logo" style={{height: 36, width:"auto", alignSelf:"center"}} />
-            <span style={{fontFamily:"var(--font-mono)", fontSize:17, fontWeight:600, color:"var(--c-ink)", letterSpacing:"0.01em"}}>OS</span>
+            <span style={{fontFamily:"'Instrument Sans', system-ui, sans-serif", fontSize: 22, fontWeight: 600, letterSpacing: "-0.04em", color: "var(--c-ink)"}}>BrandOS</span>
           </div>
           <h1 className="auth-title">{showToggle ? (isTeam ? "La Mesa creative team" : "Let’s build your brand.") : heading}</h1>
           {!showToggle && <p className="auth-sub">{mode === "forgot" ? "We’ll email you a reset link." : "Choose a new password."}</p>}
@@ -547,7 +546,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
             By continuing you agree to our <a href="#/terms">Terms</a> &amp; <a href="#/privacy">Privacy</a>.
           </div>
           <div className="auth-foot auth-foot--alt">
-            {isTeam ? "Not on the team?" : "Caastor team member?"}{" "}
+            {isTeam ? "Not on the team?" : "BrandOS team member?"}{" "}
             <a className="btn btn--link" style={{ fontSize: 12 }} href={isTeam ? "#/login" : "#/team/login"}>
               {isTeam ? "Client sign-in" : "Team sign-in"} →
             </a>

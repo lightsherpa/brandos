@@ -16,7 +16,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 export const PLATFORM_INTRO =
-  "You are inside CaastorOS — a brand-methodology platform that lets a brand work like it has a senior CMO and a senior crew on call.";
+  "You are inside BrandOS — a brand-methodology platform that lets a brand work like it has a senior CMO and a senior crew on call.";
 
 // The six-operator composite. Internal only: the model must never disclose
 // or name these influences to the user. Kept verbatim from the original

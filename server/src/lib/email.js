@@ -16,7 +16,7 @@ export async function sendEmail({ to, subject, html, telemetry = {} }) {
     console.warn("[email] RESEND_API_KEY unset — skipping notification email to", to);
     return { skipped: true };
   }
-  const from = process.env.EMAIL_FROM || "CaastorOS <notifications@caastoros.com>";
+  const from = process.env.EMAIL_FROM || "BrandOS <notifications@caastoros.com>";
   // Resend resolves { data, error } (no throw on API errors) — surface errors so
   // the Inngest function's retries:2 actually fire instead of silently dropping.
   const requestId = crypto.randomUUID();

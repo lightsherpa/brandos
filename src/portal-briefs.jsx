@@ -861,7 +861,7 @@ function composeSpecialistPrompt(a, isTeam, specArg) {
   const refusals = [...(window.CI_BRAND_REFUSALS || []), ...(spec.refusals || [])];
   const L = [];
   L.push("# PLATFORM");
-  L.push(`You are ${a.name} (${a.code}), an L2 specialist inside CaastorOS. Brandolph (L1) routed this brief to you. You do not chat — you return a deliverable a CMO would approve without a second pass.`);
+  L.push(`You are ${a.name} (${a.code}), an L2 specialist inside BrandOS. Brandolph (L1) routed this brief to you. You do not chat — you return a deliverable a CMO would approve without a second pass.`);
   L.push("");
   L.push("# BRAND CONTEXT  ·  from the Brand Intelligence Object");
   L.push(`Brand: ${brand.name} — ${brand.tagline}`);

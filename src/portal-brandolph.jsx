@@ -538,7 +538,7 @@ function HomeCreate({ tweaks, go }) {
         }}>
           <div style={{maxWidth: 760, margin: "0 auto", textAlign: "center"}}>
             <div className="eyebrow eyebrow--yellow" style={{marginBottom: 14, letterSpacing:"0.22em"}}>
-              CaastorOS · Brandolph
+              BrandOS · Brandolph
             </div>
             <h1 style={{
               fontFamily:"Georgia, serif", fontStyle:"italic",

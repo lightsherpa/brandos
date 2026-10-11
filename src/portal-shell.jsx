@@ -310,9 +310,7 @@ function WorkspaceSwitcher() {
 function Brandmark() {
   return (
     <div style={{display:"flex", alignItems:"baseline", gap: 5}}>
-      <img src="caastor/assets/logo-full-yellow.png" alt="CaastorOS"
-        className="brand-logo" style={{height: 34, width:"auto", display:"block", alignSelf:"center"}} />
-      <span style={{fontFamily:"var(--font-mono)", fontSize: 15, fontWeight: 600, color:"var(--c-ink)", letterSpacing:"0.01em"}}>OS</span>
+      <span style={{fontFamily:"'Instrument Sans', system-ui, sans-serif", fontSize: 21, fontWeight: 600, letterSpacing: "-0.04em", color: "var(--c-ink)"}}>BrandOS</span>
     </div>
   );
 }
@@ -690,14 +688,13 @@ function AppDock({ portal, currentRoute, onNav }) {
         className={"app-dock__logo" + (isHome ? "" : " app-dock__logo--linked")}
         onClick={isHome ? undefined : goHome}
         disabled={isHome}
-        title={isHome ? "CaastorOS" : t("a11y.backToDashboard")}
-        aria-label={isHome ? "CaastorOS" : t("a11y.backToDashboard")}
+        title={isHome ? "BrandOS" : t("a11y.backToDashboard")}
+        aria-label={isHome ? "BrandOS" : t("a11y.backToDashboard")}
       >
         {!isHome && (
           <span className="app-dock__back" aria-hidden="true"><Icon name="arrowLeft" size={13} /></span>
         )}
-        <img src="caastor/assets/logo-full-yellow.png" alt="CaastorOS" className="brand-logo" style={{height:30, width:"auto", flexShrink:0}} />
-        <span className="app-dock__os">OS</span>
+        <span style={{fontFamily:"'Instrument Sans', system-ui, sans-serif", fontSize: 21, fontWeight: 600, letterSpacing: "-0.04em"}}>BrandOS</span>
       </button>
       {portal !== "team" && <WorkspaceSwitcher />}
       <div className="app-dock__items">

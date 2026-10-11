@@ -225,7 +225,7 @@ app.post("/delegation", requireAuth, async (c) => {
       <h2 style="margin:0 0 8px;color:#071437;font-size:18px">You've been asked to fill in a brand section</h2>
       <p style="margin:0 0 16px;color:#4B5675;line-height:1.5">
         You've been invited to complete the <strong>${esc(chapter)}</strong> section of
-        <strong>${esc(brand.name || "a brand")}</strong>'s Brand Intelligence Object on CaastorOS.
+        <strong>${esc(brand.name || "a brand")}</strong>'s Brand Intelligence Object on BrandOS.
       </p>
       ${note ? `<p style="margin:0 0 16px;color:#4B5675;line-height:1.5">${esc(note)}</p>` : ""}
       <a href="${esc(link)}" style="display:inline-block;background:#F8C036;color:#071437;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:600">Open your section</a>

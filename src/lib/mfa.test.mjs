@@ -5,7 +5,7 @@ import { prepareTotpFactor } from "./mfa.js";
 
 test("uses an existing verified TOTP factor without enrolling another", async () => {
   let enrollCalls = 0;
-  const verified = { id:"verified", status:"verified", friendly_name:"CaastorOS" };
+  const verified = { id:"verified", status:"verified", friendly_name:"BrandOS" };
   const result = await prepareTotpFactor({
     listFactors: async () => ({ data:{ totp:[verified] }, error:null }),
     enroll: async () => { enrollCalls += 1; },
@@ -18,7 +18,7 @@ test("uses an existing verified TOTP factor without enrolling another", async ()
 test("removes an abandoned enrollment before generating a fresh QR factor", async () => {
   const removed = [];
   const result = await prepareTotpFactor({
-    listFactors: async () => ({ data:{ totp:[{ id:"stale", status:"unverified", friendly_name:"CaastorOS" }] }, error:null }),
+    listFactors: async () => ({ data:{ totp:[{ id:"stale", status:"unverified", friendly_name:"BrandOS" }] }, error:null }),
     unenroll: async ({ factorId }) => { removed.push(factorId); return { error:null }; },
     enroll: async () => ({ data:{ id:"fresh", totp:{ qr_code:"data:image/svg+xml,fresh", secret:"secret" } }, error:null }),
   });
@@ -30,7 +30,7 @@ test("removes an abandoned enrollment before generating a fresh QR factor", asyn
 test("finds abandoned TOTP factors exposed only through the aggregate list", async () => {
   const removed = [];
   await prepareTotpFactor({
-    listFactors: async () => ({ data:{ all:[{ id:"aggregate-stale", factor_type:"totp", status:"unverified", friendly_name:"CaastorOS" }], totp:[] }, error:null }),
+    listFactors: async () => ({ data:{ all:[{ id:"aggregate-stale", factor_type:"totp", status:"unverified", friendly_name:"BrandOS" }], totp:[] }, error:null }),
     unenroll: async ({ factorId }) => { removed.push(factorId); return { error:null }; },
     enroll: async () => ({ data:{ id:"fresh" }, error:null }),
   });

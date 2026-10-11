@@ -21,7 +21,7 @@
     "untitled": "Borrador sin título"
   },
   "_notes": {
-    "proper_nouns": "BIO, Brandolph, Caastor, CaastorOS, SLA and 'The Colony' are kept untranslated as product/proper nouns.",
+    "proper_nouns": "BIO, Brandolph, BrandOS, SLA and 'The Colony' are kept untranslated as product/proper nouns.",
     "nav.briefs": "'Briefs' is retained as the industry loanword commonly used by Spanish-speaking creative studios.",
     "nav.credits": "'Créditos' = the in-product spend currency (never raw API cost)."
   },
@@ -349,8 +349,8 @@
     "talkToUs": "Habla con nosotros",
     "starting": "Iniciando…",
     "upgrade": "Mejorar plan",
-    "note03": "Contacta con tu equipo de Caastor para configurar The Colony 🐜.",
-    "noteFail": "No se pudo iniciar la mejora ahora mismo: inténtalo de nuevo o contacta con tu equipo de Caastor.",
+    "note03": "Contacta con tu equipo de BrandOS para configurar The Colony 🐜.",
+    "noteFail": "No se pudo iniciar la mejora ahora mismo: inténtalo de nuevo o contacta con tu equipo de BrandOS.",
     "included": "Incluido",
     "backToCreate": "← Volver a Crear",
     "blurb": {
@@ -364,7 +364,7 @@
     "language": {
       "nav": "Idioma",
       "title": "Idioma",
-      "desc": "Elige el idioma en el que CaastorOS te habla. Se aplica en todas las pantallas y se guarda en tu cuenta.",
+      "desc": "Elige el idioma en el que BrandOS te habla. Se aplica en todas las pantallas y se guarda en tu cuenta.",
       "saveError": "No pudimos guardarlo en tu cuenta, pero el cambio se aplicó aquí."
     }
   },

@@ -23,7 +23,7 @@ export const sendNotificationEmail = inngest.createFunction(
     // Only render the CTA for a validated relative hash route on a known origin.
     const safeLink = /^#\/[\w/-]*$/.test(String(link || "")) ? link : null;
     const cta = appUrl && safeLink
-      ? `<a href="${appUrl}/${esc(safeLink)}" style="display:inline-block;background:#F8C036;color:#071437;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:600">Open in CaastorOS</a>`
+      ? `<a href="${appUrl}/${esc(safeLink)}" style="display:inline-block;background:#F8C036;color:#071437;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:600">Open in BrandOS</a>`
       : "";
     const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:480px">
       <h2 style="margin:0 0 8px;color:#071437;font-size:18px">${esc(title)}</h2>

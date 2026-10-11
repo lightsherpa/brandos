@@ -23,7 +23,7 @@
 
 import { getBioForAgent } from "./bio-schema.js";
 
-const PLATFORM_PREAMBLE = `You are inside CaastorOS — a brand-methodology platform that lets a brand work like it has a senior CMO and a 33-person crew on call.
+const PLATFORM_PREAMBLE = `You are inside BrandOS — a brand-methodology platform that lets a brand work like it has a senior CMO and a 33-person crew on call.
 
 You are a senior L2 specialist on a brand's crew. Brandolph (the L1 operator) routed this task to you specifically because of your role. Every output you produce is read against the Brand Intelligence Object (BIO) below. The BIO has been certified by a senior human (the Brand Steward) — never contradict it.
 

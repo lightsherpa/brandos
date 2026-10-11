@@ -344,8 +344,8 @@
     "talkToUs": "Talk to us",
     "starting": "Starting…",
     "upgrade": "Upgrade",
-    "note03": "Reach your Caastor team to set up The Colony 🐜.",
-    "noteFail": "Couldn't start the upgrade just now — please try again or contact your Caastor team.",
+    "note03": "Reach your BrandOS team to set up The Colony 🐜.",
+    "noteFail": "Couldn't start the upgrade just now — please try again or contact your BrandOS team.",
     "included": "Included",
     "backToCreate": "← Back to Create",
     "blurb": {
@@ -359,7 +359,7 @@
     "language": {
       "nav": "Language",
       "title": "Language",
-      "desc": "Choose the language CaastorOS speaks to you in. It applies across every surface and is saved to your account.",
+      "desc": "Choose the language BrandOS speaks to you in. It applies across every surface and is saved to your account.",
       "saveError": "We couldn't save this to your account, but the switch applied here."
     }
   },

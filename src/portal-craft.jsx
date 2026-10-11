@@ -26,7 +26,7 @@ function CraftMarketplace({ go, tier }) {
       <PageHeader
         eyebrow="L3 · The human creative team"
         title="Hand the work that needs hands."
-        sub="Brandolph drafts the first cut. Caastor's creative team — the same one that's served 50+ brands — finishes the work where craft is the difference. Same credit pool, same BIO, no fabricated middle."
+        sub="Brandolph drafts the first cut. BrandOS's creative team — the same one that's served 50+ brands — finishes the work where craft is the difference. Same credit pool, same BIO, no fabricated middle."
         right={<>
           <span style={{fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-dim)", letterSpacing:"0.06em"}}>
             Available: <strong style={{color:"var(--c-ink)", fontWeight: 600}}>{window.CI_CREDITS.balance} cr</strong>
@@ -364,7 +364,7 @@ function NotificationPrefs() {
       <p style={{fontSize:13, color:"var(--c-dim)", margin:"0 0 12px", lineHeight:1.5}}>
         How you hear about craft handoffs, BIO certifications, and completed work. Turn a channel off to stop receiving it there.
       </p>
-      <NotifToggleRow label="In-app" desc="A bell notification inside CaastorOS." on={prefs.in_app} onChange={(v) => set("in_app", v)} />
+      <NotifToggleRow label="In-app" desc="A bell notification inside BrandOS." on={prefs.in_app} onChange={(v) => set("in_app", v)} />
       <NotifToggleRow label="Email"  desc="A message to your account email."      on={prefs.email}  onChange={(v) => set("email", v)} />
       {!loaded && <div style={{fontSize:12, color:"var(--c-faint)", marginTop:10}}>Loading…</div>}
     </div>
@@ -557,7 +557,7 @@ function BrandRulesSettings({ go }) {
 }
 
 function ConnectionsSettings({ developer = false }) {
-  const items = developer ? [{name:"API access",desc:"Programmatic access for approved Colony workspaces."},{name:"MCP connection",desc:"Connect CaastorOS to supported AI tools."}] : [
+  const items = developer ? [{name:"API access",desc:"Programmatic access for approved Colony workspaces."},{name:"MCP connection",desc:"Connect BrandOS to supported AI tools."}] : [
     {name:"Slack",desc:"Workspace notifications and approvals"},{name:"Klaviyo",desc:"Campaign handoff and sequence sync"},{name:"Stripo",desc:"Email build handoff"},{name:"Gamma",desc:"Presentation export"},
   ];
   return <div><SettingsPanelHeader title={developer ? "API & MCP" : "Integrations"} description={developer ? "Developer access and external tool connections." : "Services that can receive work or notifications from this workspace."} />
@@ -608,7 +608,7 @@ function PersonalAccountSettings({ session }) {
     finally { setSaving(false); }
   };
 
-  return <div><SettingsPanelHeader title="Your profile" description="The identity people see when you collaborate in CaastorOS." />
+  return <div><SettingsPanelHeader title="Your profile" description="The identity people see when you collaborate in BrandOS." />
     <section className="settings-profile" aria-label="Your profile details">
       <div className="settings-profile__avatar">
         {avatarUrl ? <img src={avatarUrl} alt="Your avatar" /> : <span aria-hidden="true">{initial}</span>}
@@ -685,7 +685,7 @@ function SettingsView({ section = null, go = null, accountBase = "settings", onL
     : tab === "usage" ? <CreditUsageSettings data={data} />
     : tab === "rules" ? <BrandRulesSettings go={go} />
     : tab === "integrations" ? <ConnectionsSettings />
-    : tab === "notifications" ? <><SettingsPanelHeader title="Notifications" description="Choose how CaastorOS contacts you about work and approvals." /><NotificationPrefs /></>
+    : tab === "notifications" ? <><SettingsPanelHeader title="Notifications" description="Choose how BrandOS contacts you about work and approvals." /><NotificationPrefs /></>
     : tab === "language" ? <><SettingsPanelHeader title={t("settings.language.title")} description={t("settings.language.desc")} /><LanguagePrefs /></>
     : tab === "api" ? <ConnectionsSettings developer />
     : tab === "access" ? React.createElement(window.AdminAccess)

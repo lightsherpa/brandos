@@ -21,7 +21,7 @@
     "untitled": "مسودة بلا عنوان"
   },
   "_notes": {
-    "proper_nouns": "BIO, Brandolph, Caastor, CaastorOS and 'The Colony' are kept in Latin script as product/proper nouns.",
+    "proper_nouns": "BIO, Brandolph, BrandOS and 'The Colony' are kept in Latin script as product/proper nouns.",
     "plurals": "Plural keys (notif.ariaUnread, plans.allowance) supply all 6 Arabic CLDR categories (zero/one/two/few/many/other); selection is by Intl.PluralRules('ar'), never a ternary.",
     "digits": "Numeric values are formatted via Intl.NumberFormat('ar') at call sites, so counts render as Arabic-Indic numerals.",
     "direction": "Arrow glyphs are pre-mirrored for RTL reading order; the RTL/font pass may refine further."
@@ -362,8 +362,8 @@
     "talkToUs": "تواصل معنا",
     "starting": "جارٍ البدء…",
     "upgrade": "ترقية",
-    "note03": "تواصل مع فريق Caastor لإعداد The Colony 🐜.",
-    "noteFail": "تعذّر بدء الترقية الآن — يُرجى المحاولة مجددًا أو التواصل مع فريق Caastor.",
+    "note03": "تواصل مع فريق BrandOS لإعداد The Colony 🐜.",
+    "noteFail": "تعذّر بدء الترقية الآن — يُرجى المحاولة مجددًا أو التواصل مع فريق BrandOS.",
     "included": "مُضمَّن",
     "backToCreate": "→ العودة إلى الإنشاء",
     "blurb": {
@@ -377,7 +377,7 @@
     "language": {
       "nav": "اللغة",
       "title": "اللغة",
-      "desc": "اختر اللغة التي يخاطبك بها CaastorOS. تُطبَّق على جميع الشاشات وتُحفظ في حسابك.",
+      "desc": "اختر اللغة التي يخاطبك بها BrandOS. تُطبَّق على جميع الشاشات وتُحفظ في حسابك.",
       "saveError": "تعذّر حفظ ذلك في حسابك، لكن تم تطبيق التبديل هنا."
     }
   },

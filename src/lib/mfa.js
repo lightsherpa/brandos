@@ -1,4 +1,4 @@
-export async function prepareTotpFactor(mfa, { friendlyName = "CaastorOS" } = {}) {
+export async function prepareTotpFactor(mfa, { friendlyName = "BrandOS" } = {}) {
   const listed = await mfa.listFactors();
   if (listed.error) throw listed.error;
   const aggregate = Array.isArray(listed.data?.all) ? listed.data.all : [];

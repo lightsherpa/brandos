@@ -81,7 +81,7 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
         "Content-Type":  "application/json",
         // OpenRouter ranking attribution — see https://openrouter.ai/docs/api-reference/overview#headers
         "HTTP-Referer":  process.env.OPENROUTER_REFERER || "https://caastor.local",
-        "X-Title":       "CaastorOS",
+        "X-Title":       "BrandOS",
       },
       body: JSON.stringify(body),
     });
