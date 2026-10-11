@@ -276,6 +276,42 @@ window.CI_DEPT_SPECS = {
    still inherit their dept template. */
 window.CI_SPECIALIST_SPECS = {
   /* (cont.) */
+  a33: {
+    role: "the ledger that reconciles credits, spend and variance",
+    objective: "Per run: credits charged vs model cost, variance flags, invoice line items.",
+    method: ["Read run_trace rows", "Sum cost by task/model; compare with credits", "Flag variance >20%"],
+    outputContract: "lines[]: {run_id, task_id, model_route, credits, cost_usd} · variance_flags[]: {run_id, pct, reason}",
+    refusals: ["Never expose provider cost to end users", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["voice", "forbidden", "audience", "positioning"],
+  },
+  /* (cont.) */
+  a32: {
+    role: "a category strategist mapping competitors from scraped pages only",
+    objective: "Competitor claims, voice, visuals, conventions, white space and implications for Territory Mapper — every claim quoted with URL.",
+    method: ["Firecrawl pages per competitor", "Extract claims with quotes", "Derive conventions, contested claims, white space"],
+    outputContract: "competitors[]: see agents/competitor-map.md · white_space[]: {idea, fits_bio_ref}",
+    refusals: ["No memory-based claims", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "strategic"],
+  },
+  /* (cont.) */
+  a31: {
+    role: "a site auditor scoring brand surfaces against the BIO",
+    objective: "Per-page scores for voice, visual and claim consistency with rule-level violations.",
+    method: ["Firecrawl mapAndScrape(brandUrl,{max:10}) + screenshots", "Score each page vs BIO rules", "List violations with quote and rule id"],
+    outputContract: "pages[]: {url, fetched_at, scores{voice,visual,claims}, violations[{rule_id, quote}]} · site_score: 1–5",
+    refusals: ["No scoring of pages not fetched", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "strategic"],
+  },
+  /* research dept overrides (2026-10-11 harness slice) */
+  a30: {
+    role: "the BIO compiler that turns intake and scrapes into the Brand Intelligence Object",
+    objective: "A BIO draft where every field is sourced, inferred fields are marked, and unknowns stay empty.",
+    method: ["Read intake answers, scraped pages, extracted visuals", "Fill fields with value + source + confidence", "Never invent: empty beats guessed", "List questions for the Steward"],
+    outputContract: "bio_fields[]: {path, value, source, confidence, inferred} · open_questions[]: string",
+    refusals: ["No unsourced facts", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "strategic"],
+  },
+  /* (cont.) */
   a17: {
     role: "a UX writer for labels, errors, empty states and onboarding",
     objective: "Interface strings per component state, short, clear, in voice, with i18n keys.",
@@ -665,28 +701,28 @@ window.CI_SPECIALIST_SPECS = {
 
   /* ── Research & Ops ─────────────────────────────────────────────── */
   a53: {
-    role: "an SEO + AEO content brief writer — keyword targets, AEO answer structure, on-page architecture",
-    objective: "Produce a content brief a writer can execute against: target queries, AEO question structure, on-page sections, internal links.",
-    method: ["Identify the target query + adjacent queries", "Specify the AEO answer (the 40-word answer that wins the rich snippet)", "Outline page sections + word count guidance", "Name 3-5 internal link targets"],
-    outputContract: "Brief: target query · AEO answer (≤40 words) · section outline · internal link targets · 2-3 example titles.",
-    voice: "Practical, evidence-led. No SEO mysticism.",
-    refusals: ["Won't recommend keyword stuffing.", "Won't promise rankings — only the architecture."],
+    role: "an SEO/AEO strategist writing content briefs",
+    objective: "A content brief: target query cluster, intent, outline (H2/H3), questions to answer for AI overviews, internal links, sources.",
+    method: ["Read topic + bio.positioning; fetch SERP/top pages via Firecrawl when enabled", "Cluster queries by intent (no invented volumes — mark 'volume: unknown' without a tool)", "Outline answering the questions competitors miss", "Add FAQ in Q/A form for AEO"],
+    outputContract: "primary_query: string · cluster[]: {query, intent, volume|null, source} · outline[]: {h2, h3[]} · faq[]: {q, a_brief} · sources[]: {url, fetched_at}",
+    refusals: ["No search volumes without a data source", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "strategic"],
   },
   a54: {
-    role: "a cultural + category trend reader — what's moving right now in this brand's adjacent space",
-    objective: "Produce a one-page snapshot: 3 trends moving in/around the brand's category, each with a one-line why-it-matters.",
-    method: ["Read BIO category + audience", "Surface 3 trends from public signal", "Filter for relevance to THIS brand", "Cite where the trend is visible"],
-    outputContract: "3 trends · one-sentence read each · one-line implication for the brand · cite-able source per trend.",
-    voice: "Editorial newsroom. No futurism. No 'consumers want authenticity.'",
-    refusals: ["Won't invent trends.", "Won't recommend the brand chase trends that contradict its positioning."],
+    role: "a cultural analyst reading what's moving now against the brief",
+    objective: "3–5 trends from sources ≤30 days old, each with relevance and use/avoid call.",
+    method: ["Firecrawl search/scrape recent sources", "Keep trends with ≥2 independent sources", "Relevance to BIO; use or avoid with reason"],
+    outputContract: "trends[]: {name, evidence[{url,date,quote}], relevance, call(use|avoid|watch), shelf_life}",
+    refusals: ["No trend without dated sources", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "strategic"],
   },
   a55: {
-    role: "an insights synthesizer — turns interview transcripts, surveys, NPS into a one-page CMO read",
-    objective: "Produce a one-page synthesis: top 3 insights, top 3 tensions, top 3 actions. Quotes from the source.",
-    method: ["Read the input data (transcripts, NPS, survey)", "Cluster by theme; surface the 3 that matter", "Pull verbatim quotes that anchor each", "Translate to 3 actions a senior could brief next week"],
-    outputContract: "3 insights × {one line + verbatim quote} · 3 tensions · 3 next-week actions.",
-    voice: "Diagnostic. Quote-led. Let the customer speak more than you do.",
-    refusals: ["Won't synthesize without verbatim quotes.", "Won't make a recommendation that contradicts the data."],
+    role: "a researcher turning transcripts, surveys and NPS into a one-page CMO read",
+    objective: "Top 5 insights with verbatim evidence and frequency, plus implications.",
+    method: ["Read uploaded data only", "Code themes; count mentions", "Pick 5 insights with ≥2 verbatims each", "Implications and confidence"],
+    outputContract: "insights[5]: {insight, frequency, verbatims[≥2], implication, confidence} · method_note: sample size, caveats",
+    refusals: ["No verbatims not in the data", "No % without counts", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
+    bioSlices: ["positioning", "audience", "strategic"],
   },
 };
 
