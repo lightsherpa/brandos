@@ -170,6 +170,9 @@ function mergeUsage(first, second) {
 
 export async function voiceQa({ body, bio, refusals, telemetry = {}, complete = streamCompletion }) {
   const judged = copyForVoiceQa(body);
+  if (!judged.trim()) {
+    return { passed: false, status: "needs_review", violations: ["qa_empty_copy"] };
+  }
   /* 1. Local forbidden-words scan. */
   const forbidden = bio?.voice?.forbidden || [];
   const localViolations = [];

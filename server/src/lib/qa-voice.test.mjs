@@ -84,6 +84,27 @@ test("qa_unavailable on the retry is needs_review and never approved", async () 
   assert.notEqual(outputStatusForQa(qa), "approved");
 });
 
+test("empty judged copy is needs_review before any model call", async () => {
+  const bodies = [
+    "",
+    "   \n\t",
+    JSON.stringify({ blocks: { email: { subject: "  ", image: { src: "https://cdn.example/synergy.png", alt: "" } } } }),
+    JSON.stringify({ blocks: { landing: { hero: { headline: " " }, features: [], image: { src: "https://cdn.example/x.png" } } } }),
+  ];
+  for (const body of bodies) {
+    let called = false;
+    const complete = async function* () {
+      called = true;
+      yield { type: "token", text: '{"passed":true,"voice_match":99,"violations":[]}' };
+      yield { type: "done", usage: { cost_usd: 0.01 } };
+    };
+    const qa = await voiceQa({ body, bio: { voice: { forbidden: ["synergy"] } }, refusals: ["avoid hype"], complete });
+    assert.equal(called, false, body);
+    assert.deepEqual(qa, { passed: false, status: "needs_review", violations: ["qa_empty_copy"] });
+    assert.equal(outputStatusForQa(qa), "needs_review");
+  }
+});
+
 test("a malformed verdict is needs_review and never approved", async () => {
   for (const text of ["{}", '{"violations":[]}', '{"passed":"yes","voice_match":90}']) {
     const { complete } = completer([{ text }]);
