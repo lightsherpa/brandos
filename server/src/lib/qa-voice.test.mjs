@@ -58,6 +58,32 @@ test("a still-unparseable reply is needs_review and never approved", async () =>
   assert.notEqual(outputStatusForQa(qa), "approved");
 });
 
+test("a thrown QA call is needs_review and never approved", async () => {
+  const complete = async function* () {
+    throw new Error("socket hang up");
+  };
+  const qa = await voiceQa({ body: "A quiet cup.", bio: { voice: { forbidden: [] } }, refusals: [], complete });
+  assert.equal(qa.passed, false);
+  assert.equal(qa.status, "needs_review");
+  assert.ok(qa.violations.some((v) => v.includes("qa_unavailable")));
+  assert.equal(outputStatusForQa(qa), "needs_review");
+  assert.notEqual(outputStatusForQa(qa), "approved");
+});
+
+test("qa_unavailable on the retry is needs_review and never approved", async () => {
+  const { calls, complete } = completer([
+    { text: "not json" },
+    { error: "provider down" },
+  ]);
+  const qa = await voiceQa({ body: "A quiet cup.", bio: { voice: {} }, refusals: [], complete });
+  assert.equal(calls.length, 2);
+  assert.equal(qa.passed, false);
+  assert.equal(qa.status, "needs_review");
+  assert.ok(qa.violations.some((v) => v.includes("qa_unavailable")));
+  assert.equal(outputStatusForQa(qa), "needs_review");
+  assert.notEqual(outputStatusForQa(qa), "approved");
+});
+
 test("JSON wrapped in prose still parses", () => {
   const verdict = parseVoiceQaJson('Here you go: {"passed":true,"voice_match":72,"violations":[]} thanks');
   assert.equal(verdict.voice_match, 72);

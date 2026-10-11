@@ -88,6 +88,17 @@ async function collectVerdict(complete, { system, messages, telemetry }) {
   return { text, usage };
 }
 
+function unavailableVerdict(localViolations, error, usage) {
+  const detail = String(error?.message || error || "").trim();
+  return {
+    passed: false,
+    status: "needs_review",
+    voice_match: null,
+    violations: [...localViolations, detail ? `qa_unavailable: ${detail}` : "qa_unavailable"],
+    usage,
+  };
+}
+
 function mergeUsage(first, second) {
   if (!first) return second;
   if (!second) return first;
@@ -133,12 +144,7 @@ export async function voiceQa({ body, bio, refusals, telemetry = {}, complete = 
     text = first.text;
     usage = first.usage;
   } catch (e) {
-    return {
-      passed: localViolations.length === 0,
-      voice_match: localViolations.length === 0 ? 70 : 0,
-      violations: [...localViolations, `qa_unavailable: ${e?.message || e}`],
-      usage: null,
-    };
+    return unavailableVerdict(localViolations, e, null);
   }
 
   let llmVerdict = null;
@@ -158,14 +164,7 @@ export async function voiceQa({ body, bio, refusals, telemetry = {}, complete = 
       usage = mergeUsage(usage, second.usage);
       llmVerdict = parseVoiceQaJson(text);
     } catch (e) {
-      if (e?.code === "qa_unavailable") {
-        return {
-          passed: localViolations.length === 0,
-          voice_match: localViolations.length === 0 ? 70 : 0,
-          violations: [...localViolations, `qa_unavailable: ${e.message}`],
-          usage,
-        };
-      }
+      if (e?.code === "qa_unavailable") return unavailableVerdict(localViolations, e, usage);
       return {
         passed: false,
         status: "needs_review",
