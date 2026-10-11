@@ -2,21 +2,23 @@
  "agent_id": "a54",
  "name": "Trend Snapshot",
  "dept": "Research & Ops",
- "job": "Cultural + category read against the brief. What's moving right now.",
+ "slug": "trend-snapshot",
  "tier": "standard",
  "status": "live",
+ "output_type": "competitive_research",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "gemFlash",
  "context": {
   "bio_slices": [
    "positioning",
    "audience",
    "competitors",
-   "facts"
+   "facts",
+   "urls"
   ],
   "pointers": [
-   "sources[]",
-   "competitive_snapshot"
+   "pages[] (Firecrawl)",
+   "sources[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -36,15 +38,27 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a54"
+  "trend_context"
  ],
- "output_schema_ref": "schemas/research_brief.schema.json",
+ "output_schema_ref": "schemas/agents/a54.schema.json",
  "checks": [
   "D-SCHEMA",
   "D-SOURCE",
-  "D-FRESH",
-  "J-GROUNDED"
+  "J-GROUNDED",
+  "D-FRESH"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "gemFlash",
+  "current_route": "openrouter/google/gemini-2.5-flash",
+  "proposed_key": "gemFlash38",
+  "proposed_route": "openrouter/google/gemini-3.8-flash",
+  "fallback_route": "openrouter/google/gemini-2.5-flash",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -52,5 +66,7 @@
  "budget": {
   "cr": 3,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a54-trend-snapshot.md",
+ "notes": "Without a web tool it must return needs_input."
 }

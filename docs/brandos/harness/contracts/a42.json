@@ -2,22 +2,24 @@
  "agent_id": "a42",
  "name": "Ad Creative",
  "dept": "Visual",
- "job": "Display banners + paid social ads, sized per platform spec.",
+ "slug": "ad-creative",
  "tier": "standard",
  "status": "live",
+ "output_type": "image_typography",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "flux",
  "context": {
   "bio_slices": [
    "visual.palette",
    "visual.type",
    "visual.imagery",
    "visual.logo_rules",
-   "refusals"
+   "refusals",
+   "language"
   ],
   "pointers": [
    "bio.examples.visual",
-   "bio.assets.logo"
+   "bio.assets.fonts"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,18 +39,30 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a42"
+  "blocks.ads[].image"
  ],
- "output_schema_ref": "schemas/image_asset.schema.json",
+ "output_schema_ref": "schemas/agents/a42.schema.json",
  "checks": [
+  "D-SIZE",
   "D-PALETTE",
   "D-OCR",
-  "D-SIZE",
-  "D-ALT",
   "D-NOLOGO",
+  "D-ALT",
   "J-VISION",
-  "J-VOICE-IMG"
+  "D-TEXTAREA"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "visual: hook image (product / person)"
+ },
+ "model": {
+  "current_key": "flux",
+  "current_route": "vendor/fal/flux-1.1-pro",
+  "proposed_key": "gptimage",
+  "proposed_route": "vendor/fal/gpt-image-2",
+  "fallback_route": "vendor/fal/nano-banana-2",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +70,7 @@
  "budget": {
   "cr": 9,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a42-ad-creative.md",
+ "notes": ""
 }

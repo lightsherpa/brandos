@@ -1,0 +1,69 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://brandos.dev/schemas/agents/a51.v1.json",
+ "type": "object",
+ "required": [
+  "agent",
+  "status",
+  "self_check",
+  "scripts",
+  "pronunciations"
+ ],
+ "properties": {
+  "agent": {
+   "const": "a51"
+  },
+  "scripts": {
+   "description": "{duration_s, lines[{t_start, text, delivery}], word_count}"
+  },
+  "pronunciations": {
+   "description": "{word, ipa_or_hint}"
+  },
+  "message_spec_writes": {
+   "type": "object"
+  },
+  "variant": {
+   "type": "string"
+  },
+  "variant_axis": {
+   "type": "string"
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array"
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  }
+ }
+}

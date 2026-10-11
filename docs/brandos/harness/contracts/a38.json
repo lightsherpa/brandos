@@ -2,11 +2,12 @@
  "agent_id": "a38",
  "name": "Ad Copy",
  "dept": "Copy",
- "job": "Paid social, search, display variants \u2014 sized per platform spec.",
+ "slug": "ad-copy",
  "tier": "standard",
  "status": "live",
+ "output_type": "copy",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "gemPro",
  "context": {
   "bio_slices": [
    "voice",
@@ -41,19 +42,30 @@
  "message_spec_writes": [
   "blocks.ads"
  ],
- "output_schema_ref": "schemas/copy_block.schema.json",
+ "output_schema_ref": "schemas/agents/a38.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
-  "D-CLAIM",
   "D-URGENCY",
   "D-SUPERLATIVE",
-  "D-LEN",
-  "D-SCHEMA",
+  "D-CLAIM",
   "D-ORTHO",
   "J-VOICE",
-  "J-STRAT"
+  "D-LEN-PLATFORM"
  ],
+ "variants": {
+  "default": 3,
+  "axis": "angle: rational / emotional / refusal-led"
+ },
+ "model": {
+  "current_key": "gemPro",
+  "current_route": "openrouter/google/gemini-2.5-pro",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -61,5 +73,7 @@
  "budget": {
   "cr": 5,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a38-ad-copy.md",
+ "notes": ""
 }

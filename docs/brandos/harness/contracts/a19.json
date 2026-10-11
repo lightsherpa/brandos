@@ -2,21 +2,20 @@
  "agent_id": "a19",
  "name": "Identity Drafts",
  "dept": "Visual",
- "job": "Logo + system first cuts. Hand off to L3 for craft.",
+ "slug": "identity-drafts",
  "tier": "standard",
  "status": "live",
+ "output_type": "vector_svg",
+ "difficulty": "high",
  "runnable_today": true,
- "model_key": "gptimage",
  "context": {
   "bio_slices": [
    "visual.palette",
    "visual.type",
-   "visual.imagery",
-   "visual.logo_rules",
+   "visual.shape_language",
    "refusals"
   ],
   "pointers": [
-   "bio.examples.visual",
    "bio.assets.logo"
   ],
   "message_spec_reads": [
@@ -39,16 +38,25 @@
  "message_spec_writes": [
   "outputs.a19"
  ],
- "output_schema_ref": "schemas/image_asset.schema.json",
+ "output_schema_ref": "schemas/agents/a19.schema.json",
  "checks": [
+  "D-SVG-VALID",
   "D-PALETTE",
-  "D-OCR",
-  "D-SIZE",
   "D-ALT",
-  "D-NOLOGO",
-  "J-VISION",
-  "J-VOICE-IMG"
+  "J-VISION"
  ],
+ "variants": {
+  "default": 3,
+  "axis": "construction: wordmark / monogram / symbol"
+ },
+ "model": {
+  "current_key": "gptimage",
+  "current_route": "vendor/fal/gpt-image-2",
+  "proposed_key": "recraft4v",
+  "proposed_route": "vendor/fal/recraft-v4-vector",
+  "fallback_route": "vendor/fal/recraft-v3",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +64,7 @@
  "budget": {
   "cr": 18,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a19-identity-drafts.md",
+ "notes": ""
 }

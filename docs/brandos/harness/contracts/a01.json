@@ -2,11 +2,12 @@
  "agent_id": "a01",
  "name": "The Diagnostician",
  "dept": "Strategy",
- "job": "Reads the brand right now. Names tensions before assembly.",
+ "slug": "diagnostician",
  "tier": "standard",
  "status": "live",
+ "output_type": "strategy",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
    "positioning",
@@ -14,11 +15,13 @@
    "voice.traits",
    "refusals",
    "facts",
-   "competitors"
+   "competitors",
+   "channels"
   ],
   "pointers": [
    "bio.examples.strategy",
-   "bio.history.briefs"
+   "bio.history.briefs",
+   "signals.recent_outputs"
   ],
   "message_spec_reads": [
    "smp",
@@ -38,17 +41,30 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a01"
+  "diagnosis"
  ],
- "output_schema_ref": "schemas/strategy_note.schema.json",
+ "output_schema_ref": "schemas/agents/a01.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
   "D-CLAIM",
-  "D-SCHEMA",
   "D-LEN",
-  "J-STRAT"
+  "J-STRAT",
+  "D-EVIDENCE"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a \u2014 single diagnosis"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +72,7 @@
  "budget": {
   "cr": 8,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a01-diagnostician.md",
+ "notes": ""
 }

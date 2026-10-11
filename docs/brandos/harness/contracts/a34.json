@@ -2,11 +2,12 @@
  "agent_id": "a34",
  "name": "Audience Profiler",
  "dept": "Strategy",
- "job": "Deep persona work from the BIO. The audience as a senior would describe them, not a CRM segment.",
+ "slug": "audience-profiler",
  "tier": "standard",
  "status": "live",
+ "output_type": "strategy",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "gemPro",
  "context": {
   "bio_slices": [
    "positioning",
@@ -14,11 +15,13 @@
    "voice.traits",
    "refusals",
    "facts",
-   "competitors"
+   "competitors",
+   "channels"
   ],
   "pointers": [
    "bio.examples.strategy",
-   "bio.history.briefs"
+   "bio.history.briefs",
+   "signals.recent_outputs"
   ],
   "message_spec_reads": [
    "smp",
@@ -38,17 +41,31 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a34"
+  "audience"
  ],
- "output_schema_ref": "schemas/strategy_note.schema.json",
+ "output_schema_ref": "schemas/agents/a34.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
   "D-CLAIM",
-  "D-SCHEMA",
   "D-LEN",
-  "J-STRAT"
+  "J-STRAT",
+  "D-COUNT",
+  "D-EVIDENCE"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "gemPro",
+  "current_route": "openrouter/google/gemini-2.5-pro",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +73,7 @@
  "budget": {
   "cr": 7,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a34-audience-profiler.md",
+ "notes": ""
 }

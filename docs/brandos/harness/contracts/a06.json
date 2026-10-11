@@ -2,11 +2,12 @@
  "agent_id": "a06",
  "name": "The Territory Mapper",
  "dept": "Concept",
- "job": "Three creative territories per brief, with the recommended one named.",
+ "slug": "territory-mapper",
  "tier": "standard",
  "status": "live",
+ "output_type": "territory_mapping",
+ "difficulty": "high",
  "runnable_today": true,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
    "positioning",
@@ -18,8 +19,9 @@
    "visual.imagery"
   ],
   "pointers": [
-   "bio.examples.campaigns",
-   "competitive_snapshot"
+   "competitive_snapshot",
+   "trend_snapshot",
+   "bio.examples.campaigns"
   ],
   "message_spec_reads": [
    "smp",
@@ -41,17 +43,28 @@
  "message_spec_writes": [
   "territory"
  ],
- "output_schema_ref": "schemas/concept_set.schema.json",
+ "output_schema_ref": "schemas/agents/a06.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
   "D-CLAIM",
-  "D-SCHEMA",
-  "D-COUNT",
-  "J-VOICE",
   "J-STRAT",
-  "J-DISTINCT"
+  "J-DISTINCT",
+  "D-COUNT"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a \u2014 strategy converges"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "opus55",
+  "proposed_route": "anthropic/claude-opus-5-5",
+  "fallback_route": "anthropic/claude-sonnet-5-5",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -59,5 +72,7 @@
  "budget": {
   "cr": 6,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a06-territory-mapper.md",
+ "notes": ""
 }

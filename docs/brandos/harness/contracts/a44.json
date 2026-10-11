@@ -2,22 +2,22 @@
  "agent_id": "a44",
  "name": "Style Frames",
  "dept": "Visual",
- "job": "Polished frames for moving image \u2014 the pitch direction before any video runs.",
+ "slug": "style-frames",
  "tier": "standard",
  "status": "live",
+ "output_type": "image_photo",
+ "difficulty": "high",
  "runnable_today": true,
- "model_key": "gptimage",
  "context": {
   "bio_slices": [
    "visual.palette",
-   "visual.type",
    "visual.imagery",
    "visual.logo_rules",
    "refusals"
   ],
   "pointers": [
    "bio.examples.visual",
-   "bio.assets.logo"
+   "reference_images[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,16 +39,27 @@
  "message_spec_writes": [
   "outputs.a44"
  ],
- "output_schema_ref": "schemas/image_asset.schema.json",
+ "output_schema_ref": "schemas/agents/a44.schema.json",
  "checks": [
-  "D-PALETTE",
-  "D-OCR",
   "D-SIZE",
-  "D-ALT",
+  "D-PALETTE",
   "D-NOLOGO",
+  "D-ALT",
   "J-VISION",
-  "J-VOICE-IMG"
+  "D-SERIES"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "visual: grade (two looks)"
+ },
+ "model": {
+  "current_key": "gptimage",
+  "current_route": "vendor/fal/gpt-image-2",
+  "proposed_key": "gptimage",
+  "proposed_route": "vendor/fal/gpt-image-2",
+  "fallback_route": "vendor/fal/nano-banana-2",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +67,7 @@
  "budget": {
   "cr": 12,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a44-style-frames.md",
+ "notes": ""
 }

@@ -143,7 +143,9 @@ export function buildPayload(agent) {
     cr_estimate: agent.cr,
     status: agent.status,
     // BIO slices per dept — what the specialist reads from the BIO at run time
-    bioSlices: agent.dept === "Copy"           ? ["voice", "forbidden"]
+    // Per-specialist override wins (hero crew contracts, 2026-10-11); else dept default.
+    bioSlices: Array.isArray(override.bioSlices) ? override.bioSlices
+            : agent.dept === "Copy"           ? ["voice", "forbidden"]
             : agent.dept === "Visual"          ? ["palette", "type", "imagery"]
             : agent.dept === "Concept"         ? ["positioning", "audience"]
             : agent.dept === "Web & UX"        ? ["voice", "palette", "type"]

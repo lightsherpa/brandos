@@ -1,0 +1,65 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://brandos.dev/schemas/agents/a41.v1.json",
+ "type": "object",
+ "required": [
+  "agent",
+  "status",
+  "self_check",
+  "assets"
+ ],
+ "properties": {
+  "agent": {
+   "const": "a41"
+  },
+  "assets": {
+   "description": "url, width, height, platform (ig_feed 1080\u00d71350 | ig_story 1080\u00d71920 | linkedin 1200\u00d7627 | tiktok_cover 1080\u00d71920), alt, overlay_text|null, generation_prompt, model_route, variant, for_caption (caption id)"
+  },
+  "message_spec_writes": {
+   "type": "object"
+  },
+  "variant": {
+   "type": "string"
+  },
+  "variant_axis": {
+   "type": "string"
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array"
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  }
+ }
+}

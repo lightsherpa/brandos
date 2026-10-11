@@ -2,22 +2,22 @@
  "agent_id": "a20",
  "name": "Hero KV",
  "dept": "Visual",
- "job": "Hero visuals for campaigns and launches.",
+ "slug": "hero-kv",
  "tier": "standard",
  "status": "live",
+ "output_type": "image_photo",
+ "difficulty": "high",
  "runnable_today": true,
- "model_key": "gptimage",
  "context": {
   "bio_slices": [
    "visual.palette",
-   "visual.type",
    "visual.imagery",
    "visual.logo_rules",
    "refusals"
   ],
   "pointers": [
    "bio.examples.visual",
-   "bio.assets.logo"
+   "reference_images[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,18 +37,31 @@
   ]
  },
  "message_spec_writes": [
-  "blocks.landing.hero.image"
+  "blocks.landing.hero.image",
+  "blocks.email.image",
+  "blocks.deck.slides[0].image"
  ],
- "output_schema_ref": "schemas/image_asset.schema.json",
+ "output_schema_ref": "schemas/agents/a20.schema.json",
  "checks": [
-  "D-PALETTE",
-  "D-OCR",
   "D-SIZE",
-  "D-ALT",
+  "D-PALETTE",
   "D-NOLOGO",
+  "D-ALT",
   "J-VISION",
-  "J-VOICE-IMG"
+  "D-HEADZONE"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "visual: composition (subject-left / centred)"
+ },
+ "model": {
+  "current_key": "gptimage",
+  "current_route": "vendor/fal/gpt-image-2",
+  "proposed_key": "gptimage",
+  "proposed_route": "vendor/fal/gpt-image-2",
+  "fallback_route": "vendor/fal/nano-banana-2",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +69,7 @@
  "budget": {
   "cr": 14,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a20-hero-kv.md",
+ "notes": ""
 }

@@ -1,0 +1,81 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://brandos.dev/schemas/agents/a45.v1.json",
+ "type": "object",
+ "required": [
+  "agent",
+  "status",
+  "self_check",
+  "title",
+  "vega_lite",
+  "data_sources",
+  "alt",
+  "takeaway"
+ ],
+ "properties": {
+  "agent": {
+   "const": "a45"
+  },
+  "title": {
+   "description": "\u226480, states the takeaway"
+  },
+  "vega_lite": {
+   "description": "valid Vega-Lite v5 spec"
+  },
+  "data_sources": {
+   "description": "{label, source, proof_id}"
+  },
+  "alt": {
+   "description": "describes the finding \u2264125"
+  },
+  "takeaway": {
+   "description": "\u2264140"
+  },
+  "message_spec_writes": {
+   "type": "object"
+  },
+  "variant": {
+   "type": "string"
+  },
+  "variant_axis": {
+   "type": "string"
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array"
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  }
+ }
+}

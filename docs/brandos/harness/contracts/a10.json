@@ -2,11 +2,12 @@
  "agent_id": "a10",
  "name": "The Reframer",
  "dept": "Concept",
- "job": "Takes a tired concept and gives it a new spine.",
+ "slug": "reframer",
  "tier": "standard",
  "status": "live",
+ "output_type": "territory_mapping",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
    "positioning",
@@ -18,8 +19,9 @@
    "visual.imagery"
   ],
   "pointers": [
-   "bio.examples.campaigns",
-   "competitive_snapshot"
+   "competitive_snapshot",
+   "trend_snapshot",
+   "bio.examples.campaigns"
   ],
   "message_spec_reads": [
    "smp",
@@ -41,17 +43,28 @@
  "message_spec_writes": [
   "outputs.a10"
  ],
- "output_schema_ref": "schemas/concept_set.schema.json",
+ "output_schema_ref": "schemas/agents/a10.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
   "D-CLAIM",
-  "D-SCHEMA",
-  "D-COUNT",
-  "J-VOICE",
   "J-STRAT",
-  "J-DISTINCT"
+  "J-DISTINCT",
+  "D-COUNT"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -59,5 +72,7 @@
  "budget": {
   "cr": 6,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a10-reframer.md",
+ "notes": ""
 }

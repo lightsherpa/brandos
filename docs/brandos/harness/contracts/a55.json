@@ -2,21 +2,23 @@
  "agent_id": "a55",
  "name": "Insights Synthesis",
  "dept": "Research & Ops",
- "job": "Turns interview transcripts, surveys, NPS into a one-page CMO read.",
+ "slug": "insights-synthesis",
  "tier": "standard",
  "status": "live",
+ "output_type": "competitive_research",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "gemPro",
  "context": {
   "bio_slices": [
    "positioning",
    "audience",
    "competitors",
-   "facts"
+   "facts",
+   "urls"
   ],
   "pointers": [
-   "sources[]",
-   "competitive_snapshot"
+   "pages[] (Firecrawl)",
+   "sources[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -38,13 +40,26 @@
  "message_spec_writes": [
   "outputs.a55"
  ],
- "output_schema_ref": "schemas/research_brief.schema.json",
+ "output_schema_ref": "schemas/agents/a55.schema.json",
  "checks": [
   "D-SCHEMA",
   "D-SOURCE",
-  "D-FRESH",
-  "J-GROUNDED"
+  "J-GROUNDED",
+  "D-VERBATIM",
+  "D-COUNT"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "gemPro",
+  "current_route": "openrouter/google/gemini-2.5-pro",
+  "proposed_key": "gemFlash38",
+  "proposed_route": "openrouter/google/gemini-3.8-flash",
+  "fallback_route": "openrouter/google/gemini-2.5-flash",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -52,5 +67,7 @@
  "budget": {
   "cr": 7,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a55-insights-synthesis.md",
+ "notes": ""
 }

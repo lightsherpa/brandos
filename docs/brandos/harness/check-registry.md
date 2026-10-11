@@ -48,3 +48,26 @@ Rule: deterministic checks run first, in parallel, ~0 cost. Judges run only if n
 - BIO rules learned via correction-to-rule (learning.md) are compiled into D-FORBID/D-REFUSAL lists or new `R-*` deterministic checks; they appear in the registry with `source:"bio_rule:<id>"`.
 - Demo-critical (build first): D-SCHEMA, D-LEN(-PLATFORM), D-FORBID, D-URGENCY, D-SUPERLATIVE, D-CLAIM, D-PALETTE, D-ALT, D-RENDER, D-CONTRAST, J-VOICE, J-VISION.
 - Judge prompt (shared): "You are a brand QA judge. Score only the named check using the rubric. Quote evidence. Return check_result JSON. Never rewrite the content."
+
+## Added in v0.2 (all-agents upgrade)
+| id | applies to | severity | pass condition | remediation |
+|---|---|---|---|---|
+| D-SAFEAREA | a41 | hard | Subject/key elements outside platform UI zones (IG story top/bottom 250px; reels right 120px), via saliency box | Key content sits under platform UI at {region}. Regenerate with the subject inside the central safe area. |
+| D-HEADZONE | a20 | hard | Declared headline_zone has low detail (edge density < threshold) and contrast allows white or ink text ≥4.5 | The headline zone {zone} is busy or low-contrast. Regenerate with clear negative space in that zone. |
+| D-SERIES | a21, a35, a44, a50, a23 | soft | Series consistency: palette ΔE between images ≤12, same aspect/stroke rules | Image {n} breaks the series ({diff}). Regenerate it with the series style: {style}. |
+| D-MANDATORY | a22 | hard | All mandatory label fields present or explicitly [TO SUPPLY] | Mandatory field(s) {fields} missing. Add from facts or mark [TO SUPPLY]; never invent. |
+| D-WORDCOUNT | a43 | hard | OOH headline ≤7 words | Headline has {n} words; OOH max 7. Cut to ≤7. |
+| D-TEXTAREA | a42 | soft | Overlay text area ≤20% of image (OCR boxes) | Text covers {pct}% of the image. Reduce to ≤20% or drop the overlay. |
+| J-FIDELITY | a46 | hard | Vision judge: product in output matches reference (shape, colour, label) ≥4/5 | Product differs from reference ({diff}). Regenerate in edit/reference mode keeping the product unchanged. |
+| D-SVG-VALID | a19, a23 | hard | SVG parses; ≤ max paths; no raster <image>; colours ⊂ palette (+white/black) | SVG invalid or off-rules: {error}. Regenerate as flat vector using {palette_hex}. |
+| D-VEGA | a45 | hard | Vega-Lite spec validates (v5 schema) and every data value traces to data_sources | Chart spec invalid or contains untraced values: {error}. Use only the supplied data. |
+| D-EVIDENCE | a01, a04, a34 | hard | Every claim/tension/segment item has a non-empty evidence field pointing to bio path or source | '{item}' has no evidence. Add a BIO path or source, or remove it. |
+| D-BIOREF | a05 | hard | Each refusal has a bio_ref that exists in the BIO | Refusal '{r}' cites no valid BIO field. Add one or drop it. |
+| D-CHANNEL | a03 | soft | Channels ⊂ bio.channels unless flagged test:true | Channel '{c}' isn't one the brand uses. Mark it as a test or remove it. |
+| D-WORDS | a15 | soft | word_count within requested range and equals actual count | Length {n} words; requested {range}. |
+| D-QUOTE | a40 | hard | Every quote is supplied in brief or marked [QUOTE TO CONFIRM] | Quote '{q}' isn't supplied. Replace with [QUOTE TO CONFIRM]. |
+| D-WPS | a51 | hard | Words per second ≤2.5 EN / ≤2.3 ES per cut | {cut}s cut runs {wps} words/s. Cut to fit. |
+| D-MERGETAG | a26 | hard | Merge tags ⊂ whitelist | Unknown merge tag {tag}. Use only {whitelist}. |
+| D-DTCG | a47 | hard | Tokens validate against W3C DTCG format; colours ⊂ palette or marked derived | Token {path} invalid or off-palette. Fix per DTCG / mark derived. |
+| D-MERMAID | a49 | hard | Mermaid parses (mermaid-cli) | Flow diagram doesn't parse: {error}. |
+| D-VERBATIM | a55 | hard | Each verbatim is an exact substring of the uploaded data | Verbatim '{v}' not found in the data. Use exact quotes only. |

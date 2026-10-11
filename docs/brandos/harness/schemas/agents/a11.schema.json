@@ -1,0 +1,69 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://brandos.dev/schemas/agents/a11.v1.json",
+ "type": "object",
+ "required": [
+  "agent",
+  "status",
+  "self_check",
+  "anti_brief",
+  "red_flags"
+ ],
+ "properties": {
+  "agent": {
+   "const": "a11"
+  },
+  "anti_brief": {
+   "description": "\u2264120 words"
+  },
+  "red_flags": {
+   "description": "{flag, check_id}"
+  },
+  "message_spec_writes": {
+   "type": "object"
+  },
+  "variant": {
+   "type": "string"
+  },
+  "variant_axis": {
+   "type": "string"
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array"
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  }
+ }
+}

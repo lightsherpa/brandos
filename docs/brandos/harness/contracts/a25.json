@@ -2,11 +2,12 @@
  "agent_id": "a25",
  "name": "Page Composer",
  "dept": "Web & UX",
- "job": "Landing + product pages, structured for v0/Framer.",
+ "slug": "page-composer",
  "tier": "standard",
  "status": "live",
+ "output_type": "landing_html",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "v0",
  "context": {
   "bio_slices": [
    "visual.tokens",
@@ -16,8 +17,7 @@
    "facts"
   ],
   "pointers": [
-   "bio.components",
-   "renderers/templates"
+   "renderers/templates/landing.html"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,19 +37,31 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a25"
+  "blocks.landing"
  ],
- "output_schema_ref": "schemas/render_block.schema.json",
+ "output_schema_ref": "schemas/agents/a25.schema.json",
  "checks": [
   "D-SCHEMA",
+  "D-LEN",
+  "D-FORBID",
+  "D-CLAIM",
   "D-RENDER",
   "D-CONTRAST",
   "D-ALT",
-  "D-LEN",
-  "D-FORBID",
-  "D-LINKS",
   "J-VISION"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "layout: template variant"
+ },
+ "model": {
+  "current_key": "v0",
+  "current_route": "vendor/v0",
+  "proposed_key": "v0",
+  "proposed_route": "vendor/v0",
+  "fallback_route": null,
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -57,5 +69,7 @@
  "budget": {
   "cr": 16,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a25-page-composer.md",
+ "notes": "Dead today (v0 route). Becomes runnable when the PR #4 format preview / renderer is a dispatch target. Roster change needs Oscar approval."
 }

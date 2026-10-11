@@ -2,22 +2,25 @@
  "agent_id": "a52",
  "name": "Sonic Logo",
  "dept": "Motion & Sound",
- "job": "Audio brand cues \u2014 sonic logos, intros, transitions.",
+ "slug": "sonic-logo",
  "tier": "standard",
  "status": "soon",
+ "output_type": "copy",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "elevenlabs",
  "context": {
   "bio_slices": [
    "voice",
-   "visual.palette",
-   "visual.imagery",
+   "voice.forbidden_words",
+   "voice.examples",
+   "audience",
    "refusals",
-   "motion",
-   "sonic"
+   "facts",
+   "language"
   ],
   "pointers": [
-   "bio.examples.motion"
+   "bio.examples.copy",
+   "bio.rules.copy"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,14 +42,30 @@
  "message_spec_writes": [
   "outputs.a52"
  ],
- "output_schema_ref": "schemas/motion_spec.schema.json",
+ "output_schema_ref": "schemas/agents/a52.schema.json",
  "checks": [
   "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
-  "D-DURATION",
-  "J-VOICE"
+  "D-URGENCY",
+  "D-SUPERLATIVE",
+  "D-CLAIM",
+  "D-ORTHO",
+  "J-VOICE",
+  "D-DURATION"
  ],
+ "variants": {
+  "default": 3,
+  "axis": "direction"
+ },
+ "model": {
+  "current_key": "elevenlabs",
+  "current_route": "vendor/elevenlabs",
+  "proposed_key": "elevenlabs",
+  "proposed_route": "vendor/elevenlabs",
+  "fallback_route": null,
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -54,5 +73,7 @@
  "budget": {
   "cr": 8,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a52-sonic-logo.md",
+ "notes": "elevenlabs route dead; fal hosts ElevenLabs SFX \u2014 needs adapter."
 }

@@ -2,11 +2,12 @@
  "agent_id": "a29",
  "name": "Framer Builder",
  "dept": "Web & UX",
- "job": "Framer-native sites for marketing surfaces.",
+ "slug": "framer-builder",
  "tier": "standard",
  "status": "live",
+ "output_type": "landing_html",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "framer",
  "context": {
   "bio_slices": [
    "visual.tokens",
@@ -16,8 +17,7 @@
    "facts"
   ],
   "pointers": [
-   "bio.components",
-   "renderers/templates"
+   "renderers/templates/landing.html"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,19 +37,31 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a29"
+  "blocks.landing"
  ],
- "output_schema_ref": "schemas/render_block.schema.json",
+ "output_schema_ref": "schemas/agents/a29.schema.json",
  "checks": [
   "D-SCHEMA",
+  "D-LEN",
+  "D-FORBID",
+  "D-CLAIM",
   "D-RENDER",
   "D-CONTRAST",
   "D-ALT",
-  "D-LEN",
-  "D-FORBID",
-  "D-LINKS",
   "J-VISION"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "framer",
+  "current_route": "vendor/framer",
+  "proposed_key": "framer",
+  "proposed_route": "vendor/framer",
+  "fallback_route": null,
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -57,5 +69,7 @@
  "budget": {
   "cr": 14,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a29-framer-builder.md",
+ "notes": "Dead today (framer). Proposed merge with a25 (roster change, needs approval)."
 }

@@ -2,22 +2,22 @@
  "agent_id": "a50",
  "name": "Storyboard",
  "dept": "Motion & Sound",
- "job": "Panel-by-panel storyboards for ads, films, social-first video.",
+ "slug": "storyboard",
  "tier": "standard",
  "status": "soon",
+ "output_type": "image_photo",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "flux",
  "context": {
   "bio_slices": [
-   "voice",
    "visual.palette",
    "visual.imagery",
-   "refusals",
-   "motion",
-   "sonic"
+   "visual.logo_rules",
+   "refusals"
   ],
   "pointers": [
-   "bio.examples.motion"
+   "bio.examples.visual",
+   "reference_images[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,16 +37,29 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a50"
+  "motion_spec.shots[].panel"
  ],
- "output_schema_ref": "schemas/motion_spec.schema.json",
+ "output_schema_ref": "schemas/agents/a50.schema.json",
  "checks": [
-  "D-SCHEMA",
-  "D-FORBID",
-  "D-REFUSAL",
-  "D-DURATION",
-  "J-VOICE"
+  "D-SIZE",
+  "D-PALETTE",
+  "D-NOLOGO",
+  "D-ALT",
+  "J-VISION",
+  "D-SERIES"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "flux",
+  "current_route": "vendor/fal/flux-1.1-pro",
+  "proposed_key": "nanoBanana2",
+  "proposed_route": "vendor/fal/nano-banana-2",
+  "fallback_route": "vendor/fal/flux-schnell",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -54,5 +67,7 @@
  "budget": {
   "cr": 14,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a50-storyboard.md",
+ "notes": ""
 }

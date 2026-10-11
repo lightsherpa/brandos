@@ -1,0 +1,85 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://brandos.dev/schemas/agents/a20.v1.json",
+ "type": "object",
+ "required": [
+  "agent",
+  "status",
+  "self_check",
+  "master",
+  "crops",
+  "headline_zone",
+  "alt",
+  "generation_prompt",
+  "rationale"
+ ],
+ "properties": {
+  "agent": {
+   "const": "a20"
+  },
+  "master": {
+   "description": "url 16:9 \u22651920px wide"
+  },
+  "crops": {
+   "description": "{ratio, url, focal_point}"
+  },
+  "headline_zone": {
+   "description": "{x,y,w,h} as % of frame"
+  },
+  "alt": {
+   "description": "\u2264125"
+  },
+  "generation_prompt": {
+   "description": "string"
+  },
+  "rationale": {
+   "description": "\u226440 words, how the image carries the spine"
+  },
+  "message_spec_writes": {
+   "type": "object"
+  },
+  "variant": {
+   "type": "string"
+  },
+  "variant_axis": {
+   "type": "string"
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array"
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  }
+ }
+}

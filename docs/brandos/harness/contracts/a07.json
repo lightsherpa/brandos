@@ -2,24 +2,25 @@
  "agent_id": "a07",
  "name": "The Namer",
  "dept": "Concept",
- "job": "Names for products, lines, campaigns \u2014 with rationale.",
+ "slug": "namer",
  "tier": "standard",
  "status": "live",
+ "output_type": "copy",
+ "difficulty": "high",
  "runnable_today": true,
- "model_key": "opus",
  "context": {
   "bio_slices": [
-   "positioning",
-   "audience",
    "voice",
+   "voice.forbidden_words",
+   "voice.examples",
+   "audience",
    "refusals",
    "facts",
-   "competitors",
-   "visual.imagery"
+   "language"
   ],
   "pointers": [
-   "bio.examples.campaigns",
-   "competitive_snapshot"
+   "bio.examples.copy",
+   "bio.rules.copy"
   ],
   "message_spec_reads": [
    "smp",
@@ -41,17 +42,31 @@
  "message_spec_writes": [
   "outputs.a07"
  ],
- "output_schema_ref": "schemas/concept_set.schema.json",
+ "output_schema_ref": "schemas/agents/a07.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
+  "D-URGENCY",
+  "D-SUPERLATIVE",
   "D-CLAIM",
-  "D-SCHEMA",
-  "D-COUNT",
+  "D-ORTHO",
   "J-VOICE",
-  "J-STRAT",
-  "J-DISTINCT"
+  "D-COUNT",
+  "D-DUP"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a \u2014 breadth inside one set"
+ },
+ "model": {
+  "current_key": "opus",
+  "current_route": "anthropic/claude-opus-4-7",
+  "proposed_key": "opus55",
+  "proposed_route": "anthropic/claude-opus-5-5",
+  "fallback_route": "anthropic/claude-sonnet-5-5",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -59,5 +74,7 @@
  "budget": {
   "cr": 7,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a07-namer.md",
+ "notes": ""
 }
