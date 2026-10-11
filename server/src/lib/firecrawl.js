@@ -8,6 +8,7 @@ const FIRECRAWL_MAP_URL = "https://api.firecrawl.dev/v1/map";
 import crypto from "node:crypto";
 import {reserveDiscoveryTestSpend} from "./discovery-test-budget.js";
 import { recordApiUsage } from "./api-usage.js";
+import { canonicalSourceUrl, sameBrandHost } from "./bio-source-policy.js";
 
 // Pages worth pulling for brand synthesis (homepage is always included first).
 export function isReadableSource(row){
@@ -89,14 +90,17 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telem
   const picked = [];
   const seen = new Set();
   const add = (link) => {
-    if (typeof link !== "string" || seen.has(link)) return;
-    seen.add(link);
-    picked.push(link);
+    const raw = typeof link === "string" ? link : link?.url;
+    const href = canonicalSourceUrl(raw);
+    if (!href || seen.has(href) || !sameBrandHost(url, href)) return;
+    seen.add(href);
+    picked.push(href);
   };
   add(url);
   for (const link of links) {
     if (picked.length >= max) break;
-    if (HIGH_SIGNAL.test(link)) add(link);
+    const raw = typeof link === "string" ? link : link?.url;
+    if (HIGH_SIGNAL.test(String(raw || ""))) add(link);
   }
   const pages = picked.slice(0, max);
 

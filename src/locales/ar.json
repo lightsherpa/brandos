@@ -1455,6 +1455,8 @@
       "repullSocial": "إعادة سحب الشبكات",
       "addCompetitor": "إضافة منافس",
       "ledger": "{sources} مصادر · {signals} إشارة مُتعلَّمة",
+      "competitorLedger": "مراجع المنافسين · ليست أدلة على العلامة · {count}",
+      "competitorTag": "منافس",
       "compounds": "كل مصدر يراكم الـBIO.",
       "signals": "{count} إشارة",
       "new": "جديد",

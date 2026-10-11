@@ -1370,6 +1370,8 @@
       "repullSocial": "Re-pull social",
       "addCompetitor": "Add competitor",
       "ledger": "{sources} sources · {signals} signals learned",
+      "competitorLedger": "Competitor references · not brand evidence · {count}",
+      "competitorTag": "Competitor",
       "compounds": "Every source compounds the BIO.",
       "signals": "{count} signals",
       "new": "new",

@@ -1370,6 +1370,8 @@
       "repullSocial": "Volver a extraer redes",
       "addCompetitor": "Añadir competidor",
       "ledger": "{sources} fuentes · {signals} señales aprendidas",
+      "competitorLedger": "Referencias de la competencia · no son evidencia de la marca · {count}",
+      "competitorTag": "Competidor",
       "compounds": "Cada fuente hace crecer el BIO.",
       "signals": "{count} señales",
       "new": "nuevo",
