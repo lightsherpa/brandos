@@ -8,7 +8,8 @@
 // (for `soon` status — they get a row so the directory still renders).
 //
 // Run:
-//   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/seed-specs.mjs
+//   node --env-file=server/.env scripts/seed-specs.mjs --only=a07,a08 --keep-db-route
+//   Add --dry-run to preview. Always back up specs; never run a full seed.
 //
 // Idempotent: uses upsert on (specialist_id, version) so re-running is
 // safe and just overwrites the v1 payload. To bump a version, edit the
@@ -26,6 +27,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { deepStrictEqual } from "node:assert";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -164,48 +166,99 @@ export const rows = Array.from(CI_AGENTS, (agent) => ({
   payload:       buildPayload(agent),
 }));
 
-export function selectRows(args, candidates = rows) {
-  if (args.length === 0) return candidates;
-  if (args.length !== 2 || args[0] !== "--only" || !args[1]) {
-    throw new Error("Usage: seed-specs.mjs [--only a02,a12,a13,a14,a16,a18,a24,a37]");
+const PROMPT_CONTRACT_FIELDS = [
+  "role", "objective", "method", "outputContract", "voice", "tools", "refusals", "bioSlices",
+];
+const USAGE = "Usage: seed-specs.mjs --only=<ids> [--keep-db-route] [--dry-run]";
+
+export function parseSeedOptions(args) {
+  let only;
+  let keepDbRoute = false;
+  let dryRun = false;
+  const usageError = message => {
+    const error = new Error(`${message}. ${USAGE}`);
+    error.exitCode = 2;
+    throw error;
+  };
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--only" || arg.startsWith("--only=")) {
+      if (only !== undefined) usageError("Duplicate --only");
+      only = arg === "--only" ? args[++i] : arg.slice("--only=".length);
+      if (!only || only.startsWith("--") || only.split(",").some(id => !id.trim())) usageError("Invalid --only ids");
+    } else if (arg === "--keep-db-route" && !keepDbRoute) keepDbRoute = true;
+    else if (arg === "--dry-run" && !dryRun) dryRun = true;
+    else usageError(`Unknown or duplicate flag ${arg}`);
   }
-  const ids = new Set(args[1].split(","));
-  const unknown = [...ids].filter(id => !candidates.some(row => row.specialist_id === id));
-  if (unknown.length) throw new Error(`Unknown specialist ids: ${unknown.join(",")}`);
-  return candidates.filter(row => ids.has(row.specialist_id));
+  if (!only) usageError("Refusing full seed: --only is required");
+  return { ids: new Set(only.split(",").map(id => id.trim())), keepDbRoute, dryRun };
 }
 
-export function buildScopedUpdates(selected, before) {
+function rowsForOptions(options, candidates) {
+  const unknown = [...options.ids].filter(id => !candidates.some(row => row.specialist_id === id));
+  if (unknown.length) throw new Error(`Unknown specialist ids: ${unknown.join(",")}`);
+  return candidates.filter(row => options.ids.has(row.specialist_id));
+}
+
+export function selectRows(args, candidates = rows) {
+  return rowsForOptions(parseSeedOptions(args), candidates);
+}
+
+export function buildScopedUpdates(selected, before, { keepDbRoute = false } = {}) {
   return selected.map(row => {
     const existing = before.find(item => item.specialist_id === row.specialist_id && item.version === row.version);
     if (!existing) throw new Error(`Scoped update requires existing spec ${row.specialist_id}`);
+    if (keepDbRoute && (!existing.payload?.modelRouting || typeof existing.payload.modelRouting.primary !== "string")) {
+      throw new Error(`Cannot preserve missing DB routing for ${row.specialist_id}`);
+    }
+    const changes = keepDbRoute
+      ? Object.fromEntries(PROMPT_CONTRACT_FIELDS.filter(key => row.payload[key] !== undefined).map(key => [key, row.payload[key]]))
+      : { modelRouting: row.payload.modelRouting };
     return { specialist_id: row.specialist_id, version: row.version, active: existing.active,
-      payload: { ...existing.payload, modelRouting: row.payload.modelRouting } };
+      payload: { ...existing.payload, ...changes } };
   });
 }
 
-export async function seedSpecs(args = process.argv.slice(2)) {
-  const selected = selectRows(args);
-  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+export async function seedSpecs(args = process.argv.slice(2), {
+  fetchImpl = fetch, env = process.env, logger = console,
+} = {}) {
+  const options = parseSeedOptions(args);
+  const selected = rowsForOptions(options, rows);
+  const printPreview = updates => {
+    for (const row of updates) logger.log(`${row.specialist_id}\t${row.payload.modelRouting?.primary}\t${row.payload.modelRouting?.fallback ?? "-"}\t${(row.payload.bioSlices || []).join(",")}`);
+    logger.log(`DRY RUN: ${updates.length} row(s), nothing written.${options.keepDbRoute ? " DB modelRouting preserved; only prompt/contract fields would change." : ""}`);
+  };
+  // Ordinary previews are offline. Route-preserving previews read the DB so
+  // they display the actual primary/fallback, rather than the source routes.
+  if (options.dryRun && !options.keepDbRoute) {
+    printPreview(selected);
+    return { dryRun: true, updates: selected };
+  }
+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = env;
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Missing Supabase service-role environment");
   const headers = { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` };
-  // REST equivalent of SELECT specialist_id, payload->'modelRouting' FROM specs.
-  // Save the full rows too, so this backup can restore all payload fields.
   const readRows = async () => {
-    const result = await fetch(`${SUPABASE_URL}/rest/v1/specs?select=*&order=specialist_id,version`, { headers });
+    const result = await fetchImpl(`${SUPABASE_URL}/rest/v1/specs?select=*&order=specialist_id,version`, { headers });
     if (!result.ok) throw new Error(`Backup/verification failed: HTTP ${result.status}`);
-    return result.json();
+    const data = await result.json();
+    if (!Array.isArray(data) || !data.length || data.length >= 1000) throw new Error("Refusing empty or incomplete specs snapshot");
+    return data;
   };
   const before = await readRows();
-  // Scoped upgrades preserve existing spec customizations and live status.
-  const updates = args.length ? buildScopedUpdates(selected, before) : selected;
-  if (before.length >= 1000) throw new Error("Refusing incomplete backup: REST pagination required");
-  const backupDir = join(REPO_ROOT, ".work", "hero-models");
+  const updates = buildScopedUpdates(selected, before, options);
+  if (options.dryRun) {
+    printPreview(updates);
+    return { dryRun: true, before, updates };
+  }
+  const backupDir = join(REPO_ROOT, "backups");
   mkdirSync(backupDir, { recursive: true, mode: 0o700 });
   const backupPath = join(backupDir, `specs-${Date.now()}.json`);
-  writeFileSync(backupPath, JSON.stringify(before, null, 2), { mode: 0o600 });
-  console.log(`Database backup: ${backupPath}`);
-  const result = await fetch(`${SUPABASE_URL}/rest/v1/specs?on_conflict=specialist_id,version`, {
+  writeFileSync(backupPath, JSON.stringify(before, null, 2), { mode: 0o600, flag: "wx" });
+  // Confirm a readable, complete backup exists before the first mutation.
+  deepStrictEqual(JSON.parse(readFileSync(backupPath, "utf8")), before);
+  logger.log(`Database backup confirmed: ${backupPath} (${before.length} rows)`);
+  logger.log(`Seeding ${updates.length} row(s): ${updates.map(row => row.specialist_id).join(", ")}`);
+  const result = await fetchImpl(`${SUPABASE_URL}/rest/v1/specs?on_conflict=specialist_id,version`, {
     method: "POST", headers: { ...headers, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
     body: JSON.stringify(updates),
   });
@@ -213,22 +266,22 @@ export async function seedSpecs(args = process.argv.slice(2)) {
   const after = await readRows();
   const keys = new Set(selected.map(row => `${row.specialist_id}:${row.version}`));
   const untouched = list => list.filter(row => !keys.has(`${row.specialist_id}:${row.version}`));
-  if (JSON.stringify(untouched(before)) !== JSON.stringify(untouched(after))) {
-    throw new Error("Non-selected specs changed during update; inspect backup before proceeding");
-  }
-  for (const row of selected) {
-    const actual = after.find(item => item.specialist_id === row.specialist_id && item.version === row.version);
-    if (JSON.stringify(actual?.payload?.modelRouting) !== JSON.stringify(row.payload.modelRouting)) {
-      // PostgreSQL jsonb key order can differ, compare fields explicitly.
-      if (!actual || Object.entries(row.payload.modelRouting).some(([key, value]) => actual.payload.modelRouting[key] !== value)) {
-        throw new Error(`Routing verification failed for ${row.specialist_id}`);
-      }
+  deepStrictEqual(untouched(after), untouched(before), "Non-selected specs changed during update; inspect backup");
+  for (const expected of updates) {
+    const actual = after.find(item => item.specialist_id === expected.specialist_id && item.version === expected.version);
+    if (!actual) throw new Error(`Missing spec after seed: ${expected.specialist_id}`);
+    // JSON serialization removes undefined values before PostgREST stores jsonb.
+    deepStrictEqual(actual.payload, JSON.parse(JSON.stringify(expected.payload)), `Payload verification failed for ${expected.specialist_id}`);
+    deepStrictEqual(actual.active, expected.active, `Live status changed for ${expected.specialist_id}`);
+    if (options.keepDbRoute) {
+      const previous = before.find(item => item.specialist_id === expected.specialist_id && item.version === expected.version);
+      deepStrictEqual(actual.payload.modelRouting, previous.payload.modelRouting, `DB routing changed for ${expected.specialist_id}`);
     }
   }
-  console.log(`Upserted and verified ${selected.length} spec rows; all non-selected rows unchanged.`);
-  return { before, after, backupPath };
+  logger.log(`Upserted and verified ${selected.length} spec rows; all non-selected rows unchanged.${options.keepDbRoute ? " All selected DB modelRouting values unchanged." : ""}`);
+  return { before, after, backupPath, updates };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  await seedSpecs().catch(error => { console.error(error.message); process.exitCode = 1; });
+  await seedSpecs().catch(error => { console.error(error.message); process.exitCode = error.exitCode || 1; });
 }

@@ -2,7 +2,13 @@
 
 **Never run `node scripts/seed-specs.mjs` with no flags, and never run it with `--all`, on a shared or prod DB.** A full seed rewrites every row from `portal-data.js` and wipes the ~22 manual route downgrades that live only in the DB.
 
-Starting with the Visual A diff, `seed-specs.mjs` **refuses to run without `--only=<ids>` or `--all`** (exit code 2). It also supports `--dry-run`, which prints `id  primary  fallback  bioSlices` without touching the DB. `scripts/test-seed-only.mjs` covers these flags. Slices 1-2 (hero) were merged before this flag existed. If you still need to seed them, apply Visual A first, or use the restore path below.
+`seed-specs.mjs` requires `--only=<ids>` (or `--only <ids>`). It refuses
+no flags or `--all` with exit code 2. `--dry-run` prints the selected id,
+primary, fallback and bioSlices without writing. Adding `--keep-db-route`
+reads the DB for the preview and preserves its routing during prompt-only
+updates; see below. `scripts/seed-specs.test.mjs` covers these flags.
+Slices 1-2 predate the Visual A seed changes, so check the actual script on
+your branch rather than assuming a handoff's flag support is present.
 
 ## 1. Back up the table (every time, before any seed)
 ```
@@ -26,6 +32,22 @@ If the DB primary for an id differs from what `portal-data.js` held **before** t
 node --env-file=server/.env scripts/seed-specs.mjs --only=$IDS
 ```
 The script prints `Seeding N row(s): ...`. N must equal the number of ids.
+
+### Prompt-only updates that preserve manually adjusted routes
+
+With explicit authorization to update prompts while keeping DB routing, use:
+```
+node --env-file=server/.env scripts/seed-specs.mjs --dry-run --only=<ids> --keep-db-route
+node --env-file=server/.env scripts/seed-specs.mjs --only=<ids> --keep-db-route
+```
+This mode reads the current DB rows and preserves the entire `payload.modelRouting`
+(including primary, fallback and reason), active status, identity, costs and custom
+payload fields. It replaces only role, objective, method, outputContract, voice,
+tools, refusals and bioSlices from the current source. It refuses missing rows or
+missing DB routing. The dry-run reads the DB but never writes. The seed confirms a
+fresh full-table backup in `backups/specs-<timestamp>.json` before writing and verifies
+all selected routes and all unselected rows afterwards. `--only` is mandatory;
+full seeds are refused.
 
 ## 4. Restore rows from the backup (rollback)
 ```
