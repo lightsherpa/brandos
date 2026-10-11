@@ -1408,7 +1408,13 @@
       "acceptChanges": "Revisar los cambios del Director Creativo",
       "acceptedText": "Los cambios del Director Creativo han sido aceptados para esta versión del BIO. La producción puede continuar mientras la certificación siga vigente.",
       "acceptConsequence": "Aceptar registra tu aprobación de los cambios del Director Creativo a esta versión exacta del BIO.",
-      "queuePending": "Tu aprobación se ha guardado. La asignación del Director Creativo está pendiente; la producción sigue bloqueada."
+      "queuePending": "Tu aprobación se ha guardado. La asignación del Director Creativo está pendiente; la producción sigue bloqueada.",
+      "scoreLine": "Puntuación {score} de 100. La autocertificación exige {minScore}.",
+      "belowFloor": "La autocertificación está cerrada por debajo de {minScore}. Este BIO puntúa {score}.",
+      "dragHeading": "Estas secciones están bajando la puntuación.",
+      "sectionLift": "{section} · unos {points} puntos si la completas",
+      "addAnswers": "Añade una respuesta y una fuente para {fields}.",
+      "addSources": "Añade una fuente para {fields}."
     },
     "landscape": {
       "label": "Panorama competitivo",

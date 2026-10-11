@@ -15,10 +15,9 @@
 import {bioIntegrityError} from "./brand-source-integrity.js";
 import { assignSteward } from "./assign-steward.js";
 import { supabaseAdmin } from "./supabase.js";
-import { scoreBio } from "./score-bio.js";
 import { computeFocus } from "./bio-focus.js";
 import { payloadHash } from "./bio-hash.js";
-import { DEFAULT_RUBRIC } from "./evaluate-certification.js";
+import { selfCertScoreReport } from "./self-cert-floor.js";
 
 /**
  * @param {object} args
@@ -59,16 +58,19 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
     return { ok: false, code: "HIGH_IMPORTANCE_GAPS", error: "Fill the high-importance fields before self-certifying", fields: highGaps.map((f) => f.field) };
   }
 
-  // 4) Score must clear the active rubric's self-cert minimum.
-  let floor = minScore;
-  if (typeof floor !== "number") {
-    const { data: rubric } = await supabaseAdmin
-      .from("cert_rubric_versions").select("config").eq("active", true).maybeSingle();
-    floor = rubric?.config?.selfCertMinScore ?? DEFAULT_RUBRIC.selfCertMinScore;
-  }
-  const score = scoreBio(bio);
-  if (score < floor) {
-    return { ok: false, code: "BELOW_MIN_SCORE", error: `BIO score ${score} is below the ${floor} needed to self-certify`, score, minScore: floor };
+  // 4) Score must clear the self-cert floor (default 80, allowed 80–85).
+  //    The Creative Director rubric does not set this gate.
+  const report = selfCertScoreReport(bio, minScore);
+  const { score } = report;
+  if (!report.meetsFloor) {
+    return {
+      ok: false,
+      code: "BELOW_MIN_SCORE",
+      error: `BIO score ${score} is below the ${report.minScore} needed to self-certify`,
+      score,
+      minScore: report.minScore,
+      sections: report.sections,
+    };
   }
 
   // Record and unlock atomically; a failed attestation must never unlock briefing.

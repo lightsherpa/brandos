@@ -11,6 +11,7 @@ import { loadBioForRun, loadBioForBriefing } from "../server/src/lib/load-brand-
 import { validateCertificationReview, CERTIFICATION_SECTIONS } from "../server/src/lib/certification-review.js";
 import { selfCertifyBio } from "../server/src/lib/self-certify.js";
 import { scoreBio } from "../server/src/lib/score-bio.js";
+import { SELF_CERT_MIN_SCORE } from "../server/src/lib/self-cert-floor.js";
 
 let failures = 0;
 const ok = (n, p, d = "") => { console.log(`${p ? "PASS" : "FAIL"}  ${n}${d ? ` — ${d}` : ""}`); if (!p) failures++; };
@@ -87,6 +88,7 @@ async function run() {
   const review=validateCertificationReview({body,bio:newBio});
   ok("v2 review binds to saved candidate",review.ok);
   const res = await selfCertifyBio({ brandId, bioId: newBio.id, payload: edited, userId: null, statements: STATEMENTS, statementVersion: "2",review:review.review });
+  ok("draft clears the self-cert floor", scoreBio(edited) >= SELF_CERT_MIN_SCORE, `score ${scoreBio(edited)} / ${SELF_CERT_MIN_SCORE}`);
   ok("selfCertifyBio succeeds (score >= min, no high-importance gaps)", res.ok === true, res.ok ? `score ${res.score}` : res.code);
   await sb.from("discovery_sessions").update({ status: "completed" }).eq("id", sessionId);
 
