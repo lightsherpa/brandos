@@ -1,0 +1,79 @@
+{
+  "checkedAt": "2026-10-11",
+  "scope": "local demo only",
+  "updates": [
+    {
+      "field": "identity.founded",
+      "value": "2011, London; established in Barcelona in 2014.",
+      "source": "https://nomadcoffee.es/pages/historia",
+      "confidence": 98
+    },
+    {
+      "field": "goals.northStar",
+      "value": "Bring specialty coffee closer to consumers while respecting producers and carefully controlling roasting quality.",
+      "source": "https://nomadcoffee.es/pages/filosofia",
+      "confidence": 90
+    },
+    {
+      "field": "identity.pillars",
+      "value": [
+        "Specialty coffee roasted in-house",
+        "Respect and proximity to producers",
+        "Accessible coffee education",
+        "Home coffee subscriptions"
+      ],
+      "source": "https://nomadcoffee.es/pages/filosofia",
+      "confidence": 90
+    },
+    {
+      "field": "identity.positioning",
+      "value": "Nomad Coffee is a Barcelona specialty coffee roaster with monthly home subscriptions, brewing equipment and coffee education for home brewers and professionals.",
+      "source": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+      "confidence": 92
+    },
+    {
+      "field": "audience.primary",
+      "value": "Home coffee drinkers who want monthly specialty coffee roasted in Barcelona, with filter, espresso or decaf options and a flexible subscription.",
+      "source": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+      "confidence": 90
+    },
+    {
+      "field": "audience.jtbd",
+      "value": [
+        "Receive coffee at home monthly without reordering",
+        "Choose coffee and grind to suit my home brewing method",
+        "Adjust, pause or cancel a subscription as my needs change"
+      ],
+      "source": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+      "confidence": 92
+    },
+    {
+      "field": "audience.secondary",
+      "value": "Home enthusiasts learning to prepare coffee and people training to become professional baristas.",
+      "source": "https://nomadcoffee.es/pages/historia",
+      "confidence": 95
+    },
+    {
+      "field": "voice.register",
+      "value": "Direct and informative, with clear explanations of origin, roasting and flexible home subscriptions.",
+      "source": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+      "confidence": 85
+    },
+    {
+      "field": "voice.rhythm",
+      "value": "Short headings and direct second-person instructions; longer explanatory paragraphs for product and process information.",
+      "source": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+      "confidence": 85
+    },
+    {
+      "field": "voice.signatures",
+      "value": [
+        "NOMAD atHome",
+        "From our home to yours",
+        "Concise headings followed by practical brewing and subscription details"
+      ],
+      "source": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+      "confidence": 90
+    }
+  ]
+}
