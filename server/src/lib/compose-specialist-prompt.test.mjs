@@ -1,4 +1,6 @@
 // server/src/lib/compose-specialist-prompt.test.mjs
+import { readFileSync } from "node:fs";
+import { createContext, runInContext } from "node:vm";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { composeSpecialistPrompt } from "./compose-specialist-prompt.js";
@@ -95,6 +97,20 @@ test("renderer specialists receive real block schemas and JSON output precedence
     assert.deepEqual(schema.$defs.image.required, ["src", "alt"]);
   }
 });
+test("a26 does not ask for variants the renderer schema forbids", () => {
+  const src = readFileSync(new URL("../../../src/portal-data.js", import.meta.url), "utf8");
+  const sandbox = { window: {}, localStorage: { getItem: () => null, setItem: () => {} } };
+  createContext(sandbox);
+  runInContext(src, sandbox);
+  const method = sandbox.window.CI_SPECIALIST_SPECS.a26.method.join("\n");
+  assert.doesNotMatch(method, /Variants:\s*default\s*2/);
+  const blocks = composeSpecialistPrompt({ spec: { specialist_id: "a26", payload: {} }, bio: {}, brief: "Demo" });
+  const contract = blocks.find((block) => block.text.includes("RENDERER BLOCK FORMAT"));
+  assert.match(contract.text, /explanations or variants/);
+  const schema = JSON.parse(contract.text.slice(contract.text.indexOf("{")));
+  assert.equal(schema.additionalProperties, false);
+});
+
 test("copy specialists retain their existing output format", () => {
   const blocks = composeSpecialistPrompt({ spec: { specialist_id: "a14", payload: {} }, bio: {}, brief: "Demo" });
   assert.equal(blocks.some(block => block.text.includes("RENDERER BLOCK FORMAT")), false);

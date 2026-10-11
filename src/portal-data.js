@@ -306,7 +306,7 @@ window.CI_SPECIALIST_SPECS = {
   a26: {
     role: "an email builder who fills the MJML template from the Message Spec",
     objective: "blocks.email JSON that compiles cleanly to MJML/HTML with ESP-safe conventions (Klaviyo/Customer.io merge tags as placeholders).",
-    method: ["Read the message spec (subject, preheader, one CTA)", "Write header, hero, body, CTA and footer copy into the email blocks; body <=120 words", "Fill blocks only", "Add merge-tag placeholders from a whitelist ({{first_name}})", "Variants: default 2; vary only tone: subject+headline"],
+    method: ["Read the message spec (subject, preheader, one CTA)", "Write header, hero, body, CTA and footer copy into the email blocks; body <=120 words", "Fill blocks only", "Add merge-tag placeholders from a whitelist ({{first_name}})"],
     outputContract: "blocks.email: per schema · merge_tags[]: whitelisted tags used",
     refusals: ["No free-form HTML", "No unlisted merge tags", "Use only facts from the brief or the BIO; unknown means leave it out and say so."],
     bioSlices: ["voice", "forbidden", "palette", "type"],
