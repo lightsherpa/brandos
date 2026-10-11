@@ -13,7 +13,7 @@
 
 export const DEFAULT_RUBRIC = {
   rubric_version: 1,
-  selfCertMinScore: 58, // stage-1 self-cert precondition (used by the self-cert endpoint)
+  selfCertMinScore: 58, // historical CD-rubric field; live self-cert uses SELF_CERT_MIN_SCORE
   criteria: [
     { id: "C1", label: "Coverage completeness",            weight: 0.15, source: "auto",  signal: "coverage",  gating: true,  floor: 2 },
     { id: "C2", label: "Evidence grounding",               weight: 0.15, source: "auto",  signal: "grounding", gating: false, floor: 0 },

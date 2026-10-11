@@ -16,6 +16,7 @@ import { evaluateCertification } from "../server/src/lib/evaluate-certification.
 import { scoreBio, scoreBioBreakdown } from "../server/src/lib/score-bio.js";
 import { computeFocus } from "../server/src/lib/bio-focus.js";
 import { selfCertifyBio } from "../server/src/lib/self-certify.js";
+import { SELF_CERT_MIN_SCORE } from "../server/src/lib/self-cert-floor.js";
 import { validateCertificationReview, CERTIFICATION_SECTIONS } from "../server/src/lib/certification-review.js";
 import { payloadHash } from "../server/src/lib/bio-hash.js";
 
@@ -82,7 +83,7 @@ async function run() {
   // 2. Self-certify (stage 1) — replicates the endpoint's preconditions + writes.
   const highGaps = computeFocus(PAYLOAD).filter((f) => f.status === "missing" && f.importance >= 1.0);
   ok("self-cert precondition: no high-importance gaps", highGaps.length === 0);
-  ok("self-cert precondition: score ≥ 58", scoreBio(PAYLOAD) >= 58, `score ${scoreBio(PAYLOAD)}`);
+  ok("self-cert precondition: score clears the floor", scoreBio(PAYLOAD) >= SELF_CERT_MIN_SCORE, `score ${scoreBio(PAYLOAD)} / ${SELF_CERT_MIN_SCORE}`);
   const body={bioId,version:1,statementVersion:"2",reviewedSections:CERTIFICATION_SECTIONS,statements:{authority:true,reflects:true,aspirationalMarked:true}};
   const validated=validateCertificationReview({body,bio:{id:bioId,version:1}});
   ok("v2 review validates exact version",validated.ok);

@@ -65,6 +65,40 @@ export function resolveOutputLocales({ requested, brand } = {}) {
   return [normalizeLocale(brand?.default_locale)];
 }
 
+const LOCALE_NAMES = { en: "English", es: "Spanish", ar: "Arabic" };
+
+/**
+ * The single output locale for a run.
+ * Precedence: an explicit request, the brief's output targets, a locale
+ * carried on the BIO, the brand's output languages, then the brand's
+ * home language, then the language the brief was written in.
+ */
+export function resolveRunOutputLocale({ requested, brief, bio, brand } = {}) {
+  const requestedList = Array.isArray(requested) ? requested : (requested ? [requested] : []);
+  const fromRequested = cleanLocales(requestedList);
+  if (fromRequested.length) return fromRequested[0];
+
+  const fromBrief = cleanLocales(brief?.output_locales);
+  if (fromBrief.length) return fromBrief[0];
+
+  const bioLocale = [bio?.locale, bio?.language, bio?.identity?.locale, bio?.voice?.locale]
+    .find((value) => SUPPORTED_LOCALES.includes(value));
+  if (bioLocale) return bioLocale;
+
+  const fromBrand = cleanLocales(brand?.output_locales);
+  if (fromBrand.length) return fromBrand[0];
+  if (SUPPORTED_LOCALES.includes(brand?.default_locale)) return brand.default_locale;
+  if (SUPPORTED_LOCALES.includes(brief?.brief_lang)) return brief.brief_lang;
+  return DEFAULT_LOCALE;
+}
+
+export function outputLocaleInstruction(locale) {
+  const loc = normalizeLocale(locale);
+  const name = LOCALE_NAMES[loc];
+  const direction = loc === "ar" ? " Use Arabic script." : "";
+  return `Write the deliverable in ${name}.${direction} Do not switch language.`;
+}
+
 /**
  * Resolve a brand's numeral system, defaulting to 'latn'.
  * @param {object} [brand]  { numeral_system? }

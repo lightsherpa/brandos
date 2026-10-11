@@ -20,6 +20,7 @@ import {generateDiscoveryBrain,sourceBlock,normalizeDiscoveryReferences} from ".
 import { inngest } from "../../lib/inngest.js";
 import { supabaseAdmin } from "../../lib/supabase.js";
 import { scrape, mapAndScrape, searchCompetitiveSources } from "../../lib/firecrawl.js";
+import { assembleSourceText, discoverySourceRow } from "../../lib/bio-source-policy.js";
 import { assignSteward } from "../../lib/assign-steward.js";
 import { completeDiscoveryStep } from "../../lib/discovery-models.js";
 import { scoreBio } from "../../lib/score-bio.js";
@@ -194,17 +195,15 @@ export const compileBio = inngest.createFunction(
         });
         // Insert one bio_sources row per crawled page (kind:url_scrape, bucket:null).
         for (const page of pages) {
-          const { error } = await supabaseAdmin.from("bio_sources").insert({
-            brand_id: brandId,
-            kind: "url_scrape",
-            bucket: null,
-            src: page.url,
-            signals: {
-              title: page.title || null,
-              markdown_chars: page.markdown?.length || 0,
-            },
-            raw_ref: null,
+          const row = discoverySourceRow({
+            brandUrl: url,
+            url: page.url,
+            origin: "crawl",
+            purpose: "current",
+            signals: { title: page.title || null, markdown_chars: page.markdown?.length || 0 },
           });
+          if (!row) continue;
+          const { error } = await supabaseAdmin.from("bio_sources").insert({ brand_id: brandId, ...row, raw_ref: null });
           if (error) throw new Error(`bio_sources insert failed: ${error.message}`);
         }
         // Concatenate page markdowns, labeled by source URL.
@@ -223,21 +222,23 @@ export const compileBio = inngest.createFunction(
         telemetry: { feature: "discovery.scrape", workspaceId, brandId, workflowId: discoveryId },
       });
       // Persist as a bio_sources row (URL-derived, bucket=null per rev-2 §5.3)
-      const { error } = await supabaseAdmin.from("bio_sources").insert({
-        brand_id: brandId,
-        kind: "url_scrape",
-        bucket: null,
-        src: url,
+      const row = discoverySourceRow({
+        brandUrl: url,
+        url,
+        origin: "crawl",
+        purpose: "current",
         signals: {
           title: result.metadata?.title,
           description: result.metadata?.description,
           markdown_chars: result.markdown?.length || 0,
         },
-        raw_ref: null,
       });
+      if (row) {
+      const { error } = await supabaseAdmin.from("bio_sources").insert({ brand_id: brandId, ...row, raw_ref: null });
       if (error) throw new Error(`bio_sources insert failed: ${error.message}`);
+      }
       return {
-        markdown: result.markdown || "",
+        markdown: `## SOURCE: ${row?.src || url}\n\n${result.markdown || ""}`,
         title: result.metadata?.title || null,
       };
     });
@@ -302,15 +303,18 @@ export const compileBio = inngest.createFunction(
           const page=await scrape(ref.url,{formats:["markdown"]});
           if(!page.markdown?.trim())throw new Error("No readable content");
           blocks.push(sourceBlock({...ref,markdown:page.markdown}));
-          const {error}=await supabaseAdmin.from("bio_sources").insert({brand_id:brandId,kind:"url_scrape",src:ref.url,signals:{purpose:ref.purpose,note:ref.note,checked_at:new Date().toISOString(),markdown_chars:page.markdown.length},raw_ref:null});
-          if(error)throw error;
+          const row=discoverySourceRow({brandUrl:url,url:ref.url,origin:"user",purpose:ref.purpose,signals:{purpose:ref.purpose,note:ref.note,checked_at:new Date().toISOString(),markdown_chars:page.markdown.length}});
+          if(row){
+            const {error}=await supabaseAdmin.from("bio_sources").insert({brand_id:brandId,...row,raw_ref:null});
+            if(error)throw error;
+          }
         }catch{failures.push(`Reference could not be read: ${ref.url}`);}
       }
       return {blocks,failures};
     });
     await progress("visual");
     const visualEvidence = V2 ? await step.run("read-brand-and-reference-visuals", () => loadVisualAssets(brandId).then(assets=>collectDiscoveryVisuals({url,references,scrape,readImagery:extractImageryAvoid,assets,telemetry:{workspaceId,brandId,workflowId:discoveryId}}))) : null;
-    const evidence=[scraped.markdown,...extraSources,...linkedSources.blocks,visualEvidence ? `VISUAL OBSERVATIONS (source declarations, not computed styles; preserve source purposes):\n${JSON.stringify(visualEvidence)}` : null].filter(Boolean).join("\n\n").slice(0,48000);
+    const evidence=assembleSourceText([scraped.markdown,...extraSources,...linkedSources.blocks,visualEvidence ? `VISUAL OBSERVATIONS (source declarations, not computed styles; preserve source purposes):\n${JSON.stringify(visualEvidence)}` : null]);
     let synthesisPass=0;
     const bioPayload=await generateDiscoveryBrain({
       evidence,
@@ -320,11 +324,7 @@ export const compileBio = inngest.createFunction(
       });},
       research:async query=>{await progress("research");return step.run("research-competitive-landscape",async()=>{
         const pages=await searchCompetitiveSources(query);
-        for(const page of pages){
-          const {error}=await supabaseAdmin.from("bio_sources").insert({brand_id:brandId,kind:"url_scrape",src:page.url,signals:{purpose:"competitive",title:page.title,checked_at:new Date().toISOString(),markdown_chars:page.markdown.length},raw_ref:null});
-          if(error)throw error;
-        }
-        return pages;
+        return pages.map(page=>({...page,evidence:"market",counts_as_brand_evidence:false}));
       });},
       synthesize:async content=>{await progress("synthesize");return step.run(synthesisPass++===0?"interpret-brand-evidence":"synthesize-researched-bio",async()=>{
       const result=await completeDiscoveryStep({

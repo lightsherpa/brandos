@@ -3,6 +3,7 @@ import {useLocale} from './lib/i18n.js';
 import {apiFetch} from './lib/supabase-browser.js';
 import {CERTIFICATION_SECTIONS} from '../server/src/lib/certification-review.js';
 import {computeFocus} from '../server/src/lib/bio-focus.js';
+import {selfCertScoreReport} from '../server/src/lib/self-cert-floor.js';
 import './bio-self-certification.css';
 
 export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,renderSection,initiallyOpen=false,onClose}){
@@ -26,6 +27,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
  const [receipt,setReceipt]=React.useState(null);
  const issues=computeFocus(bio.payload||{});
  const blocking=issues.filter(i=>i.status==='missing'&&i.importance>=1);
+ const gate=selfCertScoreReport(bio.payload||{});
  const allReviewed=CERTIFICATION_SECTIONS.every(s=>reviewed.includes(s));
  const focusable=root=>[...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')];
  React.useEffect(()=>{
@@ -53,8 +55,10 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
  },[step,receipt]);
  const close=()=>{if(!busy)onClose();};
  const accepting=!!(bio.certified&&bio.client_acceptance_required&&!bio.client_accepted_at);
+ const below=!accepting&&!gate.meetsFloor;
+ const fieldName=field=>t(`discovery.field.${field.section}.${field.key}`);
  const submit=async()=>{
-  if(busy||!allReviewed||!Object.values(statements).every(v=>v===true)||(!accepting&&blocking.length))return;
+  if(busy||!allReviewed||!Object.values(statements).every(v=>v===true)||(!accepting&&(blocking.length||below)))return;
   setBusy(true);setError(null);
   try{
    const res=await apiFetch(`/api/bios/${brandId}/${accepting?"accept-changes":"self-certify"}`,{method:'POST',body:JSON.stringify({bioId:bio.id,version:bio.version,statements,reviewedSections:reviewed,statementVersion:'2'})});
@@ -79,6 +83,16 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
    <ol className="bio-cert-steps"><li aria-current={step===0?'step':undefined}>01 {t('discovery.certification.reviewStep')}</li><li aria-current={step===1?'step':undefined}>02 {t('discovery.certification.confirmStep')}</li></ol>
    <div className="bio-cert-body">
     <p className="bio-cert-intro">{t(step?'discovery.certification.confirmText':'discovery.certification.reviewText')}</p>
+    {!accepting&&<section className="bio-cert-score" data-below={below?'true':'false'} data-score={gate.score} data-floor={gate.minScore}>
+     <p><strong>{t('discovery.certification.scoreLine',{score:gate.score,minScore:gate.minScore})}</strong></p>
+     {below&&<>
+      <p role="alert">{t('discovery.certification.belowFloor',{score:gate.score,minScore:gate.minScore})}</p>
+      {gate.sections.length>0&&<>
+       <p>{t('discovery.certification.dragHeading')}</p>
+       <ul>{gate.sections.map(s=><li key={s.section}><strong>{s.points>0?t('discovery.certification.sectionLift',{section:label(s.section),points:s.points}):label(s.section)}</strong>{s.answers.length>0&&<span> {t('discovery.certification.addAnswers',{fields:s.answers.map(fieldName).join(', ')})}</span>}{s.sources.length>0&&<span> {t('discovery.certification.addSources',{fields:s.sources.map(fieldName).join(', ')})}</span>}</li>)}</ul>
+      </>}
+     </>}
+    </section>}
     {!step?<>
      <div className="bio-cert-review-grid"><nav aria-label={t('discovery.certification.sections')}>{CERTIFICATION_SECTIONS.map(s=><button type="button" key={s} aria-current={section===s?'page':undefined} onClick={()=>setSection(s)}><span>{label(s)}</span><span>{reviewed.includes(s)?'✓':'—'}</span></button>)}</nav>
       <section className="bio-cert-preview" aria-label={label(section)}><h3>{label(section)}</h3>{renderSection(section)}<label className="bio-cert-check"><input type="checkbox" checked={reviewed.includes(section)} onChange={e=>setReviewed(prev=>e.target.checked?[...prev,section]:prev.filter(s=>s!==section))}/><span>{t('discovery.certification.reviewed',{section:label(section)})}</span></label></section></div>
@@ -91,7 +105,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
     </>}
     {error&&<p role="alert" className="bio-cert-error">{error}</p>}
    </div>
-   <footer><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&blocking.length>0)} onClick={()=>setStep(1)}>{t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)} onClick={submit}>{t(busy?'discovery.selfCert.submitting':accepting?'discovery.certification.acceptChanges':'discovery.certification.submit')}</button>}</footer>
+   <footer><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&(blocking.length>0||below))} onClick={()=>setStep(1)}>{t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)||below} onClick={submit}>{t(busy?'discovery.selfCert.submitting':accepting?'discovery.certification.acceptChanges':'discovery.certification.submit')}</button>}</footer>
   </>}
  </dialog>;
 }

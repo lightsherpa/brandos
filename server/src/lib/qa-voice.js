@@ -38,11 +38,64 @@ Return STRICT JSON ONLY, no preamble, no fences. Shape:
 
 Be strict on refusals (any contradiction = fail). Be calibrated on voice — a 70 is "passes muster, ships"; 85+ is "this reads exactly like the brand"; below 60 is "needs a rewrite, not a tweak".`;
 
+const QA_SYSTEM_RETRY = `${QA_SYSTEM}
+
+The previous reply was not valid JSON. Return exactly one JSON object and nothing else. No markdown fences, no commentary, no text before or after the object.`;
+
+export function parseVoiceQaJson(text) {
+  const stripped = String(text || "")
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
+  try {
+    return JSON.parse(stripped);
+  } catch {
+    const start = stripped.indexOf("{");
+    const end = stripped.lastIndexOf("}");
+    if (start >= 0 && end > start) return JSON.parse(stripped.slice(start, end + 1));
+    throw new Error("unparseable");
+  }
+}
+
+/* An unreadable verdict is not a pass. Callers persist this as needs_review. */
+export function outputStatusForQa(qa) {
+  if (qa?.status === "needs_review") return "needs_review";
+  return qa?.passed ? "approved" : "flagged";
+}
+
 function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export async function voiceQa({ body, bio, refusals, telemetry = {} }) {
+async function collectVerdict(complete, { system, messages, telemetry }) {
+  let text = "";
+  let usage = null;
+  for await (const ev of complete({
+    spec: QA_SPEC,
+    system,
+    messages,
+    maxTokens: 400,
+    telemetry: { operationKey: "specialist.text", feature: "qa.voice", ...telemetry },
+  })) {
+    if (ev.type === "token") text += ev.text;
+    else if (ev.type === "done") usage = ev.usage;
+    else if (ev.type === "error") {
+      const error = new Error(ev.message || "qa unavailable");
+      error.code = "qa_unavailable";
+      throw error;
+    }
+  }
+  return { text, usage };
+}
+
+function mergeUsage(first, second) {
+  if (!first) return second;
+  if (!second) return first;
+  const costs = [first.cost_usd, second.cost_usd].filter((n) => typeof n === "number");
+  return { ...first, ...second, cost_usd: costs.length ? costs.reduce((sum, n) => sum + n, 0) : null };
+}
+
+export async function voiceQa({ body, bio, refusals, telemetry = {}, complete = streamCompletion }) {
   /* 1. Local forbidden-words scan. */
   const forbidden = bio?.voice?.forbidden || [];
   const localViolations = [];
@@ -72,25 +125,13 @@ export async function voiceQa({ body, bio, refusals, telemetry = {} }) {
   let text = "";
   let usage = null;
   try {
-    for await (const ev of streamCompletion({
-      spec: QA_SPEC,
+    const first = await collectVerdict(complete, {
       system: QA_SYSTEM,
       messages: [{ role: "user", content: userMsg }],
-      maxTokens: 400,
-      telemetry: { operationKey: "specialist.text", feature: "qa.voice", ...telemetry },
-    })) {
-      if (ev.type === "token")      text += ev.text;
-      else if (ev.type === "done")  usage = ev.usage;
-      else if (ev.type === "error") {
-        /* QA itself failed — fail safe: report local violations only. */
-        return {
-          passed: localViolations.length === 0,
-          voice_match: localViolations.length === 0 ? 70 : 0,
-          violations: [...localViolations, `qa_unavailable: ${ev.message}`],
-          usage: null,
-        };
-      }
-    }
+      telemetry,
+    });
+    text = first.text;
+    usage = first.usage;
   } catch (e) {
     return {
       passed: localViolations.length === 0,
@@ -100,21 +141,39 @@ export async function voiceQa({ body, bio, refusals, telemetry = {} }) {
     };
   }
 
-  let llmVerdict = { passed: true, voice_match: 70, violations: [] };
+  let llmVerdict = null;
   try {
-    const stripped = text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```\s*$/i, "")
-      .trim();
-    llmVerdict = JSON.parse(stripped);
+    llmVerdict = parseVoiceQaJson(text);
   } catch {
-    /* If the LLM returned non-JSON, fall back to local-only result. */
-    return {
-      passed: localViolations.length === 0,
-      voice_match: localViolations.length === 0 ? 70 : 0,
-      violations: [...localViolations, "qa_unparseable_response"],
-      usage,
-    };
+    try {
+      const second = await collectVerdict(complete, {
+        system: QA_SYSTEM_RETRY,
+        messages: [{
+          role: "user",
+          content: `${userMsg}\n\nYour previous reply was not valid JSON. Return exactly one JSON object and nothing else.`,
+        }],
+        telemetry,
+      });
+      text = second.text;
+      usage = mergeUsage(usage, second.usage);
+      llmVerdict = parseVoiceQaJson(text);
+    } catch (e) {
+      if (e?.code === "qa_unavailable") {
+        return {
+          passed: localViolations.length === 0,
+          voice_match: localViolations.length === 0 ? 70 : 0,
+          violations: [...localViolations, `qa_unavailable: ${e.message}`],
+          usage,
+        };
+      }
+      return {
+        passed: false,
+        status: "needs_review",
+        voice_match: null,
+        violations: [...localViolations, "qa_unparseable_response"],
+        usage,
+      };
+    }
   }
 
   const violations = [...localViolations, ...(Array.isArray(llmVerdict.violations) ? llmVerdict.violations : [])];

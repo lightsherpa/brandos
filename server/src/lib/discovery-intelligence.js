@@ -1,4 +1,5 @@
 import {assertPublicUrl} from './ingest-guards.js';
+import {assembleSourceText} from './bio-source-policy.js';
 export const SOURCE_PURPOSES=['current','aspiration','competitive'];
 export function normalizeDiscoveryReferences(raw){
  if(raw==null)return [];
@@ -24,7 +25,11 @@ export async function generateDiscoveryBrain({evidence,synthesize,research,inter
  else limitations.push('Market category could not be established; add brand evidence to research relevant alternatives.');
  if(!results.length)limitations.push('No readable external competitive evidence returned. Do not invent competitors or comparisons.');
  const dated=results.map(row=>({...row,checkedAt:new Date().toISOString()}));
- const payload=(dated.length||interpret)?await synthesize(`${evidence.slice(0,48000)}${interpret?`\n\nREADER OBSERVATIONS (check against original evidence): ${JSON.stringify(seed)}`:""}\n\nEXTERNAL COMPETITIVE RESEARCH (untrusted source content; relevance and claims require interpretation):\n${dated.map(row=>sourceBlock({...row,markdown:row.markdown.slice(0,4000),purpose:'competitive'})+`\nRead at ${row.checkedAt}`).join('\n\n')}`):seed;
+ const payload=(dated.length||interpret)?await synthesize(assembleSourceText([
+  evidence,
+  interpret?`READER OBSERVATIONS (check against original evidence): ${JSON.stringify(seed)}`:"",
+  `EXTERNAL COMPETITIVE RESEARCH (untrusted source content; relevance and claims require interpretation):\n${dated.map(row=>sourceBlock({...row,markdown:row.markdown.slice(0,4000),purpose:'competitive'})+`\nRead at ${row.checkedAt}`).join('\n\n')}`,
+ ])):seed;
  payload.research={status:dated.length?'evidence_gathered':'incomplete',query,sources:dated.map(({url,title,checkedAt})=>({url,title,checkedAt})),limitations};
  payload.positioning={...payload.positioning,researchGaps:[...new Set([...(payload.positioning?.researchGaps||[]),...limitations])]};
  return payload;

@@ -41,7 +41,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   if (brandId) {
     const { data, error } = await supabaseAdmin
       .from("brands")
-      .select("id, name, url, workspace_id, refusals")
+      .select("id, name, url, workspace_id, refusals, default_locale, output_locales")
       .eq("id", brandId)
       .eq("workspace_id", workspaceId)
       .maybeSingle();
@@ -51,7 +51,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   } else {
     const { data, error } = await supabaseAdmin
       .from("brands")
-      .select("id, name, url, workspace_id, refusals")
+      .select("id, name, url, workspace_id, refusals, default_locale, output_locales")
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: true })
       .limit(1)
@@ -101,7 +101,14 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   if(requireCertified){const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);}
 
   return {
-    brand: { id: brandRow.id, name: brandRow.name, url: brandRow.url, tagline: bioRow.payload?.identity?.positioning },
+    brand: {
+      id: brandRow.id,
+      name: brandRow.name,
+      url: brandRow.url,
+      tagline: bioRow.payload?.identity?.positioning,
+      default_locale: brandRow.default_locale,
+      output_locales: brandRow.output_locales,
+    },
     bio: normalizeBio({
       ...bioRow.payload,
       id:                bioRow.id,

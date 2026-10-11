@@ -1451,7 +1451,7 @@ function BioViewer({ go, bioScore = 91 }) {
     let alive = true;
     supabase.from("bio_sources").select("id, kind, bucket, src, signals, raw_ref, created_at")
       .eq("brand_id", live.brandId).order("created_at", { ascending: false })
-      .then(({ data }) => { if (alive && data) setSources(data.map(s => ({ src: s.src, date: new Date(s.created_at).toLocaleDateString(undefined,{day:"numeric",month:"short"}), n: s.signals?.markdown_chars ? Math.round(s.signals.markdown_chars / 200) : 6, bucket: s.bucket, raw_ref: s.raw_ref }))); });
+      .then(({ data }) => { if (alive && data) setSources(data.map(s => ({ src: s.src, date: new Date(s.created_at).toLocaleDateString(undefined,{day:"numeric",month:"short"}), n: s.signals?.markdown_chars ? Math.round(s.signals.markdown_chars / 200) : 6, bucket: s.bucket, raw_ref: s.raw_ref, brandEvidence: s.signals?.counts_as_brand_evidence !== false && s.signals?.evidence !== "competitor" && s.signals?.evidence !== "market" && s.signals?.purpose !== "competitive" }))); });
     return () => { alive = false; };
   }, [live.brandId, live.bio?.id]);
 
@@ -2060,7 +2060,9 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
   const fileRef = React.useRef(null);
   const [uploadingFile, setUploadingFile] = useDState(false);
   const [uploadError, setUploadError] = useDState(null);
-  const total = sources.reduce((a, s) => a + s.n, 0);
+  const brandSources = sources.filter((s) => s.brandEvidence !== false);
+  const competitorSources = sources.filter((s) => s.brandEvidence === false);
+  const total = brandSources.reduce((a, s) => a + s.n, 0);
   const onKey = (e) => { if (e.key === "Enter") { e.preventDefault(); addReference(); } };
   const uploadFile = async (file) => {
     if (!file || !brandId || uploadingFile) return;
@@ -2116,13 +2118,13 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
 
       {/* Ledger header */}
       <div style={{display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:6}}>
-        <div className="eyebrow">{t("discovery.sources.ledger", { sources: sources.length, signals: total })}</div>
+        <div className="eyebrow">{t("discovery.sources.ledger", { sources: brandSources.length, signals: total })}</div>
         <div style={{fontSize:11.5, color:"var(--c-faint)", fontStyle:"italic"}}>{t("discovery.sources.compounds")}</div>
       </div>
 
       {/* Source ledger */}
       <div>
-        {sources.map((s, i) => (
+        {brandSources.map((s, i) => (
           <div key={i} style={{display:"grid", gridTemplateColumns:"1fr auto auto", gap: 14, padding:"12px 0", borderBottom: "1px solid var(--c-line)", alignItems:"center", animation: s.fresh ? "cvPopIn 260ms ease" : "none"}}>
             <div>
               <div style={{fontSize: 13.5, color:"var(--c-ink)", fontWeight:500, display:"flex", alignItems:"center", gap:8}}>
@@ -2133,11 +2135,20 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
             </div>
             <span className="pill">{t("discovery.sources.signals", { count: s.n })}</span>
             {editing
-              ? <button className="btn btn--link" style={{fontSize: 12, color:"var(--pink-500)"}} onClick={() => setSources(sources.filter((_, j) => j !== i))}>{t("discovery.common.remove")}</button>
+              ? <button className="btn btn--link" style={{fontSize: 12, color:"var(--pink-500)"}} onClick={() => setSources(sources.filter((row) => row !== s))}>{t("discovery.common.remove")}</button>
               : <button className="btn btn--link" style={{fontSize: 12}} onClick={() => go("discovery")}>{t("discovery.sources.reExtract")}</button>}
           </div>
         ))}
       </div>
+      {competitorSources.length > 0 && <div style={{marginTop:22}}>
+        <div className="eyebrow" style={{marginBottom:6}}>{t("discovery.sources.competitorLedger", { count: competitorSources.length })}</div>
+        {competitorSources.map((s, i) => (
+          <div key={`competitor-${i}`} style={{display:"grid", gridTemplateColumns:"1fr auto", gap:14, padding:"12px 0", borderBottom:"1px solid var(--c-line)"}}>
+            <div style={{fontSize:13.5, color:"var(--c-ink)"}}>{s.src}</div>
+            <span className="pill">{t("discovery.sources.competitorTag")}</span>
+          </div>
+        ))}
+      </div>}
     </div>
   );
 }

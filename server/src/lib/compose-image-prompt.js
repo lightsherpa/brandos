@@ -9,7 +9,9 @@
 // write on a brief.
 // ─────────────────────────────────────────────────────────────────────
 
-export function composeImagePrompt({ spec, brand, bio, refusals = [], brief, sourceText = null, artDirection = null }) {
+import { outputLocaleInstruction } from "./locale.js";
+
+export function composeImagePrompt({ spec, brand, bio, refusals = [], brief, sourceText = null, artDirection = null, outputLocale = null }) {
   const v = bio?.visual || {};
   const lines = [];
 
@@ -64,6 +66,8 @@ export function composeImagePrompt({ spec, brand, bio, refusals = [], brief, sou
   if (Array.isArray(refusals) && refusals.length) {
     lines.push(`Do NOT include any of: ${refusals.slice(0, 5).join(" | ")}.`);
   }
+
+  if (outputLocale) lines.push(outputLocaleInstruction(outputLocale));
 
   /* Always include a quality nudge */
   lines.push("Editorial-grade composition. High craft. Real-world plausibility.");

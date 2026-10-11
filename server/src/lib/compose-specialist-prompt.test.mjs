@@ -30,6 +30,11 @@ const base = {
 // helper: concatenate every content block's text
 const allText = (blocks) => blocks.map((b) => b.text).join("\n\n");
 
+test("a Spanish run is instructed to write in Spanish", () => {
+  const text = allText(composeSpecialistPrompt({ ...base, outputLocale: "es" }));
+  assert.match(text, /Write the deliverable in Spanish/);
+});
+
 test("the shared tiered reader is available (integrator dependency)", () => {
   assert.equal(typeof getBioForAgent, "function");
 });

@@ -6,6 +6,8 @@ test('all initial page failures permit exactly one readable homepage fallback',a
 test('failed fallback reports retrieval failure instead of returning an empty successful crawl',async t=>{let scrapes=0;mockProvider(t,async url=>url.endsWith('/map')?good({links:[]}):(scrapes++,failed()));await assert.rejects(mapAndScrape('https://brand.test'),/Brand retrieval failed: Firecrawl HTTP 503/);assert.equal(scrapes,2);});
 test('a readable initial page does not cause an extra fallback request',async t=>{let scrapes=0;mockProvider(t,async url=>url.endsWith('/map')?good({links:[]}):(scrapes++,good({markdown:'Brand evidence',metadata:{}})));assert.equal((await mapAndScrape('https://brand.test')).length,1);assert.equal(scrapes,1);});
 
+test('crawl stays on the brand domain and keeps the full page url',async t=>{const scraped=[];mockProvider(t,async (requestUrl,options)=>{if(String(requestUrl).endsWith('/map'))return good({links:['https://brand.test/about','https://www.bonappetit.com/story/coffee',{url:'https://brand.test/cafe/origin-story'}]});const body=JSON.parse(options.body);scraped.push(body.url);return good({markdown:'Brand evidence',metadata:{title:'Brand'}});});const pages=await mapAndScrape('https://brand.test');assert.deepEqual(scraped,['https://brand.test/','https://brand.test/about','https://brand.test/cafe/origin-story']);assert.deepEqual(pages.map(page=>page.url),scraped);});
+
 test('error pages are excluded even when a provider returns markdown successfully',()=>{
  assert.equal(isReadableSource({markdown:'Sorry',metadata:{statusCode:404}}),false);
  assert.equal(isReadableSource({markdown:'# 404 page not found'}),false);
