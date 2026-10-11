@@ -22,6 +22,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import { getBioForAgent } from "./bio-schema.js";
+import { outputLocaleInstruction } from "./locale.js";
 
 const PLATFORM_PREAMBLE = `You are inside BrandOS — a brand-methodology platform that lets a brand work like it has a senior CMO and a 33-person crew on call.
 
@@ -99,9 +100,10 @@ function renderTaskLayer(brief, priorOutputs) {
  * @param {string} args.brief       - the task / brief text
  * @param {object[]} [args.priorOutputs]
  * @param {string} [args.deliverableContract] - optional output format specification
+ * @param {string} [args.outputLocale] - language the deliverable must be written in
  * @returns content blocks array compatible with the router (Anthropic + OpenRouter)
  */
-export function composeSpecialistPrompt({ spec, bio, refusals = [], brief, priorOutputs = [], deliverableContract = null }) {
+export function composeSpecialistPrompt({ spec, bio, refusals = [], brief, priorOutputs = [], deliverableContract = null, outputLocale = null }) {
   // Tiered BIO read-contract: one or more content blocks carrying the
   // sliced BIO + provenance-as-exceptions + brand-global refusals. The
   // reader owns cache_control on its core block. deepFields is [] for now.
@@ -119,6 +121,9 @@ export function composeSpecialistPrompt({ spec, bio, refusals = [], brief, prior
     { type: "text", text: renderSpecLayer(spec) },
     { type: "text", text: renderTaskLayer(brief, priorOutputs) },
   ];
+  if (outputLocale) {
+    blocks.push({ type: "text", text: outputLocaleInstruction(outputLocale) });
+  }
   if (deliverableContract) {
     blocks.push({ type: "text", text: `## OUTPUT FORMAT (STRICT)\n${deliverableContract}` });
   }

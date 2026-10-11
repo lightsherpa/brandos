@@ -30,6 +30,7 @@ import { streamCompletion, isAllowedModelOverride, routeCreditMultiplier } from 
 import { resolveTextTokenBudget } from "../lib/models/token-budget.js";
 import { composeSpecialistPrompt } from "../lib/compose-specialist-prompt.js";
 import { composeImagePrompt } from "../lib/compose-image-prompt.js";
+import { resolveRunOutputLocale } from "../lib/locale.js";
 import { outputStatusForQa, voiceQa } from "../lib/qa-voice.js";
 import { visionQa } from "../lib/qa-vision.js";
 import { recordSignal } from "../lib/brandolph-memory.js";
@@ -50,14 +51,16 @@ app.post("/stream", requireAuth, async (c) => {
   let workspaceId = auth.workspaceId || auth.memberships?.[0]?.workspace_id || null;
   let body;
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
-  const { specialistId, briefText, brandId: requestedBrandId, briefId: existingBriefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, guardrailOverrideToken } = body || {};
+  const { specialistId, briefText, brandId: requestedBrandId, briefId: existingBriefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, guardrailOverrideToken, outputLocale: requestedOutputLocale } = body || {};
   let brandId = requestedBrandId || null;
+  let pinnedBrief = null;
   if (!specialistId || !briefText) return c.json({ error: "specialistId and briefText required" }, 400);
 
   if (existingBriefId) {
-    const { data: pinnedBrief, error: briefScopeError } = await supabaseAdmin
-      .from("briefs").select("id,brand_id,brand:brands(id,workspace_id)").eq("id", existingBriefId).maybeSingle();
+    const { data, error: briefScopeError } = await supabaseAdmin
+      .from("briefs").select("id,brand_id,brief_lang,output_locales,brand:brands(id,workspace_id)").eq("id", existingBriefId).maybeSingle();
     if (briefScopeError) return c.json({ error: briefScopeError.message }, 400);
+    pinnedBrief = data;
     if (!pinnedBrief?.brand) return c.json({ error: "Brief not found" }, 404);
     if (brandId && brandId !== pinnedBrief.brand_id) return c.json({ error: "Brief belongs to a different brand", code: "BRAND_SCOPE_MISMATCH" }, 409);
     brandId = pinnedBrief.brand_id;
@@ -170,7 +173,14 @@ app.post("/stream", requireAuth, async (c) => {
 
   /* Text specialists get the four-layer message structure (cached PLATFORM
      + BIO). Image specialists get a single flattened prompt string —
-     Flux/Recraft etc. take one text input, not chat messages. */
+     Flux/Recraft etc. take one text input, not chat messages.
+     outputLocale is the language this run is pinned to write in. */
+  const outputLocale = resolveRunOutputLocale({
+    requested: requestedOutputLocale || dlv?.locale || dlv?.outputLocale,
+    brief: pinnedBrief,
+    bio: brandBio.bio,
+    brand: brandBio.brand,
+  });
   const system = isImage
     ? null
     : composeSpecialistPrompt({
@@ -180,6 +190,7 @@ app.post("/stream", requireAuth, async (c) => {
         refusals: brandBio.refusals,
         brief: effectiveBriefText,
         priorOutputs,
+        outputLocale,
         deliverableContract: isDeliverableText
           ? buildDeliverableContract({ type: dlv.type, part: dlv.part, count: Number(dlv.count), platform: dlv.platform, withVisualDirection: !!dlv.withVisualDirection })
           : null,
@@ -194,6 +205,7 @@ app.post("/stream", requireAuth, async (c) => {
         brief: effectiveBriefText,
         sourceText: dlv?.sourceText || null,
         artDirection: dlv?.artDirection || null,
+        outputLocale,
       })
     : null;
   let generationReference = null;
@@ -256,6 +268,7 @@ app.post("/stream", requireAuth, async (c) => {
           },
           mode: "auto",
           status: "active",
+          output_locales: [outputLocale],
         })
         .select("id")
         .single();
@@ -274,6 +287,7 @@ app.post("/stream", requireAuth, async (c) => {
         specialist_id: spec.specialist_id,
         spec_version: spec.version,
         bio_version: brandBio.bio.version,
+        output_locale: outputLocale,
         status: "running",
         started_at: startedIso,
       })
@@ -541,6 +555,7 @@ app.post("/stream", requireAuth, async (c) => {
       if (finalizeErr || !finalized?.output_id) {
         throw new Error(`run finalization failed: ${finalizeErr?.message || "output missing"}`);
       }
+      await supabaseAdmin.from("outputs").update({ locale: outputLocale }).eq("id", finalized.output_id);
       if ((usage?.cache_creation_tokens ?? 0) > 0) {
         await supabaseAdmin.from("runs").update({ cache_creation_tokens: usage.cache_creation_tokens }).eq("id", runId);
       }

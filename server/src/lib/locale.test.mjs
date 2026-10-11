@@ -7,6 +7,8 @@ import {
   normalizeLocale,
   resolveOutputLocales,
   resolveNumeralSystem,
+  resolveRunOutputLocale,
+  outputLocaleInstruction,
 } from "./locale.js";
 
 test("supported set is exactly en/es/ar", () => {
@@ -61,6 +63,30 @@ test("resolveOutputLocales precedence + dedup + junk-drop", () => {
   // truly empty -> [DEFAULT_LOCALE]
   assert.deepEqual(resolveOutputLocales({}), ["en"]);
   assert.deepEqual(resolveOutputLocales(), ["en"]);
+});
+
+test("run output locale follows request, brief, BIO, then brand", () => {
+  assert.equal(resolveRunOutputLocale({
+    requested: "es",
+    brief: { output_locales: ["ar"], brief_lang: "en" },
+    bio: { locale: "ar" },
+    brand: { default_locale: "en", output_locales: ["en"] },
+  }), "es");
+  assert.equal(resolveRunOutputLocale({
+    brief: { output_locales: ["ar"], brief_lang: "en" },
+    brand: { default_locale: "es" },
+  }), "ar");
+  assert.equal(resolveRunOutputLocale({
+    bio: { voice: { locale: "es" } },
+    brand: { default_locale: "en", output_locales: ["en"] },
+  }), "es");
+  assert.equal(resolveRunOutputLocale({
+    brand: { default_locale: "es", output_locales: ["es"] },
+    brief: { brief_lang: "en" },
+  }), "es");
+  assert.equal(resolveRunOutputLocale({ brief: { brief_lang: "ar" } }), "ar");
+  assert.equal(resolveRunOutputLocale(), "en");
+  assert.match(outputLocaleInstruction("es"), /Spanish/);
 });
 
 test("resolveNumeralSystem defaults to latn", () => {
