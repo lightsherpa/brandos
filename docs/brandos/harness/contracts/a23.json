@@ -2,22 +2,21 @@
  "agent_id": "a23",
  "name": "Iconography",
  "dept": "Web & UX",
- "job": "Custom icons consistent with the visual identity \u2014 UI primitives, not identity marks.",
+ "slug": "iconography",
  "tier": "standard",
  "status": "live",
+ "output_type": "vector_svg",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "recraft",
  "context": {
   "bio_slices": [
-   "visual.tokens",
+   "visual.palette",
    "visual.type",
-   "voice",
-   "refusals",
-   "facts"
+   "visual.shape_language",
+   "refusals"
   ],
   "pointers": [
-   "bio.components",
-   "renderers/templates"
+   "bio.assets.logo"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,17 +38,26 @@
  "message_spec_writes": [
   "outputs.a23"
  ],
- "output_schema_ref": "schemas/render_block.schema.json",
+ "output_schema_ref": "schemas/agents/a23.schema.json",
  "checks": [
-  "D-SCHEMA",
-  "D-RENDER",
-  "D-CONTRAST",
+  "D-SVG-VALID",
+  "D-PALETTE",
   "D-ALT",
-  "D-LEN",
-  "D-FORBID",
-  "D-LINKS",
-  "J-VISION"
+  "J-VISION",
+  "D-SERIES"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "style: outline / filled"
+ },
+ "model": {
+  "current_key": "recraft",
+  "current_route": "vendor/fal/recraft-v3",
+  "proposed_key": "recraft4v",
+  "proposed_route": "vendor/fal/recraft-v4-vector",
+  "fallback_route": "vendor/fal/recraft-v3",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -57,5 +65,7 @@
  "budget": {
   "cr": 6,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a23-iconography.md",
+ "notes": ""
 }

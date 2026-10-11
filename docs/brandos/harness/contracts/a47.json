@@ -2,22 +2,25 @@
  "agent_id": "a47",
  "name": "Component Library",
  "dept": "Web & UX",
- "job": "Design tokens + component kit \u2014 the building blocks for the system.",
+ "slug": "component-library",
  "tier": "standard",
  "status": "live",
+ "output_type": "copy",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "haiku",
  "context": {
   "bio_slices": [
-   "visual.tokens",
-   "visual.type",
    "voice",
+   "voice.forbidden_words",
+   "voice.examples",
+   "audience",
    "refusals",
-   "facts"
+   "facts",
+   "language"
   ],
   "pointers": [
-   "bio.components",
-   "renderers/templates"
+   "bio.examples.copy",
+   "bio.rules.copy"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,17 +42,31 @@
  "message_spec_writes": [
   "outputs.a47"
  ],
- "output_schema_ref": "schemas/render_block.schema.json",
+ "output_schema_ref": "schemas/agents/a47.schema.json",
  "checks": [
   "D-SCHEMA",
-  "D-RENDER",
-  "D-CONTRAST",
-  "D-ALT",
-  "D-LEN",
   "D-FORBID",
-  "D-LINKS",
-  "J-VISION"
+  "D-REFUSAL",
+  "D-URGENCY",
+  "D-SUPERLATIVE",
+  "D-CLAIM",
+  "D-ORTHO",
+  "J-VOICE",
+  "D-CONTRAST",
+  "D-DTCG"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "haiku",
+  "current_route": "anthropic/claude-haiku-4-5-20251001",
+  "proposed_key": "haiku55",
+  "proposed_route": "anthropic/claude-haiku-5-5",
+  "fallback_route": "anthropic/claude-haiku-4-5-20251001",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -57,5 +74,7 @@
  "budget": {
   "cr": 8,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a47-component-library.md",
+ "notes": ""
 }

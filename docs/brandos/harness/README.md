@@ -11,7 +11,7 @@ Buildable by Claude/Codex for the hero crew before the **Oct 16 freeze**. Propos
 | check-registry.md / .json | 27 deterministic + 7 judge checks: id, applies-to, severity, pass condition, remediation |
 | run-plan.schema.json | Run Plan (goal, message spec, crew, DAG, checks, budget, loop) |
 | brandolph-planner.md | Planner system prompt + full example plan (G1) |
-| routing-change-hero.md + .diff / .pr4.diff / .rc1.diff | Approved hero-crew model upgrade with fallbacks (apply-ready) |
+| routing-change-hero.md | Hero routing design (apply via handoffs/2026-10-11-hero-routing) |
 | router/ | Self-updating model router design (post-hero) |
 | self-correction-loop.md | State machine, fix-call inputs, stop rules, trace |
 | correction-to-rule.md | correction + candidate_rule schemas, Rule Miner prompt, validation, promotion |

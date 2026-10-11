@@ -2,11 +2,12 @@
  "agent_id": "a03",
  "name": "The Strategist",
  "dept": "Strategy",
- "job": "Comms plan, channel rationale, sequencing.",
+ "slug": "strategist",
  "tier": "standard",
  "status": "live",
+ "output_type": "strategy",
+ "difficulty": "high",
  "runnable_today": true,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
    "positioning",
@@ -14,11 +15,13 @@
    "voice.traits",
    "refusals",
    "facts",
-   "competitors"
+   "competitors",
+   "channels"
   ],
   "pointers": [
    "bio.examples.strategy",
-   "bio.history.briefs"
+   "bio.history.briefs",
+   "signals.recent_outputs"
   ],
   "message_spec_reads": [
    "smp",
@@ -38,17 +41,30 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a03"
+  "comms_plan"
  ],
- "output_schema_ref": "schemas/strategy_note.schema.json",
+ "output_schema_ref": "schemas/agents/a03.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
   "D-CLAIM",
-  "D-SCHEMA",
   "D-LEN",
-  "J-STRAT"
+  "J-STRAT",
+  "D-CHANNEL"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "angle: launch-heavy vs always-on"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "opus55",
+  "proposed_route": "anthropic/claude-opus-5-5",
+  "fallback_route": "anthropic/claude-sonnet-5-5",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +72,7 @@
  "budget": {
   "cr": 6,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a03-strategist.md",
+ "notes": ""
 }

@@ -2,22 +2,22 @@
  "agent_id": "a26",
  "name": "Email Build",
  "dept": "Web & UX",
- "job": "Email HTML with Klaviyo + Customer.io conventions.",
+ "slug": "email-build",
  "tier": "standard",
  "status": "live",
+ "output_type": "email_mjml",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "v0",
  "context": {
   "bio_slices": [
    "visual.tokens",
-   "visual.type",
    "voice",
    "refusals",
-   "facts"
+   "facts",
+   "legal.footer"
   ],
   "pointers": [
-   "bio.components",
-   "renderers/templates"
+   "renderers/templates/email.mjml"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,19 +37,32 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a26"
+  "blocks.email"
  ],
- "output_schema_ref": "schemas/render_block.schema.json",
+ "output_schema_ref": "schemas/agents/a26.schema.json",
  "checks": [
   "D-SCHEMA",
+  "D-LEN",
+  "D-FORBID",
+  "D-CLAIM",
   "D-RENDER",
   "D-CONTRAST",
   "D-ALT",
-  "D-LEN",
-  "D-FORBID",
-  "D-LINKS",
-  "J-VISION"
+  "J-VISION",
+  "D-MERGETAG"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "tone: subject+headline"
+ },
+ "model": {
+  "current_key": "v0",
+  "current_route": "vendor/v0",
+  "proposed_key": "v0",
+  "proposed_route": "vendor/v0",
+  "fallback_route": null,
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -57,5 +70,7 @@
  "budget": {
   "cr": 10,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a26-email-build.md",
+ "notes": "Dead today (v0). Same dependency as a25."
 }

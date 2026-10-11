@@ -34,7 +34,7 @@ import { resolveRunOutputLocale } from "../lib/locale.js";
 import { outputStatusForQa, voiceQa } from "../lib/qa-voice.js";
 import { visionQa } from "../lib/qa-vision.js";
 import { recordSignal } from "../lib/brandolph-memory.js";
-import { generate as generateImage, isImageRoute, resolveImageRequest } from "../lib/models/fal-image.js";
+import { generateWithFallback as generateImage, isImageRoute, resolveImageRequest } from "../lib/models/fal-image.js";
 import { maxTokensForDeliverables, parseDeliverables, buildDeliverableContract, falSizeForPlatform } from "../lib/deliverables.js";
 import { assertCreditsAvailable, creditErrorResponse, estimateRunCredits, reserveCredits, failRunAndReleaseCredits } from "../lib/credits.js";
 import { findEffectiveRateCard, preflightApiUsage, recordApiUsage } from "../lib/api-usage.js";
@@ -363,6 +363,7 @@ app.post("/stream", requireAuth, async (c) => {
         const imageStarted = Date.now();
         for await (const ev of generateImage({
           route,
+          fallback: spec.payload?.modelRouting?.fallback || null,
           prompt: imagePrompt,
           size: dlv?.platform ? falSizeForPlatform(dlv.platform) : (spec.payload?.image_size || "landscape_16_9"),
           referenceImageUrl: generationReference?.url || null,

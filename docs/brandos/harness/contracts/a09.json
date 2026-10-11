@@ -2,24 +2,25 @@
  "agent_id": "a09",
  "name": "The Pull-Quote",
  "dept": "Concept",
- "job": "Editorial pull quotes. The line that ends up on the wall.",
+ "slug": "pull-quote",
  "tier": "standard",
  "status": "live",
+ "output_type": "copy",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
-   "positioning",
-   "audience",
    "voice",
+   "voice.forbidden_words",
+   "voice.examples",
+   "audience",
    "refusals",
    "facts",
-   "competitors",
-   "visual.imagery"
+   "language"
   ],
   "pointers": [
-   "bio.examples.campaigns",
-   "competitive_snapshot"
+   "bio.examples.copy",
+   "bio.rules.copy"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,19 +40,33 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a09"
+  "blocks.quotes"
  ],
- "output_schema_ref": "schemas/concept_set.schema.json",
+ "output_schema_ref": "schemas/agents/a09.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
+  "D-URGENCY",
+  "D-SUPERLATIVE",
   "D-CLAIM",
-  "D-SCHEMA",
-  "D-COUNT",
+  "D-ORTHO",
   "J-VOICE",
-  "J-STRAT",
-  "J-DISTINCT"
+  "D-COUNT",
+  "D-LEN"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -59,5 +74,7 @@
  "budget": {
   "cr": 4,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a09-pull-quote.md",
+ "notes": ""
 }

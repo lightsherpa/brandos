@@ -2,22 +2,26 @@
  "agent_id": "a28",
  "name": "Video Treatment",
  "dept": "Motion & Sound",
- "job": "Director's treatment \u2014 the visual + narrative pitch a video crew shoots from.",
+ "slug": "video-treatment",
  "tier": "standard",
  "status": "soon",
+ "output_type": "strategy",
+ "difficulty": "high",
  "runnable_today": false,
- "model_key": "opus",
  "context": {
   "bio_slices": [
-   "voice",
-   "visual.palette",
-   "visual.imagery",
+   "positioning",
+   "audience",
+   "voice.traits",
    "refusals",
-   "motion",
-   "sonic"
+   "facts",
+   "competitors",
+   "channels"
   ],
   "pointers": [
-   "bio.examples.motion"
+   "bio.examples.strategy",
+   "bio.history.briefs",
+   "signals.recent_outputs"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,16 +41,30 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a28"
+  "motion_spec"
  ],
- "output_schema_ref": "schemas/motion_spec.schema.json",
+ "output_schema_ref": "schemas/agents/a28.schema.json",
  "checks": [
   "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
-  "D-DURATION",
-  "J-VOICE"
+  "D-CLAIM",
+  "D-LEN",
+  "J-STRAT",
+  "D-DURATION"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "angle: two treatments"
+ },
+ "model": {
+  "current_key": "opus",
+  "current_route": "anthropic/claude-opus-4-7",
+  "proposed_key": "opus55",
+  "proposed_route": "anthropic/claude-opus-5-5",
+  "fallback_route": "anthropic/claude-sonnet-5-5",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -54,5 +72,7 @@
  "budget": {
   "cr": 14,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a28-video-treatment.md",
+ "notes": ""
 }

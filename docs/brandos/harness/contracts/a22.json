@@ -2,22 +2,24 @@
  "agent_id": "a22",
  "name": "Pack & Packaging",
  "dept": "Visual",
- "job": "Pack architecture, dielines, label layouts.",
+ "slug": "pack-packaging",
  "tier": "standard",
  "status": "live",
+ "output_type": "image_typography",
+ "difficulty": "high",
  "runnable_today": true,
- "model_key": "gptimage",
  "context": {
   "bio_slices": [
    "visual.palette",
    "visual.type",
    "visual.imagery",
    "visual.logo_rules",
-   "refusals"
+   "refusals",
+   "language"
   ],
   "pointers": [
    "bio.examples.visual",
-   "bio.assets.logo"
+   "bio.assets.fonts"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,16 +41,28 @@
  "message_spec_writes": [
   "outputs.a22"
  ],
- "output_schema_ref": "schemas/image_asset.schema.json",
+ "output_schema_ref": "schemas/agents/a22.schema.json",
  "checks": [
+  "D-SIZE",
   "D-PALETTE",
   "D-OCR",
-  "D-SIZE",
-  "D-ALT",
   "D-NOLOGO",
+  "D-ALT",
   "J-VISION",
-  "J-VOICE-IMG"
+  "D-MANDATORY"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "layout: hierarchy (brand-led / product-led)"
+ },
+ "model": {
+  "current_key": "gptimage",
+  "current_route": "vendor/fal/gpt-image-2",
+  "proposed_key": "gptimage",
+  "proposed_route": "vendor/fal/gpt-image-2",
+  "fallback_route": "vendor/fal/nano-banana-2",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +70,7 @@
  "budget": {
   "cr": 18,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a22-pack-packaging.md",
+ "notes": ""
 }

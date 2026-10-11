@@ -2,22 +2,20 @@
  "agent_id": "a27",
  "name": "Deck Build",
  "dept": "Motion & Sound",
- "job": "Sales + investor decks \u2014 visual narrative.",
+ "slug": "deck-build",
  "tier": "standard",
  "status": "soon",
+ "output_type": "deck_html",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "gamma",
  "context": {
   "bio_slices": [
+   "visual.tokens",
    "voice",
-   "visual.palette",
-   "visual.imagery",
-   "refusals",
-   "motion",
-   "sonic"
+   "facts"
   ],
   "pointers": [
-   "bio.examples.motion"
+   "renderers/templates/deck.html"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,16 +35,27 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a27"
+  "blocks.deck"
  ],
- "output_schema_ref": "schemas/motion_spec.schema.json",
+ "output_schema_ref": "schemas/agents/a27.schema.json",
  "checks": [
   "D-SCHEMA",
-  "D-FORBID",
-  "D-REFUSAL",
-  "D-DURATION",
-  "J-VOICE"
+  "D-LEN",
+  "D-RENDER",
+  "J-VISION"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "gamma",
+  "current_route": "vendor/gamma",
+  "proposed_key": "gamma",
+  "proposed_route": "vendor/gamma",
+  "fallback_route": null,
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -54,5 +63,7 @@
  "budget": {
   "cr": 12,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a27-deck-build.md",
+ "notes": "Today gamma (dead, soon). PR #4 renders the deck without an agent."
 }

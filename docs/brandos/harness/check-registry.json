@@ -1,5 +1,5 @@
 {
- "version": "0.1",
+ "version": "0.2",
  "order": "deterministic first (cheap, parallel); judges only if no hard deterministic fail",
  "checks": [
   {
@@ -273,6 +273,177 @@
    "severity": "escalate",
    "pass": "Judge flags health/legal/comparative claims",
    "remediation": "Possible regulated claim '{s}' \u2192 escalate to human; don't auto-fix."
+  },
+  {
+   "id": "D-SAFEAREA",
+   "kind": "deterministic",
+   "applies_to": "a41",
+   "severity": "hard",
+   "pass": "Subject/key elements outside platform UI zones (IG story top/bottom 250px; reels right 120px), via saliency box",
+   "remediation": "Key content sits under platform UI at {region}. Regenerate with the subject inside the central safe area.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-HEADZONE",
+   "kind": "deterministic",
+   "applies_to": "a20",
+   "severity": "hard",
+   "pass": "Declared headline_zone has low detail (edge density < threshold) and contrast allows white or ink text \u22654.5",
+   "remediation": "The headline zone {zone} is busy or low-contrast. Regenerate with clear negative space in that zone.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-SERIES",
+   "kind": "deterministic",
+   "applies_to": "a21, a35, a44, a50, a23",
+   "severity": "soft",
+   "pass": "Series consistency: palette \u0394E between images \u226412, same aspect/stroke rules",
+   "remediation": "Image {n} breaks the series ({diff}). Regenerate it with the series style: {style}.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-MANDATORY",
+   "kind": "deterministic",
+   "applies_to": "a22",
+   "severity": "hard",
+   "pass": "All mandatory label fields present or explicitly [TO SUPPLY]",
+   "remediation": "Mandatory field(s) {fields} missing. Add from facts or mark [TO SUPPLY]; never invent.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-WORDCOUNT",
+   "kind": "deterministic",
+   "applies_to": "a43",
+   "severity": "hard",
+   "pass": "OOH headline \u22647 words",
+   "remediation": "Headline has {n} words; OOH max 7. Cut to \u22647.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-TEXTAREA",
+   "kind": "deterministic",
+   "applies_to": "a42",
+   "severity": "soft",
+   "pass": "Overlay text area \u226420% of image (OCR boxes)",
+   "remediation": "Text covers {pct}% of the image. Reduce to \u226420% or drop the overlay.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "J-FIDELITY",
+   "kind": "judge",
+   "applies_to": "a46",
+   "severity": "hard",
+   "pass": "Vision judge: product in output matches reference (shape, colour, label) \u22654/5",
+   "remediation": "Product differs from reference ({diff}). Regenerate in edit/reference mode keeping the product unchanged.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-SVG-VALID",
+   "kind": "deterministic",
+   "applies_to": "a19, a23",
+   "severity": "hard",
+   "pass": "SVG parses; \u2264 max paths; no raster <image>; colours \u2282 palette (+white/black)",
+   "remediation": "SVG invalid or off-rules: {error}. Regenerate as flat vector using {palette_hex}.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-VEGA",
+   "kind": "deterministic",
+   "applies_to": "a45",
+   "severity": "hard",
+   "pass": "Vega-Lite spec validates (v5 schema) and every data value traces to data_sources",
+   "remediation": "Chart spec invalid or contains untraced values: {error}. Use only the supplied data.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-EVIDENCE",
+   "kind": "deterministic",
+   "applies_to": "a01, a04, a34",
+   "severity": "hard",
+   "pass": "Every claim/tension/segment item has a non-empty evidence field pointing to bio path or source",
+   "remediation": "'{item}' has no evidence. Add a BIO path or source, or remove it.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-BIOREF",
+   "kind": "deterministic",
+   "applies_to": "a05",
+   "severity": "hard",
+   "pass": "Each refusal has a bio_ref that exists in the BIO",
+   "remediation": "Refusal '{r}' cites no valid BIO field. Add one or drop it.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-CHANNEL",
+   "kind": "deterministic",
+   "applies_to": "a03",
+   "severity": "soft",
+   "pass": "Channels \u2282 bio.channels unless flagged test:true",
+   "remediation": "Channel '{c}' isn't one the brand uses. Mark it as a test or remove it.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-WORDS",
+   "kind": "deterministic",
+   "applies_to": "a15",
+   "severity": "soft",
+   "pass": "word_count within requested range and equals actual count",
+   "remediation": "Length {n} words; requested {range}.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-QUOTE",
+   "kind": "deterministic",
+   "applies_to": "a40",
+   "severity": "hard",
+   "pass": "Every quote is supplied in brief or marked [QUOTE TO CONFIRM]",
+   "remediation": "Quote '{q}' isn't supplied. Replace with [QUOTE TO CONFIRM].",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-WPS",
+   "kind": "deterministic",
+   "applies_to": "a51",
+   "severity": "hard",
+   "pass": "Words per second \u22642.5 EN / \u22642.3 ES per cut",
+   "remediation": "{cut}s cut runs {wps} words/s. Cut to fit.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-MERGETAG",
+   "kind": "deterministic",
+   "applies_to": "a26",
+   "severity": "hard",
+   "pass": "Merge tags \u2282 whitelist",
+   "remediation": "Unknown merge tag {tag}. Use only {whitelist}.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-DTCG",
+   "kind": "deterministic",
+   "applies_to": "a47",
+   "severity": "hard",
+   "pass": "Tokens validate against W3C DTCG format; colours \u2282 palette or marked derived",
+   "remediation": "Token {path} invalid or off-palette. Fix per DTCG / mark derived.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-MERMAID",
+   "kind": "deterministic",
+   "applies_to": "a49",
+   "severity": "hard",
+   "pass": "Mermaid parses (mermaid-cli)",
+   "remediation": "Flow diagram doesn't parse: {error}.",
+   "added": "v0.2 all-agents"
+  },
+  {
+   "id": "D-VERBATIM",
+   "kind": "deterministic",
+   "applies_to": "a55",
+   "severity": "hard",
+   "pass": "Each verbatim is an exact substring of the uploaded data",
+   "remediation": "Verbatim '{v}' not found in the data. Use exact quotes only.",
+   "added": "v0.2 all-agents"
   }
  ]
 }

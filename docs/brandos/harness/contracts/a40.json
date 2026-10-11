@@ -2,11 +2,12 @@
  "agent_id": "a40",
  "name": "Press & Bio",
  "dept": "Copy",
- "job": "Releases, founder bios, about pages, partnership announcements.",
+ "slug": "press-bio",
  "tier": "standard",
  "status": "live",
+ "output_type": "copy",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
    "voice",
@@ -39,21 +40,32 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a40"
+  "blocks.press"
  ],
- "output_schema_ref": "schemas/copy_block.schema.json",
+ "output_schema_ref": "schemas/agents/a40.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
-  "D-CLAIM",
   "D-URGENCY",
   "D-SUPERLATIVE",
-  "D-LEN",
-  "D-SCHEMA",
+  "D-CLAIM",
   "D-ORTHO",
   "J-VOICE",
-  "J-STRAT"
+  "D-QUOTE"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -61,5 +73,7 @@
  "budget": {
   "cr": 8,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a40-press-bio.md",
+ "notes": ""
 }

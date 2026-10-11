@@ -2,22 +2,22 @@
  "agent_id": "a46",
  "name": "Lifestyle / Product Photo",
  "dept": "Visual",
- "job": "Style direction + image gen for ecom + lifestyle photography.",
+ "slug": "lifestyle-product-photo",
  "tier": "standard",
  "status": "live",
+ "output_type": "image_photo",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "fluxSchnell",
  "context": {
   "bio_slices": [
    "visual.palette",
-   "visual.type",
    "visual.imagery",
    "visual.logo_rules",
    "refusals"
   ],
   "pointers": [
    "bio.examples.visual",
-   "bio.assets.logo"
+   "reference_images[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,16 +39,27 @@
  "message_spec_writes": [
   "outputs.a46"
  ],
- "output_schema_ref": "schemas/image_asset.schema.json",
+ "output_schema_ref": "schemas/agents/a46.schema.json",
  "checks": [
-  "D-PALETTE",
-  "D-OCR",
   "D-SIZE",
-  "D-ALT",
+  "D-PALETTE",
   "D-NOLOGO",
+  "D-ALT",
   "J-VISION",
-  "J-VOICE-IMG"
+  "J-FIDELITY"
  ],
+ "variants": {
+  "default": 3,
+  "axis": "scene: kitchen / caf\u00e9 / on-the-go"
+ },
+ "model": {
+  "current_key": "fluxSchnell",
+  "current_route": "vendor/fal/flux-schnell",
+  "proposed_key": "nanoBanana2",
+  "proposed_route": "vendor/fal/nano-banana-2",
+  "fallback_route": "vendor/fal/flux-schnell",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +67,7 @@
  "budget": {
   "cr": 10,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a46-lifestyle-product-photo.md",
+ "notes": ""
 }

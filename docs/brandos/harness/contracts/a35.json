@@ -2,24 +2,22 @@
  "agent_id": "a35",
  "name": "The Mood Board",
  "dept": "Concept",
- "job": "Imagery tiles + palette + type composed into a real mood board \u2014 the way an art director walks a CMO through direction.",
+ "slug": "mood-board",
  "tier": "standard",
  "status": "live",
+ "output_type": "image_photo",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "fluxSchnell",
  "context": {
   "bio_slices": [
-   "positioning",
-   "audience",
-   "voice",
-   "refusals",
-   "facts",
-   "competitors",
-   "visual.imagery"
+   "visual.palette",
+   "visual.imagery",
+   "visual.logo_rules",
+   "refusals"
   ],
   "pointers": [
-   "bio.examples.campaigns",
-   "competitive_snapshot"
+   "bio.examples.visual",
+   "reference_images[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -41,17 +39,27 @@
  "message_spec_writes": [
   "outputs.a35"
  ],
- "output_schema_ref": "schemas/concept_set.schema.json",
+ "output_schema_ref": "schemas/agents/a35.schema.json",
  "checks": [
-  "D-FORBID",
-  "D-REFUSAL",
-  "D-CLAIM",
-  "D-SCHEMA",
-  "D-COUNT",
-  "J-VOICE",
-  "J-STRAT",
-  "J-DISTINCT"
+  "D-SIZE",
+  "D-PALETTE",
+  "D-NOLOGO",
+  "D-ALT",
+  "J-VISION",
+  "D-SERIES"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "direction: two art directions"
+ },
+ "model": {
+  "current_key": "fluxSchnell",
+  "current_route": "vendor/fal/flux-schnell",
+  "proposed_key": "nanoBanana2",
+  "proposed_route": "vendor/fal/nano-banana-2",
+  "fallback_route": "vendor/fal/flux-schnell",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -59,5 +67,7 @@
  "budget": {
   "cr": 14,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a35-mood-board.md",
+ "notes": ""
 }

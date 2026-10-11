@@ -199,3 +199,25 @@ export async function* generate({ route, prompt, size, referenceImageUrl = null 
   }
   yield { type: "error", message: `fal job timed out after ${timeoutMs}ms` };
 }
+
+/* Image fallback (2026-10-11 harness slice). Same policy as the text router:
+   switch to `fallback` only when the primary fails before producing an image,
+   on transient errors (HTTP 429/5xx, fal job FAILED/timeout, network) or an
+   unknown route. Config errors (missing key, 4xx other than 429) are returned. */
+const IMAGE_RETRYABLE = /\b(429|500|502|503|504)\b|timed out|job failed|network|ECONNRESET|ETIMEDOUT|Unknown fal route/i;
+export function isRetryableImageError(message) { return IMAGE_RETRYABLE.test(String(message || "")); }
+
+export async function* generateWithFallback({ route, fallback = null, prompt, size, referenceImageUrl = null }, gen = generate) {
+  let failed = null;
+  for await (const ev of gen({ route, prompt, size, referenceImageUrl })) {
+    if (ev?.type === "error" && fallback && fallback !== route && isRetryableImageError(ev.message)) { failed = ev; break; }
+    yield ev;
+    if (ev?.type === "done" || ev?.type === "error") return;
+  }
+  if (!failed) return;
+  console.warn(`[fal-image] primary ${route} failed (${failed.message}); falling back to ${fallback}`);
+  yield { type: "progress", stage: "fallback", pct: 10 };
+  for await (const ev of gen({ route: fallback, prompt, size, referenceImageUrl })) {
+    yield ev?.type === "done" ? { ...ev, fallback_from: route } : ev;
+  }
+}

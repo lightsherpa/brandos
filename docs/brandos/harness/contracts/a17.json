@@ -2,11 +2,12 @@
  "agent_id": "a17",
  "name": "Microcopy & UX",
  "dept": "Copy",
- "job": "Form labels, error states, onboarding micro.",
+ "slug": "microcopy-ux",
  "tier": "standard",
  "status": "live",
+ "output_type": "copy",
+ "difficulty": "low",
  "runnable_today": true,
- "model_key": "haiku",
  "context": {
   "bio_slices": [
    "voice",
@@ -41,19 +42,30 @@
  "message_spec_writes": [
   "outputs.a17"
  ],
- "output_schema_ref": "schemas/copy_block.schema.json",
+ "output_schema_ref": "schemas/agents/a17.schema.json",
  "checks": [
+  "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
-  "D-CLAIM",
   "D-URGENCY",
   "D-SUPERLATIVE",
-  "D-LEN",
-  "D-SCHEMA",
+  "D-CLAIM",
   "D-ORTHO",
   "J-VOICE",
-  "J-STRAT"
+  "D-LEN"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "haiku",
+  "current_route": "anthropic/claude-haiku-4-5-20251001",
+  "proposed_key": "haiku55",
+  "proposed_route": "anthropic/claude-haiku-5-5",
+  "fallback_route": "anthropic/claude-haiku-4-5-20251001",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -61,5 +73,7 @@
  "budget": {
   "cr": 2,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a17-microcopy-ux.md",
+ "notes": ""
 }

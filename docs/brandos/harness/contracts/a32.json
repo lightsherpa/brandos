@@ -2,21 +2,23 @@
  "agent_id": "a32",
  "name": "Competitor Map",
  "dept": "Research & Ops",
- "job": "Maps the category. Names the table around the brand.",
+ "slug": "competitor-map",
  "tier": "standard",
  "status": "live",
+ "output_type": "competitive_research",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "exa",
  "context": {
   "bio_slices": [
    "positioning",
    "audience",
    "competitors",
-   "facts"
+   "facts",
+   "urls"
   ],
   "pointers": [
-   "sources[]",
-   "competitive_snapshot"
+   "pages[] (Firecrawl)",
+   "sources[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -38,13 +40,24 @@
  "message_spec_writes": [
   "competitive_context"
  ],
- "output_schema_ref": "schemas/research_brief.schema.json",
+ "output_schema_ref": "schemas/agents/a32.schema.json",
  "checks": [
   "D-SCHEMA",
   "D-SOURCE",
-  "D-FRESH",
   "J-GROUNDED"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "exa",
+  "current_route": "vendor/exa",
+  "proposed_key": "exa",
+  "proposed_route": "vendor/exa",
+  "fallback_route": null,
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -52,5 +65,7 @@
  "budget": {
   "cr": 4,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a32-competitor-map.md",
+ "notes": "Dead today (exa)."
 }

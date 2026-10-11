@@ -2,21 +2,25 @@
  "agent_id": "a33",
  "name": "Audit & Ledger",
  "dept": "Research & Ops",
- "job": "Reconciles spend, flags variance, writes invoices.",
+ "slug": "audit-ledger",
  "tier": "standard",
  "status": "live",
+ "output_type": "copy",
+ "difficulty": "low",
  "runnable_today": true,
- "model_key": "haiku",
  "context": {
   "bio_slices": [
-   "positioning",
+   "voice",
+   "voice.forbidden_words",
+   "voice.examples",
    "audience",
-   "competitors",
-   "facts"
+   "refusals",
+   "facts",
+   "language"
   ],
   "pointers": [
-   "sources[]",
-   "competitive_snapshot"
+   "bio.examples.copy",
+   "bio.rules.copy"
   ],
   "message_spec_reads": [
    "smp",
@@ -38,13 +42,29 @@
  "message_spec_writes": [
   "outputs.a33"
  ],
- "output_schema_ref": "schemas/research_brief.schema.json",
+ "output_schema_ref": "schemas/agents/a33.schema.json",
  "checks": [
   "D-SCHEMA",
-  "D-SOURCE",
-  "D-FRESH",
-  "J-GROUNDED"
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-URGENCY",
+  "D-SUPERLATIVE",
+  "D-CLAIM",
+  "D-ORTHO",
+  "J-VOICE"
  ],
+ "variants": {
+  "default": 1,
+  "axis": "n/a"
+ },
+ "model": {
+  "current_key": "haiku",
+  "current_route": "anthropic/claude-haiku-4-5-20251001",
+  "proposed_key": "haiku55",
+  "proposed_route": "anthropic/claude-haiku-5-5",
+  "fallback_route": "anthropic/claude-haiku-4-5-20251001",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -52,5 +72,7 @@
  "budget": {
   "cr": 1,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a33-audit-ledger.md",
+ "notes": "Internal; mostly deterministic \u2014 LLM only for variance explanations."
 }

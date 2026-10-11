@@ -2,22 +2,22 @@
  "agent_id": "a48",
  "name": "Email Designer",
  "dept": "Web & UX",
- "job": "Visual email templates \u2014 layout, hierarchy, modules. Hands off to Email Build for HTML.",
+ "slug": "email-designer",
  "tier": "standard",
  "status": "live",
+ "output_type": "image_photo",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "fluxSchnell",
  "context": {
   "bio_slices": [
-   "visual.tokens",
-   "visual.type",
-   "voice",
-   "refusals",
-   "facts"
+   "visual.palette",
+   "visual.imagery",
+   "visual.logo_rules",
+   "refusals"
   ],
   "pointers": [
-   "bio.components",
-   "renderers/templates"
+   "bio.examples.visual",
+   "reference_images[]"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,19 +37,29 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a48"
+  "blocks.email.image",
+  "blocks.email.module_order"
  ],
- "output_schema_ref": "schemas/render_block.schema.json",
+ "output_schema_ref": "schemas/agents/a48.schema.json",
  "checks": [
-  "D-SCHEMA",
-  "D-RENDER",
-  "D-CONTRAST",
+  "D-SIZE",
+  "D-PALETTE",
+  "D-NOLOGO",
   "D-ALT",
-  "D-LEN",
-  "D-FORBID",
-  "D-LINKS",
   "J-VISION"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "layout: module order"
+ },
+ "model": {
+  "current_key": "fluxSchnell",
+  "current_route": "vendor/fal/flux-schnell",
+  "proposed_key": "nanoBanana2",
+  "proposed_route": "vendor/fal/nano-banana-2",
+  "fallback_route": "vendor/fal/flux-schnell",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -57,5 +67,7 @@
  "budget": {
   "cr": 7,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a48-email-designer.md",
+ "notes": ""
 }

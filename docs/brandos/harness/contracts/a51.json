@@ -2,22 +2,25 @@
  "agent_id": "a51",
  "name": "Voiceover Script",
  "dept": "Motion & Sound",
- "job": "VO scripts with timing, intonation cues, brand-voice fit.",
+ "slug": "voiceover-script",
  "tier": "standard",
  "status": "soon",
+ "output_type": "copy",
+ "difficulty": "standard",
  "runnable_today": false,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
    "voice",
-   "visual.palette",
-   "visual.imagery",
+   "voice.forbidden_words",
+   "voice.examples",
+   "audience",
    "refusals",
-   "motion",
-   "sonic"
+   "facts",
+   "language"
   ],
   "pointers": [
-   "bio.examples.motion"
+   "bio.examples.copy",
+   "bio.rules.copy"
   ],
   "message_spec_reads": [
    "smp",
@@ -37,16 +40,33 @@
   ]
  },
  "message_spec_writes": [
-  "outputs.a51"
+  "motion_spec.vo"
  ],
- "output_schema_ref": "schemas/motion_spec.schema.json",
+ "output_schema_ref": "schemas/agents/a51.schema.json",
  "checks": [
   "D-SCHEMA",
   "D-FORBID",
   "D-REFUSAL",
+  "D-URGENCY",
+  "D-SUPERLATIVE",
+  "D-CLAIM",
+  "D-ORTHO",
+  "J-VOICE",
   "D-DURATION",
-  "J-VOICE"
+  "D-WPS"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "tone: warm / crisp"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -54,5 +74,7 @@
  "budget": {
   "cr": 6,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a51-voiceover-script.md",
+ "notes": ""
 }

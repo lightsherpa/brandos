@@ -2,22 +2,22 @@
  "agent_id": "a45",
  "name": "Infographic & Data Viz",
  "dept": "Visual",
- "job": "Diagrams, charts, infographics \u2014 when a brief needs to show a number.",
+ "slug": "infographic-data-viz",
  "tier": "standard",
  "status": "live",
+ "output_type": "landing_html",
+ "difficulty": "standard",
  "runnable_today": true,
- "model_key": "sonnet",
  "context": {
   "bio_slices": [
-   "visual.palette",
+   "visual.tokens",
    "visual.type",
-   "visual.imagery",
-   "visual.logo_rules",
-   "refusals"
+   "voice",
+   "refusals",
+   "facts"
   ],
   "pointers": [
-   "bio.examples.visual",
-   "bio.assets.logo"
+   "renderers/templates/landing.html"
   ],
   "message_spec_reads": [
    "smp",
@@ -39,16 +39,30 @@
  "message_spec_writes": [
   "outputs.a45"
  ],
- "output_schema_ref": "schemas/image_asset.schema.json",
+ "output_schema_ref": "schemas/agents/a45.schema.json",
  "checks": [
-  "D-PALETTE",
-  "D-OCR",
-  "D-SIZE",
+  "D-SCHEMA",
+  "D-LEN",
+  "D-FORBID",
+  "D-CLAIM",
+  "D-RENDER",
+  "D-CONTRAST",
   "D-ALT",
-  "D-NOLOGO",
   "J-VISION",
-  "J-VOICE-IMG"
+  "D-VEGA"
  ],
+ "variants": {
+  "default": 2,
+  "axis": "structure: chart type (bar / dot)"
+ },
+ "model": {
+  "current_key": "sonnet",
+  "current_route": "anthropic/claude-sonnet-4-6",
+  "proposed_key": "sonnet55",
+  "proposed_route": "anthropic/claude-sonnet-5-5",
+  "fallback_route": "anthropic/claude-sonnet-4-6",
+  "approval": "proposed, needs Oscar approval"
+ },
  "loop": {
   "max_passes_demo": 2,
   "max_passes_prod": 3
@@ -56,5 +70,7 @@
  "budget": {
   "cr": 9,
   "max_output_tokens": 2000
- }
+ },
+ "prompt_file": "agents/a45-infographic-data-viz.md",
+ "notes": ""
 }
