@@ -21,6 +21,7 @@
 // which is fine — non-Anthropic models don't honor it anyway.
 // ─────────────────────────────────────────────────────────────────────
 
+import { specialistFormatContract } from "./format-preview/specialist-contract.js";
 import { getBioForAgent } from "./bio-schema.js";
 import { outputLocaleInstruction } from "./locale.js";
 
@@ -124,6 +125,8 @@ export function composeSpecialistPrompt({ spec, bio, refusals = [], brief, prior
   if (outputLocale) {
     blocks.push({ type: "text", text: outputLocaleInstruction(outputLocale) });
   }
+  const formatContract = specialistFormatContract(spec?.specialist_id);
+  if (formatContract) blocks.push({ type: "text", text: `## RENDERER BLOCK FORMAT (STRICT)\n${formatContract}` });
   if (deliverableContract) {
     blocks.push({ type: "text", text: `## OUTPUT FORMAT (STRICT)\n${deliverableContract}` });
   }

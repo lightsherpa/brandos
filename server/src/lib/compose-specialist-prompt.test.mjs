@@ -80,3 +80,22 @@ test("deliverableContract appends a final block containing the contract", () => 
   assert.match(last.text, /RETURN-STRICT-JSON-XYZ/);
   assert.match(last.text, /OUTPUT FORMAT/);
 });
+
+
+test("renderer specialists receive real block schemas and JSON output precedence", () => {
+  for (const [id, key] of [["a25", "landing"], ["a26", "email"], ["a27", "deck"]]) {
+    const blocks = composeSpecialistPrompt({ spec: { specialist_id: id, payload: {} }, bio: {}, brief: "Demo" });
+    const contract = blocks.find(block => block.text.includes("RENDERER BLOCK FORMAT"));
+    assert.ok(contract, id);
+    assert.ok(contract.text.includes(`blocks.${key}`), id);
+    assert.ok(contract.text.includes("takes precedence"), id);
+    const schema = JSON.parse(contract.text.slice(contract.text.indexOf('{')));
+    assert.deepEqual(schema.properties.blocks.required, [key]);
+    assert.ok(schema.properties.blocks.properties[key].required.length > 0);
+    assert.deepEqual(schema.$defs.image.required, ["src", "alt"]);
+  }
+});
+test("copy specialists retain their existing output format", () => {
+  const blocks = composeSpecialistPrompt({ spec: { specialist_id: "a14", payload: {} }, bio: {}, brief: "Demo" });
+  assert.equal(blocks.some(block => block.text.includes("RENDERER BLOCK FORMAT")), false);
+});
