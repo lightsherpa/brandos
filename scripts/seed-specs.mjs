@@ -22,7 +22,7 @@
 // truth single.
 // ─────────────────────────────────────────────────────────────────────
 
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createContext, runInContext } from "node:vm";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -31,13 +31,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
 const PORTAL_DATA_PATH = join(REPO_ROOT, "src/portal-data.js");
 const SPEC_VERSION = 1;
-
-const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
-if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("Missing env: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.");
-  console.error("Tip: set them inline, or use `--env-file=server/.env` with Node 20+.");
-  process.exit(1);
-}
 
 // ─── Sandbox-evaluate portal-data.js to extract CI_* globals ────────
 const src = readFileSync(PORTAL_DATA_PATH, "utf8");
@@ -74,10 +67,14 @@ const MODEL_MAP = {
   opus:        "anthropic/claude-opus-4-7",
   sonnet:      "anthropic/claude-sonnet-4-6",
   haiku:       "anthropic/claude-haiku-4-5-20251001",
+  // Hero crew only (approved 2026-10-11): Claude 5.5 family, direct API ids (dashes)
+  sonnet55:    "anthropic/claude-sonnet-5-5",
+  haiku55:     "anthropic/claude-haiku-5-5",
   // Non-Claude text → OpenRouter
   gpt5:        "openrouter/openai/gpt-5",
   gemPro:      "openrouter/google/gemini-2.5-pro",
   gemFlash:    "openrouter/google/gemini-2.5-flash",
+  gemFlash38:  "openrouter/google/gemini-3.8-flash",   /* hero crew only */
   // Image — all via fal.ai (one key, one bill, multiple models)
   gptimage:    "vendor/fal/gpt-image-2",      /* real GPT Image 2 via fal (openai/gpt-image-2) */
   flux:        "vendor/fal/flux-1.1-pro",     /* Pro — Hero, OOH, Identity, Pack: $0.04/img */
@@ -91,6 +88,14 @@ const MODEL_MAP = {
   framer:      "vendor/framer",
 };
 
+/* Fallback route per short key — used by router.js when the primary errors,
+   times out before the first token, or is rate-limited. Hero keys only. */
+const FALLBACK_MAP = {
+  sonnet55:   "anthropic/claude-sonnet-4-6",
+  haiku55:    "anthropic/claude-haiku-4-5-20251001",
+  gemFlash38: "openrouter/google/gemini-2.5-flash",
+};
+
 function resolveRoute(shortKey) {
   if (MODEL_MAP[shortKey]) return MODEL_MAP[shortKey];
   console.warn(`Unknown model short key "${shortKey}" — defaulting to anthropic/claude-sonnet-4-6`);
@@ -98,7 +103,7 @@ function resolveRoute(shortKey) {
 }
 
 // ─── Build the spec payload per agent ──────────────────────────────
-function buildPayload(agent) {
+export function buildPayload(agent) {
   const deptSpec = CI_DEPT_SPECS[agent.dept] ?? {};
   const deptMeta = CI_DEPT_META[agent.dept] ?? {};
   /* Per-specialist override (CI_SPECIALIST_SPECS) — every key present
@@ -127,7 +132,7 @@ function buildPayload(agent) {
     tools: pick("tools") ?? [],
     refusals: pick("refusals") ?? [],
     // Routing — vendor-prefixed route string the model router dispatches on
-    modelRouting: { primary: resolveRoute(agent.model), fallback: null, reason: `seeded from CI_AGENTS (model: ${agent.model})` },
+    modelRouting: { primary: resolveRoute(agent.model), fallback: FALLBACK_MAP[agent.model] ?? null, reason: `seeded from CI_AGENTS (model: ${agent.model})` },
     // Department-inherited
     capabilities: deptMeta.capabilities ?? [],
     turnaround: deptMeta.turnaround,
@@ -150,38 +155,78 @@ function buildPayload(agent) {
 }
 
 // ─── Upsert into specs via REST (service-role bypasses RLS) ────────
-const rows = CI_AGENTS.map((agent) => ({
+export const rows = Array.from(CI_AGENTS, (agent) => ({
   specialist_id: agent.id,
   version:       SPEC_VERSION,
   active:        agent.status === "live",
   payload:       buildPayload(agent),
 }));
 
-const url = `${SUPABASE_URL}/rest/v1/specs?on_conflict=specialist_id,version`;
-const res = await fetch(url, {
-  method:  "POST",
-  headers: {
-    "apikey":        SUPABASE_SERVICE_ROLE_KEY,
-    "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-    "Content-Type":  "application/json",
-    "Prefer":        "resolution=merge-duplicates,return=minimal",
-  },
-  body: JSON.stringify(rows),
-});
-
-if (!res.ok) {
-  const body = await res.text();
-  console.error(`Upsert failed: HTTP ${res.status}`);
-  console.error(body.slice(0, 800));
-  process.exit(1);
+export function selectRows(args, candidates = rows) {
+  if (args.length === 0) return candidates;
+  if (args.length !== 2 || args[0] !== "--only" || !args[1]) {
+    throw new Error("Usage: seed-specs.mjs [--only a02,a12,a13,a14,a16,a18,a24,a37]");
+  }
+  const ids = new Set(args[1].split(","));
+  const unknown = [...ids].filter(id => !candidates.some(row => row.specialist_id === id));
+  if (unknown.length) throw new Error(`Unknown specialist ids: ${unknown.join(",")}`);
+  return candidates.filter(row => ids.has(row.specialist_id));
 }
 
-console.log(`Upserted ${rows.length} spec rows (version ${SPEC_VERSION}).`);
+export function buildScopedUpdates(selected, before) {
+  return selected.map(row => {
+    const existing = before.find(item => item.specialist_id === row.specialist_id && item.version === row.version);
+    if (!existing) throw new Error(`Scoped update requires existing spec ${row.specialist_id}`);
+    return { specialist_id: row.specialist_id, version: row.version, active: existing.active,
+      payload: { ...existing.payload, modelRouting: row.payload.modelRouting } };
+  });
+}
 
-// ─── Verify by counting back ───────────────────────────────────────
-const countRes = await fetch(`${SUPABASE_URL}/rest/v1/specs?select=specialist_id`, {
-  headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` },
-});
-const all = await countRes.json();
-const liveCount = rows.filter((r) => r.active).length;
-console.log(`Verification: ${all.length} total spec rows in DB (${liveCount} active, ${rows.length - liveCount} soon).`);
+export async function seedSpecs(args = process.argv.slice(2)) {
+  const selected = selectRows(args);
+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("Missing Supabase service-role environment");
+  const headers = { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` };
+  // REST equivalent of SELECT specialist_id, payload->'modelRouting' FROM specs.
+  // Save the full rows too, so this backup can restore all payload fields.
+  const readRows = async () => {
+    const result = await fetch(`${SUPABASE_URL}/rest/v1/specs?select=*&order=specialist_id,version`, { headers });
+    if (!result.ok) throw new Error(`Backup/verification failed: HTTP ${result.status}`);
+    return result.json();
+  };
+  const before = await readRows();
+  // Scoped upgrades preserve existing spec customizations and live status.
+  const updates = args.length ? buildScopedUpdates(selected, before) : selected;
+  if (before.length >= 1000) throw new Error("Refusing incomplete backup: REST pagination required");
+  const backupDir = join(REPO_ROOT, ".work", "hero-models");
+  mkdirSync(backupDir, { recursive: true, mode: 0o700 });
+  const backupPath = join(backupDir, `specs-${Date.now()}.json`);
+  writeFileSync(backupPath, JSON.stringify(before, null, 2), { mode: 0o600 });
+  console.log(`Database backup: ${backupPath}`);
+  const result = await fetch(`${SUPABASE_URL}/rest/v1/specs?on_conflict=specialist_id,version`, {
+    method: "POST", headers: { ...headers, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify(updates),
+  });
+  if (!result.ok) throw new Error(`Upsert failed: HTTP ${result.status}`);
+  const after = await readRows();
+  const keys = new Set(selected.map(row => `${row.specialist_id}:${row.version}`));
+  const untouched = list => list.filter(row => !keys.has(`${row.specialist_id}:${row.version}`));
+  if (JSON.stringify(untouched(before)) !== JSON.stringify(untouched(after))) {
+    throw new Error("Non-selected specs changed during update; inspect backup before proceeding");
+  }
+  for (const row of selected) {
+    const actual = after.find(item => item.specialist_id === row.specialist_id && item.version === row.version);
+    if (JSON.stringify(actual?.payload?.modelRouting) !== JSON.stringify(row.payload.modelRouting)) {
+      // PostgreSQL jsonb key order can differ, compare fields explicitly.
+      if (!actual || Object.entries(row.payload.modelRouting).some(([key, value]) => actual.payload.modelRouting[key] !== value)) {
+        throw new Error(`Routing verification failed for ${row.specialist_id}`);
+      }
+    }
+  }
+  console.log(`Upserted and verified ${selected.length} spec rows; all non-selected rows unchanged.`);
+  return { before, after, backupPath };
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  await seedSpecs().catch(error => { console.error(error.message); process.exitCode = 1; });
+}

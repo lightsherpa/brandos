@@ -1,0 +1,60 @@
+{
+ "agent_id": "a42",
+ "name": "Ad Creative",
+ "dept": "Visual",
+ "job": "Display banners + paid social ads, sized per platform spec.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "flux",
+ "context": {
+  "bio_slices": [
+   "visual.palette",
+   "visual.type",
+   "visual.imagery",
+   "visual.logo_rules",
+   "refusals"
+  ],
+  "pointers": [
+   "bio.examples.visual",
+   "bio.assets.logo"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a42"
+ ],
+ "output_schema_ref": "schemas/image_asset.schema.json",
+ "checks": [
+  "D-PALETTE",
+  "D-OCR",
+  "D-SIZE",
+  "D-ALT",
+  "D-NOLOGO",
+  "J-VISION",
+  "J-VOICE-IMG"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 9,
+  "max_output_tokens": 2000
+ }
+}

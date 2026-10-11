@@ -1,0 +1,90 @@
+{
+ "type": "object",
+ "required": [
+  "agent",
+  "content",
+  "self_check",
+  "status"
+ ],
+ "properties": {
+  "agent": {
+   "type": "string"
+  },
+  "content": {
+   "type": "object"
+  },
+  "proof_ids": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "sources": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "url": {
+      "type": "string"
+     },
+     "fetched_at": {
+      "type": "string"
+     },
+     "quote": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "what": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  }
+ },
+ "description": "Generic department output envelope (post-demo: specialise per agent).",
+ "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -46,7 +46,7 @@ function flattenSystem(system) {
  * @param {number} [params.maxTokens]  - max output tokens
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ model, system, messages, maxTokens = 800 }) {
+export async function* streamCompletion({ model, system, messages, maxTokens = 800, signal }) {
   if (!hasKey()) {
     yield { type: "error", message: "Server has no OPENROUTER_API_KEY configured." };
     return;
@@ -75,6 +75,7 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
   try {
     res = await fetch(OPENROUTER_URL, {
       method: "POST",
+      signal,
       headers: {
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type":  "application/json",
@@ -91,7 +92,7 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    yield { type: "error", message: `OpenRouter HTTP ${res.status}: ${text.slice(0, 400)}` };
+    yield { type: "error", status: res.status, message: `OpenRouter HTTP ${res.status}: ${text.slice(0, 400)}` };
     return;
   }
 
@@ -141,6 +142,10 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
         let evt;
         try { evt = JSON.parse(payload); } catch { continue; }
 
+        if (evt.error) {
+          yield { type: "error", message: evt.error.message || "OpenRouter provider error", status: evt.error.code };
+          return;
+        }
         if (evt.provider) providerLabel = evt.provider;
         if (evt.usage) finalUsage = evt.usage;
 
@@ -172,5 +177,8 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
     }
   } catch (err) {
     yield { type: "error", message: `OpenRouter stream error: ${err?.message || err}` };
+  } finally {
+    await reader.cancel().catch(() => {});
+    reader.releaseLock();
   }
 }

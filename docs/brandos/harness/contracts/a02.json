@@ -1,0 +1,65 @@
+{
+ "agent_id": "a02",
+ "name": "The Sharpener",
+ "dept": "Strategy",
+ "job": "Turns vague briefs into single-minded propositions.",
+ "tier": "hero",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "sonnet",
+ "context": {
+  "bio_slices": [
+   "positioning",
+   "audience",
+   "voice.traits",
+   "refusals",
+   "facts",
+   "competitors"
+  ],
+  "pointers": [
+   "bio.examples.strategy",
+   "bio.history.briefs"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "smp",
+  "audience",
+  "goal",
+  "refusals",
+  "messages",
+  "crew_hint"
+ ],
+ "output_schema_ref": "schemas/strategy_note.schema.json",
+ "checks": [
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-CLAIM",
+  "D-SCHEMA",
+  "D-LEN",
+  "J-STRAT"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 5,
+  "max_output_tokens": 2000
+ }
+}

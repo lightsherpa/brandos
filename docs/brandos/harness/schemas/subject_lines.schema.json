@@ -1,0 +1,97 @@
+{
+ "type": "object",
+ "required": [
+  "agent",
+  "subject",
+  "preheader",
+  "alternates"
+ ],
+ "properties": {
+  "agent": {
+   "const": "a14"
+  },
+  "subject": {
+   "type": "string",
+   "maxLength": 60
+  },
+  "preheader": {
+   "type": "string",
+   "maxLength": 100
+  },
+  "alternates": {
+   "type": "array",
+   "maxItems": 5,
+   "items": {
+    "type": "object",
+    "required": [
+     "subject",
+     "intent"
+    ],
+    "properties": {
+     "subject": {
+      "type": "string",
+      "maxLength": 60
+     },
+     "intent": {
+      "enum": [
+       "curiosity",
+       "benefit",
+       "specificity",
+       "time_cue",
+       "personal"
+      ]
+     }
+    }
+   }
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "what": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

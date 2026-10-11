@@ -1,0 +1,65 @@
+{
+ "agent_id": "a17",
+ "name": "Microcopy & UX",
+ "dept": "Copy",
+ "job": "Form labels, error states, onboarding micro.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "haiku",
+ "context": {
+  "bio_slices": [
+   "voice",
+   "voice.forbidden_words",
+   "voice.examples",
+   "audience",
+   "refusals",
+   "facts",
+   "language"
+  ],
+  "pointers": [
+   "bio.examples.copy",
+   "bio.rules.copy"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a17"
+ ],
+ "output_schema_ref": "schemas/copy_block.schema.json",
+ "checks": [
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-CLAIM",
+  "D-URGENCY",
+  "D-SUPERLATIVE",
+  "D-LEN",
+  "D-SCHEMA",
+  "D-ORTHO",
+  "J-VOICE",
+  "J-STRAT"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 2,
+  "max_output_tokens": 2000
+ }
+}

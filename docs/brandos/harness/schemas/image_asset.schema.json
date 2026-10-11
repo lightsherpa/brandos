@@ -1,0 +1,113 @@
+{
+ "type": "object",
+ "required": [
+  "agent",
+  "assets",
+  "status"
+ ],
+ "properties": {
+  "agent": {
+   "type": "string"
+  },
+  "assets": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "url",
+     "width",
+     "height",
+     "platform",
+     "alt",
+     "generation_prompt",
+     "model_route"
+    ],
+    "properties": {
+     "url": {
+      "type": "string"
+     },
+     "width": {
+      "type": "integer"
+     },
+     "height": {
+      "type": "integer"
+     },
+     "platform": {
+      "type": "string"
+     },
+     "alt": {
+      "type": "string",
+      "maxLength": 125
+     },
+     "overlay_text": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "generation_prompt": {
+      "type": "string"
+     },
+     "model_route": {
+      "type": "string"
+     },
+     "variant": {
+      "type": "string"
+     },
+     "for_caption": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "self_check": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "check_id",
+     "pass"
+    ],
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "pass": {
+      "type": "boolean"
+     },
+     "note": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "changes": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "check_id": {
+      "type": "string"
+     },
+     "what": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "status": {
+   "enum": [
+    "ok",
+    "flagged",
+    "needs_input"
+   ]
+  },
+  "needs_human": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  }
+ },
+ "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -25,6 +25,20 @@ export function hasKey() {
   return Boolean(client);
 }
 
+export function normalizeAnthropicUsage(usage, model) {
+  const cached = usage.cache_read_input_tokens ?? 0;
+  const created = usage.cache_creation_input_tokens ?? 0;
+  return {
+    // Match OpenRouter and calculateTokenCost: prompt_tokens includes caches.
+    prompt_tokens: (usage.input_tokens ?? 0) + cached + created,
+    completion_tokens: usage.output_tokens ?? 0,
+    cached_tokens: cached,
+    cache_creation_tokens: created,
+    provider: "anthropic",
+    model,
+  };
+}
+
 /**
  * Stream a completion from Anthropic.
  *
@@ -37,7 +51,7 @@ export function hasKey() {
  * @param {number} [params.maxTokens]   - max output tokens; derived from spec.cr if omitted
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ model, system, messages, maxTokens = 800 }) {
+export async function* streamCompletion({ model, system, messages, maxTokens = 800, signal }) {
   if (!client) {
     yield { type: "error", message: "Server has no ANTHROPIC_API_KEY configured." };
     return;
@@ -54,7 +68,7 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
         role: m.role === "assistant" ? "assistant" : "user",
         content: String(m.content ?? ""),
       })),
-    });
+    }, signal ? { signal, maxRetries: 0 } : undefined);
 
     for await (const ev of run) {
       if (ev.type === "content_block_delta" && ev.delta?.type === "text_delta") {
@@ -66,23 +80,16 @@ export async function* streamCompletion({ model, system, messages, maxTokens = 8
     }
 
     const final = await run.finalMessage();
-    const finalUsage = usage || final.usage || {};
+    const finalUsage = { ...(final.usage || {}), ...(usage || {}) };
     // Normalize: expose cache hit/miss tokens as first-class so the router
     // can write them to runs.cached_tokens + runs.prompt_tokens without
     // each caller knowing the Anthropic-specific field names.
     yield {
       type: "done",
       stopReason: stopReason || final.stop_reason,
-      usage: {
-        prompt_tokens:     finalUsage.input_tokens ?? 0,
-        completion_tokens: finalUsage.output_tokens ?? 0,
-        cached_tokens:     finalUsage.cache_read_input_tokens ?? 0,
-        cache_creation_tokens: finalUsage.cache_creation_input_tokens ?? 0,
-        provider: "anthropic",
-        model,
-      },
+      usage: normalizeAnthropicUsage(finalUsage, model),
     };
   } catch (err) {
-    yield { type: "error", message: err?.message || String(err) };
+    yield { type: "error", message: err?.message || String(err), status: err?.status };
   }
 }

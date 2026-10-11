@@ -1,0 +1,25 @@
+# Context contracts — hero crew (full). Overrides contracts/aNN.json.
+Principle: map, not manual. Each agent gets ONLY the listed BIO slices (resolved server-side to JSON, ≤3k tokens), plus pointers it may request via `fetch_context(pointer)` (max 2 per call). Unlisted BIO fields do not exist for the agent.
+Common inputs to every hero agent: `run_plan.goal`, `message_spec` (read-only except owned fields), `contract.checks` (ids + pass conditions, so the agent knows what it's judged on), `remediation[]` (on loop passes 1–2).
+
+| Agent | BIO slices (exact paths) | Pointers (on demand) | Reads Message Spec | Writes (owns) | Output schema | Checks | Model / tokens |
+|---|---|---|---|---|---|---|---|
+| a02 Sharpener | positioning, audience.primary, voice.traits, refusals, facts, competitors.names | examples.briefs (2), history.last_campaign | — (creates it) | smp, audience, goal, messages[≤3], proof[], cta, refusals, crew_hint | `message_spec.v0` (renderers/message-spec.schema.json) + `questions[≤3]` | D-SCHEMA, D-CLAIM, D-FORBID, D-COUNT(messages 1–3), J-STRAT | Sonnet 5.5 · 3000 |
+| a16 Social Captions | voice.traits, voice.do, voice.dont, voice.forbidden_words, voice.examples[≤3 social], voice.emoji_policy, voice.hashtag_policy, audience.primary, facts, refusals, language | examples.social (more), rules.social | smp, messages, proof, cta, territory, spine, refusals | blocks.social | schemas/social_captions.schema.json | D-SCHEMA, D-LEN-PLATFORM, D-FORBID, D-REFUSAL, D-URGENCY, D-SUPERLATIVE, D-BAIT, D-EMOJI, D-HASHTAG, D-CLAIM, D-ORTHO, J-VOICE, J-STRAT | Sonnet 5.5 · 4000 |
+| a41 Social Post Designer | visual.palette(hex), visual.type, visual.imagery.do/dont, visual.logo_rules, refusals | examples.visual.social (2 image refs) | blocks.social[].visual_direction, territory | blocks.social[].image | schemas/image_asset.schema.json | D-SIZE, D-PALETTE(ΔE≤10 on top-5 colors), D-OCR (if overlay_text), D-NOLOGO, D-ALT, J-VISION | Nano Banana 2 / GPT-Image-2 (fal) |
+| a13 Email Sequence | voice.*, voice.examples[email], audience.primary, facts, refusals, legal.footer, language | rules.email | smp, messages, proof, cta | blocks.email.headline, body, bullets, footer | blocks.email in message-spec | D-SCHEMA, D-LEN, D-FORBID, D-URGENCY, D-CLAIM, D-ORTHO, D-RENDER(email), D-CONTRAST, J-VOICE | Sonnet 5.5 · 3000 |
+| a14 Subject Lines | voice.traits, voice.forbidden_words, voice.examples[subject], language | — | smp, messages[0], blocks.email.headline | blocks.email.subject, preheader, subject_variants[≤5] | schemas/subject_lines.schema.json | D-LEN(subject≤60, preheader≤100), D-CAPS, D-PUNCT(!!), D-FORBID, D-URGENCY, D-DUP(preheader≠subject) | Gemini 3.8 Flash · 2000 |
+| a12 Conversion Copy | voice.*, audience.primary+jtbd, facts, refusals, offer (if any) | examples.landing | smp, messages, proof, cta, spine | blocks.landing.hero(headline,subhead,eyebrow), features[3], proof, cta + visual_direction | blocks.landing | D-SCHEMA, D-LEN, D-FORBID, D-CLAIM(proof_id), D-URGENCY, D-RENDER(landing), D-CONTRAST, J-VOICE, J-STRAT | Sonnet 5.5 · 4000 |
+| a37 Headlines | voice.traits, voice.forbidden_words, voice.examples[headline] | — | smp, spine, messages | blocks.headlines[20] (buckets) → planner may promote 1 to shared headline | schemas/headlines.schema.json | D-COUNT(≤20, 4 buckets), D-LEN(≤70), D-FORBID, D-URGENCY, D-DUP(near-duplicates, Jaccard>0.8) | Sonnet 5.5 · 2000 |
+| QA (a18 Voice + a24 Vision, unified) | voice.*, visual.palette, visual.type, logo_rules, refusals | rules.* (all active BIO rules) | everything | check_results only (never edits content) | schemas/check_result.schema.json | runs J-* checks from check-registry | Haiku 5.5 (text) / Gemini 3.8 Flash (vision) |
+
+## Prompt deltas (append to the agent's system prompt; full a16 prompt in ../agents/social-captions.md)
+- **All hero agents:** "You will be judged by these checks: {contract.checks with pass conditions}. If `remediation[]` is present, fix exactly those items and change nothing else; return `changes[]` listing what you changed per check id."
+- **a02:** "Write the Message Spec. Max 3 messages; each message must cite ≥1 proof id; proof must reference a BIO fact path or the brief text (`source:"brief"`). If the brief lacks a goal/metric, return up to 3 questions instead of guessing."
+- **a41:** "Your prompt to the image model must include: palette hex list, imagery do/don't, aspect ratio per platform, 'no text, no logos' unless overlay_text given. Return the exact prompt you used in `generation_prompt`."
+- **a14:** "Return 1 chosen subject + preheader and up to 5 alternates labelled by intent (curiosity, benefit, specificity, urgency-free time cue, personal)."
+- **a37:** "Promote nothing yourself; mark your recommended line with `recommended:true`."
+- **QA:** "You never rewrite. For each check return pass|fail, evidence (quote or region), and the remediation text from the registry, filled with specifics."
+
+## Output schemas
+See schemas/*.schema.json (social_captions, image_asset, subject_lines, headlines, check_result).

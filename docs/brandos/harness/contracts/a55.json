@@ -1,0 +1,56 @@
+{
+ "agent_id": "a55",
+ "name": "Insights Synthesis",
+ "dept": "Research & Ops",
+ "job": "Turns interview transcripts, surveys, NPS into a one-page CMO read.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "gemPro",
+ "context": {
+  "bio_slices": [
+   "positioning",
+   "audience",
+   "competitors",
+   "facts"
+  ],
+  "pointers": [
+   "sources[]",
+   "competitive_snapshot"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a55"
+ ],
+ "output_schema_ref": "schemas/research_brief.schema.json",
+ "checks": [
+  "D-SCHEMA",
+  "D-SOURCE",
+  "D-FRESH",
+  "J-GROUNDED"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 7,
+  "max_output_tokens": 2000
+ }
+}

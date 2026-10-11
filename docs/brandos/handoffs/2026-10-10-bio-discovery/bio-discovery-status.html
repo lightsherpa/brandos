@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>BrandOS · Discovery → BIO status</title>
+<style>
+:root{--ink:#1d2228;--mut:#6a737d;--line:#d9dde2;--bg:#f6f5f2;--done:#2f8f5b;--prog:#d99a1c;--todo:#9aa3ad;--block:#c4413a}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 "IBM Plex Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);padding:28px 32px;width:1440px}
+h1{font-size:22px;margin:0}h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:24px 0 10px}
+.sub{color:var(--mut);margin-top:4px}.legend{display:flex;gap:16px;margin-top:10px;font-size:12px}.legend span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.flow{display:flex}.st{flex:1;background:#fff;border:1px solid var(--line);border-top:5px solid var(--c);border-radius:6px;padding:10px 11px;min-height:150px}
+.st b{display:block;font-size:13px}.st .tag{font-size:11px;font-weight:600;color:var(--c);text-transform:uppercase}.st ul{margin:6px 0 0;padding-left:15px;font-size:12px;color:#39414a}
+.arr{width:18px;display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.d{--c:var(--done)}.p{--c:var(--prog)}.t{--c:var(--todo)}.b{--c:var(--block)}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.col{background:#eceae5;border-radius:6px;padding:10px}
+.col h3{margin:0 0 8px;font-size:13px;display:flex;justify-content:space-between}.col h3 i{font-style:normal;color:var(--mut)}
+.card{background:#fff;border:1px solid var(--line);border-left:4px solid var(--c);border-radius:4px;padding:8px 9px;margin-bottom:8px;font-size:12px}
+.card small{display:block;color:var(--mut);margin-top:3px}
+.box{background:#fff;border:1px solid var(--line);border-left:4px solid var(--c);border-radius:4px;padding:10px 12px;font-size:12.5px}.box ul{margin:4px 0 0;padding-left:16px}.box li{margin:3px 0}
+code{font-family:"IBM Plex Mono",monospace;font-size:11px;background:#eef0f3;padding:0 3px;border-radius:2px}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+</style></head><body>
+<h1>BrandOS · Discovery → BIO pipeline status</h1>
+<div class="sub">Read-only review of Oscar's Mac · 10 Oct 2026, 20:45 Madrid · Worktree <code>.claude/worktrees/melius-competitor-analysis-e18b7d</code> · branch <code>claude/melius-competitor-analysis-e18b7d</code> (183 uncommitted files) · Freeze Fri 17 Oct · VDS 21 Oct</div>
+<div class="legend"><span style="--c:var(--done)">Done (local, uncommitted)</span><span style="--c:var(--prog)">Partial</span><span style="--c:var(--todo)">To do</span><span style="--c:var(--block)">Blocked / risk</span></div>
+
+<h2>Pipeline — free-form in, structure after the BIO</h2>
+<div class="flow">
+ <div class="st d"><span class="tag">Done</span><b>1 · Free-form intake</b><ul><li>Website + ≤6 links w/ purpose + intent note</li><li>Uploads w/ purpose</li><li>Section tour, compact intake</li></ul></div><div class="arr">→</div>
+ <div class="st p"><span class="tag">Partial</span><b>2 · Read sources</b><ul><li>Pages + text docs ✓</li><li>Image/PDF visuals not analysed</li></ul></div><div class="arr">→</div>
+ <div class="st p"><span class="tag">Partial</span><b>3 · Visual extraction</b><ul><li>HTML declarations + Gemini 3.8 Flash screenshot</li><li>No computed styles / palette roles</li></ul></div><div class="arr">→</div>
+ <div class="st d"><span class="tag">Done</span><b>4 · Interpret</b><ul><li>Evidence ledger (Haiku 5.5, test route)</li><li>Aspiration kept separate</li></ul></div><div class="arr">→</div>
+ <div class="st p"><span class="tag">Partial</span><b>5 · Market research</b><ul><li>1 query, ≤4 excerpts</li><li>Full competitive agent not built</li></ul></div><div class="arr">→</div>
+ <div class="st p"><span class="tag">Partial</span><b>6 · Synthesize BIO</b><ul><li>Sonnet 5.5 best in benchmark</li><li>Local flag only; no real saved E2E</li><li>Real progress polling ✓</li></ul></div><div class="arr">→</div>
+ <div class="st d"><span class="tag">Done (local)</span><b>7 · Self-certify v2</b><ul><li>Modal, 7 sections, 3 declarations</li><li>Atomic RPC, stale-safe</li><li>Migration local DB only</li></ul></div><div class="arr">→</div>
+ <div class="st b"><span class="tag">Risk</span><b>8 · CD certification</b><ul><li>/attest still old path</li><li>mvp-review model unmerged</li></ul></div><div class="arr">→</div>
+ <div class="st t"><span class="tag">To do</span><b>9 · Views & workflows</b><ul><li>Brand Book view</li><li>Approvals, library (post-VDS)</li></ul></div>
+</div>
+
+<h2>Focus slice — BIO self-certification v2</h2>
+<div class="grid2"><div class="box d"><ul>
+<li><code>src/bio-self-certification.jsx/.css</code> — 7 section previews + counter, 3 unchecked declarations, gated confirm, Esc, receipt</li>
+<li><code>server/src/lib/certification-review.js</code> (+test) — exact BIO id/version, statement v2, all sections, strict booleans</li>
+<li><code>routes/bios.js</code> + <code>lib/self-certify.js</code> → RPC <code>record_bio_self_certification</code> (locks brand, rejects stale, service_role only)</li>
+<li><code>20261010010000_bio_review_attestation.sql</code> + <code>scripts/check-bio-attestation-transaction.sql</code> — local test DB only</li>
+<li>Discovery fixes: <code>section-tour.jsx</code>, <code>discovery-intake.css</code>, <code>lib/discovery-progress.js</code>; EN/ES/AR locales</li></ul></div>
+<div class="box b"><b>vs rc/caa-44-rc1</b> (GitHub, repo now lightsherpa/brandos)<ul>
+<li>Same base <code>6fafe38</code>; both edit portal-discovery, bios.js, discovery*.js, compile-bio</li>
+<li>platform_integrity renamed <code>…005000</code> (rc) vs <code>…001000</code> (melius)</li>
+<li>Plan: push melius snapshot → branch from rc → port self-cert slice</li></ul></div></div>
+
+<h2>Task board (Codex handoff T1–T9)</h2>
+<div class="board">
+ <div class="col"><h3>Blocked / risk <i>3</i></h3>
+  <div class="card b"><b>T1 Commit + push melius branch first</b><small>183 files uncommitted since 23 Aug; then cut feat/bio-selfcert-vds from rc/caa-44-rc1</small></div>
+  <div class="card b"><b>T2 Reconcile migrations</b><small>rc names win; 20261004000000 timestamp clash with mvp-review</small></div>
+  <div class="card b"><b>T3 One review flow</b><small>Route /attest through v2 modal + RPC; merge relevant mvp-review commits</small></div>
+ </div>
+ <div class="col"><h3>Partial <i>3</i></h3>
+  <div class="card p"><b>T4 Freedom-first intake polish</b><small>Tour + compact intake done; verify inline upload errors, 3 intake variants</small></div>
+  <div class="card p"><b>T5 Production model route</b><small>Haiku 5.5 → Sonnet 5.5, Gemini 3.8 Flash vision; drop 2.5</small></div>
+  <div class="card p"><b>T7 Visual extraction v1.5</b><small>Stylesheets, fonts, palette roles, image analysis</small></div>
+ </div>
+ <div class="col"><h3>To do <i>3</i></h3>
+  <div class="card t"><b>T6 Real E2E on 2 brands</b><small>Needs Oscar's OK for paid calls (1 Spanish brand)</small></div>
+  <div class="card t"><b>T8 Brand Book view</b><small>Read-only view over certified BIO</small></div>
+  <div class="card t"><b>T9 Demo hardening</b><small>Seeded certified brand, replay mode</small></div>
+ </div>
+ <div class="col"><h3>Done (local) <i>5</i></h3>
+  <div class="card d"><b>Self-cert modal v2 + atomic RPC</b><small>11 tests + DB transaction check</small></div>
+  <div class="card d"><b>Section tour + real progress</b><small>section-tour.jsx, discovery-progress.js</small></div>
+  <div class="card d"><b>Source-led intake</b><small>Questionnaire removed; Refero redesign</small></div>
+  <div class="card d"><b>Split Inngest pipeline</b><small>read → interpret → research → synthesize</small></div>
+  <div class="card d"><b>Current-model benchmark</b><small>Geoking, 6 models, $0.58</small></div>
+ </div>
+</div>
+</body></html>

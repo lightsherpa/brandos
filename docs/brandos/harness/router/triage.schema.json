@@ -1,0 +1,19 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://brandos.dev/schemas/triage.v0.json",
+ "title": "Router triage decision (one per task)",
+ "type": "object",
+ "required": ["task_id", "output_type", "difficulty", "signals", "confidence"],
+ "properties": {
+  "task_id": {"type": "string"},
+  "output_type": {"enum": ["image_photo", "image_typography", "vector_svg", "email_mjml", "landing_html", "deck_html", "copy", "strategy", "competitive_research", "territory_mapping"]},
+  "difficulty": {"enum": ["low", "standard", "high"]},
+  "signals": {"type": "object", "properties": {
+    "has_text_in_image": {"type": "boolean"}, "text_language": {"enum": ["es", "en", "mixed", "none"]},
+    "needs_web_sources": {"type": "boolean"}, "length_tokens_est": {"type": "integer"},
+    "reference_images": {"type": "integer"}, "brand_risk": {"enum": ["low", "medium", "high"]},
+    "variants": {"type": "integer", "minimum": 1, "maximum": 3}}},
+  "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+  "reason": {"type": "string", "maxLength": 140}
+ }
+}

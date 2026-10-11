@@ -1,0 +1,65 @@
+{
+ "agent_id": "a39",
+ "name": "Product Copy",
+ "dept": "Copy",
+ "job": "Descriptions, features, benefit ladders. The ecom workhorse.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "gemFlash",
+ "context": {
+  "bio_slices": [
+   "voice",
+   "voice.forbidden_words",
+   "voice.examples",
+   "audience",
+   "refusals",
+   "facts",
+   "language"
+  ],
+  "pointers": [
+   "bio.examples.copy",
+   "bio.rules.copy"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a39"
+ ],
+ "output_schema_ref": "schemas/copy_block.schema.json",
+ "checks": [
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-CLAIM",
+  "D-URGENCY",
+  "D-SUPERLATIVE",
+  "D-LEN",
+  "D-SCHEMA",
+  "D-ORTHO",
+  "J-VOICE",
+  "J-STRAT"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 6,
+  "max_output_tokens": 2000
+ }
+}

@@ -21,6 +21,8 @@
 
 import * as anthropic from "./anthropic.js";
 import * as openrouter from "./openrouter.js";
+import { createCompletionStreamer } from "./fallback.js";
+export { FIRST_TOKEN_TIMEOUT_MS, isRetryableError } from "./fallback.js";
 import {
   calculateTokenCost,
   completionTelemetryEvent,
@@ -37,6 +39,10 @@ export const ALLOWED_MODEL_OVERRIDES = new Set([
   "anthropic/claude-opus-4-7",
   "anthropic/claude-sonnet-4-6",
   "anthropic/claude-haiku-4-5-20251001",
+  // Hero crew upgrade (2026-10-11)
+  "anthropic/claude-sonnet-5-5",
+  "anthropic/claude-haiku-5-5",
+  "openrouter/google/gemini-3.8-flash",
   "openrouter/google/gemini-2.5-pro",
   "openrouter/google/gemini-2.5-flash",
   "vendor/fal/flux-1.1-pro",
@@ -52,7 +58,7 @@ export function isAllowedModelOverride(route) {
    server-side and applied to the specialist's base credit estimate. */
 export function routeCreditMultiplier(route) {
   if (/opus|gemini-2\.5-pro|flux-1\.1-pro|recraft-v3/i.test(route || "")) return 2;
-  if (/haiku|gemini-2\.5-flash|flux-schnell/i.test(route || "")) return 0.75;
+  if (/haiku|gemini-2\.5-flash|gemini-3\.8-flash|flux-schnell/i.test(route || "")) return 0.75;
   return 1;
 }
 
@@ -72,13 +78,15 @@ export function routeCreditMultiplier(route) {
  *                                          the cap. The 16-token provider floor always holds.
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ spec, system, messages, maxTokens, telemetry = {} }) {
-  const route = spec?.payload?.modelRouting?.primary;
+export const streamCompletion = createCompletionStreamer(streamRoute);
+
+async function* streamRoute({ route, spec, system, messages, maxTokens, telemetry = {}, signal }) {
   if (typeof route !== "string" || !route.includes("/")) {
     yield { type: "error", message: `Invalid model route: ${JSON.stringify(route)}. Expected "anthropic/<model>" or "openrouter/<model>".` };
     return;
   }
 
+  signal?.throwIfAborted();
   const budget = resolveTextTokenBudget({ maxTokens, spec });
 
   let provider;
@@ -111,9 +119,13 @@ export async function* streamCompletion({ spec, system, messages, maxTokens, tel
       override: !!telemetry.breakerOverride,
     });
     const started = Date.now();
+    const usageTelemetry = {
+      ...telemetry, operationKey, preflightMaxCostUsd,
+      metadata: { ...telemetry.metadata, ...(telemetry.fallbackFrom ? { fallback_from: telemetry.fallbackFrom } : {}) },
+    };
     if (!preflight.allowed) {
       await recordApiUsage(completionTelemetryEvent({
-        telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+        telemetry: usageTelemetry,
         usage: {}, provider, model, status: "blocked", latencyMs: 0, rate, preflight,
         errorCode: preflight.code,
       }));
@@ -121,18 +133,20 @@ export async function* streamCompletion({ spec, system, messages, maxTokens, tel
       return;
     }
 
+    signal?.throwIfAborted();
     let recorded = false;
-    for await (const event of adapter({ model, system, messages, maxTokens: budget })) {
+    for await (const event of adapter({ model, system, messages, maxTokens: budget, signal })) {
       if (event.type === "done") {
         const estimated = event.usage?.cost_usd == null ? calculateTokenCost(event.usage || {}, rate) : null;
         event.usage = {
           ...(event.usage || {}),
+          ...(telemetry.fallbackFrom ? { fallback_from: telemetry.fallbackFrom } : {}),
           cost_usd: event.usage?.cost_usd ?? estimated,
           cost_source: event.usage?.cost_usd != null ? "provider_reported" : estimated != null ? "rate_card_estimate" : "unpriced",
           rate_card_id: rate?.id || null,
         };
         await recordApiUsage(completionTelemetryEvent({
-          telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+          telemetry: usageTelemetry,
           usage: event.usage,
           provider,
           model,
@@ -144,7 +158,7 @@ export async function* streamCompletion({ spec, system, messages, maxTokens, tel
         recorded = true;
       } else if (event.type === "error") {
         await recordApiUsage(completionTelemetryEvent({
-          telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+          telemetry: usageTelemetry,
           usage: {}, provider, model, status: "failed", latencyMs: Date.now() - started,
           rate, preflight, errorCode: "PROVIDER_ERROR",
         }));
@@ -154,7 +168,7 @@ export async function* streamCompletion({ spec, system, messages, maxTokens, tel
     }
     if (!recorded) {
       await recordApiUsage(completionTelemetryEvent({
-        telemetry: { ...telemetry, operationKey, preflightMaxCostUsd },
+        telemetry: usageTelemetry,
         usage: {}, provider, model, status: "failed", latencyMs: Date.now() - started,
         rate, preflight, errorCode: "STREAM_INCOMPLETE",
       }));

@@ -21,7 +21,7 @@ import { normalizePlan, wrapLegacy } from "./delivery-plan.js";
 const SHARPENER_SPEC = {
   payload: {
     name: "a02 The Sharpener",
-    modelRouting: { primary: "anthropic/claude-sonnet-4-6", reason: "CMO-grade strategic synthesis on the brand's BIO" },
+    modelRouting: { primary: "anthropic/claude-sonnet-5-5", fallback: "anthropic/claude-sonnet-4-6", reason: "CMO-grade strategic synthesis on the brand's BIO" },
     cr_estimate: 5,
   },
 };
@@ -272,7 +272,8 @@ export async function sharpenBrief({ briefText, brand, bio, refusals = [], memor
     spec: SHARPENER_SPEC,
     system: SHARPENER_SYSTEM,
     messages: [{ role: "user", content: userMsg }],
-    maxTokens: 1600,
+    // Sonnet 5.5 needs room for a complete multi-deliverable JSON plan.
+    maxTokens: 3200,
     telemetry: { operationKey: "brief.sharpen", feature: "brief.sharpen", ...telemetry },
   })) {
     if (ev.type === "token")      text += ev.text;

@@ -1,0 +1,61 @@
+{
+ "agent_id": "a26",
+ "name": "Email Build",
+ "dept": "Web & UX",
+ "job": "Email HTML with Klaviyo + Customer.io conventions.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": false,
+ "model_key": "v0",
+ "context": {
+  "bio_slices": [
+   "visual.tokens",
+   "visual.type",
+   "voice",
+   "refusals",
+   "facts"
+  ],
+  "pointers": [
+   "bio.components",
+   "renderers/templates"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a26"
+ ],
+ "output_schema_ref": "schemas/render_block.schema.json",
+ "checks": [
+  "D-SCHEMA",
+  "D-RENDER",
+  "D-CONTRAST",
+  "D-ALT",
+  "D-LEN",
+  "D-FORBID",
+  "D-LINKS",
+  "J-VISION"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 10,
+  "max_output_tokens": 2000
+ }
+}

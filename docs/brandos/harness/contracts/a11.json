@@ -1,0 +1,63 @@
+{
+ "agent_id": "a11",
+ "name": "The Anti-Brief",
+ "dept": "Concept",
+ "job": "Writes the brief you should refuse to do. Useful sanity.",
+ "tier": "standard",
+ "status": "live",
+ "runnable_today": true,
+ "model_key": "sonnet",
+ "context": {
+  "bio_slices": [
+   "positioning",
+   "audience",
+   "voice",
+   "refusals",
+   "facts",
+   "competitors",
+   "visual.imagery"
+  ],
+  "pointers": [
+   "bio.examples.campaigns",
+   "competitive_snapshot"
+  ],
+  "message_spec_reads": [
+   "smp",
+   "audience",
+   "goal",
+   "messages",
+   "proof",
+   "cta",
+   "refusals",
+   "territory",
+   "spine"
+  ],
+  "never_include": [
+   "full BIO",
+   "other brands",
+   "raw scrape"
+  ]
+ },
+ "message_spec_writes": [
+  "outputs.a11"
+ ],
+ "output_schema_ref": "schemas/concept_set.schema.json",
+ "checks": [
+  "D-FORBID",
+  "D-REFUSAL",
+  "D-CLAIM",
+  "D-SCHEMA",
+  "D-COUNT",
+  "J-VOICE",
+  "J-STRAT",
+  "J-DISTINCT"
+ ],
+ "loop": {
+  "max_passes_demo": 2,
+  "max_passes_prod": 3
+ },
+ "budget": {
+  "cr": 5,
+  "max_output_tokens": 2000
+ }
+}

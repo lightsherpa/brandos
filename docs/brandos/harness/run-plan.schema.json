@@ -1,0 +1,344 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://brandos.dev/schemas/run-plan.v0.json",
+ "title": "BrandOS Run Plan v0 (written by Brandolph, shown to user, versioned)",
+ "type": "object",
+ "required": [
+  "run_plan_id",
+  "version",
+  "brand_id",
+  "bio_version",
+  "bio_certified",
+  "goal",
+  "message_spec",
+  "crew",
+  "dag",
+  "checks",
+  "budget",
+  "loop",
+  "status"
+ ],
+ "properties": {
+  "run_plan_id": {
+   "type": "string"
+  },
+  "version": {
+   "type": "integer",
+   "minimum": 1
+  },
+  "parent_version": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "brand_id": {
+   "type": "string"
+  },
+  "brief_id": {
+   "type": "string"
+  },
+  "bio_version": {
+   "type": "integer"
+  },
+  "bio_certified": {
+   "type": "boolean",
+   "description": "Production runs require true and unexpired"
+  },
+  "goal": {
+   "type": "object",
+   "required": [
+    "objective",
+    "deliverables"
+   ],
+   "properties": {
+    "objective": {
+     "type": "string",
+     "maxLength": 200
+    },
+    "metric": {
+     "type": "string"
+    },
+    "deliverables": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "enum": [
+       "social_post",
+       "email",
+       "landing_section",
+       "deck_3",
+       "ad_set",
+       "hero_kv",
+       "territories",
+       "headlines"
+      ]
+     }
+    },
+    "languages": {
+     "type": "array",
+     "items": {
+      "enum": [
+       "es",
+       "en"
+      ]
+     }
+    }
+   }
+  },
+  "message_spec": {
+   "oneOf": [
+    {
+     "type": "object",
+     "required": [
+      "ref"
+     ],
+     "properties": {
+      "ref": {
+       "type": "string",
+       "description": "message_spec_id, if already sharpened"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "to_be_written_by"
+     ],
+     "properties": {
+      "to_be_written_by": {
+       "const": "a02"
+      }
+     }
+    }
+   ]
+  },
+  "crew": {
+   "type": "array",
+   "minItems": 1,
+   "maxItems": 3,
+   "items": {
+    "type": "object",
+    "required": [
+     "task_id",
+     "agent_id",
+     "why",
+     "contract_ref",
+     "model_route",
+     "deliverable"
+    ],
+    "properties": {
+     "task_id": {
+      "type": "string",
+      "pattern": "^t[0-9]{2}$"
+     },
+     "agent_id": {
+      "type": "string",
+      "pattern": "^a[0-9]{2}$"
+     },
+     "why": {
+      "type": "string",
+      "maxLength": 140
+     },
+     "contract_ref": {
+      "type": "string"
+     },
+     "model_route": {
+      "type": "string"
+     },
+     "deliverable": {
+      "type": "string"
+     },
+     "variants": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+     },
+     "platforms": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "est_cr": {
+      "type": "number"
+     }
+    }
+   },
+   "description": "DEMO CAP: max 3 specialist agents per run (src/portal-brandolph.jsx .slice(0,3) stays \u2014 Oscar 2026-10-11). a02 Sharpener runs as the pre-step (sharpener.js) and is not counted."
+  },
+  "dag": {
+   "type": "array",
+   "description": "edges; tasks with no incoming edge start immediately (max_parallel applies)",
+   "items": {
+    "type": "object",
+    "required": [
+     "from",
+     "to",
+     "passes"
+    ],
+    "properties": {
+     "from": {
+      "type": "string"
+     },
+     "to": {
+      "type": "string"
+     },
+     "passes": {
+      "type": "string",
+      "description": "Message Spec path or output field handed over, e.g. blocks.social[].visual_direction"
+     }
+    }
+   }
+  },
+  "checks": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "task_id",
+     "check_ids"
+    ],
+    "properties": {
+     "task_id": {
+      "type": "string"
+     },
+     "check_ids": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "on_rendered": {
+      "type": "boolean",
+      "description": "run on screenshot of rendered email/landing/deck"
+     }
+    }
+   }
+  },
+  "budget": {
+   "type": "object",
+   "required": [
+    "max_cr",
+    "max_usd",
+    "max_wall_seconds",
+    "max_parallel"
+   ],
+   "properties": {
+    "max_cr": {
+     "type": "number"
+    },
+    "est_cr": {
+     "type": "number"
+    },
+    "max_usd": {
+     "type": "number"
+    },
+    "max_wall_seconds": {
+     "type": "integer"
+    },
+    "max_parallel": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 3
+    }
+   }
+  },
+  "loop": {
+   "type": "object",
+   "required": [
+    "max_passes"
+   ],
+   "properties": {
+    "max_passes": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 3
+    },
+    "judge_after_deterministic": {
+     "type": "boolean",
+     "default": true
+    }
+   }
+  },
+  "human_gate": {
+   "type": "object",
+   "properties": {
+    "certifier_role": {
+     "enum": [
+      "creative_director",
+      "steward"
+     ]
+    },
+    "escalate_on": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "assumptions": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "questions": {
+   "type": "array",
+   "maxItems": 3,
+   "items": {
+    "type": "string"
+   }
+  },
+  "status": {
+   "enum": [
+    "draft",
+    "approved",
+    "running",
+    "done",
+    "failed",
+    "cancelled"
+   ]
+  },
+  "trace_id": {
+   "type": "string"
+  },
+  "followup_runs": {
+   "type": "array",
+   "maxItems": 3,
+   "description": "Sequential runs for deliverables beyond the cap; each \u22643 agents, run after the previous completes, sharing the same message_spec",
+   "items": {
+    "type": "object",
+    "required": [
+     "run_no",
+     "crew"
+    ],
+    "properties": {
+     "run_no": {
+      "type": "integer",
+      "minimum": 2
+     },
+     "crew": {
+      "$ref": "#/properties/crew"
+     },
+     "dag": {
+      "$ref": "#/properties/dag"
+     },
+     "checks": {
+      "$ref": "#/properties/checks"
+     }
+    }
+   }
+  },
+  "presteps": {
+   "type": "array",
+   "items": {
+    "enum": [
+     "a02_sharpen"
+    ]
+   },
+   "description": "Not counted against the cap"
+  }
+ }
+}

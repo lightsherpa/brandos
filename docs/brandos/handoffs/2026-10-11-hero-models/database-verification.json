@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-10-11T10:01:58.564Z",
+  "changedIds": [
+    "a02",
+    "a12",
+    "a13",
+    "a14",
+    "a16",
+    "a18",
+    "a24",
+    "a37"
+  ],
+  "unchangedRows": 47,
+  "otherPayloadFieldsPreserved": true,
+  "backupPath": "/Users/oscarmottaquintana/.codex/worktrees/hero-models/CaastorOS/.work/hero-models/specs-1791712887029.json"
+}

@@ -1,0 +1,597 @@
+{
+  "timestamp": "2026-10-11T09:54:37.484Z",
+  "syntheticBrand": true,
+  "forcedFallback": false,
+  "samples": [
+    {
+      "id": "a02",
+      "beforeRoute": "anthropic/claude-sonnet-4-6",
+      "afterRoute": "anthropic/claude-sonnet-5-5",
+      "before": {
+        "output": "**Problem:** The request asks four specialists to execute before the proposition is fixed.\n\n**Audience:** Independent founders writing their own websites who know what they want to say but can't make it land.\n\n**Proposition:** Fieldnotes Studio turns a founder's existing words into a website that does the persuading quietly.\n\n**Central tension:** Founders who write their own copy aren't bad writers \u2014 they're too close to the work. The studio's value isn't replacing their voice; it's giving it shape and distance.\n\n**Mandatories:** CTA is a consultation booking. No prices, no results, no urgency.\n\n**Not doing:** Positioning this as a full rebrand or a content service. This is a website service, specific.\n\n**Success measure:** Visitor books a consultation.",
+        "usage": {
+          "prompt_tokens": 1351,
+          "completion_tokens": 174,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-4-6",
+          "cost_usd": 0.006663,
+          "cost_source": "rate_card_estimate",
+          "rate_card_id": "7763b95b-d906-4246-844c-2a0676848843",
+          "provider_uncached_input_tokens": 1351
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.006663,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      },
+      "after": {
+        "output": "*A quiet studio that designs the site around the words you already wrote.*\n\nThat's the proposition, and it's a hypothesis. It follows from the audience (founders who write their own website), but the BIO doesn't say what the service actually includes or what category it sits in. The Brand Steward should confirm it before anything ships.\n\nThe tension: a launch wants volume, and this brand's position is saying less. Every piece has to announce the service without raising its voice, for readers who spot padding instantly.\n\nRefusals: no prices, results, countdowns or \"limited time.\" One CTA, book a studio consultation.",
+        "usage": {
+          "prompt_tokens": 3250,
+          "completion_tokens": 822,
+          "cached_tokens": 1236,
+          "cache_creation_tokens": 137,
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 1877
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.0124401,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      }
+    },
+    {
+      "id": "a12",
+      "beforeRoute": "anthropic/claude-sonnet-4-6",
+      "afterRoute": "anthropic/claude-sonnet-5-5",
+      "before": {
+        "output": "Your website should say exactly what you do \u2014 and nothing else.\n\nFieldnotes Studio builds websites for independent founders who know their work and want a site that shows it plainly. No templates stretched to fit. No copy written around what sounds good. Just your thinking, made clear.\n\nBook a studio consultation.\n\n---\n\nvisualDirection: A founder's open notebook beside a laptop on a pale wooden desk, shot from slightly above in soft north-facing daylight, nothing styled, nothing moved.",
+        "usage": {
+          "prompt_tokens": 1285,
+          "completion_tokens": 106,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-4-6",
+          "cost_usd": 0.005445,
+          "cost_source": "rate_card_estimate",
+          "rate_card_id": "7763b95b-d906-4246-844c-2a0676848843",
+          "provider_uncached_input_tokens": 1285
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.005445,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      },
+      "after": {
+        "output": "Your words. A quieter page.\n\nFieldnotes Studio is a quiet design studio for independent founders. Our new website service is for the person who already writes their own site. You keep the voice. We design the page around it, and we leave out whatever it doesn't need.\n\nCTA: Book a studio consultation\n\nvisualDirection: A founder's desk seen from slightly above, with a laptop open to a single clean page of text and a notebook beside it, shot in soft north-facing daylight with plenty of empty surface, so the mood reads calm and unhurried.",
+        "usage": {
+          "prompt_tokens": 3139,
+          "completion_tokens": 911,
+          "cached_tokens": 1298,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 1841
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.0129218,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      }
+    },
+    {
+      "id": "a13",
+      "beforeRoute": "anthropic/claude-sonnet-4-6",
+      "afterRoute": "anthropic/claude-sonnet-5-5",
+      "before": {
+        "output": "**Email 1 \u2014 sends immediately on signup**\n\nSubject: Good to have you here\n\nYou found us, which means you're probably thinking about your website. That's enough to start.\n\nFieldnotes Studio works with independent founders who want a site that says the right thing without saying too much. No templates handed back to you. A conversation first, then a plan that fits what you actually do.\n\nWhen you're ready, book a studio consultation below.\n\n[Book a consultation]\n\n---\n\n**Email 2 \u2014 sends day 4**\n\nSubject: One question before you write a word\n\nBefore any copy gets written, one question matters most: what do you want someone to do when they land on your site?\n\nMost founders skip it. That's usually why the site feels vague later.\n\nIf you haven't answered it yet, that's exactly where a consultation starts. Thirty minutes. No pitch. Just the work.\n\n[Book a consultation]",
+        "usage": {
+          "prompt_tokens": 1383,
+          "completion_tokens": 207,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-4-6",
+          "cost_usd": 0.007254,
+          "cost_source": "rate_card_estimate",
+          "rate_card_id": "7763b95b-d906-4246-844c-2a0676848843",
+          "provider_uncached_input_tokens": 1383
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.007254,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      },
+      "after": {
+        "output": "**Email 1**\n\nSubject: Welcome to Fieldnotes Studio\n\nHi {first name},\n\nThanks for joining us. We're a quiet design studio for independent founders.\n\nYou write your own website. That's a good place to start, and we'd rather build around your words than over them.\n\nWe'll keep these emails few and plain. When you're ready to talk about your site, book a studio consultation.\n\nFieldnotes Studio\n\n**Email 2**\n\nSubject: Say less. Show the work.\n\nHi {first name},\n\nA website usually says too much. Three sentences where one would do. A claim with nothing behind it.\n\nWe work the other way. Say less. Show the work. Stay specific.\n\nOur new website service is built on that. If it sounds like what your site needs, book a studio consultation and we'll talk through what you have.\n\nFieldnotes Studio",
+        "usage": {
+          "prompt_tokens": 3064,
+          "completion_tokens": 1126,
+          "cached_tokens": 1298,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 1766
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.0149218,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      }
+    },
+    {
+      "id": "a14",
+      "beforeRoute": "openrouter/google/gemini-3.5-flash-lite",
+      "afterRoute": "openrouter/google/gemini-3.8-flash",
+      "before": {
+        "output": "{\n  \"emailJob\": \"Welcome sequence for independent founders launching the new website service\",\n  \"variants\": [\n    {\n      \"subject\": \"Quiet websites for founders\",\n      \"subjectChars\": 27,\n      \"preview\": \"Fieldnotes Studio opens space for the work you actually make.\",\n      \"previewChars\": 58,\n      \"intent\": \"direct\",\n      \"hypothesis\": \"Clear statement of purpose attracts readers looking for calm design over noise.\"\n    },\n    {\n      \"subject\": \"Three ways to show your work\",\n      \"subjectChars\": 29,\n      \"preview\": \"A short guide to building a quiet home on the web.\",\n      \"previewChars\": 51,\n      \"intent\": \"curiosity\",\n      \"hypothesis\": \"Actionable framing increases open rates among founders writing their own sites.\"\n    },\n    {\n      \"subject\": \"Say less on your homepage\",\n      \"subjectChars\": 26,\n      \"preview\": \"Why removing words usually makes the argument stronger.\",\n      \"previewChars\": 53,\n      \"intent\": \"specificity\",\n      \"hypothesis\": \"Contrarian advice appeals to independent operators tired of crowded layouts.\"\n    },\n    {\n      \"subject\": \"The new website service is open\",\n      \"subjectChars\": 32,\n      \"preview\": \"We are taking consultations for the next cohort.\",\n      \"previewChars\": 47,\n      \"intent\": \"direct\",\n      \"hypothesis\": \"Straightforward launch announcement sets honest expectations.\"\n    },\n    {\n      \"subject\": \"Room for your next site\",\n      \"subjectChars\": 23,\n      \"preview\": \"Book a studio consultation to talk through what you need.\",\n      \"previewChars\": 57,\n      \"intent\": \"benefit\",\n      \"hypothesis\": \"Low-pressure invitation aligns with the calm studio register.\"\n    },\n    {\n      \"subject\": \"Built for independent founders\",\n      \"subjectChars\": 31,\n      \"preview\": \"No templates, no filler, just clear design.\",\n      \"previewChars\": 43,\n      \"intent\": \"specificity\",\n      \"hypothesis\": \"Naming the audience directly qualifies the reader before they open.\"\n    }\n  ],\n  \"recommendation\": {\n    \"subject\": \"Quiet websites for founders\",\n    \"preview\": \"Fieldnotes Studio opens space for the work you actually make.\",\n    \"reason\": \"It states the core thesis without hype and matches the quiet register of the studio.\"\n  },\n  \"testPlan\": \"Test direct proposition against curiosity-led framing in the first welcome email to see which approach yields higher long-term engagement.\"\n}",
+        "usage": {
+          "prompt_tokens": 1220,
+          "completion_tokens": 603,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "Google",
+          "model": "google/gemini-3.5-flash-lite",
+          "cost_usd": 0.0018735,
+          "cost_source": "provider_reported",
+          "rate_card_id": null
+        },
+        "stopReason": "stop",
+        "cost": {
+          "usd": 0.0018735,
+          "source": "provider_reported"
+        }
+      },
+      "after": {
+        "output": "Subject: A quieter way to build your site\nPreview: Most studio websites say too much. Here is how we work instead.\n\nSubject: Making a site you can write yourself\nPreview: Clear design for independent founders who prefer plain language.\n\nSubject: Fewer words, clearer intent\nPreview: Three decisions we make before we draw a single page.\n\nSubject: Showing the work\nPreview: Recent sites from the studio and why we kept them simple.\n\nSubject: Talking through your next site\nPreview: What we cover in a studio consultation, and what you can leave behind.\n\nSubject: Book a studio consultation\nPreview: Thirty minutes on what your site needs to say, and what it can drop.",
+        "usage": {
+          "prompt_tokens": 1112,
+          "completion_tokens": 1149,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "Google",
+          "model": "google/gemini-3.8-flash",
+          "cost_usd": 0.00514275,
+          "cost_source": "provider_reported",
+          "rate_card_id": null
+        },
+        "stopReason": "stop",
+        "cost": {
+          "usd": 0.00514275,
+          "source": "provider_reported"
+        }
+      }
+    },
+    {
+      "id": "a16",
+      "beforeRoute": "anthropic/claude-sonnet-4-6",
+      "afterRoute": "anthropic/claude-sonnet-5-5",
+      "before": {
+        "output": "Three captions, each under 45 words. One recommended version per post, materially distinct from each other.\n\n---\n\n**Post 1 \u2014 Service introduction**\n\nYour website should do the talking when you're not in the room. We build quiet, specific sites for founders who know what they're about and need a place that shows it.\n\nBook a consultation. Link in bio.\n\n#websitedesign #independentfounder\n\n*Alt text: Clean single-page website layout on a light background.*\n\n---\n\n**Post 2 \u2014 Process / credibility**\n\nWe ask three questions before we touch a layout: What does this founder do? Who needs to believe it? What's the one thing a visitor should do next? The rest follows.\n\nBook a studio consultation. Link in bio.\n\n#studiodesign #founderwebsite\n\n*Alt text: Designer's notebook open to handwritten project notes.*\n\n---\n\n**Post 3 \u2014 Social proof angle (no invented claim \u2014 framed as observation)**\n\nThe founders we work with usually arrive with too many words and not enough confidence in their own work. We fix the second problem. The words sort themselves out.\n\nStart with a consultation. Link in bio.\n\n#webdesign #quietdesign\n\n*Alt text: Minimal portfolio page showing a single project image and short bio.*",
+        "usage": {
+          "prompt_tokens": 1335,
+          "completion_tokens": 292,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-4-6",
+          "cost_usd": 0.008385,
+          "cost_source": "rate_card_estimate",
+          "rate_card_id": "7763b95b-d906-4246-844c-2a0676848843",
+          "provider_uncached_input_tokens": 1335
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.008385,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      },
+      "after": {
+        "output": "You wrote your own website. Good. You know the work better than anyone. Now it needs a page that holds still and lets your words do the talking. Fieldnotes Studio now designs websites for independent founders. Book a consultation.\n\nSay less. Show the work. Stay specific. That's how we design, and it's how we think your site should read. A new website service from Fieldnotes Studio, for founders who write their own copy. Book a studio consultation.\n\nYour words, set properly. Fieldnotes Studio is a quiet design studio, and we've started building websites for independent founders. Talk to us about yours. Book a consultation through the link in bio.",
+        "usage": {
+          "prompt_tokens": 3049,
+          "completion_tokens": 1140,
+          "cached_tokens": 1298,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 1751
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.0150318,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      }
+    },
+    {
+      "id": "a18",
+      "beforeRoute": "anthropic/claude-haiku-4-5-20251001",
+      "afterRoute": "anthropic/claude-haiku-5-5",
+      "before": {
+        "output": "```json\n{\n  \"verdict\": \"pass\",\n  \"overallScore\": 9.2,\n  \"dimensionScores\": {\n    \"registerMatch\": 9.5,\n    \"rhythmMatch\": 9.0,\n    \"specificity\": 8.5,\n    \"audienceResonance\": 9.5,\n    \"claimIntegrity\": 9.5,\n    \"forbiddenLanguage\": 10.0\n  },\n  \"strengths\": [\n    \"Sits exactly in 'calm, plain and specific' register. No marketing filler.\",\n    \"Rhythm is conversational\u2014short, Saxon words, no subordination. Reads like speech.\",\n    \"Positions the outcome (sound like you) before the CTA. Argument is earned.\",\n    \"No forbidden words. No fake urgency, no synergy, no limits.\",\n    \"Speaks to independent founders who write their own website\u2014implies they have a voice worth preserving.\",\n    \"CTA is direct and scannable. Matches 'book a studio consultation' north star.\"\n  ],\n  \"requiredFixes\": [],\n  \"optionalNotes\": [\n    \"Period after 'you' could become a full stop on its own line in hero context\u2014would intensify the beat. Not required; current punctuation works.\"\n  ],\n  \"violations\": [],\n  \"voice_match\": true\n}\n```\n\n---\n\nThis copy passes. It obeys the BIO. It does not sound like AI. It treats the founder's voice as a deliverable, not a bonus\u2014which is exactly the positioning.",
+        "usage": {
+          "prompt_tokens": 1379,
+          "completion_tokens": 373,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-haiku-4-5-20251001",
+          "cost_usd": 0.003244,
+          "cost_source": "rate_card_estimate",
+          "rate_card_id": "fa07a5cb-4c4e-46c2-b77d-564fed22ff4c",
+          "provider_uncached_input_tokens": 1379
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.003244,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      },
+      "after": {
+        "output": "```json\n{\n  \"passed\": true,\n  \"voice_match\": {\n    \"score\": \"partial\",\n    \"notes\": \"Plain and short, which fits the calm, plain register and the 'Say less' pillar. 'Sounds like you' is abstract, though. It doesn't show the work or anything specific to the studio, so it misses 'Stay specific' and 'Show the work'. The BIO does not specify rhythm or signatures, so those can't be checked.\"\n  },\n  \"violations\": [\n    {\n      \"type\": \"pillar_gap\",\n      \"pillar\": \"Stay specific\",\n      \"severity\": \"low\",\n      \"detail\": \"'A website that sounds like you' could be said by any agency. Nothing names the studio, the service, or what the founder gets.\"\n    },\n    {\n      \"type\": \"audience_gap\",\n      \"severity\": \"low\",\n      \"detail\": \"Primary audience is independent founders who write their own website. The line doesn't speak to that person's situation (writing it themselves, wanting it to sound like them).\"\n    },\n    {\n      \"type\": \"cta_drift\",\n      \"severity\": \"low\",\n      \"detail\": \"North star is 'Book a studio consultation'. Copy says 'Book a consultation' and drops 'studio'. Either is usable, but the north star wording is the one to keep.\"\n    }\n  ],\n  \"forbidden_words_found\": [],\n  \"invented_claims_found\": [],\n  \"urgency_found\": false\n}\n```",
+        "usage": {
+          "prompt_tokens": 3101,
+          "completion_tokens": 1076,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 1298,
+          "provider": "anthropic",
+          "model": "claude-haiku-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 1803
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.00088055,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      }
+    },
+    {
+      "id": "a24",
+      "beforeRoute": "openrouter/google/gemini-3.5-flash-lite",
+      "afterRoute": "openrouter/google/gemini-3.8-flash",
+      "before": {
+        "output": "{\n  \"passed\": false,\n  \"brand_match\": 0.45,\n  \"violations\": [\n    {\n      \"id\": \"v1\",\n      \"severity\": \"blocking\",\n      \"assetRegion\": \"sidebar_and_body\",\n      \"rule\": \"Palette: Ink #102030, Paper #E7E1D6\",\n      \"evidence\": \"The interface displays palette values Roast #2B1D4 and Crema #F1E6D3 instead of certified Ink #102030 and Paper #E7E1D6.\",\n      \"correction\": \"Update sidebar and background color definitions to Ink #102030 and Paper #E7E1D6.\",\n      \"owner\": \"UI Designer\"\n    },\n    {\n      \"id\": \"v2\",\n      \"severity\": \"material\",\n      \"assetRegion\": \"sidebar_meta\",\n      \"rule\": \"Voice Register: calm, plain and specific\",\n      \"evidence\": \"The metadata panel displays voice rules 'warm, exact, unhurried' which conflict with certified voice register.\",\n      \"correction\": \"Replace metadata text to reflect certified calm, plain and specific voice register.\",\n      \"owner\": \"Content Specialist\"\n    }\n  ]\n}",
+        "usage": {
+          "prompt_tokens": 2407,
+          "completion_tokens": 289,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "Google",
+          "model": "google/gemini-3.5-flash-lite",
+          "cost_usd": 0.0014446,
+          "cost_source": "provider_reported",
+          "rate_card_id": null
+        },
+        "stopReason": "stop",
+        "cost": {
+          "usd": 0.0014446,
+          "source": "provider_reported"
+        }
+      },
+      "after": {
+        "output": "{\n  \"passed\": false,\n  \"brand_match\": false,\n  \"violations\": [\n    \"Palette specifies Roast #2B1D14 and Crema #F1E6D3 instead of Ink #102030 and Paper #E7E1D6.\",\n    \"Voice register listed as warm, exact, unhurried instead of calm, plain and specific.\",\n    \"Subject matter targets a spring blend coffee launch rather than studio website design for independent founders.\"\n  ]\n}",
+        "usage": {
+          "prompt_tokens": 2286,
+          "completion_tokens": 1378,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "Google",
+          "model": "google/gemini-3.8-flash",
+          "cost_usd": 0.006882,
+          "cost_source": "provider_reported",
+          "rate_card_id": null
+        },
+        "stopReason": "stop",
+        "cost": {
+          "usd": 0.006882,
+          "source": "provider_reported"
+        }
+      }
+    },
+    {
+      "id": "a37",
+      "beforeRoute": "openrouter/google/gemini-3.6-flash",
+      "afterRoute": "anthropic/claude-sonnet-5-5",
+      "before": {
+        "output": "Declarative\n1. A quiet website for founders who write their own copy.\n2. We build clean websites that let your work stand on its own.\n3. Simple layout. Specific copy. Built for independent founders.\n\nQuestion\n4. What if your website felt as clear as your actual work?\n5. Ready to trade your temporary site for a permanent one?\n\nFragment / Poetic\n6. Less noise. Sharper focus.\n7. Clear structure, quiet design.\n8. Written in your voice. Finished in our studio.\n\nAnti-Headline\n9. A plain website service for independent founders.\n10. We make clear websites. Nothing more, nothing less.",
+        "usage": {
+          "prompt_tokens": 1186,
+          "completion_tokens": 1757,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "Google",
+          "model": "google/gemini-3.6-flash",
+          "cost_usd": 0.00747825,
+          "cost_source": "provider_reported",
+          "rate_card_id": null
+        },
+        "stopReason": "stop",
+        "cost": {
+          "usd": 0.00747825,
+          "source": "provider_reported"
+        }
+      },
+      "after": {
+        "output": "Declarative\n\n1. A website for founders who write their own words.\n2. Your words, given a proper page.\n3. Say less. Let the site show the work.\n\nQuestion\n\n4. You wrote the copy. Who designs the page around it?\n5. What does your homepage say before anyone scrolls?\n\nFragment\n\n6. Quiet design. Specific words.\n7. Fewer words. The right page.\n8. Fieldnotes Studio: websites, made quietly.\n\nAnti-headline\n\n9. We won't make your website louder.\n10. No buzzwords. Just your site, built to be read.",
+        "usage": {
+          "prompt_tokens": 3125,
+          "completion_tokens": 858,
+          "cached_tokens": 1298,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 1827
+        },
+        "stopReason": "end_turn",
+        "cost": {
+          "usd": 0.0123638,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      }
+    }
+  ],
+  "pipeline": {
+    "sharpened": {
+      "title": "A quieter way to launch",
+      "tension": "A studio built on saying less has to announce a new service without the volume, urgency or invented proof a launch usually leans on, and the only thing left to carry it is specificity about what the service actually is.",
+      "sharpenedBrief": "Introduce the new website service to independent founders who currently write their own sites, using one landing hero, three Instagram captions with matching images, and a two-email welcome sequence. Every piece points to one action, booking a consultation, and stays plain and specific with no prices, results or deadlines that haven't been supplied. Outputs stay compact: the hero says what the service is and who it's for, and the rest shows how it works.",
+      "questions": [
+        {
+          "q": "In one sentence, what does a founder actually get from this website service, and what does the studio do that they'd otherwise do themselves?",
+          "solvingFor": "Settles whether the hero leads with the deliverable (a finished site) or with the working process (we write it with you), which changes every line downstream.",
+          "why": "Pillar 'Stay specific' and the audience 'independent founders who write their own website': the copy has to name what changes for someone used to writing their own words."
+        },
+        {
+          "q": "Do you have any real work, a client site or a before/after, that we can show, or should the launch run on the process alone?",
+          "solvingFor": "Decides whether 'Show the work' is carried by real proof or by the process, since no results can be invented and the captions and visuals depend on which one is available.",
+          "why": "Pillar 'Show the work' combined with the brief's rule of no invented results; Instagram images need something true to show."
+        },
+        {
+          "q": "Should the welcome emails go to an existing list, or to people who book or enquire after seeing the launch?",
+          "solvingFor": "Determines whether email one acknowledges a relationship that already exists or introduces the studio cold, and so how much it has to explain.",
+          "why": "North star 'Book a studio consultation' and the voice register 'calm, plain and specific': the email tone depends on whether the reader already knows the studio."
+        }
+      ],
+      "deliveryPlan": {
+        "deliverableGroups": [
+          {
+            "type": "landing_section",
+            "count": 1,
+            "platforms": [
+              "generic"
+            ],
+            "parts": [
+              "heading",
+              "body"
+            ],
+            "crew": {
+              "heading": "a12",
+              "body": "a17"
+            }
+          },
+          {
+            "type": "social_post",
+            "count": 3,
+            "platforms": [
+              "instagram"
+            ],
+            "parts": [
+              "caption",
+              "image"
+            ],
+            "crew": {
+              "caption": "a16",
+              "image": "a41"
+            }
+          },
+          {
+            "type": "email_sequence",
+            "count": 1,
+            "platforms": [
+              "email"
+            ],
+            "parts": [
+              "subject",
+              "body"
+            ],
+            "crew": {
+              "subject": "a14",
+              "body": "a13"
+            }
+          }
+        ],
+        "proposedSpecialists": [
+          "a12",
+          "a17",
+          "a16",
+          "a41",
+          "a14",
+          "a13"
+        ]
+      },
+      "proposedSpecialists": [
+        "a12",
+        "a17",
+        "a16",
+        "a41",
+        "a14",
+        "a13"
+      ],
+      "refusals": [],
+      "usage": {
+        "prompt_tokens": 3949,
+        "completion_tokens": 977,
+        "cached_tokens": 0,
+        "cache_creation_tokens": 0,
+        "provider": "anthropic",
+        "model": "claude-sonnet-5-5",
+        "cost_usd": null,
+        "cost_source": "unpriced",
+        "rate_card_id": null,
+        "provider_uncached_input_tokens": 3949
+      },
+      "cost": {
+        "usd": 0.017668,
+        "source": "published_anthropic_rate_estimate",
+        "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+      }
+    },
+    "assembly": [
+      "a12",
+      "a17",
+      "a16"
+    ],
+    "outputs": [
+      {
+        "id": "a12",
+        "output": "The BIO carries no process, deliverables, timeline or category for the website service, so the copy says only what is certain: who it's for, that a studio designs it, and that the consultation is the first step. If you want \"how it works\" to show real steps, supply them and I'll write them in.\n\n**Landing hero**\n\nYou write your own site. We design it.\n\nFieldnotes Studio is a quiet design studio for independent founders. The new website service is for the founder whose words are already on the page and who wants the page itself done properly.\n\nBook a consultation\n\nvisualDirection: A founder's laptop on a plain wooden desk, a half-finished homepage draft on screen, shot from slightly above and to one side with generous empty space on the right for the headline; soft window daylight, calm and uncluttered.\n\n**Instagram captions**\n\n1.\nNew from Fieldnotes Studio: a website service for independent founders who write their own sites.\n\nYou already know what you do and how to say it. We design the site around that.\n\nBook a consultation. Link in bio.\n\nvisualDirection: A single printed page of founder-written text lying flat on a desk, centered and square-cropped, nothing else in frame; even daylight, quiet and still.\n\n2.\nMost founders we talk to wrote their site themselves, and wrote it well. It's the layout that never got finished.\n\nThat's the work we take on.\n\nBook a consultation. Link in bio.\n\nvisualDirection: Close crop of a hand holding a pencil over a rough page sketch beside a laptop showing the same page, shallow depth of field, side light from a window; focused, unhurried.\n\n3.\nA consultation is a conversation about your site and what it needs. Nothing to prepare except the site you have now.\n\nBook one. Link in bio.\n\nvisualDirection: Two chairs facing each other across a small table with an open notebook and two cups, wide and level composition, soft natural light; welcoming and plain.\n\n**Welcome email 1**\n\nSubject: Your site, designed\nPreview: A studio for founders who write their own.\n\nHello,\n\nFieldnotes Studio is a quiet design studio for independent founders. We've opened a website service for people who write their own sites.\n\nIf that's you, the words are the hard part, and you've done them. The design is ours.\n\nThe first step is a consultation. We talk about your site as it is now and what it needs.\n\nBook a consultation\n\nFieldnotes Studio\n\n**Welcome email 2**\n\nSubject: What a consultation is\nPreview: A conversation about your site.\n\nHello,\n\nA short note on the first step, since it's the only one we're asking for.\n\nA consultation is a conversation about your site. Bring the one you have today. We'll tell you plainly what we see and whether we're the right studio for it.",
+        "usage": {
+          "prompt_tokens": 2059,
+          "completion_tokens": 2000,
+          "cached_tokens": 1298,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 761
+        },
+        "cost": {
+          "usd": 0.0216518,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      },
+      {
+        "id": "a17",
+        "output": "# LANDING HERO\n\n**Headline**\nA website that sounds like you\n\n**Subheading**\nYou write your own story. We design the space for it. Fieldnotes builds sites for independent founders who know what they want to say.\n\n**CTA Button**\nBook a consultation\n\n---\n\n# INSTAGRAM CAPTIONS\n\n**Post 1 \u2014 (Image: founder at desk, website live on screen)**\n\nMost founders I meet have written every word on their site. The design usually lags behind. That's what we fix. A studio consultation starts here.\n\n[Link: Book]\n\n---\n\n**Post 2 \u2014 (Image: detail of type, layout, or brand system)**\n\nYour site doesn't need to be loud. It needs to be clear. We work small and specific\u2014no templates, no stock phrases, no shortcuts.\n\n[Link: Book]\n\n---\n\n**Post 3 \u2014 (Image: founder reviewing proof or design system)**\n\nYou know your audience better than anyone. We listen to how you talk about your work, then build a site that lets that come through.\n\n[Link: Book]\n\n---\n\n# EMAIL SEQUENCE\n\n**Email 1 \u2014 Subject: We're launching a website service**\n\nHi [Name],\n\nFieldnotes is now building websites for independent founders. Not templates. Not agencies with fifteen layers. A studio that listens to what you're doing and designs a site around it.\n\nIf you've been writing your own site and wishing the design matched what you're actually saying, this is worth an hour of your time.\n\nLet's talk about what you need.\n\n[Book a consultation]\n\nBest,\nFieldnotes\n\n---\n\n**Email 2 \u2014 Subject: What a consultation looks like**\n\nHi [Name],\n\nA consultation with us is straightforward. You bring your current site (or notes on what you want to say). We ask questions about your work, who you're talking to, and what matters most on the page.\n\nThat conversation is how we understand what to build.\n\nIf you're ready, book a time that works.\n\n[Book a consultation]\n\nFieldnotes",
+        "usage": {
+          "prompt_tokens": 1428,
+          "completion_tokens": 469,
+          "cached_tokens": 0,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-haiku-4-5-20251001",
+          "cost_usd": 0.003773,
+          "cost_source": "rate_card_estimate",
+          "rate_card_id": "fa07a5cb-4c4e-46c2-b77d-564fed22ff4c",
+          "provider_uncached_input_tokens": 1428
+        },
+        "cost": {
+          "usd": 0.003773,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      },
+      {
+        "id": "a16",
+        "output": "The BIO carries no process, deliverables, timeline, category or portfolio for the website service, so \"how it works\" is shown only through what's certain: who it's for, that a studio designs it, and that a consultation comes first. Image directions describe subject and composition only, since the BIO sets no palette or typography.\n\n# Landing hero\n\n**Headline**\nA studio for the website you've been writing yourself\n\n**Subhead**\nFieldnotes Studio designs websites for independent founders. You know what you want to say. Book a consultation and we'll talk about the site.\n\n**Button**\nBook a studio consultation\n\n# Instagram captions\n\n**1. Say less**\n\nImage: One sentence of homepage copy, set large on an otherwise empty page.\n\nYou wrote your own website. That took nerve.\n\nFieldnotes Studio is a quiet design studio for independent founders, and our website service is new. If the words are yours, the design should be built with care around them.\n\nBook a studio consultation. Link in bio.\n\n**2. Show the work**\n\nImage: A founder's open laptop on a desk, the homepage on screen, a notebook beside it. No people in frame.\n\nEvery site starts with a conversation, not a template.\n\nThe first step with Fieldnotes is a consultation. You tell us who you are and what the site needs to say. We tell you what we'd do.\n\nBook yours. Link in bio.\n\n**3. Stay specific**\n\nImage: Three short lines",
+        "usage": {
+          "prompt_tokens": 2164,
+          "completion_tokens": 2000,
+          "cached_tokens": 1298,
+          "cache_creation_tokens": 0,
+          "provider": "anthropic",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": null,
+          "cost_source": "unpriced",
+          "rate_card_id": null,
+          "provider_uncached_input_tokens": 866
+        },
+        "cost": {
+          "usd": 0.0218618,
+          "source": "published_anthropic_rate_estimate",
+          "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+        }
+      }
+    ],
+    "voice": {
+      "passed": true,
+      "voice_match": 70,
+      "violations": [
+        "qa_unparseable_response"
+      ],
+      "usage": {
+        "prompt_tokens": 2339,
+        "completion_tokens": 400,
+        "cached_tokens": 0,
+        "cache_creation_tokens": 0,
+        "provider": "anthropic",
+        "model": "claude-haiku-5-5",
+        "cost_usd": null,
+        "cost_source": "unpriced",
+        "rate_card_id": null,
+        "provider_uncached_input_tokens": 2339
+      },
+      "cost": {
+        "usd": 0.0004339,
+        "source": "published_anthropic_rate_estimate",
+        "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing"
+      }
+    },
+    "vision": {
+      "passed": true,
+      "brand_match": 70,
+      "violations": [],
+      "usage": {
+        "prompt_tokens": 1381,
+        "completion_tokens": 489,
+        "cached_tokens": 0,
+        "cache_creation_tokens": 0,
+        "provider": "Google",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.0028695,
+        "cost_source": "provider_reported",
+        "rate_card_id": null
+      },
+      "cost": {
+        "usd": 0.0028695,
+        "source": "provider_reported"
+      }
+    },
+    "total_cost_estimate_usd": 0.068258
+  },
+  "costNotes": "Anthropic costs are estimates from measured input/output/cache counters and published rates; OpenRouter costs are provider-reported. Earlier smoke workers used uncached-only prompt counters; those were normalized to total prompt tokens here. No invoices were reconciled. Live Claude 5.5 rate cards are missing.",
+  "sampleTokenBudget": "Samples use the production specialist token budget (2000-token floor); the local pipeline uses the same floor, Sharpener 3200, Voice QA 400, Vision QA 1000."
+}

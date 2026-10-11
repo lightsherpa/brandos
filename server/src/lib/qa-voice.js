@@ -10,10 +10,7 @@
 // Returns { passed, voice_match, violations, usage }. `passed` is false
 // if any local violation fires OR if the LLM says voice_match < 70.
 //
-// Cost choice rationale: QA is high-volume (every text run + every
-// re-run), low reasoning depth. Flash @ $0.30/$2.50 per M tokens
-// produces a reliable JSON verdict. Haiku 4.5 would cost ~2× for the
-// same outcome. Per the cost-optimization-at-scale memory.
+// Hero QA uses Haiku 5.5; the previous Gemini Flash route is its fallback.
 // ─────────────────────────────────────────────────────────────────────
 
 import { streamCompletion } from "./models/router.js";
@@ -22,7 +19,8 @@ const QA_SPEC = {
   payload: {
     name: "a18 Voice QA",
     modelRouting: {
-      primary: "openrouter/google/gemini-2.5-flash",
+      primary: "anthropic/claude-haiku-5-5",
+      fallback: "openrouter/google/gemini-2.5-flash",   /* previous primary, proven JSON verdicts */
       reason: "high-volume reliability check; local regex handles hard violations",
     },
     cr_estimate: 1,

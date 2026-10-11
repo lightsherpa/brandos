@@ -38,6 +38,9 @@ window.CI_CREDITS = {
 
 /* AI models referenced by agents ---------------------------------- */
 window.CI_MODELS = {
+  sonnet55:    { label: "Sonnet 5.5", color: "var(--model-sonnet)" },
+  haiku55:     { label: "Haiku 5.5", color: "var(--model-haiku)" },
+  gemFlash38:  { label: "Gemini 3.8 Flash", color: "var(--model-gemFlash)" },
   opus:        { label: "Opus 4.1",        color: "var(--model-opus)"        },
   sonnet:      { label: "Sonnet 4.6",      color: "var(--model-sonnet)"      },
   haiku:       { label: "Haiku 4.5",       color: "var(--model-haiku)"       },
@@ -60,7 +63,7 @@ window.CI_MODELS = {
 window.CI_AGENTS = [
   // Strategy (6) — was "CMO Suite"
   { id:"a01", code:"L2-01", dept:"Strategy", name:"The Diagnostician",  job:"Reads the brand right now. Names tensions before assembly.",                                              model:"sonnet",     cr:8,  status:"live" },
-  { id:"a02", code:"L2-02", dept:"Strategy", name:"The Sharpener",      job:"Turns vague briefs into single-minded propositions.",                                                     model:"sonnet",   cr:5,  status:"live" },
+  { id:"a02", code:"L2-02", dept:"Strategy", name:"The Sharpener",      job:"Turns vague briefs into single-minded propositions.",                                                     model:"sonnet55",   cr:5,  status:"live" },
   { id:"a03", code:"L2-03", dept:"Strategy", name:"The Strategist",     job:"Comms plan, channel rationale, sequencing.",                                                              model:"sonnet",   cr:6,  status:"live" },
   { id:"a04", code:"L2-04", dept:"Strategy", name:"The Tension-Finder", job:"Surfaces the contradictions a CMO would want named.",                                                     model:"sonnet",     cr:8,  status:"live" },
   { id:"a05", code:"L2-05", dept:"Strategy", name:"The Refuser",        job:"Says no with reasons. Owns the 'what we are not doing'.",                                                 model:"haiku",   cr:4,  status:"live" },
@@ -77,14 +80,14 @@ window.CI_AGENTS = [
   { id:"a36", code:"L2-36", dept:"Concept", name:"Campaign Architect",   job:"The big idea — one campaign spine that holds 10+ outputs together.",                                     model:"opus",     cr:9,  status:"live" },
 
   // Copy (11) — added Headlines, Ad Copy, Product Copy, Press & Bio
-  { id:"a12", code:"L2-12", dept:"Copy", name:"Conversion Copy",   job:"Landing, pricing, hero work that has to move a number.",                                                      model:"sonnet",   cr:12, status:"live" },
-  { id:"a13", code:"L2-13", dept:"Copy", name:"Email Sequence",    job:"Onboarding, lifecycle, retention sequences.",                                                                  model:"sonnet",   cr:12, status:"live" },
-  { id:"a14", code:"L2-14", dept:"Copy", name:"Subject Lines",     job:"Subjects, previews, A/B variants by intent.",                                                                  model:"gemFlash", cr:2,  status:"live" },
+  { id:"a12", code:"L2-12", dept:"Copy", name:"Conversion Copy",   job:"Landing, pricing, hero work that has to move a number.",                                                      model:"sonnet55",   cr:12, status:"live" },
+  { id:"a13", code:"L2-13", dept:"Copy", name:"Email Sequence",    job:"Onboarding, lifecycle, retention sequences.",                                                                  model:"sonnet55",   cr:12, status:"live" },
+  { id:"a14", code:"L2-14", dept:"Copy", name:"Subject Lines",     job:"Subjects, previews, A/B variants by intent.",                                                                  model:"gemFlash38", cr:2,  status:"live" },
   { id:"a15", code:"L2-15", dept:"Copy", name:"Long-form Editor",  job:"Essays, manifestos, foundational doc copy.",                                                                   model:"opus",     cr:14, status:"live" },
-  { id:"a16", code:"L2-16", dept:"Copy", name:"Social Captions",   job:"Captions that hold voice across platforms.",                                                                   model:"sonnet",  cr:3,  status:"live" },
+  { id:"a16", code:"L2-16", dept:"Copy", name:"Social Captions",   job:"Captions that hold voice across platforms.",                                                                   model:"sonnet55",  cr:3,  status:"live" },
   { id:"a17", code:"L2-17", dept:"Copy", name:"Microcopy & UX",    job:"Form labels, error states, onboarding micro.",                                                                 model:"haiku",    cr:2,  status:"live" },
-  { id:"a18", code:"L2-18", dept:"Copy", name:"Voice QA",          job:"Reads finished copy against the BIO. Flags drift.",                                                            model:"haiku",    cr:2,  status:"live" },
-  { id:"a37", code:"L2-37", dept:"Copy", name:"Headlines",         job:"20 headline variants in one pass — for the press, the page, the deck.",                                       model:"gemPro",   cr:3,  status:"live" },
+  { id:"a18", code:"L2-18", dept:"Copy", name:"Voice QA",          job:"Reads finished copy against the BIO. Flags drift.",                                                            model:"haiku55",    cr:2,  status:"live" },
+  { id:"a37", code:"L2-37", dept:"Copy", name:"Headlines",         job:"20 headline variants in one pass — for the press, the page, the deck.",                                       model:"sonnet55",   cr:3,  status:"live" },
   { id:"a38", code:"L2-38", dept:"Copy", name:"Ad Copy",           job:"Paid social, search, display variants — sized per platform spec.",                                              model:"gemPro",   cr:5,  status:"live" },
   { id:"a39", code:"L2-39", dept:"Copy", name:"Product Copy",      job:"Descriptions, features, benefit ladders. The ecom workhorse.",                                                  model:"gemFlash",   cr:6,  status:"live" },
   { id:"a40", code:"L2-40", dept:"Copy", name:"Press & Bio",       job:"Releases, founder bios, about pages, partnership announcements.",                                              model:"sonnet",   cr:8,  status:"live" },
@@ -94,7 +97,7 @@ window.CI_AGENTS = [
   { id:"a20", code:"L2-20", dept:"Visual", name:"Hero KV",                  job:"Hero visuals for campaigns and launches.",                                                             model:"gptimage",     cr:14, status:"live" },
   { id:"a21", code:"L2-21", dept:"Visual", name:"Editorial Image",          job:"Image-led storytelling. In-feed + content.",                                                          model:"gptimage", cr:10, status:"live" },
   { id:"a22", code:"L2-22", dept:"Visual", name:"Pack & Packaging",         job:"Pack architecture, dielines, label layouts.",                                                          model:"gptimage",     cr:18, status:"live" },
-  { id:"a24", code:"L2-24", dept:"Visual", name:"Brand Consistency QA",     job:"Vision check — scores every visual against BIO + asset rules.",                                       model:"gemFlash",    cr:2,  status:"live" },
+  { id:"a24", code:"L2-24", dept:"Visual", name:"Brand Consistency QA",     job:"Vision check — scores every visual against BIO + asset rules.",                                       model:"gemFlash38",    cr:2,  status:"live" },
   { id:"a41", code:"L2-41", dept:"Visual", name:"Social Post Designer",     job:"Instagram squares, stories, carousels, LinkedIn graphics, TikTok thumbnails — by platform spec.",     model:"fluxSchnell",     cr:8,  status:"live" },
   { id:"a42", code:"L2-42", dept:"Visual", name:"Ad Creative",              job:"Display banners + paid social ads, sized per platform spec.",                                          model:"flux",     cr:9,  status:"live" },
   { id:"a43", code:"L2-43", dept:"Visual", name:"OOH / Print",              job:"Billboard layouts, magazine ads, posters — in print-ready formats.",                                  model:"gptimage",     cr:12, status:"live" },
