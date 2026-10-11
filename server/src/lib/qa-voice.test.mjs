@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { outputStatusForQa, parseVoiceQaJson, voiceQa } from "./qa-voice.js";
+import { copyForVoiceQa, outputStatusForQa, parseVoiceQaJson, voiceQa } from "./qa-voice.js";
 
 function completer(replies) {
   const calls = [];
@@ -94,6 +94,61 @@ test("a malformed verdict is needs_review and never approved", async () => {
     assert.equal(outputStatusForQa(qa), "needs_review", text);
     assert.notEqual(outputStatusForQa(qa), "approved", text);
   }
+});
+
+test("voice QA judges a25 and a26 copy, not the renderer JSON", async () => {
+  const email = {
+    blocks: {
+      email: {
+        subject: "A quiet cup",
+        preheader: "Nothing extra",
+        headline: "Morning",
+        body: "Warm ceramic.",
+        image: { src: "https://cdn.example/synergy.png", alt: "Cup on a table" },
+        bullets: ["One origin"],
+        footer: "See you tomorrow",
+      },
+    },
+  };
+  const passing = completer([{ text: '{"passed":true,"voice_match":90,"violations":[]}' }]);
+  const clean = await voiceQa({
+    body: JSON.stringify(email),
+    bio: { voice: { forbidden: ["synergy"] } },
+    refusals: [],
+    complete: passing.complete,
+  });
+  assert.equal(clean.passed, true);
+  const judgedCopy = passing.calls[0].messages[0].content.split("COPY TO EVALUATE")[1];
+  assert.doesNotMatch(judgedCopy, /synergy/);
+  assert.doesNotMatch(judgedCopy, /cdn\.example/);
+  assert.match(judgedCopy, /A quiet cup/);
+  assert.match(judgedCopy, /Cup on a table/);
+  assert.doesNotMatch(judgedCopy, /"blocks"/);
+
+  const landing = {
+    blocks: {
+      landing: {
+        hero: { eyebrow: "Today", headline: "Unlock synergy", subhead: "Slow coffee", image: { src: "", alt: "A cup" } },
+        features: [{ title: "Origin", text: "One farm" }, { title: "Roast", text: "Light" }, { title: "Cup", text: "Small" }],
+        proof: { quote: "Quiet mornings", attribution: "Ana" },
+        cta: { headline: "Come in", subhead: "This week" },
+        footer: { text: "Nomad" },
+      },
+    },
+  };
+  const flagged = completer([{ text: '{"passed":true,"voice_match":90,"violations":[]}' }]);
+  const caught = await voiceQa({
+    body: JSON.stringify(landing),
+    bio: { voice: { forbidden: ["synergy"] } },
+    refusals: [],
+    complete: flagged.complete,
+  });
+  assert.equal(caught.passed, false);
+  assert.match(caught.violations.join(" "), /synergy/);
+  assert.match(flagged.calls[0].messages[0].content, /Unlock synergy/);
+  assert.match(flagged.calls[0].messages[0].content, /Quiet mornings/);
+  assert.doesNotMatch(flagged.calls[0].messages[0].content, /"features"/);
+  assert.match(copyForVoiceQa("A quiet cup."), /A quiet cup/);
 });
 
 test("JSON wrapped in prose still parses", () => {

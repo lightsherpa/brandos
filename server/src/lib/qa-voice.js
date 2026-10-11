@@ -67,6 +67,51 @@ function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function pushCopy(parts, value) {
+  if (typeof value === "string" && value.trim()) parts.push(value.trim());
+}
+
+/* a25/a26 return renderer JSON. Voice QA judges the copy a person reads,
+   not the keys, urls, or schema around it. */
+export function copyForVoiceQa(body) {
+  const raw = String(body ?? "").trim();
+  if (!raw) return raw;
+  const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+  let parsed;
+  try { parsed = JSON.parse(stripped); } catch { return raw; }
+  const blocks = parsed?.blocks;
+  if (!blocks || typeof blocks !== "object") return raw;
+  const parts = [];
+  const email = blocks.email;
+  const landing = blocks.landing;
+  const hasRenderer = (email && typeof email === "object") || (landing && typeof landing === "object");
+  if (!hasRenderer) return raw;
+  if (email && typeof email === "object") {
+    for (const key of ["subject", "preheader", "headline", "body", "footer"]) pushCopy(parts, email[key]);
+    if (Array.isArray(email.bullets)) for (const item of email.bullets) pushCopy(parts, item);
+    pushCopy(parts, email.image?.alt);
+  }
+  if (landing && typeof landing === "object") {
+    const hero = landing.hero;
+    if (hero && typeof hero === "object") {
+      for (const key of ["eyebrow", "headline", "subhead"]) pushCopy(parts, hero[key]);
+      pushCopy(parts, hero.image?.alt);
+    }
+    if (Array.isArray(landing.features)) {
+      for (const feature of landing.features) {
+        pushCopy(parts, feature?.title);
+        pushCopy(parts, feature?.text);
+      }
+    }
+    pushCopy(parts, landing.proof?.quote);
+    pushCopy(parts, landing.proof?.attribution);
+    pushCopy(parts, landing.cta?.headline);
+    pushCopy(parts, landing.cta?.subhead);
+    pushCopy(parts, landing.footer?.text);
+  }
+  return parts.join("\n");
+}
+
 async function collectVerdict(complete, { system, messages, telemetry }) {
   let text = "";
   let usage = null;
@@ -124,13 +169,14 @@ function mergeUsage(first, second) {
 }
 
 export async function voiceQa({ body, bio, refusals, telemetry = {}, complete = streamCompletion }) {
+  const judged = copyForVoiceQa(body);
   /* 1. Local forbidden-words scan. */
   const forbidden = bio?.voice?.forbidden || [];
   const localViolations = [];
   for (const word of forbidden) {
     if (!word) continue;
     const re = new RegExp(`\\b${escapeRegex(word)}\\b`, "i");
-    if (re.test(body)) localViolations.push(`uses forbidden word "${word}"`);
+    if (re.test(judged)) localViolations.push(`uses forbidden word "${word}"`);
   }
 
   /* 2. LLM voice-drift check. */
@@ -146,7 +192,7 @@ export async function voiceQa({ body, bio, refusals, telemetry = {}, complete = 
     ``,
     `COPY TO EVALUATE`,
     `"""`,
-    String(body || "").trim(),
+    judged,
     `"""`,
   ].join("\n");
 
