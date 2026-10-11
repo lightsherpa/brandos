@@ -58,7 +58,7 @@ export function isAllowedModelOverride(route) {
    server-side and applied to the specialist's base credit estimate. */
 export function routeCreditMultiplier(route) {
   if (/opus|gemini-2\.5-pro|flux-1\.1-pro|recraft-v3/i.test(route || "")) return 2;
-  if (/haiku|gemini-2\.5-flash|gemini-3\.8-flash|flux-schnell/i.test(route || "")) return 0.75;
+  if (/haiku|gemini-[\d.]+-flash|flux-schnell/i.test(route || "")) return 0.75;   // all Gemini Flash / Flash-Lite (approved by Oscar 2026-10-11)
   return 1;
 }
 
