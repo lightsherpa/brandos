@@ -1,0 +1,14 @@
+.bio-landscape{color:var(--plex-ink);font-family:var(--plex-font-ui);max-width:100%}.bio-landscape h2,.bio-landscape h3,.bio-landscape h4{font-family:var(--plex-font-display);font-weight:400}.bio-landscape h3{margin-block:28px 12px}.bio-landscape-record{padding-block:18px;border-block-start:1px solid var(--plex-line)}.bio-landscape-record header{display:flex;gap:16px;align-items:start;justify-content:space-between}.bio-landscape-record h4{margin:0 0 12px;font-size:20px;overflow-wrap:anywhere}.bio-landscape-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.bio-landscape label,.bio-landscape-records label{display:flex;flex-direction:column;gap:6px;font-size:13px;min-width:0}.bio-landscape input,.bio-landscape textarea,.bio-landscape select,.bio-landscape-records input,.bio-landscape-records textarea,.bio-landscape-records select{width:100%;min-height:44px;padding:10px;font:inherit;color:var(--plex-ink);background:var(--plex-surface);border:1px solid var(--plex-line-strong);border-radius:4px;box-sizing:border-box}.bio-landscape button,.bio-landscape-records button{min-height:44px;padding:10px 14px;font:inherit;color:var(--plex-ink);background:var(--plex-surface-2);border:1px solid var(--plex-line-strong);border-radius:4px;cursor:pointer}.bio-landscape-fields p{margin-block:6px;overflow-wrap:anywhere}.bio-landscape-fields strong{font-weight:500;font-size:13px}.bio-landscape-empty,.bio-landscape-notice{color:var(--plex-ink-2);font-size:13px;line-height:1.5}.bio-landscape a{color:var(--plex-cobalt)}.bio-landscape :is(button,input,select,textarea):focus-visible,.bio-landscape-records :is(button,input,select,textarea):focus-visible{outline:2px solid var(--plex-cobalt);outline-offset:3px}@media(max-width:760px){.bio-landscape-fields{grid-template-columns:1fr}.bio-landscape-record header{flex-wrap:wrap}}
+
+.bio-landscape summary{cursor:pointer;min-height:44px;align-content:center}
+@media(max-width:760px){
+ .bio-viewer,.discovery-flow{padding-inline:20px!important}
+ .bio-viewer-hero{grid-template-columns:minmax(0,1fr)!important}
+ .bio-viewer-hero>div{min-width:0}
+ .bio-viewer-hero>div:last-child{flex-direction:row!important;flex-wrap:wrap;align-items:center!important}
+ .bio-viewer-hero button{min-height:44px}
+ .app:has(:is(.bio-viewer,.discovery-flow)) .topbar{height:auto;min-height:56px;flex-wrap:wrap;gap:8px;padding-block:10px}
+ .app:has(:is(.bio-viewer,.discovery-flow)) .topbar .titlestrip__crumb{min-width:0;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .app:has(:is(.bio-viewer,.discovery-flow)) .topbar>div:last-child{flex:1 0 100%;flex-wrap:wrap;gap:8px!important;margin-left:0!important}
+ .app:has(:is(.bio-viewer,.discovery-flow)) .topbar>div:last-child>div{min-width:0;flex:1;overflow-wrap:anywhere;letter-spacing:.03em!important}
+}

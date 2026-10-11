@@ -74,7 +74,23 @@ test("visual intake requires declared roles, rights, and licensed font metadata"
   assert.match(source, /licenseType/);
   assert.match(source, /visualAssetsReady/);
   assert.match(source, /Object\.entries\(meta\).*form\.set/s);
-  assert.match(source, /type="button" className="btn btn--secondary"/);
+  assert.match(source, /type="button" className="discovery-text-action"/);
   assert.match(source, /method:"DELETE"/);
   assert.match(source, /fontFailures/);
+});
+
+test('competitive BIO renders safely and round trips evidence; unreviewed draft values are not confirmed', async (t) => {
+ globalThis.window={CI_USER:{name:'Test'},matchMedia:()=>({matches:true})};
+ const vite=await createServer({server:{middlewareMode:true},appType:'custom',define:{'import.meta.env.VITE_SUPABASE_URL':JSON.stringify('http://127.0.0.1:57321'),'import.meta.env.VITE_SUPABASE_ANON_KEY':JSON.stringify('synthetic-unit-test')}});
+ t.after(async()=>{await vite.close();delete globalThis.window;});
+ const {BioCompetitive,safeCompetitiveUrl}=await vite.ssrLoadModule('/src/bio-competitive.jsx');
+ const {payloadToFields,fieldsToPayload,discoFieldStatus}=await vite.ssrLoadModule('/src/portal-discovery.jsx');
+ const positioning={frameOfReference:'Local services',competitors:[{name:'<script>alert(1)</script>',type:'indirect',source:'javascript:alert(1)',reasonToChoose:'Low cost'}],pointsOfDifference:[{claim:'Local support',proof:'',source:'Client interview'}],pointsOfParity:['Core service'],researchGaps:['Verify competitor service terms']};
+ const payload={identity:{positioning:'Studio'},positioning};
+ assert.deepEqual(fieldsToPayload(payloadToFields(payload),payload).positioning,positioning);
+ const markup=renderToStaticMarkup(React.createElement(BioCompetitive,{value:positioning,editing:false}));
+ assert.match(markup,/&lt;script&gt;/);assert.doesNotMatch(markup,/href="javascript:/);assert.match(markup,/independently verified/);assert.match(markup,/Verify competitor service terms/);assert.equal(safeCompetitiveUrl('javascript:alert(1)'),null);
+ assert.equal(discoFieldStatus({value:[{id:'empty',type:'direct',name:''}]}).kind,'missing');
+ assert.equal(discoFieldStatus({value:positioning.competitors}).kind,'review');
+ assert.equal(discoFieldStatus({value:positioning.competitors,mark:'accurate'}).kind,'accurate');
 });

@@ -15,6 +15,8 @@ import { loadBioForRun, loadBioForBriefing } from "../server/src/lib/load-brand-
 import { evaluateCertification } from "../server/src/lib/evaluate-certification.js";
 import { scoreBio, scoreBioBreakdown } from "../server/src/lib/score-bio.js";
 import { computeFocus } from "../server/src/lib/bio-focus.js";
+import { selfCertifyBio } from "../server/src/lib/self-certify.js";
+import { validateCertificationReview, CERTIFICATION_SECTIONS } from "../server/src/lib/certification-review.js";
 import { payloadHash } from "../server/src/lib/bio-hash.js";
 
 let failures = 0;
@@ -81,8 +83,11 @@ async function run() {
   const highGaps = computeFocus(PAYLOAD).filter((f) => f.status === "missing" && f.importance >= 1.0);
   ok("self-cert precondition: no high-importance gaps", highGaps.length === 0);
   ok("self-cert precondition: score ≥ 58", scoreBio(PAYLOAD) >= 58, `score ${scoreBio(PAYLOAD)}`);
-  await sb.from("bio_attestations").insert({ bio_id: bioId, brand_id: brandId, attested_by: null, payload_hash: payloadHash(PAYLOAD), statement_version: "1", field_marks: {}, self_score: scoreBio(PAYLOAD) });
-  await sb.from("bios").update({ self_certified: true, self_certified_at: new Date().toISOString() }).eq("id", bioId);
+  const body={bioId,version:1,statementVersion:"2",reviewedSections:CERTIFICATION_SECTIONS,statements:{authority:true,reflects:true,aspirationalMarked:true}};
+  const validated=validateCertificationReview({body,bio:{id:bioId,version:1}});
+  ok("v2 review validates exact version",validated.ok);
+  const attestation=await selfCertifyBio({brandId,bioId,payload:PAYLOAD,userId:null,statements:body.statements,statementVersion:"2",review:validated.review});
+  ok("atomic v2 self-certification succeeds",attestation.ok,attestation.code||"");
 
   await expectOk("after self-cert → briefing UNLOCKED", () => loadBioForBriefing({ workspaceId, brandId }));
   await expectThrow("after self-cert → production still BLOCKED", () => loadBioForRun({ workspaceId, brandId }), "BIO_NOT_CERTIFIED");
@@ -97,6 +102,10 @@ async function run() {
 
   const certified = await expectOk("after human cert → production UNLOCKED", () => loadBioForRun({ workspaceId, brandId }));
   ok("production loads the certified version", certified?.bio?.certified === true);
+  await sb.from("bios").update({client_acceptance_required:true}).eq("id",bioId);
+  await expectThrow("CD changes require Owner acceptance before production",()=>loadBioForRun({workspaceId,brandId}),"BIO_AWAITING_ACCEPTANCE");
+  await sb.from("bios").update({client_accepted_at:new Date().toISOString()}).eq("id",bioId);
+  await expectOk("accepted CD changes restore production",()=>loadBioForRun({workspaceId,brandId}));
   const { count: decCount } = await sb.from("cert_decisions").select("*", { count: "exact", head: true }).eq("brand_id", brandId);
   ok("cert_decisions audit row written", (decCount || 0) >= 1, `${decCount} rows`);
 

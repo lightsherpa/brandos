@@ -79,10 +79,10 @@ test("malformed tokens fail closed — no digest, so no lookup key", () => {
 /* ── chapter payload bounds ──────────────────────────────────────────── */
 
 test("the delegable chapters are exactly the BIO registry sections", () => {
-  // Same six sections the route accepted before CAA-51 — sourced from the
+  // Canonical sections, including competitive positioning and aspirations — sourced from the
   // registry now, so the route and this guard cannot drift apart. Only the
   // listing order differs (registry order), which membership checks ignore.
-  assert.deepEqual([...DELEGABLE_CHAPTERS].sort(), ["audience", "goals", "identity", "strategic", "visual", "voice"]);
+  assert.deepEqual([...DELEGABLE_CHAPTERS].sort(), ["aspirations", "audience", "goals", "identity", "positioning", "strategic", "visual", "voice"]);
 });
 
 test("a normal chapter submission is accepted", () => {

@@ -1,3 +1,4 @@
+import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 // discovery-session.js — M3 draft lane.
 //
 // Mounted at /api/discovery. Backs the resumable discovery experience with a
@@ -17,6 +18,8 @@ import { supabaseAdmin } from "../lib/supabase.js";
 import { normalizeBio } from "../lib/bio-schema.js";
 import { scoreBio } from "../lib/score-bio.js";
 import { payloadHash } from "../lib/bio-hash.js";
+import { validateCertificationReview } from "../lib/certification-review.js";
+import { isWorkspaceOwner } from "../lib/permissions.js";
 import { selfCertifyBio } from "../lib/self-certify.js";
 import { prepareClientBioEditPayload } from "../lib/bio-evidence.js";
 
@@ -47,6 +50,9 @@ app.get("/session/:brandId", requireAuth, async (c) => {
   const { data: latestBio } = await supabaseAdmin
     .from("bios").select("version, payload").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
+
+  const integrity=latestBio&&bioIntegrityError(latestBio,{id:brandId});
+  if(integrity)return c.json(integrity,409);
 
   let { data: session } = await supabaseAdmin
     .from("discovery_sessions").select(SESSION_COLS).eq("brand_id", brandId).maybeSingle();
@@ -99,55 +105,42 @@ app.patch("/session/:brandId", requireAuth, async (c) => {
   return c.json({ ok: true, updated_at: row.updated_at });
 });
 
-/* POST /session/:brandId/attest
-   Body: { statements, fieldMarks?, statementVersion? }
-   Promotes the draft to a new (candidate) bios version when it differs from
-   the latest version, then runs the shared self-cert gate against that target.
-   On success the session is marked completed. */
-app.post("/session/:brandId/attest", requireAuth, async (c) => {
-  const { workspaceId, userId } = c.get("auth");
-  const brandId = c.req.param("brandId");
-  if (!(await ownedBrand(brandId, workspaceId))) return c.json({ error: "Brand not in workspace" }, 403);
+/* Prepare the exact saved candidate for the shared v2 review modal. This
+   publishes edits but never attests them; the Owner must review the returned row. */
+app.post("/session/:brandId/prepare-review", requireAuth, async c=>{
+ const {workspaceId,userId}=c.get("auth"), brandId=c.req.param("brandId");
+ if(!(await ownedBrand(brandId,workspaceId)))return c.json({error:"Brand not in workspace"},403);
+ if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can confirm the BIO",code:"OWNER_REQUIRED"},403);
+ const {data:session,error:sessionError}=await supabaseAdmin.from("discovery_sessions").select("draft_payload").eq("brand_id",brandId).maybeSingle();
+ if(sessionError)return c.json({error:"Could not load the saved draft"},500);
+ if(!session)return c.json({error:"No discovery session",code:"NO_SESSION"},400);
+ const {data:latest,error:bioError}=await supabaseAdmin.from("bios").select("id,version,payload,self_certified").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
+ if(bioError)return c.json({error:"Could not load the current BIO"},500);
+ if(!latest)return c.json({error:"Generate the BIO from sources first",code:"NO_BIO"},400);
+ const draft=normalizeBio(session.draft_payload||{});
+ if(sameJson(normalizeBio(latest.payload),draft))return c.json({bio:latest});
+ const payload=prepareClientBioEditPayload(draft,latest.payload||{});
+ const {data:appended,error}=await supabaseAdmin.rpc("append_bio_version",{p_brand_id:brandId,p_payload:payload,p_score:scoreBio(payload),p_created_by:userId,p_discovery_id:null});
+ if(error||!appended)return c.json({error:"Could not save the review candidate"},500);
+ return c.json({bio:{id:appended.id,version:appended.version,payload,self_certified:false}});
+});
 
-  const body = await c.req.json().catch(() => ({}));
-
-  const { data: session } = await supabaseAdmin
-    .from("discovery_sessions").select("id, draft_payload").eq("brand_id", brandId).maybeSingle();
-  if (!session) return c.json({ error: "No discovery session to attest", code: "NO_SESSION" }, 400);
-  const draft = session.draft_payload || {};
-
-  const { data: latestBio } = await supabaseAdmin
-    .from("bios").select("id, version, payload").eq("brand_id", brandId)
-    .order("version", { ascending: false }).limit(1).maybeSingle();
-
-  // Promote the draft only when it actually differs from the latest version;
-  // otherwise attest the existing row.
-  let target = latestBio;
-  if (!latestBio || !sameJson(latestBio.payload, draft)) {
-    const nextVersion = (latestBio?.version || 0) + 1;
-    const cleanDraft = prepareClientBioEditPayload(draft, latestBio?.payload || {});
-    const { data: inserted, error } = await supabaseAdmin
-      .from("bios")
-      .insert({
-        brand_id: brandId, version: nextVersion, payload: cleanDraft,
-        score: scoreBio(cleanDraft), certified: false, self_certified: false, created_by: userId,
-      })
-      .select("id, version, payload").single();
-    if (error) return c.json({ error: error.message }, 500);
-    target = inserted;
-  }
-
-  const result = await selfCertifyBio({
-    brandId, bioId: target.id, payload: target.payload, userId,
-    statements: body.statements, fieldMarks: body.fieldMarks, statementVersion: body.statementVersion,
-  });
-  if (!result.ok) { const { ok, ...err } = result; return c.json(err, 400); }
-
-  await supabaseAdmin.from("discovery_sessions")
-    .update({ status: "completed", updated_at: new Date().toISOString() })
-    .eq("brand_id", brandId);
-
-  return c.json({ ok: true, version: target.version, self_certified: true, score: result.score });
+/* Compatibility endpoint: same v2 contract, validator and atomic receipt as
+   /bios/:brandId/self-certify. It never silently promotes an unreviewed draft. */
+app.post("/session/:brandId/attest", requireAuth, async c=>{
+ const {workspaceId,userId}=c.get("auth"),brandId=c.req.param("brandId");
+ if(!(await ownedBrand(brandId,workspaceId)))return c.json({error:"Brand not in workspace"},403);
+ if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can confirm the BIO",code:"OWNER_REQUIRED"},403);
+ const body=await c.req.json().catch(()=>({}));
+ const {data:bio}=await supabaseAdmin.from("bios").select("id,version,payload").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
+ if(!bio)return c.json({error:"No BIO to review",code:"NO_BIO"},400);
+ const review=validateCertificationReview({body,bio});
+ if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
+ const {data:session}=await supabaseAdmin.from("discovery_sessions").select("draft_payload").eq("brand_id",brandId).maybeSingle();
+ if(session&&!sameJson(normalizeBio(session.draft_payload),normalizeBio(bio.payload)))return c.json({error:"Save and review the updated BIO first",code:"STALE_BIO"},409);
+ const result=await selfCertifyBio({brandId,bioId:bio.id,payload:bio.payload,userId,statements:body.statements,fieldMarks:body.fieldMarks,statementVersion:body.statementVersion,review:review.review});
+ if(!result.ok)return c.json(result,result.code==="STALE_BIO"?409:result.code==="ATTESTATION_FAILED"?500:400);
+ return c.json({...result,version:bio.version,self_certified:true});
 });
 
 export default app;
