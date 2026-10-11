@@ -30,7 +30,7 @@ import { streamCompletion, isAllowedModelOverride, routeCreditMultiplier } from 
 import { resolveTextTokenBudget } from "../lib/models/token-budget.js";
 import { composeSpecialistPrompt } from "../lib/compose-specialist-prompt.js";
 import { composeImagePrompt } from "../lib/compose-image-prompt.js";
-import { voiceQa } from "../lib/qa-voice.js";
+import { outputStatusForQa, voiceQa } from "../lib/qa-voice.js";
 import { visionQa } from "../lib/qa-vision.js";
 import { recordSignal } from "../lib/brandolph-memory.js";
 import { generate as generateImage, isImageRoute, resolveImageRequest } from "../lib/models/fal-image.js";
@@ -474,7 +474,7 @@ app.post("/stream", requireAuth, async (c) => {
           if (!dq.passed) passedAll = false;
           if (typeof dq.usage?.cost_usd === "number") qaUsage.cost_usd += dq.usage.cost_usd;
           const { usage: _qaUsage, ...clientDq } = dq;
-          deliverables.push({ ...d, platform: dlv.platform || "generic", qa: clientDq, status: dq.passed ? "approved" : "flagged" });
+          deliverables.push({ ...d, platform: dlv.platform || "generic", qa: clientDq, status: outputStatusForQa(dq) });
         });
         qa = { passed: passedAll, voice_match: null, violations: [], usage: qaUsage, malformed: parsed.malformed, deliverable_count: deliverables.length };
       } else {
@@ -532,7 +532,7 @@ app.post("/stream", requireAuth, async (c) => {
         p_output_kind: outputKind,
         p_output_body: outputBody,
         p_asset_url: isImage ? imageResult?.asset_url : null,
-        p_output_status: qa.passed ? "approved" : "flagged",
+        p_output_status: outputStatusForQa(qa),
         p_rationale: qaEvidence,
         p_qa_passed: !!qa.passed,
         p_qa_evidence: qaEvidence,
