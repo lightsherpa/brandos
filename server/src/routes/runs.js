@@ -27,6 +27,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { loadBioForRun } from "../lib/load-brand-bio.js";
 import { streamCompletion, isAllowedModelOverride, routeCreditMultiplier } from "../lib/models/router.js";
+import { resolveTextTokenBudget } from "../lib/models/token-budget.js";
 import { composeSpecialistPrompt } from "../lib/compose-specialist-prompt.js";
 import { composeImagePrompt } from "../lib/compose-image-prompt.js";
 import { voiceQa } from "../lib/qa-voice.js";
@@ -406,13 +407,12 @@ app.post("/stream", requireAuth, async (c) => {
           spec: effectiveSpec,
           system,
           messages: [{ role: "user", content: effectiveBriefText }],
-          // Deliverable JSON is sized per item. Every other text run omits
-          // maxTokens so the router can honor spec.payload.max_output_tokens
-          // and the ~2000 floor — cr_estimate * 100 was truncating Social
-          // Captions and the other low-credit agents.
+          // Deliverable JSON is sized per item. Every other text run passes
+          // the resolved budget (spec max, credit estimate, 2000 floor, cap)
+          // so the adapter's own default cannot clip the run at 800 tokens.
           maxTokens: isDeliverableText
             ? maxTokensForDeliverables({ count: Number(dlv.count), baseCr: effectiveSpec.payload?.cr_estimate ?? 8 })
-            : undefined,
+            : resolveTextTokenBudget({ spec: effectiveSpec }),
           telemetry: {
             operationKey: "specialist.text",
             feature: "specialist.run",

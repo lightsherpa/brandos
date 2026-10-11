@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "description": "CaastorOS backend — P0 skeleton (Hono + Anthropic, streaming SSE).",
   "scripts": {
     "dev": "node --watch --env-file=.env src/index.js",

@@ -27,7 +27,30 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
  const issues=computeFocus(bio.payload||{});
  const blocking=issues.filter(i=>i.status==='missing'&&i.importance>=1);
  const allReviewed=CERTIFICATION_SECTIONS.every(s=>reviewed.includes(s));
- React.useEffect(()=>{const d=ref.current;d.showModal();return()=>d.close();},[]);
+ const focusable=root=>[...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')];
+ React.useEffect(()=>{
+  const d=ref.current;
+  const previous=document.activeElement;
+  d.showModal();
+  const items=focusable(d);
+  (items.find(el=>!el.classList.contains('bio-cert-close'))||items[0]||d).focus();
+  const onKey=e=>{
+   if(e.key!=='Tab')return;
+   const nodes=focusable(d);
+   if(!nodes.length){e.preventDefault();return;}
+   const first=nodes[0], last=nodes[nodes.length-1];
+   if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  };
+  d.addEventListener('keydown',onKey);
+  return()=>{d.removeEventListener('keydown',onKey);d.close();previous?.focus?.();};
+ },[]);
+ React.useEffect(()=>{
+  const d=ref.current;
+  if(!d?.open)return;
+  const nodes=focusable(d);
+  (nodes.find(el=>el.getAttribute('aria-current')==='step')||nodes.find(el=>!el.classList.contains('bio-cert-close'))||d).focus();
+ },[step,receipt]);
  const close=()=>{if(!busy)onClose();};
  const accepting=!!(bio.certified&&bio.client_acceptance_required&&!bio.client_accepted_at);
  const submit=async()=>{
@@ -46,7 +69,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
   }catch(e){setError(e.message);}finally{setBusy(false);}
  };
  const label=s=>t('discovery.tab.'+(s==='positioning'?'competitive':s));
- return <dialog ref={ref} className="bio-cert-dialog" aria-labelledby="bio-cert-title" onCancel={e=>{e.preventDefault();close();}}>
+ return <dialog ref={ref} className="bio-cert-dialog" role="dialog" aria-modal="true" aria-labelledby="bio-cert-title" tabIndex={-1} onCancel={e=>{e.preventDefault();close();}}>
   <header><div><span className="bio-cert-kicker">{t('discovery.certification.kicker')}</span><h2 id="bio-cert-title">{t(receipt?'discovery.certification.success':step?'discovery.certification.confirm':'discovery.certification.review')}</h2></div><button type="button" className="bio-cert-close" disabled={busy} aria-label={t('discovery.certification.close')} onClick={close}>×</button></header>
   <div className="bio-cert-meta"><strong>{brandName}</strong><span>BIO v{bio.version}</span></div>
   {receipt?<>

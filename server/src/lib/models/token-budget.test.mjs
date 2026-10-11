@@ -55,4 +55,5 @@ test("text specialist runs do not pass cr_estimate * 100 as maxTokens", () => {
   assert.match(src, /isDeliverableText\s*\n?\s*\?/);
   assert.doesNotMatch(src, /cr_estimate \?\? 8\) \* 100/);
   assert.match(src, /maxTokens:\s*isDeliverableText/);
+  assert.match(src, /resolveTextTokenBudget\(\{\s*spec:\s*effectiveSpec\s*\}\)/);
 });

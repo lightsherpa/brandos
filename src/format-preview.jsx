@@ -1,11 +1,33 @@
 import React from "react";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch } from "./lib/supabase-browser.js";
+import { uiFixtureEnabled, FIXTURE_BRIEFS, FIXTURE_BRANDS } from "./lib/ui-fixture.js";
 
 const { Icon } = window;
 const { useState, useEffect, useRef } = React;
 
 export const formatPreviewEnabled = import.meta.env.VITE_FORMAT_PREVIEW === "1";
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]));
+}
+
+/* Fixture mode has no API session. Render the three formats from the
+   sample brief so the preview can be reviewed without Supabase. */
+function fixtureFormatData(briefId, headline) {
+  const brief = FIXTURE_BRIEFS.find((item) => item.id === briefId) || FIXTURE_BRIEFS[0];
+  const brand = FIXTURE_BRANDS[0]?.name || "Brand";
+  const line = String(headline || brief?.title || "Formats").slice(0, 70);
+  const page = (kicker) => `<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif;color:#1c1917;background:#fff}main{padding:48px}p{letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:#78716c}h1{font-size:36px;line-height:1.15;font-weight:560;margin:12px 0}</style></head><body><main><p>${escapeHtml(brand)} · ${escapeHtml(kicker)}</p><h1>${escapeHtml(line)}</h1></main></body></html>`;
+  return {
+    spec: { headline: line, smp: brief?.title || line, audience: "Independent cafe buyers", goal: "Launch", messages: [], proof: [], cta: "Visit", language: "en" },
+    emailHtml: page("Email"),
+    landingHtml: page("Landing"),
+    deckHtml: page("Slides"),
+    checks: { email: { status: "pass" }, landing: { status: "pass" }, deck: { status: "pass" } },
+    certification: { bio: { version: 3, selfCertified: true, certified: false }, events: [] },
+  };
+}
 
 function Badge({ status, label }) {
   const flagged = status === "flag";
@@ -63,6 +85,13 @@ export function FormatPreviewView({ briefId, go }) {
 
   useEffect(() => {
     if (!formatPreviewEnabled) return undefined;
+    if (uiFixtureEnabled) {
+      const data = fixtureFormatData(briefId, "");
+      loaded.current = true;
+      setHeadline(data.spec.headline);
+      setState({ loading: false, error: null, data });
+      return undefined;
+    }
     let cancel = false;
     (async () => {
       try {
@@ -86,6 +115,10 @@ export function FormatPreviewView({ briefId, go }) {
   useEffect(() => {
     if (!loaded.current || !state.data) return undefined;
     if (headline === (state.data.spec?.headline || "")) return undefined;
+    if (uiFixtureEnabled) {
+      setState({ loading: false, error: null, data: fixtureFormatData(briefId, headline) });
+      return undefined;
+    }
     const timer = setTimeout(async () => {
       const ticket = ++seq.current;
       setRendering(true);

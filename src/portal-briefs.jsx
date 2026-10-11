@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocale, t as tt } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
-import { uiFixtureEnabled, FIXTURE_BRIEFS, FIXTURE_BRANDS } from "./lib/ui-fixture.js";
+import { uiFixtureEnabled, FIXTURE_BRIEFS, FIXTURE_BRANDS, FIXTURE_BRAND_ID } from "./lib/ui-fixture.js";
 const { AgentCard, BrandolphDot, Drawer, Icon, ModelChip, OutputCard, PageHeader, Reveal, StatusPill, useIsTeam, PinButton, usePins } = window;
 const { useState: useBrState, useEffect: useBrEffect } = React;
 
@@ -2861,6 +2861,28 @@ function BriefViewCanvas({ briefId, onClear, go }) {
   const [editedText, setEditedText] = useBrState({});
 
   useBrEffect(() => {
+    if (uiFixtureEnabled) {
+      const fixture = FIXTURE_BRIEFS.find((item) => item.id === briefId);
+      if (!fixture) {
+        setState({ loading: false, brief: null, runs: [], cert: null, error: t("briefs.view.notFound") });
+        return undefined;
+      }
+      setState({
+        loading: false,
+        brief: {
+          id: fixture.id,
+          title: fixture.title,
+          payload: fixture.payload || { title: fixture.title },
+          mode: fixture.mode,
+          created_at: fixture.created_at,
+          brand_id: FIXTURE_BRAND_ID,
+        },
+        runs: (fixture.runs || []).map((run) => ({ ...run, bio_version: 3, outputs: run.outputs || [] })),
+        cert: null,
+        error: null,
+      });
+      return undefined;
+    }
     (async () => {
       try {
         const { data: brief, error: bErr } = await supabase

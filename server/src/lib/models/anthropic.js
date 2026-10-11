@@ -16,6 +16,7 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import Anthropic from "@anthropic-ai/sdk";
+import { TEXT_TOKEN_FLOOR } from "./token-budget.js";
 
 const client = process.env.ANTHROPIC_API_KEY
   ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -48,10 +49,12 @@ export function normalizeAnthropicUsage(usage, model) {
  *                                         an array of content blocks with optional `cache_control`.
  *                                         Per prompt.js, we use the array form to cache PLATFORM + BIO.
  * @param {Array} params.messages       - [{ role, content }, ...]
- * @param {number} [params.maxTokens]   - max output tokens; derived from spec.cr if omitted
+ * @param {number} [params.maxTokens]   - max output tokens. Callers on the runs path
+ *                                         pass resolveTextTokenBudget. The default is the
+ *                                         text floor so a missed budget cannot clip at 800.
  * @yields {object} normalized event
  */
-export async function* streamCompletion({ model, system, messages, maxTokens = 800, signal }) {
+export async function* streamCompletion({ model, system, messages, maxTokens = TEXT_TOKEN_FLOOR, signal }) {
   if (!client) {
     yield { type: "error", message: "Server has no ANTHROPIC_API_KEY configured." };
     return;

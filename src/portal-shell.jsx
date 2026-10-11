@@ -594,7 +594,7 @@ function ReadStatus() {
 
 function TopBar({ portal, route, brandName, go }) {
   const { t } = useLocale();
-  const isClient = portal === "client" || CLIENT_ROUTES.some((item) => item.id === route) || ["home","brief-detail","discovery","brand-book","specialist-new","canvas","board","upgrade"].includes(route);
+  const isClient = portal === "client" || CLIENT_ROUTES.some((item) => item.id === route) || ["home","brief-detail","discovery","brand-book","specialist-new","canvas","board","formats","upgrade"].includes(route);
   /* TopBar titles — eyebrows now match the rev-2 §2 section structure
      (slash-joined section eyebrows that ARE the contents). Built from
      i18n keys at render time via t(); the specialists title interpolates
@@ -767,7 +767,7 @@ function App() {
     if (route.id === "credits") { go(`${portal === "admin" || portal === "super_admin" ? "admin-account" : "settings"}/usage`); return; }
     if ((portal === "admin" || portal === "super_admin") && route.id === "settings") { go(`admin-account/${route.param || "workspace"}`); return; }
     if (portal === "team" && route.id === "team-me") { go("team-account/profile"); return; }
-    const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "upgrade";
+    const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "formats" || route.id === "upgrade";
     const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || route.id === "team-job" || route.id === "team-account";
     const isAdminRoute = route.id === "admin-account" || [...ADMIN_ROUTES,...SUPER_ADMIN_ROUTES].some(r => r.id === route.id);
     const legacySection = LEGACY_ADMIN_SECTION[route.id];
