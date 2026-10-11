@@ -339,12 +339,11 @@ if (wants("discovery")) {
   info("certified_at", bioRow.certified_at || "null");
   info("Elapsed", `${elapsed}s`);
 
-  // The two-tier rule (server/src/inngest/functions/compile-bio.js step 3):
-  // Discovery self-certifies (tier 1) so briefs are never blocked, but claims
-  // no human attribution — certified_by stays NULL until a Steward signs.
-  check("two-tier rule · certified === true", bioRow.certified === true, `got ${bioRow.certified}`);
+  // Discovery writes an uncertified draft. Self-certification is a later,
+  // explicit owner step, and Creative Director certification is later still.
+  check("fresh discovery is an uncertified draft", bioRow.certified === false, `got ${bioRow.certified}`);
   check("two-tier rule · certified_by === null", bioRow.certified_by === null, `got ${bioRow.certified_by}`);
-  check("certified_at is set", !!bioRow.certified_at);
+  check("certified_at stays empty on a draft", !bioRow.certified_at, String(bioRow.certified_at));
 
   ctx.bio = bioRow;
 }
