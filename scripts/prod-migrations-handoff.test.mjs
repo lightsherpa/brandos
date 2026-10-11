@@ -38,6 +38,7 @@ test("the production handoff lists every dev migration missing from main, in ord
     const section = doc.slice(at, end === -1 ? doc.length : end);
     assert.match(section, new RegExp(`psql "\\$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/${file.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`));
     assert.match(section, /```sql\nselect\b/);
+    assert.match(section, /on conflict do nothing/);
     cursor = at + file.length;
   }
   const sectionOf = (file) => {
@@ -48,6 +49,8 @@ test("the production handoff lists every dev migration missing from main, in ord
   };
   assert.match(sectionOf("20260815005000_platform_integrity.sql"), /Safe before the merge/);
   assert.match(sectionOf("20260815005000_platform_integrity.sql"), /If it was never applied \(the verify query returns no row\), it needs separate review/);
+  assert.match(sectionOf("20260815005000_platform_integrity.sql"), /insert into supabase_migrations\.schema_migrations \(version,name\) values \('20260815005000','platform_integrity'\) on conflict do nothing/);
+  assert.equal(doc.match(/on conflict do nothing/g).length, pending.length + 1);
   assert.match(sectionOf("20260901000000_delegation_token_hash.sql"), /Apply together with or immediately after the main deploy/);
   assert.match(sectionOf("20260901000000_delegation_token_hash.sql"), /discovery-delegation\.js/);
   assert.doesNotMatch(sectionOf("20260901000000_delegation_token_hash.sql"), /Safe before the merge/);
