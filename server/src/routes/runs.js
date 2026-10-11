@@ -339,6 +339,7 @@ app.post("/stream", requireAuth, async (c) => {
     let output = "";
     let usage = null;
     let modelUsed = null;
+    let imageQaAssetUrl = null;      // fal CDN URL remains reachable by the vision provider
     let imageResult = null;          /* { asset_url, model, cost_usd, prompt_used, ... } */
 
     try {
@@ -371,6 +372,7 @@ app.post("/stream", requireAuth, async (c) => {
           if (ev.type === "progress") {
             await stream.writeSSE({ event: "progress", data: JSON.stringify({ stage: ev.stage, pct: ev.pct }) });
           } else if (ev.type === "done") {
+            imageQaAssetUrl = ev.asset_url;
             imageResult = ev;
             /* Download from fal CDN and persist in Supabase Storage so the
                URL doesn't expire (fal links typically expire in days). */
@@ -461,7 +463,7 @@ app.post("/stream", requireAuth, async (c) => {
       let deliverables = null;        /* set on the deliverable-text path */
       if (isImage) {
         const v = await visionQa({
-          assetUrl: imageResult?.asset_url,
+          assetUrl: imageQaAssetUrl || imageResult?.asset_url,
           bio: brandBio.bio,
           telemetry: { parentRunId: runId, workspaceId, brandId: brandBio.brand.id, actorUserId: userId, specialistId },
         });
