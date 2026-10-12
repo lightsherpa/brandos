@@ -1,4 +1,5 @@
 import React from 'react';
+import {uiFixtureEnabled} from './lib/ui-fixture.js';
 import {apiFetch} from './lib/supabase-browser.js';
 import {GOOGLE_FONTS,googleFontCssUrl,TYPE_SCALE_KEYS,DEFAULT_TYPE_SCALE} from '../server/src/lib/brand-foundation.js';
 
@@ -12,16 +13,16 @@ export function useBrandFonts(type = [], brandId) {
       try {
         let family=font.family;
         if(font.sourceId){
-          const res=await apiFetch(`/api/bios/${brandId}/sources/${font.sourceId}/url`);
-          if(!res.ok)throw Error('Font source unavailable');
-          const {url}=await res.json();family=`BrandFont-${font.sourceId}`;
+          let url=uiFixtureEnabled?font.previewUrl:null;
+          if(!url){const res=await apiFetch(`/api/bios/${brandId}/sources/${font.sourceId}/url`);if(!res.ok)throw Error('Font source unavailable');url=(await res.json()).url;}
+          family=`BrandFont-${font.sourceId}`;
           const face=new FontFace(family,`url(${JSON.stringify(url)})`);await face.load();
           if(!alive)return null;document.fonts.add(face);faces.push(face);
         }else if(font.provider==='google'&&GOOGLE_FONTS.includes(family)){
           const link=document.createElement('link');link.rel='stylesheet';link.href=googleFontCssUrl(family);links.push(link);
           await new Promise((resolve,reject)=>{link.onload=resolve;link.onerror=reject;document.head.appendChild(link);});
-          await document.fonts.load(`16px "${family}"`);
-          if(!document.fonts.check(`16px "${family}"`))throw Error('Font unavailable');
+          const loaded=await document.fonts.load(`16px "${family}"`);
+          if(!loaded.length||!document.fonts.check(`16px "${family}"`))throw Error('Font unavailable');
         }else return [key,{status:'missing'}];
         return [key,{family,status:'loaded'}];
       }catch{return [key,{status:'failed'}];}

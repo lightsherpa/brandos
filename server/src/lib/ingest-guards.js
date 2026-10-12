@@ -71,6 +71,8 @@ export function validateVisualAssetMetadata({
   if (isFont) {
     const family = String(fontFamily).trim();
     const license = String(licenseType).trim();
+    const usage = String(fontUsage || "Display").trim();
+    if (!/^(Display|Body|Both)$/i.test(usage)) return {ok:false,code:"FONT_USAGE",message:"Choose Display, Body or Both"};
     if (!family) return { ok: false, code: "FONT_FAMILY", message: "Font family name is required" };
     if (!FONT_LICENSES.has(license)) return { ok: false, code: "FONT_LICENSE", message: "Choose a supported font licence type" };
     return {
@@ -80,7 +82,7 @@ export function validateVisualAssetMetadata({
         asset_role: "canonical",
         rights_confirmed: true,
         font_family: family,
-        font_usage: String(fontUsage || "Brand typography").trim(),
+        font_usage: usage[0].toUpperCase() + usage.slice(1).toLowerCase(),
         license_type: license,
         license_reference: String(licenseReference).trim(),
       },

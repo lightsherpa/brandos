@@ -209,6 +209,8 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
     const foundation=foundationError(bioRow.payload);
     if(foundation)return c.json(foundation,409);
+    const invalid=await validateFoundationAssets(job.brand_id,bioRow.payload?.visual,bioRow.payload?.visual);
+    if(invalid)return c.json({error:invalid,code:"FOUNDATION_ASSET"},400);
     await supabaseAdmin.from("bios").update({
       certified: true,
       certified_by: job.assigned_to,

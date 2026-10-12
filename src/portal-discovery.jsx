@@ -1,3 +1,6 @@
+import {FoundationStrip} from "./brand-foundation.jsx";
+import {useBrandFonts} from "./brand-fonts.jsx";
+import {saveFixtureFoundation} from "./lib/ui-fixture.js";
 import {scoreBio} from "../server/src/lib/score-bio.js";
 import {foundationStatus} from "../server/src/lib/brand-foundation.js";
 import React from "react";
@@ -85,7 +88,8 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
   }, [fixedBrandId, enabled]);
 
   useDEffect(() => {
-    if (uiFixtureEnabled || !enabled) return undefined;
+    if (uiFixtureEnabled) {const changed=()=>setState({...FIXTURE_BIO_STATE,bio:{...FIXTURE_BIO_STATE.bio}});window.addEventListener("fixture:bio",changed);return ()=>window.removeEventListener("fixture:bio",changed);}
+    if (!enabled) return undefined;
     let alive = true;
     const changed = () => {
       ++requestVersion.current;
@@ -1597,6 +1601,14 @@ function BioViewer({ go, bioScore = 91 }) {
         </div>
       </div>
 
+      {live.bio?.payload && <FoundationStrip key={live.brandId} brandId={live.brandId} payload={live.bio.payload} disabled={editing || saving} onSave={async visual=>{
+        const payload={...live.bio.payload,visual};
+        if(uiFixtureEnabled){saveFixtureFoundation(payload);return;}
+        const res=await apiFetch(`/api/bios/${live.brandId}`,{method:'PATCH',body:JSON.stringify({payload})});
+        const json=await res.json();if(!res.ok)throw Error(json.error || 'Foundation save failed');
+        await live.refresh();
+      }}/>}
+
       {/* Live cert chip — pulls real DB state, polls every 5s */}
       {live.brandId && (
         <div className="card" style={{
@@ -1856,6 +1868,7 @@ function BioSectionHead({ label, source, conf }) {
 }
 
 function BioVisual({ bio, patch, editing, brandId }) {
+  const brandFonts=useBrandFonts(bio.type || [],brandId);
   const [loadedFonts, setLoadedFonts] = useDState({});
   const [fontFailures, setFontFailures] = useDState({});
   useDEffect(() => {
@@ -1941,7 +1954,8 @@ function BioVisual({ bio, patch, editing, brandId }) {
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
           {bio.type.map((tf, i) => {
             const serif = /sectra|serif|display/i.test(tf.family) && tf.kind === "Body";
-            const ff = loadedFonts[tf.sourceId]
+            const brandFamily=brandFonts[tf.sourceId || tf.family]?.family;
+            const ff = brandFamily ? `"${brandFamily}"` : loadedFonts[tf.sourceId]
               ? `'${loadedFonts[tf.sourceId]}', var(--font-sans)`
               : serif ? "Georgia, 'Times New Roman', serif" : "var(--font-sans)";
             return (
@@ -1954,8 +1968,8 @@ function BioVisual({ bio, patch, editing, brandId }) {
                     ? <button className="btn btn--link" style={{fontSize:11, color:"var(--pink-500)"}} onClick={() => patch("type", bio.type.filter((_, j) => j !== i))}>{t("discovery.common.remove")}</button>
                     : <span className="pill" style={{height:18, padding:"0 8px", fontSize:9.5}}>{tf.license}</span>}
                 </div>
-                <div style={{fontFamily:ff, fontSize:52, lineHeight:1, color:"var(--c-ink)", fontWeight:600, letterSpacing:"-0.02em"}}>{typeHero}</div>
-                <div style={{fontFamily:ff, fontSize:15, color:"var(--c-dim)", marginTop:8, lineHeight:1.4}}>{typeSample}</div>
+                <div className="brand-font-specimen" style={{"--brand-specimen-font":ff, fontFamily:ff, fontSize:52, lineHeight:1, color:"var(--c-ink)", fontWeight:600, letterSpacing:"-0.02em"}}>{typeHero}</div>
+                <div className="brand-font-specimen" style={{"--brand-specimen-font":ff, fontFamily:ff, fontSize:15, color:"var(--c-dim)", marginTop:8, lineHeight:1.4}}>{typeSample}</div>
                 {tf.sourceId && (
                   <div aria-live="polite" style={{fontSize:10.5, marginTop:8, color:loadedFonts[tf.sourceId] ? "var(--green-600)" : fontFailures[tf.sourceId] ? "var(--pink-500)" : "var(--c-faint)"}}>
                     {loadedFonts[tf.sourceId] ? t("discovery.visualIntake.fontReady") : fontFailures[tf.sourceId] ? t("discovery.visualIntake.fontError") : t("discovery.visualIntake.fontLoading")}

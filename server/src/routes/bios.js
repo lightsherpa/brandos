@@ -11,7 +11,7 @@ import { scoreBio } from "../lib/score-bio.js";
 import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
 import {validateCertificationReview} from "../lib/certification-review.js";
-import { isWorkspaceOwner } from "../lib/permissions.js";
+import { isWorkspaceOwner, hasPermission } from "../lib/permissions.js";
 import { selfCertifyBio } from "../lib/self-certify.js";
 import { diffBio } from "../lib/bio-diff.js";
 import { loadBioForRun } from "../lib/load-brand-bio.js";
@@ -46,6 +46,7 @@ app.post("/:brandId/sources", requireAuth, async (c) => {
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
   const sources = Array.isArray(body?.sources) ? body.sources : [];
   if (sources.length === 0) return c.json({ error: "sources[] required" }, 400);
+  if (sources.some(source=>source.kind === "file_upload")) return c.json({error:"File sources must use the upload endpoint",code:"UPLOAD_REQUIRED"},400);
 
   // SECURITY (P3 H-2): a client-supplied raw_ref is later fetched by the
   // compiler — validate any URL against the SSRF guard before storing it.
@@ -79,12 +80,13 @@ app.post("/:brandId/sources", requireAuth, async (c) => {
    Stores the file in Supabase Storage (private `bio-sources` bucket),
    writes uploads + bio_sources rows. Returns the new source + signed URL. */
 app.post("/:brandId/sources/upload", requireAuth, async (c) => {
-  const { workspaceId, userId } = c.get("auth");
+  let { workspaceId, userId } = c.get("auth");
   const brandId = c.req.param("brandId");
 
   const { data: brand } = await supabaseAdmin
     .from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
-  if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
+  if (!brand || !hasPermission(c.get("auth"), "bio.propose", brand.workspace_id)) return c.json({ error: "Brand not in workspace" }, 403);
+  workspaceId = brand.workspace_id;
 
   // SECURITY (P3 M-1): reject an oversized upload by declared length BEFORE
   // buffering the whole multipart body into memory.
@@ -226,11 +228,12 @@ app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
 /* Fresh private URL for an approved visual/font source. BIO payloads store a
    stable source id, never an expiring signed URL. */
 app.get("/:brandId/sources/:sourceId/url", requireAuth, async (c) => {
-  const { workspaceId } = c.get("auth");
+  let { workspaceId } = c.get("auth");
   const brandId = c.req.param("brandId");
   const sourceId = c.req.param("sourceId");
   const { data: brand } = await supabaseAdmin.from("brands").select("workspace_id").eq("id", brandId).maybeSingle();
-  if (!brand || brand.workspace_id !== workspaceId) return c.json({ error:"Brand not in workspace" }, 403);
+  if (!brand || !hasPermission(c.get("auth"), "bio.read", brand.workspace_id)) return c.json({ error:"Brand not in workspace" }, 403);
+  workspaceId = brand.workspace_id;
   const { data: source } = await supabaseAdmin
     .from("bio_sources")
     .select("id, raw_ref, signals")
@@ -250,12 +253,13 @@ app.get("/:brandId/sources/:sourceId/url", requireAuth, async (c) => {
    certified=false. Doesn't auto-enqueue a Steward drift_check yet —
    that's P1.5-005, deferred. Returns the new bios row. */
 app.patch("/:brandId", requireAuth, async (c) => {
-  const { workspaceId, userId } = c.get("auth");
+  let { workspaceId, userId } = c.get("auth");
   const brandId = c.req.param("brandId");
 
   const { data: brand } = await supabaseAdmin
     .from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
-  if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
+  if (!brand || !hasPermission(c.get("auth"), "bio.propose", brand.workspace_id)) return c.json({ error: "Brand not in workspace" }, 403);
+  workspaceId = brand.workspace_id;
 
   const body = await c.req.json().catch(() => ({}));
   if (!body.payload || typeof body.payload !== "object") return c.json({ error: "payload required" }, 400);
@@ -310,7 +314,7 @@ app.patch("/:brandId", requireAuth, async (c) => {
 /* GET /api/bios/:brandId
    Returns latest BIO version + cert state. Used by the BIO viewer. */
 app.get("/:brandId", requireAuth, async (c) => {
-  const { workspaceId } = c.get("auth");
+  let { workspaceId } = c.get("auth");
   const brandId = c.req.param("brandId");
 
   const { data: brand } = await supabaseAdmin
@@ -318,7 +322,8 @@ app.get("/:brandId", requireAuth, async (c) => {
     .select("id, name, url, workspace_id")
     .eq("id", brandId)
     .maybeSingle();
-  if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
+  if (!brand || !hasPermission(c.get("auth"), "bio.read", brand.workspace_id)) return c.json({ error: "Brand not in workspace" }, 403);
+  workspaceId = brand.workspace_id;
 
   const { data: bio } = await supabaseAdmin
     .from("bios")
