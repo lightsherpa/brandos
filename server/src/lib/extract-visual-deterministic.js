@@ -1,3 +1,4 @@
+import {inferColourRoles} from "./brand-foundation.js";
 // extract-visual-deterministic.js
 //
 // Increment 4 (Visual extraction) — the DETERMINISTIC, $0 half.
@@ -114,7 +115,7 @@ export function extractPalette(rawHtml = "") {
 
   for (const tok of tokens) {
     const hex = normalizeColor(tok);
-    if (!hex || !HEX_RE.test(hex)) continue;
+    if (!hex || !HEX_RE.test(hex) || ["#000000","#ffffff","#161616"].includes(hex)) continue;
     counts.set(hex, (counts.get(hex) || 0) + 1);
   }
 
@@ -134,7 +135,7 @@ export function extractPalette(rawHtml = "") {
     if (result.length >= 5) break;
   }
 
-  return result.filter((e) => HEX_RE.test(e.hex));
+  return inferColourRoles(result.filter((e) => HEX_RE.test(e.hex)));
 }
 
 // ---------------------------------------------------------------------------
