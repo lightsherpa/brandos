@@ -1,3 +1,4 @@
+import {extractLogo,mergeLogoFromAssets} from "../../lib/extract-logo.js";
 // ─────────────────────────────────────────────────────────────────────
 // P1 · a30 BIO Compiler — Discovery → BIO synthesis
 //
@@ -378,6 +379,7 @@ export const compileBio = inngest.createFunction(
           });
 
           return {
+            logo: extractLogo(rawHtml, url),
             palette: extractPalette(rawHtml),
             type: mergeTypographyFromAssets(extractFonts(rawHtml), assets.fonts),
             imagery,
@@ -392,6 +394,10 @@ export const compileBio = inngest.createFunction(
       bioPayload.visual = visual;
     }
     // When NOT V2, visual stays as the model emitted it (empty arrays) — as today.
+
+    const foundationAssets = await step.run("read-foundation-uploads", () => loadVisualAssets(brandId));
+    bioPayload.visual.logo = mergeLogoFromAssets(bioPayload.visual.logo, foundationAssets.logos);
+    bioPayload.visual.type = mergeTypographyFromAssets(bioPayload.visual.type, foundationAssets.fonts.filter(f => f.signals?.purpose !== "aspiration"));
 
     // ── Step 3 · Write bios row (uncertified) ────────────────────
     await progress("save");

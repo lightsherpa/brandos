@@ -1,3 +1,4 @@
+import {safeLogoSvg} from "../lib/extract-logo.js";
 import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
@@ -111,7 +112,8 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   if (bucket === "visual") {
     const metadata = validateVisualAssetMetadata({
       ext,
-      assetRole: form.get("assetRole"),
+      assetRole: form.get("assetRole") || "inspiration",
+      logoVariant: form.get("logoVariant") || "light",
       rightsConfirmed: String(form.get("rightsConfirmed") || "") === "true",
       fontFamily: form.get("fontFamily"),
       fontUsage: form.get("fontUsage"),
@@ -125,6 +127,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   const objectPath = `${workspaceId}/${brandId}/${crypto.randomUUID()}-${safeName}`;
 
   const buf = new Uint8Array(await file.arrayBuffer());
+  if (visualMetadata.asset_role === "logo" && ext === "svg" && !safeLogoSvg(new TextDecoder().decode(buf))) return c.json({error:"Use an SVG without scripts, external resources or active content",code:"LOGO_SVG"},400);
   const { data: uploadData, error: uploadErr } = await supabaseAdmin
     .storage.from("bio-sources")
     .upload(objectPath, buf, { contentType: mime, upsert: false });

@@ -21,7 +21,8 @@ export function classifyVisualSources(rows = []) {
   const fonts = eligible
     .filter((row) => FONT_UPLOAD_EXTS.has(String(row.signals?.ext || "").toLowerCase()))
     .filter((row) => row.signals?.asset_kind === "font" && row.signals?.font_family);
-  return { references, fonts };
+  const logos = eligible.filter(row => row.signals?.asset_role === "logo" && ["svg","png"].includes(row.signals?.ext));
+  return { references, fonts, logos };
 }
 
 async function signedEvidenceUrl(rawRef, ttlSeconds) {
@@ -33,7 +34,7 @@ async function signedEvidenceUrl(rawRef, ttlSeconds) {
 
 export async function loadVisualAssets(brandId, { ttlSeconds = 60 * 60, sourceIds = null } = {}) {
   const exactIds = Array.isArray(sourceIds) ? [...new Set(sourceIds.filter(Boolean))] : null;
-  if (exactIds && exactIds.length === 0) return { references:[], fonts:[] };
+  if (exactIds && exactIds.length === 0) return { references:[], fonts:[], logos:[] };
   let query = supabaseAdmin
     .from("bio_sources")
     .select("id, src, signals, raw_ref, bucket, created_at")
@@ -52,13 +53,15 @@ export async function loadVisualAssets(brandId, { ttlSeconds = 60 * 60, sourceId
     url: await signedEvidenceUrl(row.raw_ref, ttlSeconds),
     signals: row.signals,
   });
-  const [references, fonts] = await Promise.all([
+  const [references, fonts, logos] = await Promise.all([
     Promise.all((exactIds ? classified.references : classified.references.slice(0, 6)).map(sign)),
     Promise.all(classified.fonts.map(sign)),
+    Promise.all(classified.logos.map(sign)),
   ]);
   return {
     references: references.filter((item) => item.url),
     fonts: fonts.filter((item) => item.url),
+    logos: logos.filter((item) => item.url),
   };
 }
 
@@ -101,6 +104,8 @@ export function pinCertifiedReferences(loaded = [], certified = []) {
 
 export function certifiedVisualSourceIds(visual = {}) {
   return new Set([
+    visual?.logo?.sourceId,
+    ...Object.values(visual?.logo?.variants || {}).map(logo => logo?.sourceId),
     ...(Array.isArray(visual?.references) ? visual.references.map((reference) => reference?.sourceId) : []),
     ...(Array.isArray(visual?.type) ? visual.type.map((font) => font?.sourceId) : []),
   ].filter(Boolean));

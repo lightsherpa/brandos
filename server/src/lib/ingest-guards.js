@@ -54,7 +54,8 @@ const FONT_LICENSES = new Set(["commercial", "open_source", "custom", "system"])
    existing in Storage must never make it eligible for model conditioning. */
 export function validateVisualAssetMetadata({
   ext = "",
-  assetRole = "",
+  assetRole = "inspiration",
+  logoVariant = "light",
   rightsConfirmed = false,
   fontFamily = "",
   fontUsage = "",
@@ -85,15 +86,17 @@ export function validateVisualAssetMetadata({
       },
     };
   }
-  // F1: an unlabelled image upload defaults to `inspiration` (never canonical).
-  const role = String(assetRole || "").trim() || (isImage ? "inspiration" : "");
+  const role = String(assetRole || "inspiration").trim();
+  if (role === "logo" && !["svg", "png"].includes(normalizedExt)) return { ok:false, code:"LOGO_EXT", message:"Logos must be SVG or PNG" };
+  if (role === "logo" && !["light", "dark"].includes(logoVariant)) return { ok:false, code:"LOGO_VARIANT", message:"Choose light or dark background" };
   if (!VISUAL_ROLES.has(role)) {
     return { ok: false, code: "ASSET_ROLE", message: "Choose whether this reference is canonical, inspiration, or something to avoid" };
   }
   return {
     ok: true,
     metadata: {
-      asset_kind: isImage ? "image_reference" : "visual_document",
+      ...(role === "logo" ? { logo_variant:logoVariant } : {}),
+      asset_kind: role === "logo" ? "logo" : isImage ? "image_reference" : "visual_document",
       asset_role: role,
       rights_confirmed: true,
     },

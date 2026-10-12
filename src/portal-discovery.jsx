@@ -153,7 +153,8 @@ function BucketDropZone({ bucket, files, onAdd, onRemove, statuses = {}, purpose
             <label>{t("discovery.visualIntake.fontUsage")}<select value={meta.fontUsage||"Display"} onChange={e=>setMeta({fontUsage:e.target.value})}>{["Display","Body","Both"].map(v=><option key={v} value={v}>{t("discovery.visualIntake."+v.toLowerCase())}</option>)}</select></label>
             <label>{t("discovery.visualIntake.fontLicence")}<select value={meta.licenseType||"commercial"} onChange={e=>setMeta({licenseType:e.target.value})}>{[["commercial","commercial"],["open_source","openSource"],["custom","custom"],["system","system"]].map(([v,k])=><option key={v} value={v}>{t("discovery.visualIntake."+k)}</option>)}</select></label>
             <label>{t("discovery.visualIntake.licenceReference")}<input value={meta.licenseReference||""} onChange={e=>setMeta({licenseReference:e.target.value})}/></label>
-          </>:<label>{t("discovery.visualIntake.referenceRole")}<select value={meta.assetRole||"inspiration"} onChange={e=>setMeta({assetRole:e.target.value})}>{["canonical","inspiration","avoid"].map(v=><option key={v} value={v}>{t("discovery.visualIntake."+v)}</option>)}</select></label>}
+          </>:<label>{t("discovery.visualIntake.referenceRole")}<select value={meta.assetRole||"inspiration"} onChange={e=>setMeta({assetRole:e.target.value})}>{["canonical","inspiration","avoid","logo"].map(v=><option key={v} value={v}>{v === "logo" ? "Logo" : t("discovery.visualIntake."+v)}</option>)}</select></label>}
+          {meta.assetRole === "logo" && <label>Background<select value={meta.logoVariant || "light"} onChange={e=>setMeta({logoVariant:e.target.value})}><option value="light">Light</option><option value="dark">Dark</option></select></label>}
           <label className="discovery-rights"><input type="checkbox" checked={!!meta.rightsConfirmed} onChange={e=>setMeta({rightsConfirmed:e.target.checked})}/>{t("discovery.visualIntake.rightsConfirm")}</label>
         </div>}
       </li>;
@@ -1905,6 +1906,7 @@ function BioVisual({ bio, patch, editing, brandId }) {
               <div style={{padding:"10px 12px"}}>
                 {editing
                   ? <div style={{display:"flex", flexDirection:"column", gap:6}}>
+                      <select aria-label="Colour role" value={c.role || ""} onChange={e=>patch("palette",bio.palette.map((item,j)=>j===i?{...item,role:e.target.value,roleStatus:"confirmed"}:item.role===e.target.value&&["primary","ink","surface"].includes(e.target.value)?{...item,role:"accent"}:item))}><option value="">Unclassified</option>{["primary","ink","surface","accent"].map(role=><option key={role}>{role}</option>)}</select>
                       <EditInput value={c.name} onChange={(v) => updPal(i, { name: v })} placeholder={t("discovery.visual.namePlaceholder")} />
                       <div style={{display:"flex", gap:6}}>
                         <EditInput value={c.wcag} onChange={(v) => updPal(i, { wcag: v })} placeholder={t("discovery.visual.wcagPlaceholder")} mono />

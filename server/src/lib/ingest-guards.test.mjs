@@ -35,7 +35,7 @@ test("validateUpload accepts licensed font binaries", () => {
   assert.equal(validateUpload({ filename: "BrandDisplay.otf", mime: "application/octet-stream", size: 2048 }).ok, true);
 });
 
-test("visual references require a role and rights confirmation", () => {
+test("visual references default to inspiration and require rights confirmation", () => {
   assert.equal(validateVisualAssetMetadata({ ext: "png", assetRole: "canonical" }).code, "RIGHTS");
   // F1: an unlabelled image upload defaults to inspiration; a bad role is still rejected.
   assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true }).metadata.asset_role, "inspiration");
