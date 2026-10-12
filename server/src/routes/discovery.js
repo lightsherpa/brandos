@@ -72,7 +72,7 @@ app.post("/start", requireAuth, async (c) => {
   }
 
   const {data: latestBio,error: integrityLookupError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
-  if(integrityLookupError)return c.json({error:"BIO integrity check unavailable"},503);
+  if(integrityLookupError)return c.json({error:"Brand Core integrity check unavailable"},503);
   const integrity=latestBio&&bioIntegrityError(latestBio,selectedBrand);
   if(integrity)return c.json(integrity,409);
   const mismatch = discoveryWebsiteError(selectedBrand, url);
@@ -99,7 +99,7 @@ app.post("/start", requireAuth, async (c) => {
   if(!url && !references.length){
     const {data:sources,error}=await supabaseAdmin.from("bio_sources").select("id").eq("brand_id",brandId).eq("kind","file_upload").limit(1);
     if(error)return c.json({error:error.message},500);
-    if(!sources?.length)return c.json({error:"Add a brand source or reference before generating the BIO"},400);
+    if(!sources?.length)return c.json({error:"Add a brand source or reference before generating the Brand Core"},400);
   }
 
   // Fire the event — compile-bio function picks it up asynchronously.

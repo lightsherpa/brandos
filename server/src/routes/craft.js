@@ -64,7 +64,7 @@ app.post("/", requireAuth, async (c) => {
     await loadBioForRun({ workspaceId, brandId: output.brief?.brand_id });
   } catch (err) {
     if (err.code === "BIO_NOT_CERTIFIED" || err.code === "NO_BIO") {
-      return c.json({ error: "This brand's BIO must be certified by a Brand Steward before human craft.", code: err.code }, 409);
+      return c.json({ error: "This brand's Brand Core must be certified by a Brand Steward before human craft.", code: err.code }, 409);
     }
     return c.json({ error: err.message || String(err) }, 400);
   }

@@ -9,7 +9,7 @@ import './bio-self-certification.css';
 export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,renderSection,initiallyOpen=false,onClose}){
  const {t}=useLocale();
  const [open,setOpen]=React.useState(initiallyOpen);
- if(bio.self_certified&&!(bio.client_acceptance_required&&!bio.client_accepted_at))return <span className="bio-cert-receipt">{t('discovery.selfCert.attestedBold')} · BIO v{bio.version}</span>;
+ if(bio.self_certified&&!(bio.client_acceptance_required&&!bio.client_accepted_at))return <span className="bio-cert-receipt">{t('discovery.selfCert.attestedBold')} · Brand Core v{bio.version}</span>;
  return <>
   <button className="btn btn--primary btn--sm" disabled={blocked} title={blocked?t('discovery.certification.pending'):undefined} onClick={()=>setOpen(true)}>{t(bio.certified?'discovery.certification.acceptChanges':'discovery.certification.open')}</button>
   {open&&<CertificationDialog key={bio.id} {...{brandId,brandName,bio,renderSection,onDone}} onClose={()=>{setOpen(false);onClose?.();}}/>}
@@ -75,7 +75,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
  const label=s=>t('discovery.tab.'+(s==='positioning'?'competitive':s));
  return <dialog ref={ref} className="bio-cert-dialog" role="dialog" aria-modal="true" aria-labelledby="bio-cert-title" tabIndex={-1} onCancel={e=>{e.preventDefault();close();}}>
   <header><div><span className="bio-cert-kicker">{t('discovery.certification.kicker')}</span><h2 id="bio-cert-title">{t(receipt?'discovery.certification.success':step?'discovery.certification.confirm':'discovery.certification.review')}</h2></div><button type="button" className="bio-cert-close" disabled={busy} aria-label={t('discovery.certification.close')} onClick={close}>×</button></header>
-  <div className="bio-cert-meta"><strong>{brandName}</strong><span>BIO v{bio.version}</span></div>
+  <div className="bio-cert-meta"><strong>{brandName}</strong><span>Brand Core v{bio.version}</span></div>
   {receipt?<>
    <div className="bio-cert-body"><p>{t(accepting?'discovery.certification.acceptedText':'discovery.certification.successText')}</p>{receipt.reviewQueued===false&&<p role="status">{t('discovery.certification.queuePending')}</p>}<dl className="bio-cert-record"><dt>{t('discovery.certification.account')}</dt><dd>{window.CI_USER?.name||window.CI_USER?.email||t('discovery.certification.signedIn')}</dd><dt>{t('discovery.certification.recorded')}</dt><dd>{new Date(receipt.attestedAt).toLocaleString()}</dd></dl></div>
    <footer><button className="btn btn--primary" onClick={()=>{onClose();onDone?.();}}>{t('discovery.certification.done')}</button></footer>

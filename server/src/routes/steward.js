@@ -192,7 +192,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
     const { data: bioRow, error: bioErr } = await supabaseAdmin
       .from("bios").select("id, version, payload").eq("id", job.bio_id).single();
-    if (bioErr || !bioRow) return c.json({ error: "Candidate BIO not found" }, 404);
+    if (bioErr || !bioRow) return c.json({ error: "Candidate Brand Core not found" }, 404);
 
     if (body.leadApprove === false) {
       await supabaseAdmin.from("steward_jobs").update({
@@ -249,7 +249,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
   const { data: bio, error: bioErr } = await supabaseAdmin
     .from("bios").select("id, payload, version, brand_id").eq("id", job.bio_id).single();
-  if (bioErr || !bio) return c.json({ error: "Candidate BIO not found" }, 404);
+  if (bioErr || !bio) return c.json({ error: "Candidate Brand Core not found" }, 404);
 
   // The route owns recursive BIO patch semantics. Arrays replace and nested
   // objects merge without dropping untouched evidence-backed fields.
@@ -284,7 +284,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
       p_created_by: null,
       p_discovery_id: null,
     });
-    if (appendErr || !appended) return c.json({ error: appendErr?.message || "BIO version append failed" }, 500);
+    if (appendErr || !appended) return c.json({ error: appendErr?.message || "Brand Core version append failed" }, 500);
     targetBioId = appended.id;
     targetVersion = appended.version;
   }
@@ -347,7 +347,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
         recipientUserId,
         kind: "steward.changes_requested",
         title: "Your Creative Director requested changes",
-        body: "A senior reviewer returned your brand BIO with required changes. Open your BIO to see what to address.",
+        body: "A senior reviewer returned your Brand Core with required changes. Open your Brand Core to see what to address.",
         link: "#/bio",
         brandId: job.brand_id,
       });
@@ -355,8 +355,8 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
       await notify({
         recipientUserId,
         kind: "steward.rejected",
-        title: "Your brand BIO could not be certified",
-        body: "A senior reviewer could not certify this version. Open your BIO to see why and what to change.",
+        title: "Your Brand Core could not be certified",
+        body: "A senior reviewer could not certify this version. Open your Brand Core to see why and what to change.",
         link: "#/bio",
         brandId: job.brand_id,
       });
@@ -364,8 +364,8 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
       await notify({
         recipientUserId,
         kind: "steward.conditions",
-        title: "Your brand BIO is certified with conditions",
-        body: "A senior reviewer certified your BIO with conditions to address. Open your BIO to see them.",
+        title: "Your Brand Core is certified with conditions",
+        body: "A senior reviewer certified your Brand Core with conditions to address. Open your Brand Core to see them.",
         link: "#/bio",
         brandId: job.brand_id,
       });
@@ -409,7 +409,7 @@ app.post("/decertify", requireAuth, async (c) => {
     .select("id, version, payload, brand_id, certified")
     .eq("brand_id", brandId).eq("certified", true)
     .order("version", { ascending: false }).limit(1).maybeSingle();
-  if (!bio) return c.json({ error: "No certified BIO for this brand" }, 404);
+  if (!bio) return c.json({ error: "No certified Brand Core for this brand" }, 404);
 
   await supabaseAdmin.from("bios").update({
     certified: false, cert_valid_until: null,
@@ -436,7 +436,7 @@ app.post("/decertify", requireAuth, async (c) => {
   await notify({
     recipientUserId: await brandOwnerUserId(brandId),
     kind: "steward.decertified",
-    title: "Your brand BIO was decertified",
+    title: "Your Brand Core was decertified",
     body: "Production is paused until it is re-certified. Briefing stays available.",
     link: "#/bio",
     brandId,
@@ -476,8 +476,8 @@ async function notifyCertified(brandId) {
   await notify({
     recipientUserId: await brandOwnerUserId(brandId),
     kind: "steward.certified",
-    title: "Your brand BIO is certified",
-    body: "A senior reviewer certified your Brand Intelligence Object.",
+    title: "Your Brand Core is certified",
+    body: "A senior reviewer certified your Brand Core.",
     link: "#/home",
     brandId,
   });

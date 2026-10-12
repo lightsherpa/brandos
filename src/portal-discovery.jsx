@@ -65,7 +65,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         return;
       }
       const { bio, reviewPending, focusCount, review, diff } = await res.json();
-      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"The BIO does not match the selected brand"} : bioIntegrityError(bio, brand));
+      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"The Brand Core does not match the selected brand"} : bioIntegrityError(bio, brand));
       if (mismatch) throw new Error(mismatch.error);
       let certInfo = null;
       if (bio?.certified) {
@@ -257,7 +257,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
       if(mismatch)throw new Error(mismatch.error);
       let baselineVersion = 0;
       const baselineRes = await apiFetch(`/api/bios/${brandId}`);
-      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "The BIO could not be checked before uploading sources");}
+      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "The Brand Core could not be checked before uploading sources");}
       if (baselineRes.ok) {
         const baseline = await baselineRes.json();
         baselineVersion = Number(baseline.bio?.version) || 0;
@@ -445,7 +445,7 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
         <div style={{color:"var(--pink-600)", marginBottom:10}}>{error}</div>
         <div style={{display:"flex", gap:8}}>
           <button className="btn btn--ghost btn--sm" onClick={() => setRetryNonce(n => n + 1)}>Check again</button>
-          <button className="btn btn--link" onClick={onExit}>Open current BIO</button>
+          <button className="btn btn--link" onClick={onExit}>Open current Brand Core</button>
         </div>
       </div>}
       <div className="card" style={{padding: 0, overflow:"hidden"}}>
@@ -1090,8 +1090,8 @@ function DiscoveryStep3({ go, runContext }) {
       </div>
       <h1 style={{fontSize: 28, letterSpacing:"-0.01em", marginBottom: 14}}>{t("discovery.step3.title")}</h1>
       <div className="stream" style={{display:"flex", flexDirection:"column", gap: 12, marginBottom: 28, textAlign:"left"}}>
-        <BrandolphLine html={`*I've read the sources for ${live.brandName || "your brand"}.* The BIO now anchors on: ${positioning}`} />
-        <BrandolphLine html={`*Two things to know before we go further.* One — the BIO is editable. If I got something wrong, fix it. Two — I don't pretend to know what I don't know. I left ${gapCount} ${gapCount === 1 ? "field" : "fields"} flagged for evidence or Steward review.`} />
+        <BrandolphLine html={`*I've read the sources for ${live.brandName || "your brand"}.* The Brand Core now anchors on: ${positioning}`} />
+        <BrandolphLine html={`*Two things to know before we go further.* One — the Brand Core is editable. If I got something wrong, fix it. Two — I don't pretend to know what I don't know. I left ${gapCount} ${gapCount === 1 ? "field" : "fields"} flagged for evidence or Steward review.`} />
         <BrandolphLine html="*The first brief is on you.* When you have something to ship, brief me on the change you want — not the deliverable. I'll do the deliverable part." />
       </div>
       <button className="btn btn--primary btn--lg" onClick={() => go("home")}>
@@ -1487,7 +1487,7 @@ function BioViewer({ go, bioScore = 91 }) {
   const requestReview = async () => {
     if (!live.brandId || reviewBusy) return;
     if (hasUnappliedSourceChanges) {
-      flash("Update the BIO with pending evidence before requesting review");
+      flash("Update the Brand Core with pending evidence before requesting review");
       return;
     }
     setReviewBusy(true);
@@ -1547,7 +1547,7 @@ function BioViewer({ go, bioScore = 91 }) {
       <div className="bio-hero page-header" style={{marginBottom: 28}}>
         <div>
           <div className="eyebrow" style={{marginBottom: 6}}>{t("discovery.bio.eyebrow")}</div>
-          <h1 className="brand-title" style={{margin: "0 0 8px"}}>{live.brandName || "Brand profile"}</h1>
+          <h1 className="brand-title" style={{margin: "0 0 8px"}}>{live.brandName || "Brand Core"}</h1>
           <div style={{display:"flex", alignItems:"center", gap: 8, fontSize: 13, color:"var(--c-dim)"}}>
             <span className="dot-state" style={{background: tone.color}} />
             <span>{tone.word}</span>
@@ -1664,7 +1664,7 @@ function BioViewer({ go, bioScore = 91 }) {
       {hasUnappliedSourceChanges && (
         <div className="card" style={{padding:"10px 14px", marginBottom:14, borderLeft:"3px solid var(--yellow-500)", display:"flex", justifyContent:"space-between", alignItems:"center", gap:12}}>
           <span style={{fontSize:13}}>Review the changes before requesting certification.</span>
-          <button className="btn btn--ghost" onClick={() => go("discovery")}>Update BIO</button>
+          <button className="btn btn--ghost" onClick={() => go("discovery")}>Update Brand Core</button>
         </div>
       )}
       {saveErr && (

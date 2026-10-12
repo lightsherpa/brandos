@@ -59,8 +59,8 @@ test("pending evidence must be incorporated before human review", async () => {
   const source = await readFile(discoveryUrl, "utf8");
 
   assert.match(source, /hasUnappliedSourceChanges/);
-  assert.match(source, /Update the BIO with pending evidence before requesting review/);
-  assert.match(source, /Update BIO/);
+  assert.match(source, /Update the Brand Core with pending evidence before requesting review/);
+  assert.match(source, /Update Brand Core/);
   assert.match(source, /Review the changes before requesting certification/);
 });
 

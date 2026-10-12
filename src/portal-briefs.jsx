@@ -981,7 +981,7 @@ function TryPanel({ agent, onClose }) {
             }}>
               <span>
                 {t("briefs.try.composedBy")} <span style={{color:"var(--c-ink)"}}>{done.spec?.name || agent.name}</span> ·
-                BIO v{done.brand?.bioVersion}
+                Brand Core v{done.brand?.bioVersion}
                 {done.brand?.certifiedBy
                   ? <> · <span style={{color:"var(--green-600)"}}>{t("briefs.try.certified")}</span></>
                   : <> · <span style={{color:"var(--yellow-700)"}}>{t("briefs.try.uncertified")}</span></>}
@@ -1153,7 +1153,7 @@ function SpecialistDrawer({ open, agent, onClose }) {
 /* CANVAS (Phase 3 placeholder, but designed)                        */
 
 const CANVAS_NODES = [
-  { id:"bio",      x:40,   y:60,  w:260, kind:"bio",       title:"Brand Intelligence Object",        sub:"BIO · 91%" },
+  { id:"bio",      x:40,   y:60,  w:260, kind:"bio",       title:"Brand Core",        sub:"Brand Core · 91%" },
   { id:"brief",    x:360,  y:50,  w:260, kind:"brief",     title:"Spring campaign · brief",         sub:"L1 · Brandolph" },
   { id:"t1",       x:680,  y:20,  w:240, kind:"territory", title:"Territory · 'It costs the Tuesday'", sub:"L2-06 · Territory Mapper" },
   { id:"t2",       x:680,  y:130, w:240, kind:"territory", title:"Territory · '1-in-12'",            sub:"L2-06 · Territory Mapper" },
@@ -2639,7 +2639,7 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
       }}>
         <span>
           {t("briefs.try.composedBy")} <span style={{color:"var(--c-ink)"}}>{agent.name}</span> ·
-          BIO v{node.done?.brand?.bioVersion ?? "?"}
+          Brand Core v{node.done?.brand?.bioVersion ?? "?"}
           {cert
             ? <> · {t("briefs.notepad.certifiedBy")} <span style={{color:"var(--green-600)"}}>{cert.byName}</span></>
             : <> · <span style={{color:"var(--yellow-700)"}}>{t("briefs.try.uncertified")}</span></>}
@@ -2716,8 +2716,8 @@ function buildInitialRunNodes(ctx) {
   const midY = totalSpecH / 2 + 40;
 
   const nodes = [
-    { id: "bio",   x: cols.bio,   y: midY - 52, w: 260, kind: "bio",   eyebrow: "Brand profile",
-      title: "Brand Intelligence Object", sub: "Certified canon · the source for every output" },
+    { id: "bio",   x: cols.bio,   y: midY - 52, w: 260, kind: "bio",   eyebrow: "Brand Core",
+      title: "Brand Core", sub: "Certified canon · the source for every output" },
     { id: "brief", x: cols.brief, y: midY - 52, w: 280, kind: "brief", eyebrow: "BRIEF",
       title: shorten(ctx.title || humanize(ctx.sharpenedBrief || "") || humanize(ctx.rawBrief || "") || "Brief", 90),
       sub: ctx.tension ? `Tension · ${ctx.tension.slice(0, 70)}` : "L1 · Brandolph" },
@@ -3001,8 +3001,8 @@ function BriefViewCanvas({ briefId, onClear, go }) {
 
   const briefY = 40 + (Math.max(specs.length, 1) - 1) * rowH / 2;
   const nodes = [
-    { id: "bio",   x: 40,  y: briefY, w: 260, kind: "bio",   eyebrow: "Brand profile",
-      title: "Brand Intelligence Object", sub: state.cert ? t("briefs.view.certifiedByName", { name: state.cert.byName }) : t("briefs.view.certifiedCanon") },
+    { id: "bio",   x: 40,  y: briefY, w: 260, kind: "bio",   eyebrow: "Brand Core",
+      title: "Brand Core", sub: state.cert ? t("briefs.view.certifiedByName", { name: state.cert.byName }) : t("briefs.view.certifiedCanon") },
     { id: "brief", x: 360, y: briefY, w: 280, kind: "brief", eyebrow: "BRIEF",
       title: briefTitle(state.brief),
       sub: `${t("briefs.runsCount", { count: state.runs.length })} · ${shortDate(state.brief.created_at)}` },
@@ -3222,7 +3222,7 @@ function buildBriefGraph(brief, outputs) {
   const ys = nodes.map(n => n.y);
   const midY = ys.length ? (Math.min(...ys) + Math.max(...ys)) / 2 : 120;
   nodes.unshift({ id:"brief", x:360, y:midY, w:260, kind:"brief", title:brief.title, sub:"L1 · Brandolph", ref:{ type:"brief" } });
-  nodes.unshift({ id:"bio", x:40, y:midY, w:260, kind:"bio", title:"Brand Intelligence Object", sub:`BIO · ${brand.bioCompleteness}%`, ref:{ type:"bio" } });
+  nodes.unshift({ id:"bio", x:40, y:midY, w:260, kind:"bio", title:"Brand Core", sub:`Brand Core · ${brand.bioCompleteness}%`, ref:{ type:"bio" } });
   edges.unshift({ from:"bio", to:"brief", fromSide:"right", toSide:"left" });
   return { nodes, edges };
 }
@@ -3233,7 +3233,7 @@ function outputRationale(o, specialist) {
   const spec = specialist ? specialistSpec(specialist) : {};
   const who = specialist ? specialist.name : "The specialist";
   if (spec.voice) return `${who} wrote to the brand voice — ${spec.voice.toLowerCase()} — and shaped it to: ${spec.outputContract || "the brief"}.`;
-  return `${who} read the BIO first, then ${spec.objective ? spec.objective.toLowerCase() : "produced the deliverable to the brief"}`;
+  return `${who} read the Brand Core first, then ${spec.objective ? spec.objective.toLowerCase() : "produced the deliverable to the brief"}`;
 }
 
 /* Per-brief Delivery view: the canvas + a node-detail drawer. */
@@ -3251,8 +3251,8 @@ function BriefDelivery({ brief, outputs }) {
 
   let title = "", eyebrow = "", body = null;
   if (ref.type === "bio") {
-    eyebrow = t("briefs.board.sourceCanon"); title = "Brand Intelligence Object";
-    body = <p style={{fontSize:14.5, color:"var(--c-ink)", lineHeight:1.55}}>Everything downstream is judged against the BIO. <em className="b-voice">{window.CI_BRAND.tagline}</em> · {window.CI_BRAND.bioCompleteness}% complete.</p>;
+    eyebrow = t("briefs.board.sourceCanon"); title = "Brand Core";
+    body = <p style={{fontSize:14.5, color:"var(--c-ink)", lineHeight:1.55}}>Everything downstream is judged against the Brand Core. <em className="b-voice">{window.CI_BRAND.tagline}</em> · {window.CI_BRAND.bioCompleteness}% complete.</p>;
   } else if (ref.type === "brief") {
     eyebrow = "L1 · Brandolph"; title = brief.title;
     body = <><p style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize:17, lineHeight:1.5, color:"var(--c-ink)", marginBottom:12}}>"{brief.smp}"</p><p style={{fontSize:13.5, color:"var(--c-dim)", lineHeight:1.5}}>{brief.objective}</p></>;
@@ -3310,7 +3310,7 @@ const BOARD_LAUNCH = [
 
 function boardReply(text) {
   const m = text.toLowerCase();
-  if (/why|reason|rational/.test(m)) return "Because the BIO frames price as cost-of-pause — the work leans on the decision to slow down, not the discount.";
+  if (/why|reason|rational/.test(m)) return "Because the Brand Core frames price as cost-of-pause — the work leans on the decision to slow down, not the discount.";
   if (/change|revise|tweak|edit/.test(m)) return "On it. I'll route that back to the specialist and hold the QA gate until it clears the brand rules.";
   if (/who|specialist|which/.test(m)) return "For this I'd add Conversion Copy and Brand Consistency QA — smallest crew that earns the change.";
   return "Heard. I'll sharpen that into a sub-brief and assemble the right specialist — give me a beat.";
@@ -3455,7 +3455,7 @@ function BriefBoard({ id, go }) {
   const specialist = ref.type === "specialist" ? window.CI_AGENTS.find(a => a.id === ref.id)
     : output ? window.CI_AGENTS.find(a => a.id === output.agentId) : null;
   let dEye = "", dBody = null;
-  if (ref.type === "bio") { dEye = t("briefs.board.sourceCanon"); dBody = <><h3 style={{margin:"0 0 10px", fontSize:18}}>Brand Intelligence Object</h3><p style={{fontSize:14, lineHeight:1.55, color:"var(--c-dim)"}}><em className="b-voice" style={{background:"none", fontStyle:"italic"}}>{window.CI_BRAND.tagline}</em> · {window.CI_BRAND.bioCompleteness}% complete.</p></>; }
+  if (ref.type === "bio") { dEye = t("briefs.board.sourceCanon"); dBody = <><h3 style={{margin:"0 0 10px", fontSize:18}}>Brand Core</h3><p style={{fontSize:14, lineHeight:1.55, color:"var(--c-dim)"}}><em className="b-voice" style={{background:"none", fontStyle:"italic"}}>{window.CI_BRAND.tagline}</em> · {window.CI_BRAND.bioCompleteness}% complete.</p></>; }
   else if (ref.type === "brief") { dEye = "L1 · Brandolph"; dBody = <><p style={{fontFamily:"Georgia,serif", fontStyle:"italic", fontSize:19, lineHeight:1.45, color:"var(--c-ink)", margin:"0 0 12px"}}>"{brief.smp}"</p><p style={{fontSize:13.5, color:"var(--c-dim)", lineHeight:1.5, margin:0}}>{brief.objective}</p></>; }
   else if (ref.type === "specialist" && specialist) { const sp = specialistSpec(specialist); dEye = `${specialist.code} · ${specialist.dept}`; dBody = <><h3 style={{margin:"0 0 8px", fontSize:18}}>{specialist.name}</h3><p style={{fontSize:14, lineHeight:1.5, color:"var(--c-ink)", margin:"0 0 16px"}}>{specialist.job}</p><div style={{height:1, background:"var(--c-line)", margin:"0 -16px 12px"}} /><div className="eyebrow" style={{marginBottom:6, color:"var(--c-faint)"}}>{t("briefs.board.whyRoutes")}</div><p style={{fontSize:12.5, color:"var(--c-dim)", lineHeight:1.5, margin:0}}>{sp.objective}</p></>; }
   else if (output) {
@@ -4067,7 +4067,7 @@ function LibraryAssetCard({ o, onSelect }) {
       <p className="lib-sheet__body">{cleaned || <span style={{color:"var(--c-faint)"}}>{t("briefs.notepad.empty")}</span>}</p>
       <div className="lib-sheet__foot">
         <span>{agent?.name || specialistName(o.run.specialist_id)}</span>
-        <span style={{marginLeft:"auto"}}>BIO v{o.run.bio_version}</span>
+        <span style={{marginLeft:"auto"}}>Brand Core v{o.run.bio_version}</span>
       </div>
     </button>
   );
@@ -4182,7 +4182,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
             fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-faint)", letterSpacing:"0.04em",
           }}>
             <span>
-              {t("briefs.try.composedBy")} <span style={{color:"var(--c-ink)"}}>{specialistName(o.run.specialist_id)}</span> · BIO v{o.run.bio_version}
+              {t("briefs.try.composedBy")} <span style={{color:"var(--c-ink)"}}>{specialistName(o.run.specialist_id)}</span> · Brand Core v{o.run.bio_version}
               {cert
                 ? <> · {t("briefs.notepad.certifiedBy")} <span style={{color:"var(--green-600)"}}>{cert.byName}</span></>
                 : <> · <span style={{color:"var(--yellow-700)"}}>{t("briefs.try.uncertified")}</span></>}
@@ -4241,7 +4241,7 @@ function mockDraft(brief, a, spec) {
     ``,
     `Brief: ${brief.trim() || "(no brief given)"}`,
     ``,
-    `${a.name} would ${obj.toLowerCase()}. First read of the BIO holds: keep the brand voice, no manufactured urgency, respect the pricing formula.`,
+    `${a.name} would ${obj.toLowerCase()}. First read of the Brand Core holds: keep the brand voice, no manufactured urgency, respect the pricing formula.`,
     spec.outputContract ? `Output shaped to: ${spec.outputContract}` : ``,
     ``,
     `— simulated first cut. Edit below to QA real copy.`,
@@ -4260,7 +4260,7 @@ function runQaGate(draft, refusals) {
     }
     if (/11\.4|pricing|discount/i.test(rule)) return { rule, status: "pass", note: "no pricing claim to flag" };
     if (/provenance/i.test(rule)) return { rule, status: "pass", note: "ok" };
-    if (/contradict|bio/i.test(rule)) return { rule, status: "pass", note: "no BIO conflict detected" };
+    if (/contradict|bio/i.test(rule)) return { rule, status: "pass", note: "no Brand Core conflict detected" };
     if (/voice|drift/i.test(rule)) return { rule, status: "pass", note: "drift ~0.12 (≤ 0.20)" };
     return { rule, status: "pass", note: "checked" };
   });

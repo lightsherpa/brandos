@@ -66,7 +66,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
 
   // Check latest lineage even when an older certified version is requested.
   const {data:latest,error:latestError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandRow.id).order("version",{ascending:false}).limit(1).maybeSingle();
-  if(latestError)throw bioError("BIO_UNAVAILABLE","BIO integrity check unavailable",503);
+  if(latestError)throw bioError("BIO_UNAVAILABLE","Brand Core integrity check unavailable",503);
   const integrity=latest&&bioIntegrityError(latest,brandRow);
   if(integrity)throw bioError(integrity.code,integrity.error);
   // Resolve the gated BIO version.
@@ -98,16 +98,16 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     bioRow = result.data;
     bioErr = result.error;
   }
-  if (bioErr) throw new Error(`BIO lookup failed: ${bioErr.message}`);
+  if (bioErr) throw new Error(`Brand Core lookup failed: ${bioErr.message}`);
 
   if (!bioRow) {
     let err;
     if (requireCertified) {
-      err = bioError("BIO_NOT_CERTIFIED", `BIO for brand ${brandRow.id} has no certified version a run can use`);
+      err = bioError("BIO_NOT_CERTIFIED", `Brand Core for brand ${brandRow.id} has no certified version a run can use`);
     } else if (requireSelfCertified) {
-      err = bioError("NOT_SELF_CERTIFIED", `BIO for brand ${brandRow.id} has not been self-certified`);
+      err = bioError("NOT_SELF_CERTIFIED", `Brand Core for brand ${brandRow.id} has not been self-certified`);
     } else {
-      err = bioError("NO_BIO", `Brand ${brandRow.id} has no BIO yet — run Discovery`);
+      err = bioError("NO_BIO", `Brand ${brandRow.id} has no Brand Core yet — run Discovery`);
     }
     throw err;
   }

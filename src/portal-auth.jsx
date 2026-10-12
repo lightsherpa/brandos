@@ -408,7 +408,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
         <div className="auth-story__copy">
           <div className="auth-story__eyebrow">BrandOS</div>
           <h2 className="auth-story__head">Your brand,<br />made certifiable.</h2>
-          <p className="auth-story__sub">Brandolph reads your brand into a living, human-certified BIO, assembles the crew, and lands the work on a canvas — with optional human finishing when the work needs it.</p>
+          <p className="auth-story__sub">Brandolph reads your brand into a living, human-certified Brand Core, assembles the crew, and lands the work on a canvas — with optional human finishing when the work needs it.</p>
           <div className="auth-story__dots"><span className="is-active" /><span /><span /><span /></div>
         </div>
       </aside>

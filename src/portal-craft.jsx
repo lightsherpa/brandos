@@ -26,7 +26,7 @@ function CraftMarketplace({ go, tier }) {
       <PageHeader
         eyebrow="L3 · The human creative team"
         title="Hand the work that needs hands."
-        sub="Brandolph drafts the first cut. BrandOS's creative team — the same one that's served 50+ brands — finishes the work where craft is the difference. Same credit pool, same BIO, no fabricated middle."
+        sub="Brandolph drafts the first cut. BrandOS's creative team — the same one that's served 50+ brands — finishes the work where craft is the difference. Same credit pool, same Brand Core, no fabricated middle."
         right={<>
           <span style={{fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-dim)", letterSpacing:"0.06em"}}>
             Available: <strong style={{color:"var(--c-ink)", fontWeight: 600}}>{window.CI_CREDITS.balance} cr</strong>
@@ -133,9 +133,9 @@ function CraftModal({ pack, onClose }) {
 
       <div className="eyebrow" style={{marginBottom: 8}}>Direction</div>
       <div style={{position:"relative", marginBottom: 20}}>
-        <textarea className="input" rows={4} defaultValue="Take this through to print-ready. Tone is calm conviction — see BIO voice. The image direction is craft-led, low-light interiors, no top-down latte art. Final files in PDF + EPS." />
+        <textarea className="input" rows={4} defaultValue="Take this through to print-ready. Tone is calm conviction — see the Brand Core voice. The image direction is craft-led, low-light interiors, no top-down latte art. Final files in PDF + EPS." />
         <div style={{position:"absolute", bottom: 10, right: 12, display:"flex", alignItems:"center", gap: 6, fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)", letterSpacing:"0.04em"}}>
-          <BrandolphDot /> Pre-filled by Brandolph from BIO
+          <BrandolphDot /> Pre-filled by Brandolph from the Brand Core
         </div>
       </div>
 
@@ -362,7 +362,7 @@ function NotificationPrefs() {
     <div style={{display:"flex", flexDirection:"column", gap: 4, maxWidth: 520}}>
       <h3 style={{margin: "0 0 4px"}}>Notifications</h3>
       <p style={{fontSize:13, color:"var(--c-dim)", margin:"0 0 12px", lineHeight:1.5}}>
-        How you hear about craft handoffs, BIO certifications, and completed work. Turn a channel off to stop receiving it there.
+        How you hear about craft handoffs, Brand Core certifications, and completed work. Turn a channel off to stop receiving it there.
       </p>
       <NotifToggleRow label="In-app" desc="A bell notification inside BrandOS." on={prefs.in_app} onChange={(v) => set("in_app", v)} />
       <NotifToggleRow label="Email"  desc="A message to your account email."      on={prefs.email}  onChange={(v) => set("email", v)} />
@@ -484,7 +484,7 @@ function BrandsSettings({ data, go, canManage = true }) {
   const limit = BRAND_LIMITS[tier] ?? 1;
   const atLimit = limit !== Infinity && data.brands.length >= limit;
   return <div>
-    <SettingsPanelHeader title="Brands" description="Every brand has its own BIO, briefs, library, and memory inside this workspace."
+    <SettingsPanelHeader title="Brands" description="Every brand has its own Brand Core, briefs, library, and memory inside this workspace."
       action={canManage ? <button className="btn btn--primary btn--sm" onClick={() => go?.("discovery/new")} disabled={atLimit}>Add brand</button> : null} />
     <div className="settings-allowance"><strong>{data.brands.length}</strong><span>of {limit === Infinity ? "unlimited" : limit} brands used on {TIER_LABELS[tier]}</span></div>
     <div className="settings-list">
@@ -552,7 +552,7 @@ function CreditUsageSettings({ data }) {
 
 function BrandRulesSettings({ go }) {
   return <div><SettingsPanelHeader title="Brand rules" description="Voice, positioning, constraints, and evidence are governed per brand—not as hidden workspace-wide form fields." />
-    <div className="settings-callout"><div><strong>The BIO is the source of truth</strong><p>Open the active brand’s BIO to review and update the rules every specialist reads before working.</p></div><button className="btn btn--primary btn--sm" onClick={() => go?.("bio")}>Open BIO</button></div>
+    <div className="settings-callout"><div><strong>The Brand Core is the source of truth</strong><p>Open the active brand’s Brand Core to review and update the rules every specialist reads before working.</p></div><button className="btn btn--primary btn--sm" onClick={() => go?.("bio")}>Open Brand Core</button></div>
   </div>;
 }
 

@@ -21,14 +21,14 @@
     "untitled": "Borrador sin título"
   },
   "_notes": {
-    "proper_nouns": "BIO, Brandolph, BrandOS, SLA and 'The Colony' are kept untranslated as product/proper nouns.",
+    "proper_nouns": "Brand Core, Brandolph, BrandOS, SLA and 'The Colony' are kept untranslated as product/proper nouns.",
     "nav.briefs": "'Briefs' is retained as the industry loanword commonly used by Spanish-speaking creative studios.",
     "nav.credits": "'Créditos' = the in-product spend currency (never raw API cost)."
   },
   "nav": {
     "create": "Crear",
     "briefs": "Briefs",
-    "bio": "Perfil de marca",
+    "bio": "Brand Core",
     "library": "Biblioteca",
     "specialists": "Especialistas",
     "humans": "Humanos",
@@ -69,7 +69,7 @@
     "assigned": "Asignado",
     "notSteward": "No eres Steward — ejecuta ",
     "aboutJobs": "Sobre estos trabajos",
-    "aboutJobsBody": "Cada fila es una marca a la espera de la certificación del BIO — una revisión humana sénior antes de que cualquier especialista lea de él. El foso: cada resultado sale ",
+    "aboutJobsBody": "Cada fila es una marca a la espera de la certificación del Brand Core — una revisión humana sénior antes de que cualquier especialista lea de él. El foso: cada resultado sale ",
     "certifiedByName": "certificado por {name}",
     "addGeneric": "+ Añadir",
     "removeItem": "Eliminar {item}",
@@ -114,14 +114,14 @@
     "decertified": "Descertificado · v{version}. Producción en pausa; se ha puesto en cola una nueva revisión.",
     "approvedAsLead": "Aprobado como Lead · v{version} ya activo.",
     "sentBackRevision": "Devuelto al Steward para revisión.",
-    "confirmDecertify": "¿Descertificar este BIO? La producción se pausa hasta que se vuelva a certificar. El briefing sigue disponible y los trabajos en curso finalizan.",
+    "confirmDecertify": "¿Descertificar este Brand Core? La producción se pausa hasta que se vuelva a certificar. El briefing sigue disponible y los trabajos en curso finalizan.",
     "loading": "Cargando…",
     "jobNotFound": "Trabajo no encontrado.",
     "brandFallback": "(marca)",
     "certifiedV": "certificado v{version}",
     "queuedRel": "en cola {rel}",
-    "bioV": "BIO v{version}",
-    "candidateBio": "BIO candidato · v{version}",
+    "bioV": "Brand Core v{version}",
+    "candidateBio": "Brand Core candidato · v{version}",
     "editedTag": "· editado",
     "resetEdits": "Descartar cambios",
     "fldPositioning": "Posicionamiento",
@@ -150,7 +150,7 @@
     "addImagery": "+ Añadir referencia visual",
     "fldVisualAvoid": "Evitar en lo visual",
     "addVisualAvoid": "+ Añadir a evitar",
-    "bioEditHint": "Edita cualquier campo — los cambios se registran localmente y se envían como `bioPatch` al certificar (crea una nueva versión del BIO). Los campos visuales se autocompletarán con el pase de visión en P5; por ahora puedes rellenarlos a mano aquí.",
+    "bioEditHint": "Edita cualquier campo — los cambios se registran localmente y se envían como `bioPatch` al certificar (crea una nueva versión del Brand Core). Los campos visuales se autocompletarán con el pase de visión en P5; por ahora puedes rellenarlos a mano aquí.",
     "focusFirst": "Revisa primero",
     "nothingFlagged": "Nada señalado — todos los campos se leen bien.",
     "statusMissing": "falta",
@@ -185,7 +185,7 @@
     "rubricHelpB1": "La rúbrica decide el resultado a partir de tus puntuaciones; cada decisión se registra en ",
     "rubricHelpB2": " para poder justificarlo. En calibración, un Lead aprueba antes de que una aprobación se finalice.",
     "decertify": "Descertificar",
-    "decertifyThisBio": "Descertificar este BIO",
+    "decertifyThisBio": "Descertificar este Brand Core",
     "decertifyHint": "Retira la certificación. La producción nueva o en cola se bloquea de inmediato; los trabajos en curso finalizan; los resultados completados conservan su sello; el briefing sigue activo. Se pone en cola una nueva revisión.",
     "dayMon": "Lun",
     "dayTue": "Mar",
@@ -213,7 +213,7 @@
     "clientsEyebrow": "Portal del equipo",
     "clientsCount": "Clientes · {count}",
     "clientsSub": "Los espacios de trabajo que atiende el equipo. Útil cuando tomas varios trabajos de la misma marca.",
-    "colBio": "BIO",
+    "colBio": "Brand Core",
     "colTier": "Nivel",
     "colActiveJobs": "Trabajos activos",
     "colLifetime": "Histórico",
@@ -288,10 +288,10 @@
     "addBrand": "Añadir marca"
   },
   "sidebar": {
-    "bioScore": "BIO {score}%",
+    "bioScore": "Brand Core {score}%",
     "seniorDesigner": "Diseñadora sénior",
     "active": "Activo",
-    "brandolphReading": "Leyendo tu BIO. Siguiendo tu último brief durante la revisión.",
+    "brandolphReading": "Leyendo tu Brand Core. Siguiendo tu último brief durante la revisión.",
     "viewLedger": "Ver el registro →",
     "thisWeek": "Esta semana",
     "jobsDelivered": "Trabajos entregados",
@@ -332,7 +332,7 @@
   "plans": {
     "eyebrow": "Planes",
     "headline": "Haz crecer tu estudio.",
-    "intro": "Cada plan incluye el equipo completo de Brandolph y un BIO certificado por un sénior. Elige el número de marcas que se ajuste al trabajo que tienes por delante.",
+    "intro": "Cada plan incluye el equipo completo de Brandolph y un Brand Core certificado por un sénior. Elige el número de marcas que se ajuste al trabajo que tienes por delante.",
     "success": "Pago recibido: tu plan se está actualizando. Esto puede tardar unos segundos.",
     "cancel": "No se hicieron cambios. Elige un plan cuando quieras.",
     "currentPlan": "Plan actual",
@@ -354,7 +354,7 @@
     "included": "Incluido",
     "backToCreate": "← Volver a Crear",
     "blurb": {
-      "00": "Una marca, el equipo completo de Brandolph y tu BIO certificado.",
+      "00": "Una marca, el equipo completo de Brandolph y tu Brand Core certificado.",
       "01": "Gestiona dos marcas en paralelo con memoria de especialistas compartida.",
       "02": "Tres marcas más pulido artesanal humano prioritario.",
       "03": "Marcas ilimitadas para estudios que gestionan toda la plantilla."
@@ -374,7 +374,7 @@
   "brandolph": {
     "hero": "¿Qué quieres {word}?",
     "heroWord": "crear",
-    "subcopy": "Describe el cambio que quieres lograr, no el entregable. Brandolph lee el BIO, afina el brief, reúne al equipo y te muestra el costo antes de que algo se ejecute.",
+    "subcopy": "Describe el cambio que quieres lograr, no el entregable. Brandolph lee el Brand Core, afina el brief, reúne al equipo y te muestra el costo antes de que algo se ejecute.",
     "scope": "Alcance",
     "promptPlaceholder": "p. ej. Haz que nuestro lanzamiento de primavera sea imperdible — destaca la nueva gama, sin descuentos, sube los registros de la primera semana.",
     "modeFlow": "Flujo completo",
@@ -383,9 +383,9 @@
     "modePolish": "Pulido",
     "start": "Iniciar",
     "reBrief": "Rehacer brief",
-    "assemblyNote": "BIO {score}% · Brandolph afinará tu brief antes de reunir al equipo · Preguntar es gratis",
+    "assemblyNote": "Brand Core {score}% · Brandolph afinará tu brief antes de reunir al equipo · Preguntar es gratis",
     "sharpeningEyebrow": "Brandolph · afinando",
-    "sharpeningLoading": "Leyendo tu BIO. Presionando el brief. Eligiendo el equipo más pequeño.",
+    "sharpeningLoading": "Leyendo tu Brand Core. Presionando el brief. Eligiendo el equipo más pequeño.",
     "sharpeningFailedEyebrow": "Brandolph · falló al afinar",
     "sharpeningFailedBody": "{error}. El borrador y las respuestas anteriores se conservan. Reintenta el análisis antes de continuar.",
     "proceedRaw": "Continuar con el brief sin afinar",
@@ -445,14 +445,14 @@
     "untitledBrief": "Brief sin título",
     "composerPlaceholder": "p. ej. Haz que la campaña de verano recupere las tardes tranquilas — primero el retail, sin descuentos, sube el tráfico entre semana un 18 %.",
     "composerAria": "Describe el brief que quieres que Brandolph afine",
-    "checkingBrand": "Comprobando la marca seleccionada y el BIO…",
-    "bioStatusUnavailable": "Estado del BIO no disponible · {error}",
-    "brandBioReady": "{name} · BIO {score}/100 · v{version} · listo para afinar",
-    "brandNoBio": "{name} · Aún sin BIO certificado · completa Discovery antes de redactar el brief",
+    "checkingBrand": "Comprobando la marca seleccionada y el Brand Core…",
+    "bioStatusUnavailable": "Estado del Brand Core no disponible · {error}",
+    "brandBioReady": "{name} · Brand Core {score}/100 · v{version} · listo para afinar",
+    "brandNoBio": "{name} · Aún sin Brand Core certificado · completa Discovery antes de redactar el brief",
     "selectBrand": "Selecciona una marca antes de crear un brief",
-    "brandChangedError": "La marca activa cambió. Empieza de nuevo para que este brief use el BIO correcto.",
+    "brandChangedError": "La marca activa cambió. Empieza de nuevo para que este brief use el Brand Core correcto.",
     "balanceLoading": "cargando saldo…",
-    "bioVersion": "BIO v{version}"
+    "bioVersion": "Brand Core v{version}"
   },
   "briefs": {
     "runsCount": {
@@ -506,7 +506,7 @@
       "eyebrow": "Espacio de trabajo",
       "eyebrowBrand": "Espacio de trabajo · {name}",
       "title": "Briefs",
-      "sub": "Cada ejecución de especialista en esta marca — auditable frente al BIO certificado. {runs} en el registro · {credits} cr gastados.",
+      "sub": "Cada ejecución de especialista en esta marca — auditable frente al Brand Core certificado. {runs} en el registro · {credits} cr gastados.",
       "reload": "Recargar",
       "runSpecialist": "Ejecutar un especialista",
       "searchPlaceholder": "Buscar briefs…",
@@ -588,10 +588,10 @@
       "howBriefs": "Cómo Brandolph instruye a este especialista",
       "hide": "Ocultar",
       "viewPrompt": "Ver prompt compuesto",
-      "briefsFallback": "{name} lee el BIO antes de responder, sigue {method} y rechaza cualquier cosa que rompa las reglas de la marca. {objective}",
+      "briefsFallback": "{name} lee el Brand Core antes de responder, sigue {method} y rechaza cualquier cosa que rompa las reglas de la marca. {objective}",
       "methodAs": "su método como {role}",
       "methodPlain": "su método",
-      "composedFrom": "Compuesto de PLATFORM + BIO + SPEC + TASK",
+      "composedFrom": "Compuesto de PLATFORM + Brand Core + SPEC + TASK",
       "routedTo": " · enrutado a {model}",
       "recentUsage": "Uso reciente · 30 días",
       "jobsRun": "Trabajos ejecutados",
@@ -627,7 +627,7 @@
       "back": "Volver al brief",
       "eyebrow": "Vista previa de demo",
       "title": "Un mensaje, tres formatos",
-      "intro": "Email, página de aterrizaje y una presentación de tres diapositivas a partir de este brief y del BIO de la marca.",
+      "intro": "Email, página de aterrizaje y una presentación de tres diapositivas a partir de este brief y del Brand Core de la marca.",
       "headline": "Titular compartido",
       "updating": "Actualizando los tres…",
       "headlineHelp": "Esta línea es el titular del email, el héroe de la página y la diapositiva de título.",
@@ -639,12 +639,12 @@
       "flag": "Marcado",
       "trailEyebrow": "Certificación",
       "trailTitle": "Registro de auditoría",
-      "trailBio": "BIO v{version} · {state}",
+      "trailBio": "Brand Core v{version} · {state}",
       "certified": "Certificado",
       "selfCertified": "Autocertificado",
       "uncertified": "Aún no certificado",
       "trailEmpty": "Todavía no hay decisiones de certificación.",
-      "openBio": "Abrir el BIO"
+      "openBio": "Abrir el Brand Core"
     },
     "run": {
       "deliverableCount": {
@@ -701,7 +701,7 @@
       "chipTighten": "Ajústalo",
       "chipPlayful": "Más desenfadado",
       "chipCta": "Arregla el CTA",
-      "chipBioVoice": "Ajusta a la voz del BIO",
+      "chipBioVoice": "Ajusta a la voz del Brand Core",
       "chipShorter": "Hazlo más corto"
     },
     "notepad": {
@@ -808,7 +808,7 @@
         }
       },
       "emptyTitle": "La biblioteca está esperando.",
-      "emptyBody": "Cada salida que produce tu equipo aterriza aquí — archivada bajo el brief que la pidió, la versión del BIO frente a la que se evaluó y el Steward que firmó el canon. Ejecuta un brief y observa cómo se llenan los estantes.",
+      "emptyBody": "Cada salida que produce tu equipo aterriza aquí — archivada bajo el brief que la pidió, la versión del Brand Core frente a la que se evaluó y el Steward que firmó el canon. Ejecuta un brief y observa cómo se llenan los estantes.",
       "startBrief": "Comenzar un brief",
       "deleted": "Eliminado",
       "deleteFailed": "Error al eliminar",
@@ -834,7 +834,7 @@
     "author": {
       "eyebrow": "Capacidades · admin",
       "title": "Nuevo especialista",
-      "sub": "Define un especialista L2. El prompt de la derecha es el brief compuesto real — PLATFORM + el BIO en vivo + esta especificación + la tarea — ensamblado a medida que escribes.",
+      "sub": "Define un especialista L2. El prompt de la derecha es el brief compuesto real — PLATFORM + el Brand Core en vivo + esta especificación + la tarea — ensamblado a medida que escribes.",
       "saved": "Guardado ✓",
       "saveSpecialist": "Guardar especialista",
       "identity": "Identidad",
@@ -872,8 +872,8 @@
       "tabTest": "Prueba",
       "refusalsInherit": {
         "plural": {
-          "one": "Los rechazos de marca se heredan del BIO · {count} regla",
-          "other": "Los rechazos de marca se heredan del BIO · {count} reglas"
+          "one": "Los rechazos de marca se heredan del Brand Core · {count} regla",
+          "other": "Los rechazos de marca se heredan del Brand Core · {count} reglas"
         }
       },
       "sampleBrief": "Brief de muestra",
@@ -928,7 +928,7 @@
     },
     "removeFile": "Quitar {name}",
     "visualIntake": {
-      "help": "Las referencias se analizan e incorporan al BIO. Las fuentes permanecen privadas y requieren confirmación expresa de licencia.",
+      "help": "Las referencias se analizan e incorporan al Brand Core. Las fuentes permanecen privadas y requieren confirmación expresa de licencia.",
       "font": "Fuente",
       "reference": "Referencia",
       "source": "Origen",
@@ -962,7 +962,7 @@
       "titlePointEm": "Muéstranos tu marca.",
       "titleAddRest": "Ponle nombre, muéstranosla y Brandolph lee el resto.",
       "titlePointRest": "Y hacia dónde quieres llevarla.",
-      "lead": "Comparte tu web, documentos y referencias. Separa la marca actual de su dirección deseada. Analizamos las fuentes y generamos tu BIO, incluido el contexto competitivo.",
+      "lead": "Comparte tu web, documentos y referencias. Separa la marca actual de su dirección deseada. Analizamos las fuentes y generamos tu Brand Core, incluido el contexto competitivo.",
       "brandNameLabel": "Nombre de la marca",
       "brandNamePlaceholder": "p. ej. Your brand",
       "urlLabel": "URL del sitio web principal",
@@ -972,7 +972,7 @@
       "igPlaceholder": "@usuario",
       "sourcesLabel": "Fuentes",
       "sourcesOptional": "· opcional — arrastra o haz clic para subir",
-      "timing": "Las fuentes se guardan en tu BIO · El tiempo de procesamiento varía",
+      "timing": "Las fuentes se guardan en tu Brand Core · El tiempo de procesamiento varía",
       "filesReady": {
         "plural": {
           "one": " · {count} archivo listo",
@@ -981,16 +981,16 @@
       },
       "uploading": "Subiendo fuentes…",
       "starting": "Empezando…",
-      "startExtraction": "Generar BIO",
+      "startExtraction": "Generar Brand Core",
       "fromScratch": "Empezar desde cero",
       "clone": "Clonar un espacio (Nivel 03)"
     },
     "step2": {
       "reading1": "Brandolph está leyendo cada página de tu sitio",
       "reading2": "El equipo de diseño está mapeando tu paleta y tu tipografía",
-      "reading3": "Brandolph está afinando tu marca en un BIO",
+      "reading3": "Brandolph está afinando tu marca en un Brand Core",
       "reading4": "Archivando el borrador para que tu Steward de marca lo certifique",
-      "compiledTitle": "Brandolph compiló tu BIO",
+      "compiledTitle": "Brandolph compiló tu Brand Core",
       "readingTitle": "Brandolph está leyendo tu marca",
       "extraction": "EXTRACCIÓN",
       "elapsed": "{sec}s transcurridos"
@@ -1097,7 +1097,7 @@
     "attestError": {
       "statements": "Confirma las tres declaraciones para dar fe.",
       "gaps": "Todavía faltan respuestas en algunos campos importantes{fields}. Complétalos o márcalos y luego da fe.",
-      "belowScore": "Tu BIO está en {score}/100{below}. Confirma más campos o añade fuentes para subirlo.",
+      "belowScore": "Tu Brand Core está en {score}/100{below}. Confirma más campos o añade fuentes para subirlo.",
       "belowNeeded": ", por debajo de los {minScore} necesarios",
       "default": "No se pudo dar fe todavía — inténtalo de nuevo."
     },
@@ -1127,7 +1127,7 @@
     },
     "results": {
       "savedExit": "Guardado — retoma justo aquí cuando quieras.",
-      "bioSigned": "BIO firmado — briefing desbloqueado.",
+      "bioSigned": "Brand Core firmado — briefing desbloqueado.",
       "saving": "Guardando…",
       "saved": "Todos los cambios guardados",
       "saveError": "Error al guardar — se reintenta en la próxima edición",
@@ -1136,8 +1136,8 @@
       "startDiscovery": "Iniciar descubrimiento",
       "loading": "Cargando tu borrador…",
       "certifiedBy": "Certificado por",
-      "certPending": "Un Steward de marca sénior certifica este BIO en 24 h. Confirma el borrador de abajo para desbloquear el briefing ahora.",
-      "draftEyebrow": "Borrador del BIO · revísalo antes de firmar",
+      "certPending": "Un Steward de marca sénior certifica este Brand Core en 24 h. Confirma el borrador de abajo para desbloquear el briefing ahora.",
+      "draftEyebrow": "Borrador del Brand Core · revísalo antes de firmar",
       "yourBrand": "Tu marca",
       "completion": "Progreso"
     },
@@ -1167,8 +1167,8 @@
     },
     "attest": {
       "back": "← Volver a los capítulos",
-      "title": "Confirma y firma tu BIO",
-      "desc": "Firmar promueve este borrador a una versión certificada del BIO y desbloquea el briefing. Un Steward de marca sénior aún lo revisa antes de la producción.",
+      "title": "Confirma y firma tu Brand Core",
+      "desc": "Firmar promueve este borrador a una versión certificada del Brand Core y desbloquea el briefing. Un Steward de marca sénior aún lo revisa antes de la producción.",
       "confirmed": "Confirmados",
       "inferredToConfirm": "pendientes de revisión",
       "gaps": "Vacíos",
@@ -1180,7 +1180,7 @@
     },
     "statement": {
       "authority": "Estoy autorizado para representar esta marca.",
-      "reflects": "Este BIO refleja la marca tal como es en realidad.",
+      "reflects": "Este Brand Core refleja la marca tal como es en realidad.",
       "aspirational": "He separado lo factual de lo aspiracional."
     },
     "step3": {
@@ -1191,9 +1191,9 @@
       "attestedBold": "Autoatestiguado",
       "attestedRest": "el briefing está desbloqueado. La producción sigue bloqueada hasta que tu Steward de marca certifique.",
       "fillBefore": "Completa esto antes de autocertificar: {fields}",
-      "belowScore": "La puntuación del BIO {score} está por debajo de los {minScore} necesarios — añade fuentes para subirla.",
+      "belowScore": "La puntuación del Brand Core {score} está por debajo de los {minScore} necesarios — añade fuentes para subirla.",
       "eyebrow": "Autocertifica para empezar el briefing",
-      "desc": "Confirma que el BIO es lo bastante preciso para hacer briefing. Esto desbloquea el briefing ahora; un Steward de marca sénior aún certifica antes de la producción.",
+      "desc": "Confirma que el Brand Core es lo bastante preciso para hacer briefing. Esto desbloquea el briefing ahora; un Steward de marca sénior aún certifica antes de la producción.",
       "submitting": "Enviando…",
       "submit": "Autocertificar y desbloquear el briefing"
     },
@@ -1206,14 +1206,14 @@
       "low_quality": "Todavía no tiene calidad de certificación",
       "aspirational_unmarked": "Afirmaciones aspiracionales no separadas de los hechos",
       "needs_sources": "Necesita más fuentes",
-      "duplicate": "Duplicado de un BIO existente"
+      "duplicate": "Duplicado de un Brand Core existente"
     },
     "steward": {
       "defaultName": "tu Steward de marca",
       "fromSteward": "De tu Steward",
       "returnHeading": "Tu Steward necesita algunos cambios",
       "returnCta": "Hacer estos cambios",
-      "rejectHeading": "Tu Steward devolvió este BIO",
+      "rejectHeading": "Tu Steward devolvió este Brand Core",
       "rejectCta": "Editar y reenviar",
       "conditionsHeading": "Certificado con condiciones"
     },
@@ -1228,16 +1228,16 @@
       "show": "Mostrar"
     },
     "bio": {
-      "savedVersion": "Guardado · BIO v{version}. El Steward volverá a certificar.",
+      "savedVersion": "Guardado · Brand Core v{version}. El Steward volverá a certificar.",
       "reviewInProgress": "Ya hay una revisión humana en curso.",
       "sentForReview": "Enviado a tu Steward de marca para revisión.",
       "couldntRequestReview": "No se pudo solicitar la revisión: {error}",
       "added": "Añadido \"{ref}\". Brandolph lo leerá en el próximo descubrimiento.",
       "couldntAdd": "No se pudo añadir: {error}",
-      "reviewingThis": "Tu Steward de marca está revisando este BIO",
+      "reviewingThis": "Tu Steward de marca está revisando este Brand Core",
       "awaitingCert": "En espera de certificación por tu Steward de marca",
-      "noBioYet": "Aún no hay BIO — escribe una URL en Descubrimiento para extraer uno",
-      "versionScore": "BIO v{version} · puntuación {score}/100",
+      "noBioYet": "Aún no hay Brand Core — escribe una URL en Descubrimiento para extraer uno",
+      "versionScore": "Brand Core v{version} · puntuación {score}/100",
       "flaggedAreas": {
         "plural": {
           "one": "Brandolph marcó {count} área para que tu Steward la confirme.",
@@ -1250,20 +1250,20 @@
       "of100": "DE 100",
       "certifiedDate": "Certificado {date}",
       "uncertified": "Sin certificar",
-      "versionTitle": "Versión del BIO {version}",
+      "versionTitle": "Versión del Brand Core {version}",
       "feedBrandolph": "Alimentar a Brandolph",
-      "editBio": "Editar BIO",
+      "editBio": "Editar Brand Core",
       "savingChanges": "Guardando…",
       "saveChanges": "Guardar cambios",
       "rerunDiscovery": "Volver a ejecutar el descubrimiento",
       "reviewInProgressTitle": "Ya hay una revisión humana en curso",
-      "requestReviewTitle": "Envía este BIO a tu Steward de marca para una revisión humana — sin necesidad de editar",
+      "requestReviewTitle": "Envía este Brand Core a tu Steward de marca para una revisión humana — sin necesidad de editar",
       "inReviewShort": "En revisión…",
       "sending": "Enviando…",
       "requestHumanReview": "Solicitar revisión humana",
-      "editingBanner": "Editando el BIO — al guardar se crea una nueva versión que tu Steward de marca volverá a certificar.",
+      "editingBanner": "Editando el Brand Core — al guardar se crea una nueva versión que tu Steward de marca volverá a certificar.",
       "noCanon": "Aún no hay canon.",
-      "noCanonDesc": "El BIO es la fuente de verdad con la que se juzga cada resultado. Apunta Descubrimiento a tu URL o pega lo que tengas — Brandolph compilará el primer borrador en unos treinta segundos. Un Steward sénior lo firma antes de que se convierta en canon.",
+      "noCanonDesc": "El Brand Core es la fuente de verdad con la que se juzga cada resultado. Apunta Descubrimiento a tu URL o pega lo que tengas — Brandolph compilará el primer borrador en unos treinta segundos. Un Steward sénior lo firma antes de que se convierta en canon.",
       "startDiscovery": "Iniciar descubrimiento"
     },
     "tab": {
@@ -1298,7 +1298,7 @@
       "lowHigh": "baja → alta"
     },
     "competitive": {
-      "placeholder": "El mapa competitivo viene de a32 (especialista en Mapa de Competidores) — se conectará en una fase posterior. El Compilador de BIO no extrae competidores hoy."
+      "placeholder": "El mapa competitivo viene de a32 (especialista en Mapa de Competidores) — se conectará en una fase posterior. El Compilador de Brand Core no extrae competidores hoy."
     },
     "editPrimitive": {
       "chipAdd": "+ añadir",
@@ -1362,7 +1362,7 @@
     },
     "sources": {
       "feedBrandolph": "Alimentar a Brandolph",
-      "feedDesc": "Suelta un enlace, un documento o una nota. Brandolph lo lee y afina el BIO.",
+      "feedDesc": "Suelta un enlace, un documento o una nota. Brandolph lo lee y afina el Brand Core.",
       "pastePlaceholder": "Pega una URL — sitio, artículo, competidor, redes…",
       "reading": "Leyendo…",
       "readIt": "Léelo",
@@ -1372,7 +1372,7 @@
       "ledger": "{sources} fuentes · {signals} señales aprendidas",
       "competitorLedger": "Referencias de la competencia · no son evidencia de la marca · {count}",
       "competitorTag": "Competidor",
-      "compounds": "Cada fuente hace crecer el BIO.",
+      "compounds": "Cada fuente hace crecer el Brand Core.",
       "signals": "{count} señales",
       "new": "nuevo",
       "justNow": "justo ahora",
@@ -1382,13 +1382,13 @@
       "open": "Revisar y autocertificar",
       "pending": "Guarda los cambios e incorpora las nuevas fuentes antes de certificar.",
       "kicker": "DECLARACIÓN DEL CLIENTE",
-      "review": "Revisa este BIO",
+      "review": "Revisa este Brand Core",
       "confirm": "Confirma tu declaración",
       "reviewStep": "Revisar",
       "confirmStep": "Confirmar",
       "reviewText": "Lee cada sección, sus fuentes y su confianza. Confirma que la has revisado. Los datos desconocidos quedan explícitos; añade pruebas si falta un dato obligatorio.",
-      "confirmText": "Confirmas esta versión exacta del BIO como base para los briefs. Confirma personalmente cada declaración.",
-      "sections": "Secciones del BIO",
+      "confirmText": "Confirmas esta versión exacta del Brand Core como base para los briefs. Confirma personalmente cada declaración.",
+      "sections": "Secciones del Brand Core",
       "reviewed": "He revisado {section}, incluidas sus fuentes e incertidumbres.",
       "issues": "{count} puntos requieren atención",
       "issuesText": "Son lagunas o interpretaciones de menor confianza, no hechos verificados. Revísalos antes de confirmar. Las lagunas obligatorias impiden certificar.",
@@ -1398,21 +1398,21 @@
       "signedIn": "Usuario conectado",
       "reviewCount": "{count} de {total} secciones revisadas",
       "declarations": "Tus declaraciones",
-      "consequence": "Registra tu confirmación y habilita los briefs para esta versión. La producción requiere la certificación del Brand Steward. Editar el BIO crea una versión nueva que requiere otra confirmación.",
+      "consequence": "Registra tu confirmación y habilita los briefs para esta versión. La producción requiere la certificación del Brand Steward. Editar el Brand Core crea una versión nueva que requiere otra confirmación.",
       "continue": "Continuar · {count}/{total} revisadas",
-      "submit": "Confirmar BIO y habilitar briefs",
-      "stale": "El BIO cambió durante tu revisión. Cierra este diálogo y actualiza para revisar la versión actual.",
+      "submit": "Confirmar Brand Core y habilitar briefs",
+      "stale": "El Brand Core cambió durante tu revisión. Cierra este diálogo y actualiza para revisar la versión actual.",
       "success": "Declaración registrada",
-      "successText": "Esta versión del BIO está lista para los briefs. La producción sigue requiriendo la certificación del Brand Steward.",
+      "successText": "Esta versión del Brand Core está lista para los briefs. La producción sigue requiriendo la certificación del Brand Steward.",
       "recorded": "Fecha de registro",
-      "done": "Volver al BIO",
+      "done": "Volver al Brand Core",
       "close": "Cerrar certificación",
       "acceptChanges": "Revisar los cambios del Director Creativo",
-      "acceptedText": "Los cambios del Director Creativo han sido aceptados para esta versión del BIO. La producción puede continuar mientras la certificación siga vigente.",
-      "acceptConsequence": "Aceptar registra tu aprobación de los cambios del Director Creativo a esta versión exacta del BIO.",
+      "acceptedText": "Los cambios del Director Creativo han sido aceptados para esta versión del Brand Core. La producción puede continuar mientras la certificación siga vigente.",
+      "acceptConsequence": "Aceptar registra tu aprobación de los cambios del Director Creativo a esta versión exacta del Brand Core.",
       "queuePending": "Tu aprobación se ha guardado. La asignación del Director Creativo está pendiente; la producción sigue bloqueada.",
       "scoreLine": "Puntuación {score} de 100. La autocertificación exige {minScore}.",
-      "belowFloor": "La autocertificación está cerrada por debajo de {minScore}. Este BIO puntúa {score}.",
+      "belowFloor": "La autocertificación está cerrada por debajo de {minScore}. Este Brand Core puntúa {score}.",
       "dragHeading": "Estas secciones están bajando la puntuación.",
       "sectionLift": "{section} · unos {points} puntos si la completas",
       "addAnswers": "Añade una respuesta y una fuente para {fields}.",
@@ -1456,7 +1456,7 @@
       "intakeHelp": "¿Con quién te comparan los clientes? Incluye alternativas indirectas o no hacer nada. Puedes añadir pruebas durante la revisión.",
       "manualResume": "Empezar o retomar un borrador manual",
       "type": "Tipo de alternativa",
-      "draftNotice": "Este es un borrador. Los cambios no forman parte del BIO certificado hasta su revisión y aprobación.",
+      "draftNotice": "Este es un borrador. Los cambios no forman parte del Brand Core certificado hasta su revisión y aprobación.",
       "unspecified": "Tipo sin especificar"
     },
     "sourcesIntake": {
@@ -1472,12 +1472,12 @@
       "filePurpose": "Qué representan estos archivos de {bucket}",
       "aspirations": "Dirección deseada — no son hechos actuales de la marca",
       "ifAvailable": "· si tienes web",
-      "resumeReview": "Continuar revisando el BIO generado"
+      "resumeReview": "Continuar revisando el Brand Core generado"
     },
     "intake": {
       "kicker": "Descubrimiento de marca",
       "title": "Empieza por las fuentes.",
-      "lead": "Comparte la web de tu marca y las referencias relevantes. Leeremos las fuentes, construiremos el BIO y lo traeremos para que lo revises.",
+      "lead": "Comparte la web de tu marca y las referencias relevantes. Leeremos las fuentes, construiremos el Brand Core y lo traeremos para que lo revises.",
       "brand": "Tu marca",
       "brandHelp": "Una web es un buen punto de partida. También puedes usar documentos.",
       "namePlaceholder": "Nombre de la marca",
@@ -1496,10 +1496,10 @@
       "documentsHelp": "Añade lo que tu web no cubre. Arrastra los archivos a la fila correspondiente o selecciónalos.",
       "visualLimit": "Analizamos imágenes y enlaces públicos. Leemos el texto de los PDF; sus imágenes integradas aún necesitan revisión.",
       "browse": "Seleccionar archivos",
-      "reviewHelp": "Revisarás la interpretación antes de confirmar tu BIO.",
+      "reviewHelp": "Revisarás la interpretación antes de confirmar tu Brand Core.",
       "summary": "Fuentes",
       "sourceCount": "fuentes listas para leer",
-      "outputTitle": "Tu BIO reunirá",
+      "outputTitle": "Tu Brand Core reunirá",
       "outputBrand": "Posicionamiento, audiencia y voz",
       "outputVisual": "Identidad visual y dirección deseada",
       "outputMarket": "Contexto competitivo y lagunas de información",
@@ -1509,8 +1509,8 @@
       "visualRead": "análisis visual"
     },
     "tour": {
-      "viewerText": "Esta sección se generó a partir de tus fuentes. Revisa las pruebas y la confianza y mantén explícitos los datos que faltan. Para resolver una laguna, añade pruebas en Fuentes y actualiza el BIO; no tienes que redactarlo desde cero.",
-      "sourceText": "Añade un enlace público o sube un documento de marca. Los errores aparecen junto a este control. Incorpora las nuevas pruebas con Actualizar BIO antes de solicitar revisión humana.",
+      "viewerText": "Esta sección se generó a partir de tus fuentes. Revisa las pruebas y la confianza y mantén explícitos los datos que faltan. Para resolver una laguna, añade pruebas en Fuentes y actualiza el Brand Core; no tienes que redactarlo desde cero.",
+      "sourceText": "Añade un enlace público o sube un documento de marca. Los errores aparecen junto a este control. Incorpora las nuevas pruebas con Actualizar Brand Core antes de solicitar revisión humana.",
       "label": "Guía de descubrimiento",
       "help": "Mostrar la guía",
       "step": "Paso {current} de {total}",
@@ -1519,18 +1519,18 @@
       "next": "Siguiente",
       "done": "Entendido",
       "brandTitle": "Empieza por las fuentes de tu marca",
-      "brandText": "Añade tu web o documentos si no tienes sitio. Para una marca nueva, indica su nombre. Aportas las fuentes; el sistema construye el BIO.",
+      "brandText": "Añade tu web o documentos si no tienes sitio. Para una marca nueva, indica su nombre. Aportas las fuentes; el sistema construye el Brand Core.",
       "referencesTitle": "Indica el papel de cada referencia",
       "referencesText": "Añade un enlace, elige marca actual, dirección deseada o contexto competitivo y explica qué importa: tipografía, fotografía, tono o posicionamiento. Las marcas de referencia no se convierten en hechos de tu marca.",
       "filesTitle": "Añade archivos de apoyo",
       "filesText": "Usa fundamentos para documentos de marca, visual para ejemplos de diseño y voz para textos. Elige actual o dirección deseada. Máximo 15 MB por archivo; los errores aparecen junto al archivo afectado.",
       "generateTitle": "Genera y después revisa",
-      "generateText": "Selecciona Generar BIO cuando las fuentes estén listas. Primero subimos los archivos; el descubrimiento empieza cuando se han subido correctamente. Puede tardar varios minutos. Revisarás el resultado antes de confirmarlo.",
-      "reviewTitle": "Revisa tu BIO generado",
+      "generateText": "Selecciona Generar Brand Core cuando las fuentes estén listas. Primero subimos los archivos; el descubrimiento empieza cuando se han subido correctamente. Puede tardar varios minutos. Revisarás el resultado antes de confirmarlo.",
+      "reviewTitle": "Revisa tu Brand Core generado",
       "reviewText": "Abre cada sección para revisar la interpretación y sus fuentes. Corrige errores o añade una fuente para la información que falta. Los datos desconocidos deben quedar como tales.",
       "chapterText": "Contrasta los valores generados con las fuentes. Corrige interpretaciones con pruebas y conserva las lagunas explícitas. Usa Marcar correcto para los hechos respaldados y Marcar aspiracional para las direcciones deseadas. Vuelve a los capítulos cuando termines.",
       "confirmTitle": "Confirma solo lo que puedes respaldar",
-      "confirmText": "Revisa las declaraciones. Confirma solo si estás autorizado, el BIO representa la marca y las aspiraciones están separadas. Puedes guardar y volver más tarde."
+      "confirmText": "Revisa las declaraciones. Confirma solo si estás autorizado, el Brand Core representa la marca y las aspiraciones están separadas. Puedes guardar y volver más tarde."
     },
     "upload": {
       "uploading": "Subiendo…",
@@ -1539,14 +1539,14 @@
     },
     "running": {
       "processing": "Procesando",
-      "slow": "Seguimos procesando las fuentes. Puede tardar varios minutos; continuamos comprobando tu BIO.",
+      "slow": "Seguimos procesando las fuentes. Puede tardar varios minutos; continuamos comprobando tu Brand Core.",
       "reconnecting": "No podemos comprobar el resultado ahora. Reconectamos automáticamente; tus fuentes siguen guardadas.",
       "stage": {
         "scrape": "Leer las fuentes de la marca",
         "visual": "Leer la evidencia visual",
         "read": "Organizar la evidencia",
         "research": "Investigar el contexto competitivo",
-        "synthesize": "Interpretar y construir el BIO",
+        "synthesize": "Interpretar y construir el Brand Core",
         "save": "Guardar el candidato para revisión"
       },
       "errors": {
@@ -1558,8 +1558,8 @@
       }
     },
     "integrity": {
-      "unavailable": "BIO no disponible",
-      "preserved": "No se muestra contenido del BIO ni acciones de certificación hasta resolver la identidad de la marca y sus fuentes.",
+      "unavailable": "Brand Core no disponible",
+      "preserved": "No se muestra contenido del Brand Core ni acciones de certificación hasta resolver la identidad de la marca y sus fuentes.",
       "retry": "Volver a comprobar",
       "sourcesFor": "Fuentes para {name}. Otra marca necesita su propio registro."
     }
@@ -1568,11 +1568,11 @@
     "greeting": {
       "home": "*Encargar un nuevo flujo se hace en la plataforma de lanzamiento de arriba.* Usa esto para estados, consejos o cualquier cosa que le preguntarías a un CMO a media semana.",
       "discovery": "*Estás a mitad de la extracción.* Estoy leyendo el sitio en otra pestaña. Pregúntame lo que quieras mientras esperamos — incluido 'qué debería revisar primero cuando termine'.",
-      "bio": "*El BIO es el canon.* Te lo cito si me preguntas por algún campo. Pregúntame qué está flojo.",
+      "bio": "*El Brand Core es el canon.* Te lo cito si me preguntas por algún campo. Pregúntame qué está flojo.",
       "briefs": "*Tres briefs en marcha, cuatro entregados.* Pregúntame por cualquiera de ellos, o pregúntame cuál impulsaría yo primero esta semana.",
       "briefDetail": "*Estás dentro de un brief.* Puedo guiarte por el SMP, las negativas, o lo que haría distinto si lo escribiéramos mañana.",
       "specialists": "*Ese es tu departamento.* Pregúntame a quién reuniría para un trabajo concreto, y te muestro la elección y el porqué.",
-      "canvas": "*Este es el espacio de trabajo.* El mapa se vuelve más denso a medida que entregas. Pregúntame por cualquier nodo, o pregúntame qué depende del BIO.",
+      "canvas": "*Este es el espacio de trabajo.* El mapa se vuelve más denso a medida que entregas. Pregúntame por cualquier nodo, o pregúntame qué depende del Brand Core.",
       "craft": "*Trabajo manual que el equipo debería rematar.* Asocio un paquete de acabado a un trabajo si me lo describes.",
       "credits": "*Gasto, no presupuesto.* Pregúntame a dónde fue el dinero, o qué cambiaría si duplicaras el ciclo.",
       "settings": "*Gobernanza del espacio de trabajo.* Pregúntame cuál debería ser la lista de prohibiciones, o si tu umbral de aprobación automática está demasiado holgado.",
@@ -1584,7 +1584,7 @@
       "nextEyebrow": "Siguiente",
       "nextText": "¿Qué debería encargar a continuación?",
       "sharpenEyebrow": "Afinar",
-      "sharpenText": "Lee mi BIO y dime qué está flojo.",
+      "sharpenText": "Lee mi Brand Core y dime qué está flojo.",
       "refuseEyebrow": "Rechazar",
       "refuseText": "¿Qué debería descartar este ciclo?"
     },
@@ -1608,7 +1608,7 @@
     "specialist": "Especialista",
     "comingSoon": "Próximamente",
     "composedBy": "Compuesto por",
-    "bioVersion": "BIO v{version}",
+    "bioVersion": "Brand Core v{version}",
     "certifiedBy": "certificado por",
     "routedVia": "enrutado vía",
     "run": "ejecución",
@@ -1633,21 +1633,21 @@
   },
   "brandBook": {
     "title": "Brand Book",
-    "loading": "Leyendo el BIO…",
-    "noBio": "Genera el BIO a partir de fuentes para ver el Brand Book.",
+    "loading": "Leyendo el Brand Core…",
+    "noBio": "Genera el Brand Core a partir de fuentes para ver el Brand Book.",
     "startDiscovery": "Iniciar Discovery",
-    "certified": "Certificado por {name} · BIO v{version}",
+    "certified": "Certificado por {name} · Brand Core v{version}",
     "director": "Director Creativo",
     "pending": "Inferido — pendiente de revisión",
     "certifiedLabel": "Certificado",
-    "back": "Volver al BIO",
+    "back": "Volver al Brand Core",
     "sections": "Secciones del Brand Book",
     "provenance": "Fuentes de evidencia",
     "sourceGap": "La evidencia necesita revisión",
     "replayUnavailable": "Esta reproducción guardada no está disponible.",
     "replayLabel": "Ejecución guardada · solo lectura",
     "tourTitle": "Lee la marca en conjunto",
-    "tourText": "Cada sección refleja el mismo BIO. Las fuentes aparecen bajo cada bloque; el contenido no certificado necesita revisión.",
+    "tourText": "Cada sección refleja el mismo Brand Core. Las fuentes aparecen bajo cada bloque; el contenido no certificado necesita revisión.",
     "visualTourTitle": "Comprueba la evidencia visual",
     "visualTourText": "Los colores y fuentes proceden de las declaraciones originales. Los roles de color y descripciones visuales requieren revisión humana.",
     "section": {
@@ -1658,6 +1658,6 @@
       "visual": "Identidad visual",
       "strategic": "Qué hacer y qué evitar"
     },
-    "sourceFailure": "No se han podido leer las fuentes. No se ha generado ningún BIO. Añade una fuente pública accesible o sube materiales de la marca."
+    "sourceFailure": "No se han podido leer las fuentes. No se ha generado ningún Brand Core. Añade una fuente pública accesible o sube materiales de la marca."
   }
 }

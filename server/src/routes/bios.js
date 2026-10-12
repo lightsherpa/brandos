@@ -206,7 +206,7 @@ app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
     if (error?.code !== "BIO_NOT_CERTIFIED") return c.json({ error:"Could not verify certified source usage" }, 500);
   }
   if (certifiedVisualSourceIds(activeBio?.visual).has(sourceId)) {
-    return c.json({ error:"This source is pinned to the active certified BIO and cannot be removed", code:"CERTIFIED_SOURCE" }, 409);
+    return c.json({ error:"This source is pinned to the active certified Brand Core and cannot be removed", code:"CERTIFIED_SOURCE" }, 409);
   }
   const { error:deleteError } = await supabaseAdmin.from("bio_sources").delete().eq("id", sourceId).eq("brand_id", brandId);
   if (deleteError) return c.json({ error:deleteError.message }, 500);
@@ -411,14 +411,14 @@ app.post("/:brandId/self-certify", requireAuth, async (c) => {
     .from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
   if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
 
-  if (!isWorkspaceOwner(c.get("auth"), workspaceId)) return c.json({error:"Only the workspace Owner can confirm the BIO",code:"OWNER_REQUIRED"},403);
+  if (!isWorkspaceOwner(c.get("auth"), workspaceId)) return c.json({error:"Only the workspace Owner can confirm the Brand Core",code:"OWNER_REQUIRED"},403);
 
   const body = await c.req.json().catch(() => ({}));
 
   const { data: bio } = await supabaseAdmin
     .from("bios").select("id, version, payload").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
-  if (!bio) return c.json({ error: "No BIO to certify yet", code: "NO_BIO" }, 400);
+  if (!bio) return c.json({ error: "No Brand Core to certify yet", code: "NO_BIO" }, 400);
   const review = validateCertificationReview({body,bio});
   if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
 
@@ -439,10 +439,10 @@ app.post("/:brandId/accept-changes",requireAuth,async c=>{
  const {workspaceId,userId}=c.get("auth"),brandId=c.req.param("brandId");
  const {data:brand}=await supabaseAdmin.from("brands").select("workspace_id").eq("id",brandId).maybeSingle();
  if(!brand||brand.workspace_id!==workspaceId)return c.json({error:"Brand not in workspace"},403);
- if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can accept BIO changes",code:"OWNER_REQUIRED"},403);
+ if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can accept Brand Core changes",code:"OWNER_REQUIRED"},403);
  const body=await c.req.json().catch(()=>({}));
  const {data:bio}=await supabaseAdmin.from("bios").select("id,version,payload,certified,client_acceptance_required,client_accepted_at").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
- if(!bio)return c.json({error:"No BIO to accept",code:"NO_BIO"},400);
+ if(!bio)return c.json({error:"No Brand Core to accept",code:"NO_BIO"},400);
  const review=validateCertificationReview({body,bio});if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
  const {data:result,error}=await supabaseAdmin.rpc("accept_bio_client_changes",{p_brand_id:brandId,p_bio_id:bio.id,p_version:body.version,p_user_id:userId,p_review:review.review});
  if(error)return c.json({error:"Could not record acceptance"},500);
@@ -465,7 +465,7 @@ app.post("/:brandId/request-review", requireAuth, async (c) => {
   const { data: bio } = await supabaseAdmin
     .from("bios").select("id, version").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
-  if (!bio) return c.json({ error: "No BIO to review yet" }, 400);
+  if (!bio) return c.json({ error: "No Brand Core to review yet" }, 400);
 
   // Idempotency: reuse an existing open job for this BIO.
   const { data: existing } = await supabaseAdmin

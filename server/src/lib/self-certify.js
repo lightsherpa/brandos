@@ -38,7 +38,7 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
   const s = statements || {};
   const version = String(statementVersion || "1");
   const bio = payload || {};
-  if(version!=="2"||!review)return {ok:false,code:"REVIEW_REQUIRED",error:"Review the exact BIO in the current confirmation flow"};
+  if(version!=="2"||!review)return {ok:false,code:"REVIEW_REQUIRED",error:"Review the exact Brand Core in the current confirmation flow"};
 
   // 1) All three attestation statements must be affirmed.
   if (![s.authority, s.reflects, s.aspirationalMarked].every(value => value === true)) {
@@ -66,7 +66,7 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
     return {
       ok: false,
       code: "BELOW_MIN_SCORE",
-      error: `BIO score ${score} is below the ${report.minScore} needed to self-certify`,
+      error: `Brand Core score ${score} is below the ${report.minScore} needed to self-certify`,
       score,
       minScore: report.minScore,
       sections: report.sections,

@@ -23,17 +23,17 @@ export function awaitsClientAcceptance(row) {
  * @returns {null | {code:string, message:string}}  null = ready
  */
 export function productionBlocker(row, now = new Date()) {
-  if(row?.payload?.sourceIntegrity?.status==="quarantined")return {code:"BIO_SOURCE_QUARANTINED",message:"This BIO contains sources from another brand and cannot be used."};
+  if(row?.payload?.sourceIntegrity?.status==="quarantined")return {code:"BIO_SOURCE_QUARANTINED",message:"This Brand Core contains sources from another brand and cannot be used."};
   const cd = !!row?.certified;
   const selfReady = !!row?.self_certified && Number(row?.score) >= SELF_CERT_MIN_SCORE;
   if (!row || (!cd && !selfReady)) {
-    return { code: "BIO_NOT_CERTIFIED", message: "This brand's BIO is waiting for Creative Director certification." };
+    return { code: "BIO_NOT_CERTIFIED", message: "This brand's Brand Core is waiting for Creative Director certification." };
   }
   if (isCertExpired(row, now)) {
-    return { code: "BIO_NOT_CERTIFIED", message: "This brand's BIO certification has expired." };
+    return { code: "BIO_NOT_CERTIFIED", message: "This brand's Brand Core certification has expired." };
   }
   if (cd && awaitsClientAcceptance(row)) {
-    return { code: "BIO_AWAITING_ACCEPTANCE", message: "Your Creative Director changed the BIO. Review and accept the changes to continue." };
+    return { code: "BIO_AWAITING_ACCEPTANCE", message: "Your Creative Director changed the Brand Core. Review and accept the changes to continue." };
   }
   return null;
 }
@@ -80,6 +80,6 @@ export function bioStage(row, reviewPending = false, now = new Date()) {
  */
 export function acceptanceError(row, version) {
   if (!awaitsClientAcceptance(row)) return { code: "NOTHING_TO_ACCEPT", error: "Nothing is waiting for your approval" };
-  if (row.version !== version) return { code: "STALE_VERSION", error: "The BIO changed since you reviewed it. Reload and review again." };
+  if (row.version !== version) return { code: "STALE_VERSION", error: "The Brand Core changed since you reviewed it. Reload and review again." };
   return null;
 }

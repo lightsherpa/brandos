@@ -92,7 +92,7 @@ function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
         {String(caseFile.readiness?.level || "draft").replace(/-/g, " ")}
       </div>
       <div style={{fontSize: 12, color:"var(--c-dim)", lineHeight: 1.45, marginBottom: 12}}>
-        {recommendation.rationale || "Review the BIO and source evidence before submitting."}
+        {recommendation.rationale || "Review the Brand Core and source evidence before submitting."}
       </div>
       <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap: 6, marginBottom: 12}}>
         {counts.map(([label, value]) => (
@@ -674,7 +674,7 @@ function TeamJob({ id, go }) {
   const askClientFromSuggestion = (suggestion) => {
     const fallback = suggestion?.field
       ? `Please clarify ${suggestion.field}: ${suggestion.reason || "The Steward needs a clearer source-backed answer."}`
-      : suggestion?.reason || "Please clarify this BIO item.";
+      : suggestion?.reason || "Please clarify this Brand Core item.";
     const lines = suggestion?.patch?.requiredChangesPatch || [fallback];
     setActionItems((prev) => {
       const current = prev.split("\n").map((s) => s.trim()).filter(Boolean);

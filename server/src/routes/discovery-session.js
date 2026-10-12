@@ -110,13 +110,13 @@ app.patch("/session/:brandId", requireAuth, async (c) => {
 app.post("/session/:brandId/prepare-review", requireAuth, async c=>{
  const {workspaceId,userId}=c.get("auth"), brandId=c.req.param("brandId");
  if(!(await ownedBrand(brandId,workspaceId)))return c.json({error:"Brand not in workspace"},403);
- if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can confirm the BIO",code:"OWNER_REQUIRED"},403);
+ if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can confirm the Brand Core",code:"OWNER_REQUIRED"},403);
  const {data:session,error:sessionError}=await supabaseAdmin.from("discovery_sessions").select("draft_payload").eq("brand_id",brandId).maybeSingle();
  if(sessionError)return c.json({error:"Could not load the saved draft"},500);
  if(!session)return c.json({error:"No discovery session",code:"NO_SESSION"},400);
  const {data:latest,error:bioError}=await supabaseAdmin.from("bios").select("id,version,payload,self_certified").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
- if(bioError)return c.json({error:"Could not load the current BIO"},500);
- if(!latest)return c.json({error:"Generate the BIO from sources first",code:"NO_BIO"},400);
+ if(bioError)return c.json({error:"Could not load the current Brand Core"},500);
+ if(!latest)return c.json({error:"Generate the Brand Core from sources first",code:"NO_BIO"},400);
  const draft=normalizeBio(session.draft_payload||{});
  if(sameJson(normalizeBio(latest.payload),draft))return c.json({bio:latest});
  const payload=prepareClientBioEditPayload(draft,latest.payload||{});
@@ -130,14 +130,14 @@ app.post("/session/:brandId/prepare-review", requireAuth, async c=>{
 app.post("/session/:brandId/attest", requireAuth, async c=>{
  const {workspaceId,userId}=c.get("auth"),brandId=c.req.param("brandId");
  if(!(await ownedBrand(brandId,workspaceId)))return c.json({error:"Brand not in workspace"},403);
- if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can confirm the BIO",code:"OWNER_REQUIRED"},403);
+ if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can confirm the Brand Core",code:"OWNER_REQUIRED"},403);
  const body=await c.req.json().catch(()=>({}));
  const {data:bio}=await supabaseAdmin.from("bios").select("id,version,payload").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
- if(!bio)return c.json({error:"No BIO to review",code:"NO_BIO"},400);
+ if(!bio)return c.json({error:"No Brand Core to review",code:"NO_BIO"},400);
  const review=validateCertificationReview({body,bio});
  if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
  const {data:session}=await supabaseAdmin.from("discovery_sessions").select("draft_payload").eq("brand_id",brandId).maybeSingle();
- if(session&&!sameJson(normalizeBio(session.draft_payload),normalizeBio(bio.payload)))return c.json({error:"Save and review the updated BIO first",code:"STALE_BIO"},409);
+ if(session&&!sameJson(normalizeBio(session.draft_payload),normalizeBio(bio.payload)))return c.json({error:"Save and review the updated Brand Core first",code:"STALE_BIO"},409);
  const result=await selfCertifyBio({brandId,bioId:bio.id,payload:bio.payload,userId,statements:body.statements,fieldMarks:body.fieldMarks,statementVersion:body.statementVersion,review:review.review});
  if(!result.ok)return c.json(result,result.code==="STALE_BIO"?409:result.code==="ATTESTATION_FAILED"?500:400);
  return c.json({...result,version:bio.version,self_certified:true});

@@ -92,7 +92,7 @@ function deriveContextFromMemory({ stats, signals, routeId, agentsById }) {
     const name = agentsById?.[heavyEdit.specialist_id]?.name || heavyEdit.specialist_id;
     const pct = Math.round(100 * heavyEdit.editRate);
     return {
-      line: `*${name} is getting heavily edited.* ${pct}% of runs touched. Could be the brief, could be the model, could be the BIO voice.`,
+      line: `*${name} is getting heavily edited.* ${pct}% of runs touched. Could be the brief, could be the model, could be the Brand Core voice.`,
       prompts: [
         { eyebrow: "Diagnose", text: `Why am I editing ${name} so much?` },
         { eyebrow: "Try", text: `Re-run my last ${name} brief on a stronger model.` },
@@ -107,10 +107,10 @@ function deriveContextFromMemory({ stats, signals, routeId, agentsById }) {
   if (lowVision) {
     const name = agentsById?.[lowVision.specialist_id]?.name || lowVision.specialist_id;
     return {
-      line: `*${name} keeps scoring ${lowVision.avg_brand_match}/100 on brand match.* The BIO visual rules may need tightening.`,
+      line: `*${name} keeps scoring ${lowVision.avg_brand_match}/100 on brand match.* The Brand Core visual rules may need tightening.`,
       prompts: [
         { eyebrow: "Diagnose", text: `What's drifting in my ${name} outputs?` },
-        { eyebrow: "Tune", text: `Help me tighten the BIO palette + imagery rules.` },
+        { eyebrow: "Tune", text: `Help me tighten the Brand Core palette + imagery rules.` },
       ],
     };
   }
@@ -198,7 +198,7 @@ function fakeReply(msg) {
   if (/next|brief.*next|what.*ship|new brief/.test(m))
     return "*Seasonal campaign.* You sketched it on Friday. I have two sharpening questions before we assemble: in or out for wholesale, and is this an organic-only push or do we have paid?";
   if (/bio|read.*me|positioning|brand/.test(m))
-    return "*Your BIO is the source of truth for this answer.* If it is incomplete, finish Discovery before asking Brandolph to make a strategic recommendation.";
+    return "*Your Brand Core is the source of truth for this answer.* If it is incomplete, finish Discovery before asking Brandolph to make a strategic recommendation.";
   if (/block|stuck|wait/.test(m))
     return "*One thing is actively stuck.* The pricing decision gates the outputs in flight. Until you decide, I'm holding the email and pricing hero.";
   if (/cost|credit|spend|budget/.test(m))

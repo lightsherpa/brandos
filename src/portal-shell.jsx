@@ -1107,7 +1107,7 @@ function PortalTweaks({ tweaks, setTweak, ds, setDs }) {
             { value:"02", label:"02 Brandolph" },
             { value:"03", label:"03 Suite" },
           ]} />
-        <TweakSlider label="BIO completeness"
+        <TweakSlider label="Brand Core completeness"
           value={tweaks.bioScore} min={32} max={100} step={1}
           onChange={v => setTweak("bioScore", v)} />
       </TweakSection>

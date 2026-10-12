@@ -57,10 +57,10 @@ app.post("/sharpen", requireAuth, async (c) => {
     brandBio = await loadBioForBriefing({ workspaceId, brandId });
   } catch (err) {
     if (err.code === "NOT_SELF_CERTIFIED") {
-      return c.json({ error: "Confirm your BIO (self-certify) before briefing.", code: err.code }, 409);
+      return c.json({ error: "Confirm your Brand Core (self-certify) before briefing.", code: err.code }, 409);
     }
     if (err.code === "NO_BIO") {
-      return c.json({ error: "This brand has no BIO yet — run Discovery first.", code: err.code }, 409);
+      return c.json({ error: "This brand has no Brand Core yet — run Discovery first.", code: err.code }, 409);
     }
     return c.json({ error: err.message || String(err) }, 400);
   }

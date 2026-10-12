@@ -50,7 +50,7 @@ async function loadContext(c, briefId) {
     .limit(1)
     .maybeSingle();
   if (!bioRow) {
-    return { error: c.json({ error: "This brand has no BIO yet.", code: "NO_BIO" }, 409) };
+    return { error: c.json({ error: "This brand has no Brand Core yet.", code: "NO_BIO" }, 409) };
   }
 
   const { data: runs } = await supabaseAdmin

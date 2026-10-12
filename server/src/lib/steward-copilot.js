@@ -116,13 +116,13 @@ function isExpired(iso) {
 }
 
 function readinessFor({ bio, focus, scoreBreakdown, groups }) {
-  if (!bio?.id) return { level: "draft", reasons: ["No BIO version exists yet."] };
+  if (!bio?.id) return { level: "draft", reasons: ["No Brand Core version exists yet."] };
   const reasons = [];
   if (groups.conflicting.length) reasons.push(`${groups.conflicting.length} conflicting claim(s) need resolution.`);
   if (groups.unsupported.length) reasons.push(`${groups.unsupported.length} unsupported claim(s) need removal or evidence.`);
   const highMissing = groups.missing.filter((claim) => HIGH_IMPACT.has(claim.field));
   if (highMissing.length) reasons.push(`${highMissing.length} high-impact field(s) are missing.`);
-  if (bio.certified && !isExpired(bio.cert_valid_until)) return { level: "production-certified", reasons: ["A Steward certified this BIO for production."] };
+  if (bio.certified && !isExpired(bio.cert_valid_until)) return { level: "production-certified", reasons: ["A Steward certified this Brand Core for production."] };
   if (bio.certified && isExpired(bio.cert_valid_until)) reasons.push("The prior production certification has expired.");
   if (bio.self_certified) {
     if (!reasons.length && scoreBreakdown.score >= 80) return { level: "steward-ready", reasons: ["Client signed off and major gaps are clear."] };
@@ -190,7 +190,7 @@ export function buildStewardSuggestions({ caseFile } = {}) {
       type: "ask_client",
       field: claim.field,
       title: `Ask client for ${claim.label}`,
-      reason: "This high-impact BIO field is empty and should not be invented.",
+      reason: "This high-impact Brand Core field is empty and should not be invented.",
       patch: { requiredChangesPatch: [`Please provide ${claim.label.toLowerCase()}.`] },
     });
   }

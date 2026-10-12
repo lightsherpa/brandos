@@ -170,7 +170,7 @@ export const compileBio = inngest.createFunction(
       const {data:brand,error}=await supabaseAdmin.from("brands").select("id,name,url,workspace_id").eq("id",brandId).maybeSingle();
       if(error || !brand || brand.workspace_id!==workspaceId)throw new Error("Discovery brand context unavailable");
       const {data:latest,error:integrityError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
-      if(integrityError)throw new Error("BIO integrity check unavailable");
+      if(integrityError)throw new Error("Brand Core integrity check unavailable");
       const blocked=latest&&bioIntegrityError(latest,brand);
       if(blocked)throw Object.assign(new Error(blocked.error),{code:blocked.code});
       const mismatch=discoveryWebsiteError(brand,url);
@@ -397,7 +397,7 @@ export const compileBio = inngest.createFunction(
     await progress("save");
     const bioRow = await step.run("write-bio-row", async () => {
       const {data:current,error:contextError}=await supabaseAdmin.from("brands").select("id,name,url,workspace_id").eq("id",brandId).maybeSingle();
-      if(contextError || !current || current.workspace_id!==workspaceId || discoveryWebsiteError(current,url))throw new Error("Brand identity changed during Discovery; no BIO saved");
+      if(contextError || !current || current.workspace_id!==workspaceId || discoveryWebsiteError(current,url))throw new Error("Brand identity changed during Discovery; no Brand Core saved");
       bioPayload.sourceIdentity={brandId,brandName:brandContext.name,primaryUrl:url||null,discoveryId:discoveryId||null};
       const { data, error } = await supabaseAdmin
         .rpc("append_bio_version", {

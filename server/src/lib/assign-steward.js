@@ -85,8 +85,8 @@ export async function assignSteward(stewardJobId) {
     await notify({
       recipientUserId: chosen.user_id,
       kind: "steward.assigned",
-      title: "A BIO is queued for your certification",
-      body: "You've been assigned a Brand Intelligence Object to certify.",
+      title: "A Brand Core is queued for your certification",
+      body: "You've been assigned a Brand Core to certify.",
       link: "#/team",
       brandId: job.brand_id,
     });
@@ -112,7 +112,7 @@ export async function assignSteward(stewardJobId) {
     await notify({
       recipientUserId: lead.user_id,
       kind: "steward.assigned",
-      title: "A BIO is queued for your certification",
+      title: "A Brand Core is queued for your certification",
       body: "A certification was routed to you (rotation fallback).",
       link: "#/team",
       brandId: job.brand_id,
