@@ -4,15 +4,41 @@ import { contrastRatio } from "../brand-core.js";
 export const result = (id, pass, reason, severity = "hard", target = "copy") => ({ id, pass: !!pass, severity, reason, target });
 
 export const fold = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** Unicode-normalised, accent-folded, word-boundary banned-word scan.
-    Plural -s/-es is caught (cliente → clientes); multi-word phrases work. */
+/* Light es/en stemmer (Snowball-style single suffix strip). Longest suffix
+   first; a suffix is only stripped if the stem left is ≥5 chars, so short
+   words (lujo, cafe) are only matched exactly or with a plural -s/-es. */
+const SUFFIXES = ["amientos", "amiento", "aciones", "amente", "idades", "ciones", "acion", "mente", "idad", "cion", "ismos", "istas", "ismo", "ista", "elas", "ela", "ness", "ings", "ing", "ers", "er", "ed", "ly", "es", "as", "os", "s", "a", "o", "e"];
+export const MIN_STEM = 5;
+export function stem(word) {
+  const w = fold(word);
+  for (const suf of SUFFIXES) {
+    if (w.endsWith(suf) && w.length - suf.length >= MIN_STEM) return w.slice(0, -suf.length);
+  }
+  return w;
+}
+const tokenize = (text) => fold(text).match(/[\p{L}\p{N}]+/gu) || [];
+function tokenMatches(token, bannedWord) {
+  const b = fold(bannedWord);
+  if (b.length < MIN_STEM) {
+    // short word: exact, or plural -s/-es
+    return token === b || token === `${b}s` || token === `${b}es`;
+  }
+  return token === b || stem(token) === stem(b);
+}
+
+/** Unicode-normalised, accent-folded, whole-word banned-word scan with
+    gender/number/derivation variants (exclusivo/a/os/as, cliente/s/clientela).
+    Multi-word phrases match as consecutive tokens. */
 export function findBanned(text, banned = []) {
-  const hay = fold(text);
-  return [...new Set(banned.map(String).filter(Boolean))].filter((word) => {
-    const re = new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(fold(word))}(?:s|es)?($|[^\\p{L}\\p{N}])`, "u");
-    return re.test(hay);
+  const tokens = tokenize(text);
+  return [...new Set(banned.map(String).filter(Boolean))].filter((phrase) => {
+    const words = tokenize(phrase);
+    if (!words.length) return false;
+    for (let i = 0; i + words.length <= tokens.length; i++) {
+      if (words.every((w, j) => tokenMatches(tokens[i + j], w))) return true;
+    }
+    return false;
   });
 }
 export function bannedCheck(id, text, banned) {

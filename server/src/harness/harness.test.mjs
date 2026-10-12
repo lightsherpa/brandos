@@ -5,7 +5,7 @@ import { createBudget, createSemaphore, BudgetExceededError } from "./budget.js"
 import { validateContract } from "./contracts/index.js";
 import { checkSocialCopy, checkSocialImage } from "./checks/social.js";
 import { checkEmailCopy } from "./checks/email.js";
-import { findBanned, contrastCheck, linksCheck, altCheck, htmlSizeCheck } from "./checks/common.js";
+import { findBanned, stem, contrastCheck, linksCheck, altCheck, htmlSizeCheck } from "./checks/common.js";
 import { evaluateOcrTokens, ocrNoText } from "./ocr.js";
 import { assemble } from "./context.js";
 import { buildLayer1, paletteRoles } from "./brand-core.js";
@@ -69,7 +69,7 @@ test("email limits: subject ≤50, preheader 40–100, body ≤200 words, https 
 test("Beat 4: Cake Me don't-list words are caught (accent-folded, plural, word boundary)", () => {
   assert.deepEqual(findBanned("Para nuestros clientes más fieles", CAKE_ME_DONT), ["cliente"]);
   assert.deepEqual(findBanned("Un sabor EXCLUSIVO", CAKE_ME_DONT), ["exclusivo"]);
-  assert.deepEqual(findBanned("clientela y formalidad", CAKE_ME_DONT), []);
+  assert.deepEqual(findBanned("clientela y formalidad", CAKE_ME_DONT).sort(), ["cliente", "formal"]);
   assert.deepEqual(findBanned("el mejor café del mundo", ["el mejor cafe del mundo"]), ["el mejor cafe del mundo"]);
 });
 
@@ -218,4 +218,28 @@ test("backfill script requires --only and defaults to dry-run", () => {
   assert.throws(() => parseArgs([]), /--only/);
   assert.equal(parseArgs(["--only=abc"]).apply, false);
   assert.equal(rowsToBackfill([{ bucket: "visual", kind: "file_upload", src: "53.png", signals: {} }, { bucket: "foundations", kind: "file_upload", src: "x.pdf" }]).length, 1);
+});
+
+test("don't-list variants: gender, number and light derivations (es/en)", () => {
+  for (const v of ["exclusivo", "exclusiva", "exclusivos", "exclusivas", "Exclusividad"]) assert.deepEqual(findBanned(`Un producto ${v}`, ["exclusivo"]), ["exclusivo"], v);
+  for (const v of ["cliente", "clientes", "clientela", "Clientes"]) assert.deepEqual(findBanned(`Para ${v}`, ["cliente"]), ["cliente"], v);
+  assert.deepEqual(findBanned("A boring, aggressive tone", ["bore", "aggressive"]), ["aggressive"]);
+  assert.deepEqual(findBanned("Luxury feel", ["luxurious"]), []);
+  assert.equal(stem("exclusivas"), "exclusiv");
+  assert.equal(stem("clientela"), "client");
+});
+
+test("Iris's tagline is flagged", () => {
+  assert.deepEqual(findBanned("Una caja pensada para nuestros clientes exclusivos.", CAKE_ME_DONT).sort(), ["cliente", "exclusivo"]);
+  assert.equal(checkSocialCopy({ caption: "Una caja pensada para nuestros clientes exclusivos.", hashtags: [], cta: "Pide" }, { banned: CAKE_ME_DONT }).find((c) => c.id === "BANNED").pass, false);
+});
+
+test("short stems never over-match (stem ≥5 chars, whole words only)", () => {
+  assert.deepEqual(findBanned("lujos y lujoso", ["lujo"]), ["lujo"]);           // exact/plural only
+  assert.deepEqual(findBanned("lujoso ambiente", ["lujo"]), []);                // no derivation for <5
+  assert.deepEqual(findBanned("formalmente informal", ["formal"]), ["formal"]); // whole word 'formalmente'
+  assert.deepEqual(findBanned("informales", ["formal"]), []);                   // no substring match
+  assert.deepEqual(findBanned("negativa actitud", ["negativo"]), ["negativo"]);
+  assert.deepEqual(findBanned("cafe", ["cafeteria"]), []);
+  assert.deepEqual(findBanned("el mejor café del mundo", ["el mejor cafe del mundo"]), ["el mejor cafe del mundo"]);
 });
