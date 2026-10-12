@@ -14,6 +14,8 @@ import { outputLocaleInstruction } from "./locale.js";
 export function composeImagePrompt({ spec, brand, bio, refusals = [], brief, sourceText = null, artDirection = null, outputLocale = null }) {
   const v = bio?.visual || {};
   const lines = [];
+  /* S2: the no-text rule is unconditional; type and logo are set in code. */
+  const NO_TEXT = "No text, letters, numbers, logos, signage or watermarks anywhere in the image.";
 
   /* Lead with the task — what to depict. */
   lines.push(String(brief || "").trim());
@@ -72,5 +74,6 @@ export function composeImagePrompt({ spec, brand, bio, refusals = [], brief, sou
   /* Always include a quality nudge */
   lines.push("Editorial-grade composition. High craft. Real-world plausibility.");
 
+  lines.push(NO_TEXT);
   return lines.join(" ");
 }

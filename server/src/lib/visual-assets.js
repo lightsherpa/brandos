@@ -3,8 +3,17 @@ import { FONT_UPLOAD_EXTS, IMAGE_UPLOAD_EXTS } from "./ingest-guards.js";
 
 const roleRank = { canonical: 0, inspiration: 1, avoid: 2 };
 
+/* S1: legacy visual-bucket image rows that predate asset roles count as
+   `inspiration` (rights must still be confirmed; see backfill-visual-roles). */
+export function effectiveAssetRole(row) {
+  const role = row?.signals?.asset_role;
+  if (role) return role;
+  return row?.bucket === "visual" ? "inspiration" : null;
+}
+
 export function classifyVisualSources(rows = []) {
-  const eligible = (rows || []).filter((row) => row?.signals?.rights_confirmed === true && row.raw_ref);
+  const eligible = (rows || []).filter((row) => row?.signals?.rights_confirmed === true && row.raw_ref)
+    .map((row) => (row.signals.asset_role ? row : { ...row, signals: { ...row.signals, asset_role: effectiveAssetRole(row) } }));
   const references = eligible
     .filter((row) => IMAGE_UPLOAD_EXTS.has(String(row.signals?.ext || "").toLowerCase()))
     .filter((row) => ["canonical", "inspiration", "avoid"].includes(row.signals?.asset_role))
@@ -27,7 +36,7 @@ export async function loadVisualAssets(brandId, { ttlSeconds = 60 * 60, sourceId
   if (exactIds && exactIds.length === 0) return { references:[], fonts:[] };
   let query = supabaseAdmin
     .from("bio_sources")
-    .select("id, src, signals, raw_ref, created_at")
+    .select("id, src, signals, raw_ref, bucket, created_at")
     .eq("brand_id", brandId)
     .eq("bucket", "visual")
     .eq("kind", "file_upload")
@@ -64,6 +73,13 @@ export function mergeTypographyFromAssets(extracted = [], fonts = []) {
   }));
   const uploadedFamilies = new Set(uploaded.map((font) => font.family?.toLowerCase()));
   return [...uploaded, ...(extracted || []).filter((font) => !uploadedFamilies.has(font.family?.toLowerCase()))];
+}
+
+/* S1: up to 3 references reach every image call, canonical first, then
+   inspiration. `avoid` never conditions generation. */
+export function selectGenerationReferences(references = [], max = 3) {
+  const rank = { canonical: 0, inspiration: 1 };
+  return (references || []).filter((r) => r && r.role in rank && r.url).sort((a, b) => rank[a.role] - rank[b.role]).slice(0, max);
 }
 
 export function selectGenerationReference(references = []) {

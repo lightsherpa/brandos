@@ -37,7 +37,9 @@ test("validateUpload accepts licensed font binaries", () => {
 
 test("visual references require a role and rights confirmation", () => {
   assert.equal(validateVisualAssetMetadata({ ext: "png", assetRole: "canonical" }).code, "RIGHTS");
-  assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true }).code, "ASSET_ROLE");
+  // F1: an unlabelled image upload defaults to inspiration; a bad role is still rejected.
+  assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true }).metadata.asset_role, "inspiration");
+  assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true, assetRole: "hero" }).code, "ASSET_ROLE");
   assert.deepEqual(
     validateVisualAssetMetadata({ ext: "png", assetRole: "inspiration", rightsConfirmed: true }).metadata,
     { asset_kind: "image_reference", asset_role: "inspiration", rights_confirmed: true },

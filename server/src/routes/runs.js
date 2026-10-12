@@ -40,7 +40,8 @@ import { maxTokensForDeliverables, parseDeliverables, buildDeliverableContract, 
 import { assertCreditsAvailable, creditErrorResponse, estimateRunCredits, reserveCredits, failRunAndReleaseCredits } from "../lib/credits.js";
 import { findEffectiveRateCard, preflightApiUsage, recordApiUsage } from "../lib/api-usage.js";
 import { verifyOpexOverride } from "../lib/opex-override.js";
-import { loadVisualAssets, pinCertifiedReferences, selectGenerationReference } from "../lib/visual-assets.js";
+import { loadVisualAssets, pinCertifiedReferences, selectGenerationReferences } from "../lib/visual-assets.js";
+import { assertSpecRouteAllowed, ToolPermissionError } from "../harness/tools.js";
 import { hasPermission } from "../lib/permissions.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
 
@@ -126,6 +127,9 @@ app.post("/stream", requireAuth, async (c) => {
     ? modelOverride
     : (spec.payload?.modelRouting?.primary || "");
   const isImage = isImageRoute(route);
+  /* Tool permission (harness §3): a copy agent may never run on an image route. */
+  try { assertSpecRouteAllowed(spec, route); }
+  catch (err) { if (err instanceof ToolPermissionError) return c.json({ error: err.message, code: err.code }, 403); throw err; }
   const overrideOperation = isImage ? "specialist.image" : "specialist.text";
   const mayOverride = hasPermission(auth, "opex.override") && auth.aal === "aal2";
   const guardrailOverride = guardrailOverrideToken && mayOverride ? verifyOpexOverride(guardrailOverrideToken,{userId,operationKey:overrideOperation}) : null;
@@ -211,6 +215,7 @@ app.post("/stream", requireAuth, async (c) => {
       })
     : null;
   let generationReference = null;
+  let generationReferences = [];
   if (isImage) {
     try {
       const certifiedReferenceRows = Array.isArray(brandBio.bio?.visual?.references) ? brandBio.bio.visual.references : [];
@@ -218,14 +223,15 @@ app.post("/stream", requireAuth, async (c) => {
         (await loadVisualAssets(brandBio.brand.id, { sourceIds:certifiedReferenceRows.map((reference) => reference?.sourceId) })).references,
         certifiedReferenceRows,
       );
-      generationReference = selectGenerationReference(pinnedReferences);
+      generationReferences = selectGenerationReferences(pinnedReferences);
+      generationReference = generationReferences[0] || null;
     } catch {
       /* Reference conditioning is additive. A source-signing failure must not
          block a run that can still honor the textual BIO visual system. */
       generationReference = null;
     }
   }
-  const resolvedImageRequest = isImage ? resolveImageRequest({ route, referenceImageUrl:generationReference?.url || null }) : null;
+  const resolvedImageRequest = isImage ? resolveImageRequest({ route, referenceImageUrls:generationReferences.map((r) => r.url) }) : null;
 
   return streamSSE(c, async (stream) => {
     const startedIso = new Date().toISOString();
@@ -407,7 +413,7 @@ app.post("/stream", requireAuth, async (c) => {
           fallback: spec.payload?.modelRouting?.fallback || null,
           prompt: imagePrompt,
           size: dlv?.platform ? falSizeForPlatform(dlv.platform) : (spec.payload?.image_size || "landscape_16_9"),
-          referenceImageUrl: generationReference?.url || null,
+          referenceImageUrls: generationReferences.map((r) => r.url),
         })) {
           if (ev.type === "progress") {
             await stream.writeSSE({ event: "progress", data: JSON.stringify({ stage: ev.stage, pct: ev.pct }) });
@@ -590,6 +596,7 @@ app.post("/stream", requireAuth, async (c) => {
             provider_endpoint: imageResult?.endpoint || resolvedImageRequest?.endpoint || null,
             reference_source_id: generationReference?.id || null,
             reference_role: generationReference?.role || null,
+            reference_count: generationReferences.length,
           }
         : isDeliverableText
         ? { kind: "deliverables", type: dlv.type, part: dlv.part, platform: dlv.platform || "generic", deliverables }
