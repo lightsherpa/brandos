@@ -13,7 +13,11 @@ test('five saved HTML fixtures identify a logo or explicitly miss',()=>{
   assert.equal(extractLogo(fixture('missing'),'https://brand.test'),null);
 });
 test('untrusted SVG and internal URLs are rejected',()=>{
+  assert.equal(safeLogoSvg('<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h10v10H0z"/></svg>'),true);
   assert.equal(safeLogoSvg('<svg onload="alert(1)"></svg>'),false);
+  assert.equal(safeLogoSvg('<svg><defs><linearGradient id="ink"/></defs><path fill="url(#ink)"/><use href="#mark"/></svg>'),true);
+  assert.equal(safeLogoSvg('<svg><use href="https://external.test/mark.svg#mark"/></svg>'),false);
+  assert.equal(safeLogoSvg('<svg><path fill="url(https://external.test/paint)"/></svg>'),false);
   assert.equal(safeLogoSvg('<svg><foreignObject/></svg>'),false);
   assert.equal(extractLogo('<header><img alt="logo" src="http://127.0.0.1/logo.png"></header>','https://brand.test'),null);
 });

@@ -1,7 +1,7 @@
 import {foundationStatus,foundationError} from "../lib/brand-foundation.js";
 import {validateFoundationAssets} from "../lib/foundation-assets.js";
 import {writeAuthorizationAudit} from "../lib/audit.js";
-import {safeLogoSvg} from "../lib/extract-logo.js";
+import {foundationUploadError} from "../lib/foundation-upload.js";
 import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
@@ -132,7 +132,8 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   const objectPath = `${workspaceId}/${brandId}/${crypto.randomUUID()}-${safeName}`;
 
   const buf = new Uint8Array(await file.arrayBuffer());
-  if (visualMetadata.asset_role === "logo" && ext === "svg" && !safeLogoSvg(new TextDecoder().decode(buf))) return c.json({error:"Use an SVG without scripts, external resources or active content",code:"LOGO_SVG"},400);
+  const invalidFoundationUpload=await foundationUploadError(Buffer.from(buf),ext,visualMetadata);
+  if(invalidFoundationUpload)return c.json(invalidFoundationUpload,400);
   const { data: uploadData, error: uploadErr } = await supabaseAdmin
     .storage.from("bio-sources")
     .upload(objectPath, buf, { contentType: mime, upsert: false });

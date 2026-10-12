@@ -9,8 +9,13 @@ function publicLogo(raw, base, source, conf) {
 }
 // Keep inline SVG inert: it is only ever rendered through <img>, never HTML.
 export function safeLogoSvg(svg = '') {
-  return /^<svg\b/i.test(svg.trim()) && /<\/svg>\s*$/i.test(svg) &&
-    !/<(?:script|foreignObject|iframe|image|use|animate|set)\b|\bon\w+\s*=|(?:href|src)\s*=|url\s*\(|<!ENTITY/i.test(svg);
+  const root=svg.trim().replace(/^<\?xml\s+[\s\S]*?\?>\s*/i,'');
+  if(!/^<svg\b/i.test(root)||!/<\/svg>\s*$/i.test(root)||/<(?:script|foreignObject|iframe|image|animate|set)\b|\bon\w+\s*=|<!ENTITY|<!DOCTYPE|<\?xml-stylesheet|@import/i.test(root))return false;
+  // Internal gradients, clip paths and <use href="#mark"> are ordinary logo
+  // artwork. External resources, data URLs and executable links are rejected.
+  for(const match of root.matchAll(/(?:href|src)\s*=\s*["']([^"']*)["']/gi))if(!/^#[\w:.-]+$/.test(match[1]))return false;
+  for(const match of root.matchAll(/url\s*\(\s*([^)]*)\)/gi))if(!/^#[\w:.-]+$/.test(match[1].trim().replace(/^["']|["']$/g,'')))return false;
+  return true;
 }
 export function extractLogo(html = '', baseUrl = '') {
   if (typeof html !== 'string') return null;
