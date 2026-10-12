@@ -20,7 +20,6 @@ import "./portal-briefs.jsx";
 import "./format-preview.jsx";
 import "./portal-craft.jsx";
 import "./portal-team.jsx";
-import "./portal-floater.jsx";
 import "./portal-admin.jsx";       // admin-only screens (spec editor, future memory)
 import "./portal-ops.jsx";         // interactive access governance + Super Admin FinOps
 import "./portal-auth.jsx";        // mock auth + login screens

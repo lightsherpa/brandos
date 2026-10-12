@@ -2,7 +2,7 @@ import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_BRANDS, useReadProgress } from "./lib/ui-fixture.js";
 import { useLocale, t, fmtNumber, applyOverrides } from "./lib/i18n.js";
-const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, Discovery, BioViewer, BrandBook, BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard, CraftMarketplace, CreditsLedger, SettingsView, FloatingBrandolph, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
+const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, Discovery, BioViewer, BrandBook, BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard, CraftMarketplace, CreditsLedger, SettingsView, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
 /* Caastor Intelligence — app shell + router + sidebar + topbar.    */
 /* Internal hash router; supports client + team portals.            */
 
@@ -823,9 +823,6 @@ function App() {
 
       {/* Tweaks panel (host-toggled) */}
       <PortalTweaks tweaks={tweaks} setTweak={setTweak} ds={ds} setDs={setDs} />
-
-      {/* Floating Brandolph mascot — visible on client portal, all screens except /home */}
-      <FloatingBrandolph />
     </div>
   );
 }

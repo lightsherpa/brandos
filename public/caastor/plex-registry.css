@@ -314,7 +314,6 @@ html[data-palette="plex-registry"] .eyebrow,
 html[data-palette="plex-registry"] .app-dock__section,
 html[data-palette="plex-registry"] .titlestrip__crumb,
 html[data-palette="plex-registry"] .modelchip,
-html[data-palette="plex-registry"] .bf-header__sub,
 html[data-palette="plex-registry"] .cos-agent-registry__head,
 html[data-palette="plex-registry"] .plex-inspector-kicker {
   font-family: var(--font-sans) !important;
