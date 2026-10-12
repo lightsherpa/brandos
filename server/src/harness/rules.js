@@ -24,7 +24,8 @@ export function applyRules(layer1, rules = []) {
 
 export async function loadRules(brandId, db = supabaseAdmin) {
   const { data, error } = await db.from("brand_rules").select("id, kind, value, reason, created_at, active, source_task_id, source_item_index, created_by").eq("brand_id", brandId).eq("active", true).order("created_at", { ascending: true });
-  if (error) { console.warn(`[rules] load failed: ${error.message}`); return []; }
+  // Fail closed: a run must never proceed without the brand's saved rules.
+  if (error) throw Object.assign(new Error(`Brand rules unavailable: ${error.message}`), { status: 503, code: "BRAND_RULES_UNAVAILABLE" });
   return data || [];
 }
 

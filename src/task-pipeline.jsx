@@ -97,6 +97,7 @@ function ItemCard({ type, item, taskId, onItem }) {
   const [busy, setBusy] = useState(false);
   const [showBefore, setShowBefore] = useState(false);
   const [err, setErr] = useState(null);
+  const [rerunsLeft, setRerunsLeft] = useState(2);   // server enforces MAX_RERUNS_PER_ITEM = 2
   const box = useRef(null);
   const [scale, setScale] = useState(0.3);
   useEffect(() => { const w = box.current?.offsetWidth; if (w) setScale(w / 1080); });
@@ -112,7 +113,8 @@ function ItemCard({ type, item, taskId, onItem }) {
     setBusy(true); setErr(null);
     const res = await apiFetch(`/api/tasks/${taskId}/items/${item.index}/rerun`, { method: "POST", body: JSON.stringify({ ruleIds: saved ? [saved.id] : undefined }) });
     const j = await res.json(); setBusy(false);
-    if (!res.ok) return setErr(j.error || "Re-run failed");
+    if (!res.ok) { if (j.code === "RERUN_LIMIT") setRerunsLeft(0); return setErr(res.status === 402 ? `Not enough credits (needs ${j.credits_required ?? "?"}). Nothing was charged.` : (j.error || "Re-run failed")); }
+    if (typeof j.reruns_left === "number") setRerunsLeft(j.reruns_left);
     onItem(j.item, j.metrics);
   };
   return <article ref={box} style={css.card}>
@@ -137,7 +139,7 @@ function ItemCard({ type, item, taskId, onItem }) {
     {rule && <RuleForm check={rule} onCancel={() => setRule(null)} onSave={save} />}
     {saved && <div style={{ padding: "10px 14px", borderTop: "1px solid #e7e5e4", fontSize: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
       <span><span style={{ color: "#15803d" }}>●</span> Saved to Brand Core: {saved.kind === "banned_word" ? `never use “${saved.value}”` : saved.value}</span>
-      <button style={css.primary} disabled={busy} onClick={rerun}>{busy ? "Rewriting…" : "Re-run this copy"}</button>
+      <button style={css.primary} disabled={busy || rerunsLeft <= 0} onClick={rerun}>{busy ? "Rewriting…" : rerunsLeft <= 0 ? "Re-run limit reached" : `Re-run this copy (${rerunsLeft} left)`}</button>
     </div>}
     {err && <div style={{ padding: "6px 14px", fontSize: 12, color: "#b91c1c" }}>{err}</div>}
   </article>;
@@ -176,7 +178,7 @@ export function TaskPipelineView({ go }) {
     setError(null); setTask(null);
     const res = await apiFetch("/api/tasks", { method: "POST", body: JSON.stringify({ brandId, type, brief, heroes }) });
     const j = await res.json();
-    if (!res.ok) return setError(j.error || "Could not start the task");
+    if (!res.ok) return setError(res.status === 402 ? `Not enough credits (this task needs ${j.credits_required ?? "?"}, balance ${j.balance ?? "?"}). Nothing was charged.` : (j.error || "Could not start the task"));
     localStorage.setItem(storageKey(brandId), j.id);
     setStartedAt(Date.now()); setTaskId(j.id);
     setTask({ id: j.id, type, status: "running", stage: j.stage, eta_s: j.eta_s, items: [], notices: [] });

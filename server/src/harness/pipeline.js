@@ -73,7 +73,7 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
   // ── Checking: one read-only reviewer pass over all items ──
   mark("Checking");
   const reviewItems = (subset) => subset.map((it) => ({ copy: it.copy, image_url: it.image?.asset_url || null }));
-  const verdicts = await review({ task, brief, layer1, items: reviewItems(items), budget, complete });
+  const verdicts = await (deps.review || review)({ task, brief, layer1, items: reviewItems(items), budget, complete });
   items.forEach((it, i) => { it.review = verdicts[i]; });
 
   // ── Fixing: at most 1 targeted revision per item ──
@@ -106,7 +106,7 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
       const touched = [...new Set([...copyFixes.map((f) => items[f.index]), ...imageFixes])];
       await Promise.all(touched.map((it) => finishItem(it)));
       if (touched.length) {
-        const re = await review({ task, brief, layer1, items: reviewItems(touched), budget, complete });
+        const re = await (deps.review || review)({ task, brief, layer1, items: reviewItems(touched), budget, complete });
         touched.forEach((it, i) => { it.review = re[i]; });
       }
     } catch (e) {
@@ -167,7 +167,7 @@ export async function rerunItem({ type, brief, layer1, spec, item, heroes = fals
   const briefHits = findBanned(brief, layer1.voice.forbidden);
   const briefCheck = result("BRIEF_BANNED", briefHits.length === 0, briefHits.length ? `Brief uses don't-list word(s): ${briefHits.join(", ")}. Kept out of the copy.` : "Brief is clean against the don't-list", "soft", "none");
   await checkAndRender({ type, task, it, layer1, language: spec.language, briefCheck });
-  [it.review] = await review({ task, brief, layer1, items: [{ copy: it.copy, image_url: it.image?.asset_url || null }], budget, complete: deps.complete });
+  [it.review] = await (deps.review || review)({ task, brief, layer1, items: [{ copy: it.copy, image_url: it.image?.asset_url || null }], budget, complete: deps.complete });
   const ok = hardFails(it.checks).length === 0 && reviewerPasses(task, it.review);
   const copyText = JSON.stringify(it.copy);
   it.rule_applied = (layer1.rules || []).filter((r) => ruleIds.includes(r.id)).map((r) => ({ id: r.id, value: r.value, applied: r.kind === "banned_word" ? findBanned(copyText, [r.value]).length === 0 : true }));

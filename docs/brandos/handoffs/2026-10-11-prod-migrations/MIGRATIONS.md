@@ -195,5 +195,20 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/202
 Verify:
 
 ```sql
-select count(*) from public.brand_rules;
+select count(*) from public.brand_rules;                                   -- 0 on a fresh apply
+select relrowsecurity from pg_class where relname = 'brand_rules';         -- t (RLS on, no client policies)
+select indexname from pg_indexes where tablename = 'brand_rules';          -- brand_rules_pkey, brand_rules_brand_idx
+select version from supabase_migrations.schema_migrations where version = '20261012000000';
+```
+
+Runtime notes:
+- The server reads this table with the service role. If the lookup errors, task runs fail closed (503 `BRAND_RULES_UNAVAILABLE`) before any credits are reserved, so apply this migration **before** setting `TASKS_ENABLED=true`.
+- Only Owner/Editor (`brand.manage`) can insert rows via `POST /api/tasks/:id/rules`.
+- No backfill. Nothing else depends on it.
+
+Rollback (only if no rules have been saved yet):
+
+```sql
+drop table if exists public.brand_rules;
+delete from supabase_migrations.schema_migrations where version = '20261012000000';
 ```
