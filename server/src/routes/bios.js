@@ -1,3 +1,4 @@
+import {foundationStatus,foundationError} from "../lib/brand-foundation.js";
 import {validateFoundationAssets} from "../lib/foundation-assets.js";
 import {writeAuthorizationAudit} from "../lib/audit.js";
 import {safeLogoSvg} from "../lib/extract-logo.js";
@@ -403,7 +404,7 @@ app.get("/:brandId", requireAuth, async (c) => {
     }
   }
 
-  return c.json({ brand, bio, reviewPending, focusCount, review, diff });
+  return c.json({ brand, bio:bio ? {...bio,score:scoreBio(bio.payload),...foundationStatus(bio.payload)} : null, reviewPending, focusCount, review, diff });
 });
 
 /* POST /api/bios/:brandId/self-certify
@@ -452,6 +453,7 @@ app.post("/:brandId/accept-changes",requireAuth,async c=>{
  const body=await c.req.json().catch(()=>({}));
  const {data:bio}=await supabaseAdmin.from("bios").select("id,version,payload,certified,client_acceptance_required,client_accepted_at").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
  if(!bio)return c.json({error:"No Brand Core to accept",code:"NO_BIO"},400);
+ const foundation=foundationError(bio.payload);if(foundation)return c.json(foundation,409);
  const review=validateCertificationReview({body,bio});if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
  const {data:result,error}=await supabaseAdmin.rpc("accept_bio_client_changes",{p_brand_id:brandId,p_bio_id:bio.id,p_version:body.version,p_user_id:userId,p_review:review.review});
  if(error)return c.json({error:"Could not record acceptance"},500);

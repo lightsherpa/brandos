@@ -1,3 +1,5 @@
+import {scoreBio} from "../server/src/lib/score-bio.js";
+import {foundationStatus} from "../server/src/lib/brand-foundation.js";
 import React from "react";
 import {discoveryWebsiteError, bioIntegrityError} from "../server/src/lib/brand-source-integrity.js";
 import {BioSelfCertification} from "./bio-self-certification.jsx";
@@ -1456,7 +1458,8 @@ function BioViewer({ go, bioScore = 91 }) {
     return () => { alive = false; };
   }, [live.brandId, live.bio?.id]);
 
-  const score = live.bio?.score ?? 0;
+  const score = live.bio?.payload ? scoreBio(live.bio.payload) : 0;
+  const foundation = foundationStatus(live.bio?.payload);
   const patch = (key, value) => setBio(b => b ? { ...b, [key]: value } : b);
   const patchStrategic = (key, value) => setBio(b => b ? { ...b, strategic: { ...b.strategic, [key]: value } } : b);
 
@@ -1554,7 +1557,7 @@ function BioViewer({ go, bioScore = 91 }) {
             <span>{tone.word}</span>
             <span style={{color:"var(--c-faint)"}}>·</span>
             <span className="num" title={tone.hint}><Counter to={conf} /> {t("discovery.bio.of100")}</span>
-            {live.cert ? (
+            {live.cert && foundation.certifiable ? (
               <>
                 <span className="cert-seal" aria-hidden="true">
                   <Icon name="check" size={10} stroke={2} />
@@ -1580,7 +1583,7 @@ function BioViewer({ go, bioScore = 91 }) {
           ) : (
             <>
               {live.brandId && live.bio && (!live.cert || (live.bio.client_acceptance_required && !live.bio.client_accepted_at)) && (
-                <BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
+                <BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges || !foundation.certifiable} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
               )}
               <button className="btn btn--ghost" onClick={() => go("brand-book")}>{t("discovery.bio.openBook")}</button>
             </>
@@ -1601,19 +1604,19 @@ function BioViewer({ go, bioScore = 91 }) {
           display:"flex", alignItems:"center", justifyContent:"space-between", gap: 12,
         }}>
           <div style={{display:"flex", alignItems:"center", gap: 10}}>
-            {live.cert && (
+            {live.cert && foundation.certifiable && (
               <span className="cert-seal" title="Certified" aria-hidden="true">
                 <Icon name="check" size={10} stroke={2} />
               </span>
             )}
             <span style={{
               width: 8, height: 8, borderRadius:"50%",
-              background: live.cert ? "var(--status-success)" : "var(--status-warning)",
+              background: live.cert && foundation.certifiable ? "var(--status-success)" : "var(--status-warning)",
               animation: live.cert ? "none" : "pulse 1.4s ease-in-out infinite",
             }} />
             <div>
               <div style={{fontSize: 13.5, color:"var(--c-ink)", fontWeight: 500}}>
-                {live.cert ? (
+                {live.cert && foundation.certifiable ? (
                   <>{t("discovery.results.certifiedBy")} <span style={{color:"var(--green-600)"}}>{live.cert.byName}</span> · {formatCertDate(live.cert.at)}</>
                 ) : live.reviewPending && live.bio ? (
                   <>{t("discovery.bio.reviewingThis")}</>

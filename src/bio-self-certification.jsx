@@ -1,3 +1,4 @@
+import {foundationStatus} from "../server/src/lib/brand-foundation.js";
 import React from 'react';
 import {useLocale} from './lib/i18n.js';
 import {apiFetch} from './lib/supabase-browser.js';
@@ -9,6 +10,8 @@ import './bio-self-certification.css';
 export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,renderSection,initiallyOpen=false,onClose}){
  const {t}=useLocale();
  const [open,setOpen]=React.useState(initiallyOpen);
+ const foundation=foundationStatus(bio.payload);
+ if(!foundation.certifiable)return <span className="bio-cert-receipt" role="status">Foundation incomplete · add logo, primary colour and display font</span>;
  if(bio.self_certified&&!(bio.client_acceptance_required&&!bio.client_accepted_at))return <span className="bio-cert-receipt">{t('discovery.selfCert.attestedBold')} · Brand Core v{bio.version}</span>;
  return <>
   <button className="btn btn--primary btn--sm" disabled={blocked} title={blocked?t('discovery.certification.pending'):undefined} onClick={()=>setOpen(true)}>{t(bio.certified?'discovery.certification.acceptChanges':'discovery.certification.open')}</button>

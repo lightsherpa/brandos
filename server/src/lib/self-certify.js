@@ -1,3 +1,4 @@
+import {foundationError} from "./brand-foundation.js";
 // self-certify.js — shared Stage-1 client self-certification.
 //
 // Extracted from the bios POST /:brandId/self-certify handler so the M3
@@ -51,6 +52,9 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
       return { ok: false, code: "BAD_MARK", error: `Invalid mark for ${k}` };
     }
   }
+
+  const foundation = foundationError(bio);
+  if (foundation) return foundation;
 
   // 3) No high-importance field may be missing.
   const highGaps = computeFocus(bio).filter((f) => f.status === "missing" && f.importance >= 1.0);

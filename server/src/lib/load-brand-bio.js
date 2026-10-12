@@ -1,3 +1,4 @@
+import {scoreBio} from "./score-bio.js";
 // Loads a brand + its active BIO from Supabase, and enforces the
 // certification gate at the data layer (the only place it can live — the
 // assembly runner is a client-side loop, so per-run loading is the gate).
@@ -127,7 +128,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       ...bioRow.payload,
       id:                bioRow.id,
       version:           bioRow.version,
-      score:             bioRow.score,
+      score:             scoreBio(bioRow.payload),
       certified:         bioRow.certified,
       certified_by:      bioRow.certified_by,
       certified_at:      bioRow.certified_at,

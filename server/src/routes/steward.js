@@ -1,3 +1,5 @@
+import {foundationError} from "../lib/brand-foundation.js";
+import {validateFoundationAssets} from "../lib/foundation-assets.js";
 // ─────────────────────────────────────────────────────────────────────
 // Steward operation — backend routes (stage-2 human certification).
 //
@@ -205,6 +207,8 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
       return c.json({ ok: true, status: "changes_requested", action: "sent_back" });
     }
 
+    const foundation=foundationError(bioRow.payload);
+    if(foundation)return c.json(foundation,409);
     await supabaseAdmin.from("bios").update({
       certified: true,
       certified_by: job.assigned_to,
@@ -271,6 +275,11 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
   const decision = result.recommendedDecision;                 // approve | approve_with_conditions | return_changes | reject
   const approves = decision === "approve" || decision === "approve_with_conditions";
+  if (approves) {
+    const foundation=foundationError(workingPayload);if(foundation)return c.json(foundation,409);
+    const invalid=await validateFoundationAssets(bio.brand_id,workingPayload.visual,bio.payload?.visual);
+    if(invalid)return c.json({error:invalid,code:"FOUNDATION_ASSET"},400);
+  }
   const needsLeadApproval = calibration && !isLead && approves;  // non-Lead approvals go to calibration
   const finalCertified = approves && !needsLeadApproval;
 

@@ -1,3 +1,4 @@
+import {foundationStatus} from "./brand-foundation.js";
 // Deterministic BIO score — pure function of the compiled payload.
 // score = 100 * (0.5*coverage + 0.35*avgConf + 0.15*sourceDiversity)
 // coverage: fraction of scored leaf fields with a non-empty value.
@@ -27,8 +28,10 @@ export function scoreBioBreakdown(payload = {}) {
   );
   const sourceDiversity = Math.min(sources.size, 5) / 5;
   const raw = 0.5*coverage + 0.35*avgConf + 0.15*sourceDiversity;
-  const score = Math.round(Math.max(0, Math.min(1, raw)) * 100);
-  return { score, coverage, avgConf, sourceDiversity };
+  const rawScore = Math.round(Math.max(0, Math.min(1, raw)) * 100);
+  const foundation = foundationStatus(payload);
+  const score = foundation.certifiable ? rawScore : Math.min(79,rawScore);
+  return { score, rawScore, coverage, avgConf, sourceDiversity, ...foundation };
 }
 
 export function scoreBio(payload = {}) {

@@ -1,3 +1,4 @@
+import {foundationStatus} from "./brand-foundation.js";
 // Self-certification confidence floor. One config, used by the server gate
 // and the review modal. The Creative Director rubric is a separate decision
 // and does not set this number.
@@ -51,6 +52,7 @@ function perfectSection(payload, section) {
 export function selfCertScoreReport(payload = {}, configured) {
   const minScore = resolveSelfCertMinScore(configured);
   const score = scoreBio(payload);
+  const foundation = foundationStatus(payload);
   const seen = new Set();
   const sections = [];
   for (const [section] of SCORED_PATHS) {
@@ -72,5 +74,5 @@ export function selfCertScoreReport(payload = {}, configured) {
     sections.push({ section, points, answers, sources });
   }
   sections.sort((a, b) => b.points - a.points || a.section.localeCompare(b.section));
-  return { score, minScore, meetsFloor: score >= minScore, shortfall: Math.max(0, minScore - score), sections };
+  return { score, minScore, ...foundation, meetsFloor: foundation.certifiable && score >= minScore, shortfall: Math.max(0, minScore - score), sections };
 }
