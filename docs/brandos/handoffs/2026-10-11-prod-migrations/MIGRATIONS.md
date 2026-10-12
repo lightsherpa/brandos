@@ -212,3 +212,23 @@ Rollback (only if no rules have been saved yet):
 drop table if exists public.brand_rules;
 delete from supabase_migrations.schema_migrations where version = '20261012000000';
 ```
+
+## 11. `20261012010000_runs_release_failed.sql` (feat/task-pipeline, not merged)
+
+Widens `runs_status_check` to allow `release_failed`. Task settlement uses it when a credit release fails, so the run is flagged for reconciliation instead of being left `running`. Additive. Safe before the merge. Do not apply to production without Oscar's approval.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261012010000_runs_release_failed.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261012010000', 'runs_release_failed') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select pg_get_constraintdef(oid) from pg_constraint where conname = 'runs_status_check';  -- includes 'release_failed'
+```
+
+Reconciliation query (should normally return 0 rows):
+
+```sql
+select id, started_at, ended_at from public.runs where status = 'release_failed' order by ended_at desc;
+```

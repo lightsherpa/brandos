@@ -61,13 +61,14 @@ export async function generateSlot({ slot, imageBrief, layer1, budget, gen = gen
     const { done, error } = await runOnce({ route, fallback, prompt, aspect: imageBrief.aspect, refs, gen });
     const cost = done ? (done.cost_usd || est) : 0;
     const u = usageContext();
-    await recordUsage({
+    // Usage logging must never undo spend: on failure, log and carry on so the run still finalizes (charges).
+    await Promise.resolve().then(() => recordUsage({
       requestId: crypto.randomUUID(), parentRunId: u.runId || null, workspaceId: u.workspaceId || null, brandId: u.brandId || null,
       actorUserId: u.userId || null, specialistId: u.specialistId || null, feature: "task.image", provider: "fal", service: "image",
       requestedModel: route, resolvedModel: done?.model || route, operation: "task.image", status: done ? "succeeded" : "failed",
       latencyMs: Date.now() - t0, images: done ? 1 : 0, estimatedCostUsd: cost, costSource: done ? "rate_card_estimate" : "unpriced",
       errorCode: done ? null : "PROVIDER_ERROR", metadata: { slot, why, fallback_from: done?.fallback_from || null, reference_count: done?.reference_count ?? 0 },
-    });
+    })).catch((err) => console.error(`[task-images] usage record failed run=${u.runId || "-"} slot=${slot}: ${err?.message || err}`));
     budget?.record({ kind: "image", step: "imaging", slot, model: done?.model || route, cost_usd: cost, ms: Date.now() - t0, fallback_from: done?.fallback_from || null, uses_reference: done?.uses_reference ?? false, error });
     const attempt = { route, model: done?.model || null, fallback_from: done?.fallback_from || null, ms: Date.now() - t0, error, asset_url: done?.asset_url || null, width: done?.width, height: done?.height, uses_reference: done?.uses_reference ?? false, reference_count: done?.reference_count ?? 0 };
     if (done) attempt.ocr = await ocr({ imageUrl: done.asset_url, budget, complete });

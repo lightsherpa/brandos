@@ -120,3 +120,64 @@ test("re-runs: capped at 2 per item server-side, one in flight at a time", () =>
   assert.equal(g.status, 429); assert.equal(g.body.code, "RERUN_LIMIT");
   assert.equal(tasks.rerunGate(job, 1).status, 409);
 });
+
+test("re-runs: two concurrent requests → one 409, one reservation, cap holds", async () => {
+  const job = { id: "t", type: "social_post", workspaceId: "w", brandId: "b", brief: "x", items: [{ index: 0, status: "flagged" }], result: { spec: {} } };
+  const calls = { preflight: 0, open: 0 };
+  const tick = () => new Promise((r) => setTimeout(r, 5));
+  const deps = {
+    preflight: async () => { calls.preflight++; await tick(); return { ok: true }; },
+    loadTaskContext: async () => { await tick(); return { layer1: {}, bio: { version: 1 } }; },
+    openRun: async () => { calls.open++; await tick(); return { runId: `r${calls.open}` }; },
+    settle: async ({ work }) => work(),
+    rerunItem: async () => { await tick(); return { item: { index: 0, status: "ready" }, metrics: {} }; },
+  };
+  const [a, b] = await Promise.all([tasks.executeRerun({ job, index: 0 }, deps), tasks.executeRerun({ job, index: 0 }, deps)]);
+  assert.deepEqual([a.status, b.status].sort(), [200, 409]);
+  assert.equal(calls.open, 1); assert.equal(calls.preflight, 1);
+  assert.equal(job.rerun_counts[0], 1);
+  assert.equal((await tasks.executeRerun({ job, index: 0 }, deps)).status, 200);
+  const third = await tasks.executeRerun({ job, index: 0 }, deps);
+  assert.equal(third.status, 429); assert.equal(calls.open, 2); assert.equal(job.rerun_counts[0], 2);
+});
+
+test("re-runs: failure before settle rolls back state and count", async () => {
+  const job = { id: "t", type: "social_post", workspaceId: "w", items: [{ index: 0, status: "flagged" }], result: { spec: {} } };
+  const base = { loadTaskContext: async () => ({ layer1: {} }), settle: async () => { throw new Error("unreached"); }, rerunItem: async () => ({}) };
+  const broke = await tasks.executeRerun({ job, index: 0 }, { ...base, preflight: async () => ({ ok: false, check: { code: "OUT_OF_CREDITS" } }), openRun: async () => ({}) });
+  assert.equal(broke.credit.code, "OUT_OF_CREDITS");
+  assert.equal(job.rerun_counts[0], 0); assert.equal(job.items[0].status, "flagged");
+  const r = await tasks.executeRerun({ job, index: 0 }, { ...base, preflight: async () => ({ ok: true }), openRun: async () => { throw Object.assign(new Error("Out of credits"), { status: 402 }); } });
+  assert.equal(r.status, 402); assert.equal(job.rerun_counts[0], 0); assert.equal(job.items[0].status, "flagged");
+});
+
+test("settle: toOutput throwing releases the reservation", async () => {
+  const log = [];
+  const d = deps(log);
+  const run = { runId: "r1", reservationKey: "task:r1:credits", writer: "a16" };
+  await assert.rejects(settle({ workspaceId: "w", run, work: async () => ({ metrics: {} }), toOutput: () => { throw new Error("bad output"); } }, d), /bad output/);
+  assert.ok(log.some(([op]) => op === "release"));
+  assert.ok(!log.some(([op, fn]) => op === "rpc" && fn === "finalize_run_atomic"));
+});
+
+test("settle: failed release is logged at error and the run marked release_failed", async () => {
+  const log = []; const errs = [];
+  const d = { ...deps(log), failRunAndReleaseCredits: async () => { throw new Error("rpc down"); } };
+  const orig = console.error; console.error = (m) => errs.push(String(m));
+  try {
+    await assert.rejects(settle({ workspaceId: "w", run: { runId: "r1", reservationKey: "k" }, work: async () => { throw new Error("model down"); }, toOutput: () => ({}) }, d), /model down/);
+  } finally { console.error = orig; }
+  assert.ok(errs.some((m) => /RELEASE FAILED run=r1/.test(m)));
+  assert.ok(log.some(([op, t, row]) => op === "update" && t === "runs" && row.status === "release_failed"));
+});
+
+test("images: recordUsage throwing after spend still returns the image (run charges, no refund)", async () => {
+  const errs = []; const orig = console.error; console.error = (m) => errs.push(String(m));
+  const gen = async function* () { yield { type: "done", asset_url: "https://x/i.png", model: "m", cost_usd: 0.08 }; };
+  let out;
+  try {
+    out = await generateSlot({ slot: 0, imageBrief: { subject: "cup", aspect: "4:5" }, layer1: { palette: {}, imagery: [], avoid: [], references: [] }, gen, ocr: async () => ({ pass: true }), recordUsage: () => { throw new Error("db down"); } });
+  } finally { console.error = orig; }
+  assert.equal(out.asset_url, "https://x/i.png");
+  assert.ok(errs.some((m) => /usage record failed/.test(m)));
+});

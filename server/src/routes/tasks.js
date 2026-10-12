@@ -153,33 +153,53 @@ app.post("/:id/rules", requireAuth, async (c) => {
 app.post("/:id/items/:index/rerun", requireAuth, async (c) => {
   const { job, error } = getJob(c);
   if (error) return error;
-  const index = Number(c.req.param("index"));
-  const item = job.items[index];
-  if (!item || !job.result?.spec) return c.json({ error: "Item not ready" }, 409);
-  const gate = rerunGate(job, index);
-  if (!gate.ok) return c.json(gate.body, gate.status);
-  const used = gate.used;
   const body = await c.req.json().catch(() => ({}));
-  const credits = taskCredits({ type: job.type, rerun: true });
-  const pre = await preflight({ workspaceId: job.workspaceId, credits });
-  if (!pre.ok) return creditErrorResponse(c, pre.check);
+  const r = await executeRerun({ job, index: Number(c.req.param("index")), body, userId: c.get("auth").userId });
+  if (r.credit) return creditErrorResponse(c, r.credit);
+  return c.json(r.body, r.status);
+});
+
+const rerunDeps = { preflight, loadTaskContext, openRun, settle, rerunItem };
+
+/**
+ * One copy-only re-run. Race-safe: the gate, the `fixing` state and the
+ * count bump happen synchronously (no await in between), so a concurrent
+ * second request sees `fixing` and gets 409. Anything failing before
+ * settle() starts rolls both back; once settle() owns the run, the count
+ * stays (credits were reserved and settle releases them on error).
+ */
+export async function executeRerun({ job, index, body = {}, userId = null }, deps = rerunDeps) {
+  const item = job.items[index];
+  if (!item || !job.result?.spec) return { status: 409, body: { error: "Item not ready" } };
+  const gate = rerunGate(job, index);
+  if (!gate.ok) return { status: gate.status, body: gate.body };
+  job.rerun_counts[index] = gate.used + 1;
+  job.items[index] = { ...item, status: "fixing", stage: "Fixing" };
+  const rollback = () => { job.rerun_counts[index] = gate.used; job.items[index] = item; };
+  let run, ctx;
   try {
-    const ctx = await loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type });
-    const run = await openRun({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, brief: job.brief, bioVersion: ctx.bio?.version, credits, kind: "rerun", parentTaskId: job.id, itemIndex: index });
-    job.rerun_counts[index] = used + 1;   // counted once credits are reserved
+    const credits = taskCredits({ type: job.type, rerun: true });
+    const pre = await deps.preflight({ workspaceId: job.workspaceId, credits });
+    if (!pre.ok) { rollback(); return { credit: pre.check }; }
+    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type });
+    run = await deps.openRun({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, brief: job.brief, bioVersion: ctx.bio?.version, credits, kind: "rerun", parentTaskId: job.id, itemIndex: index });
+  } catch (e) {
+    rollback();
+    return { status: e.status || 500, body: { error: e.message, code: e.code, credits_required: e.credits_required } };
+  }
+  try {
     const ruleIds = Array.isArray(body.ruleIds) ? body.ruleIds : (job.saved_rules || []).map((r) => r.id);
-    job.items[index] = { ...item, status: "fixing", stage: "Fixing" };
-    const res = await settle({ workspaceId: job.workspaceId, brandId: job.brandId, userId: c.get("auth").userId, run,
-      work: () => rerunItem({ type: job.type, brief: job.brief, layer1: ctx.layer1, spec: job.result.spec, item, heroes: job.heroes, ruleIds, skillsPayloads: ctx.skillsPayloads }),
+    const res = await deps.settle({ workspaceId: job.workspaceId, brandId: job.brandId, userId, run,
+      work: () => deps.rerunItem({ type: job.type, brief: job.brief, layer1: ctx.layer1, spec: job.result.spec, item, heroes: job.heroes, ruleIds, skillsPayloads: ctx.skillsPayloads }),
       toOutput: (r) => rerunOutput(job, index, r) });
     job.items[index] = res.item;
     job.status = job.items.every((it) => it.status === "ready") ? "ready" : "flagged";
     job.reruns = [...(job.reruns || []), { index, run_id: run.runId, ...res.metrics }];
-    return c.json({ item: res.item, metrics: res.metrics, run_id: run.runId, reruns_left: MAX_RERUNS_PER_ITEM - job.rerun_counts[index] });
+    return { status: 200, body: { item: res.item, metrics: res.metrics, run_id: run.runId, reruns_left: MAX_RERUNS_PER_ITEM - job.rerun_counts[index] } };
   } catch (e) {
-    job.items[index] = item;
-    return c.json({ error: e.message, code: e.code, credits_required: e.credits_required }, e.status || 500);
+    job.items[index] = item;   // count stays: the reservation was made and settled
+    return { status: e.status || 500, body: { error: e.message, code: e.code } };
   }
-});
+}
 
 export default app;

@@ -55,14 +55,14 @@ export async function openRun({ workspaceId, brandId, type, brief, bioVersion, c
 /** Step 3+4: run work() under usage attribution, then finalize or release. */
 export async function settle({ workspaceId, brandId, userId, run, work, toOutput }, deps = defaultDeps) {
   const t0 = Date.now();
-  let result;
+  let result, out;
   try {
     result = await runWithUsage({ runId: run.runId, workspaceId, brandId, userId, specialistId: run.writer }, work);
+    out = toOutput(result);
   } catch (e) {
-    await release(workspaceId, run, deps).catch((err) => console.error(`[settlement] release failed: ${err.message}`));
+    await release(workspaceId, run, deps);
     throw e;
   }
-  const out = toOutput(result);
   const models = [...new Set((result.metrics?.ledger || []).map((r) => r.model).filter(Boolean))];
   const { error } = await deps.db.rpc("finalize_run_atomic", {
     p_workspace_id: workspaceId, p_run_id: run.runId, p_reservation_key: run.reservationKey,
@@ -73,12 +73,25 @@ export async function settle({ workspaceId, brandId, userId, run, work, toOutput
     p_qa_passed: out.qa_passed, p_qa_evidence: out.qa_evidence || {}, p_ledger_kind: out.ledger_kind,
   });
   if (error) {
-    await release(workspaceId, run, deps).catch(() => {});
+    await release(workspaceId, run, deps);
     throw Object.assign(new Error(`finalize failed: ${error.message}`), { status: 500 });
   }
   return result;
 }
 
-function release(workspaceId, run, deps) {
-  return deps.failRunAndReleaseCredits({ workspaceId, runId: run.runId, reservationKey: run.reservationKey, releaseKey: `${run.reservationKey}:release`, reason: "run_refund" });
+/**
+ * Release the reservation. If the release itself fails, log at error level
+ * and mark the run `release_failed` for reconciliation; never swallow it
+ * silently. The caller's original error is still the one thrown.
+ */
+async function release(workspaceId, run, deps) {
+  try {
+    await deps.failRunAndReleaseCredits({ workspaceId, runId: run.runId, reservationKey: run.reservationKey, releaseKey: `${run.reservationKey}:release`, reason: "run_refund" });
+    return true;
+  } catch (err) {
+    console.error(`[settlement] RELEASE FAILED run=${run.runId} key=${run.reservationKey}: ${err.message} (needs reconciliation)`);
+    const { error } = await deps.db.from("runs").update({ status: "release_failed", ended_at: new Date().toISOString() }).eq("id", run.runId);
+    if (error) console.error(`[settlement] could not mark run ${run.runId} release_failed: ${error.message}`);
+    return false;
+  }
 }
