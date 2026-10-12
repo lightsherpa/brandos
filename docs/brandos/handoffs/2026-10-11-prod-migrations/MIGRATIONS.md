@@ -183,3 +183,17 @@ where operation = 'completion'
   and model in ('claude-sonnet-5-5', 'claude-haiku-5-5', 'claude-opus-5-5', 'google/gemini-3.8-flash')
 order by model;
 ```
+
+## 10. `20261012000000_brand_rules.sql` (feat/task-pipeline, not merged)
+
+New table for "Save as rule" (Rehearsal beat 5). Additive. Safe before the merge. Do not apply to production without Oscar's approval.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261012000000_brand_rules.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261012000000', 'brand_rules') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select count(*) from public.brand_rules;
+```
