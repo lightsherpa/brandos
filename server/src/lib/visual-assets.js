@@ -110,3 +110,29 @@ export function certifiedVisualSourceIds(visual = {}) {
     ...(Array.isArray(visual?.type) ? visual.type.map((font) => font?.sourceId) : []),
   ].filter(Boolean));
 }
+
+// Runtime projection only. Signed URLs must never be persisted in a BIO.
+// The pipeline's Layer 1 reader expects logo.url / dark_url; source IDs remain
+// the durable certification identity and stay present in this projection.
+export async function resolveFoundationForUse(brandId, visual = {}) {
+  const ids = [...new Set([
+    visual.logo?.sourceId,
+    ...Object.values(visual.logo?.variants || {}).map(item=>item?.sourceId),
+    ...(visual.type || []).map(font=>font?.sourceId),
+  ].filter(Boolean))];
+  const assets=ids.length ? await loadVisualAssets(brandId,{sourceIds:ids}) : {logos:[],fonts:[]};
+  const logoUrls=new Map(assets.logos.map(item=>[item.id,item.url]));
+  const fontUrls=new Map(assets.fonts.map(item=>[item.id,item.url]));
+  const variants=Object.fromEntries(Object.entries(visual.logo?.variants || {}).map(([key,item])=>[key,{...item,url:item.sourceId?logoUrls.get(item.sourceId)||null:item.url||null}]));
+  const logo=visual.logo ? {
+    ...visual.logo,
+    ...(Object.keys(variants).length?{variants}:{}),
+    url:variants.dark?.url || variants.light?.url || (visual.logo.sourceId?logoUrls.get(visual.logo.sourceId)||null:visual.logo.url||null),
+    dark_url:variants.dark?.url || null,
+    light_url:variants.light?.url || null,
+  } : null;
+  const type=(visual.type || []).map(font=>({...font,...(font.sourceId?{url:fontUrls.get(font.sourceId)||null}:{})}));
+  const unresolved=[...ids].filter(id=>!logoUrls.has(id)&&!fontUrls.has(id));
+  if(unresolved.length){const error=new Error('A certified foundation upload cannot be resolved');error.code='FOUNDATION_INCOMPLETE';error.status=409;error.missing=unresolved.map(id=>`source:${id}`);throw error;}
+  return {...visual,logo,type};
+}

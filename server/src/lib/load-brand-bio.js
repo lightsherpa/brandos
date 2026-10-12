@@ -1,3 +1,6 @@
+import {foundationError} from "./brand-foundation.js";
+import {validateFoundationAssets} from "./foundation-assets.js";
+import {resolveFoundationForUse} from "./visual-assets.js";
 import {scoreBio} from "./score-bio.js";
 // Loads a brand + its active BIO from Supabase, and enforces the
 // certification gate at the data layer (the only place it can live — the
@@ -70,6 +73,10 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   if(latestError)throw bioError("BIO_UNAVAILABLE","Brand Core integrity check unavailable",503);
   const integrity=latest&&bioIntegrityError(latest,brandRow);
   if(integrity)throw bioError(integrity.code,integrity.error);
+  if (requireCertified && latest) {
+    const foundation=foundationError(latest.payload);
+    if(foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
+  }
   // Resolve the gated BIO version.
   const bioColumns = "id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at, client_acceptance_required, client_accepted_at, client_accepted_by";
   let bioRow;
@@ -113,7 +120,15 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     throw err;
   }
 
-  if(requireCertified){const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);}
+  let runtimeVisual=bioRow.payload?.visual;
+  if(requireCertified){
+    const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);
+    const foundation=foundationError(bioRow.payload);
+    if(foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
+    const invalid=await validateFoundationAssets(brandRow.id,runtimeVisual,runtimeVisual);
+    if(invalid)throw bioError('FOUNDATION_INCOMPLETE',invalid);
+    runtimeVisual=await resolveFoundationForUse(brandRow.id,runtimeVisual);
+  }
 
   return {
     brand: {
@@ -126,6 +141,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     },
     bio: normalizeBio({
       ...bioRow.payload,
+      ...(runtimeVisual?{visual:runtimeVisual}:{}),
       id:                bioRow.id,
       version:           bioRow.version,
       score:             scoreBio(bioRow.payload),

@@ -12,15 +12,15 @@ Implemented the explicit F1 → F2 → F6b → F6 → F0 scope. The verified pla
 - Colour roles: `primary`, `ink`, `surface`, `accent`. Guesses are marked inferred; designer changes are confirmed. Pure `#000000`, `#ffffff`, and `#161616` never auto-pick. Designers can explicitly choose those colours. Role changes are included in the version and authorization audit.
 - Fonts: curated Google Font selection or private licensed file upload, `Display` / `Body` / `Both`. `visual.typeScale` stores `h1` through `h6` and `body` in px. Specimens load actual Google or uploaded fonts and override the global interface font rule. Failed font loading remains visible.
 - Foundation is a separate mandatory gate over the existing confidence formula: a logo at confidence ≥60, a six-digit primary colour, and a usable display font are required. `scoreBioBreakdown` exposes `certifiable` and `missing`; incomplete displayed scores cap at 79. Legacy payloads still normalize and load without migration.
-- Both self-certification and CD/Lead approval enforce the gate. Image run preflight checks the latest foundation and the pinned certified foundation, validates source ownership, and returns `FOUNDATION_INCOMPLETE` / `foundation_incomplete` before credits, ledger, or model calls. Text run image/QA execution code is untouched.
+- Both self-certification and CD/Lead approval enforce the gate. Image run preflight checks the latest foundation and the pinned certified foundation, validates source ownership, and returns `FOUNDATION_INCOMPLETE` / `foundation_incomplete` before credits, ledger, or model calls. Image generation and QA execution code is untouched.
 - Assigned designers can read/upload/propose foundation edits. Foreign sources and unassigned designers are rejected. Edits create an uncertified append-only version.
 - Foundation strip shows light/dark logo previews, primary/ink/surface swatches, a real font specimen, and references. Missing states expose upload/edit actions. The Spanish eyebrow now says `Brand Core`; Arabic already retained the proper name.
 
 ## Validation
 
-- `npm run test:units`: **452 passed**.
-- `npm run test:foundation`: **5 passed**, exercising the real Hono routes with mocked data/model/credit boundaries.
-- Full offline scan of all 74 test files under `server/src` and `src`, plus the backfill, seed-spec validation and migration-handoff unit tests: **470 passed**. No seed command was run.
+- `npm run test:units`: **454 passed**.
+- `npm run test:foundation`: **10 passed**, exercising the real Hono routes with mocked data/model/credit boundaries.
+- Full offline scan of all 76 test files under `server/src` and `src`, plus the backfill, offline Cake Me preparation, seed-spec validation and migration-handoff unit tests: **477 passed**. No seed command was run.
 - `npm run build`: passed. Existing large-chunk advisory remains.
 - `git diff --check`: passed.
 - Fresh local browser page: no console errors or warnings.
@@ -49,4 +49,4 @@ Executed only against the previously saved local Cake Me source snapshot: **3 le
 
 ## Ownership boundaries
 
-No changes to `server/src/lib/runs.js`, `server/src/lib/models/fal-image.js`, or `server/src/lib/format-preview/`. The only run-route changes are imports and read-only foundation preflight. Internal `bio` identifiers are preserved. No files under `backups/` or `.work/` are committed. No production writes, migrations, seeds, certification or image runs were performed.
+No changes to `server/src/lib/runs.js`, `server/src/lib/models/fal-image.js`, or `server/src/lib/format-preview/`. `routes/runs.js` is also byte-for-byte unchanged from the base. The read-only preflight wraps that router in `foundation-run-gateway.js`, mounted by `index.js`. The shared `loadBrandBio(requireCertified:true)` gate protects task production before writer/model work; legacy certified foundations must be completed before production resumes. Internal `bio` identifiers are preserved. No files under `backups/` or `.work/` are committed. No production writes, migrations, seeds, certification or image runs were performed.

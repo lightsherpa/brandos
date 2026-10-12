@@ -12,7 +12,7 @@ import discovery from "./routes/discovery.js";
 import discoverySession from "./routes/discovery-session.js";
 import discoveryDelegation from "./routes/discovery-delegation.js";
 import steward from "./routes/steward.js";
-import runs from "./routes/runs.js";
+import runs from "./routes/foundation-run-gateway.js";
 import outputs from "./routes/outputs.js";
 import craft from "./routes/craft.js";
 import credits from "./routes/credits.js";

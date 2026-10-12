@@ -10,7 +10,7 @@ mock.module(new URL('lib/load-brand-bio.js',root).href,{namedExports:{loadBrandB
 mock.module(new URL('lib/models/fal-image.js',root).href,{namedExports:{isImageRoute:r=>r.startsWith('vendor/fal/'),generateWithFallback:async()=>{calls++;throw Error('model called');},resolveImageRequest:()=>{calls++;throw Error('model called');}}});
 mock.module(new URL('lib/models/router.js',root).href,{namedExports:{streamCompletion:async()=>{calls++;},isAllowedModelOverride:()=>true,routeCreditMultiplier:()=>1}});
 mock.module(new URL('lib/credits.js',root).href,{namedExports:{assertCreditsAvailable:async()=>{creditReads++;throw Error('credits accessed');},creditErrorResponse:()=>{},estimateRunCredits:()=>{creditReads++;throw Error('credits estimated');},reserveCredits:async()=>{writes++;},failRunAndReleaseCredits:async()=>{writes++;}}});
-const {default:app}=await import('./runs.js');
+const {default:app}=await import('./foundation-run-gateway.js');
 const request=()=>app.request('/stream',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({brandId:'brand',specialistId:'a41',briefText:'Cake Me post'})});
 test('legacy certified foundation blocks before any model, ledger or credit action',async()=>{
  latest={visual:{palette:[{hex:'#ffd115'}],type:[]}};active=latest;
