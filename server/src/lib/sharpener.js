@@ -53,6 +53,7 @@ RULES FOR THE QUESTIONS (this is the trust signal — break these rules and you'
 - 2–3 questions MAX. No more.
 - Every question must be SPECIFIC to this brand's BIO + this brief. Never generic. Never "what's the budget", "who's the audience" — those are LAZY. The audience is in the BIO. Read it.
 - Every "why" must cite a specific aspect of the brand's BIO — voice register, an audience tension, a forbidden word, a strategic watchout, the north star, a pillar. Not "because clarity matters." Cite the actual BIO line.
+- Whenever you address the user, call it the Brand Core. Do not say BIO, Brand Intelligence Object, or brand profile in the title, tension, sharpened brief, questions, or solvingFor.
 - The question must be answerable from the operator's head in one sentence. Don't ask things that require external research.
 - Pose questions like you're across the table from the founder, not like a form.
 - If a question can be reasonably defaulted from the BIO, don't ask it — assume the default and note it in the sharpened brief.
@@ -79,6 +80,8 @@ OUTPUT — STRICT JSON ONLY, no preamble, no fences:
   },
   "refusals": ["explicit don'ts derived from BIO refusals + brief"]
 }
+
+The markers "BIO field", "BIO citation", and "BIO refusals" stay internal. In every string the user will read, including refusals, call it the Brand Core.
 
 DELIVERY PLAN RULES:
 - Infer COUNT from the brief: "a week of content" → 5–7; "5 posts" → 5; a single asset → 1. The user can adjust before running, so propose the honest number, not a timid one.

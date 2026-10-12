@@ -122,7 +122,7 @@ window.CI_AGENTS = [
   { id:"a52", code:"L2-52", dept:"Motion & Sound", name:"Sonic Logo",        job:"Audio brand cues — sonic logos, intros, transitions.",                                               model:"elevenlabs", cr:8,  status:"soon" },
 
   // Research & Ops (7) — was "AI Discovery & Ops"; BIO Compiler + Audit marked internal (hidden from directory)
-  { id:"a30", code:"L2-30", dept:"Research & Ops", name:"BIO Compiler",       job:"Compiles the Brand Intelligence Object from intake.",                                                model:"gemPro",     cr:10, status:"live", internal:true },
+  { id:"a30", code:"L2-30", dept:"Research & Ops", name:"Brand Core Compiler", job:"Compiles the Brand Core from intake.",                                                          model:"gemPro",     cr:10, status:"live", internal:true },
   { id:"a31", code:"L2-31", dept:"Research & Ops", name:"Site Scanner",       job:"Scrapes + scores brand surfaces. Powers extraction.",                                                model:"exa",      cr:3,  status:"live" },
   { id:"a32", code:"L2-32", dept:"Research & Ops", name:"Competitor Map",     job:"Maps the category. Names the table around the brand.",                                              model:"exa",      cr:4,  status:"live" },
   { id:"a33", code:"L2-33", dept:"Research & Ops", name:"Audit & Ledger",     job:"Reconciles spend, flags variance, writes invoices.",                                                model:"haiku",    cr:1,  status:"live", internal:true },
