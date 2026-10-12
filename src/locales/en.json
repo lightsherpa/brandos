@@ -28,7 +28,8 @@
     "specialists": "Specialists",
     "humans": "Humans",
     "credits": "Credits",
-    "account": "Account"
+    "account": "Account",
+    "tasks": "Tasks"
   },
   "section": {
     "createBriefs": "Create / Briefs",

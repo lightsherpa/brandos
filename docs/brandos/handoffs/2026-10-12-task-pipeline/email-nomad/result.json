@@ -1,0 +1,730 @@
+{
+  "brand": "Nomad Coffee",
+  "brief": "Secuencia de bienvenida de 3 emails para nuevos suscriptores de NOMAD atHome: bienvenida, cómo preparar mejor tu café en casa, y cómo ajustar o pausar la suscripción. CTA a https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+  "type": "email_sequence",
+  "status": "ready",
+  "items": [
+    {
+      "index": 0,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 0,
+        "purpose": "welcome",
+        "subject": "Bienvenido a NOMAD atHome",
+        "preheader": "De nuestra casa a la tuya: así empieza tu suscripción mensual de café de especialidad.",
+        "headline": "Bienvenido a NOMAD atHome",
+        "body_blocks": [
+          "Somos Nomad Coffee, tostadores de café de especialidad en Barcelona. Con NOMAD atHome recibes café en casa cada mes, de nuestra casa a la tuya.",
+          "Para nosotros, buen café es el que tiene origen claro, un tueste cuidado y notas de cata que puedes reconocer en la taza. Es nuestro punto de vista, y te lo contamos con detalle en cada café.",
+          "No necesitas experiencia previa. En los próximos días te enviaremos ideas para preparar mejor tu café y te explicaremos cómo ajustar o pausar la suscripción."
+        ],
+        "cta": {
+          "label": "Ver tu suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Nomad Coffee es un tostador de café de especialidad de Barcelona",
+          "NOMAD atHome es una suscripción mensual de café para casa",
+          "Nomad ofrece notas de cata e información de origen y tueste"
+        ]
+      },
+      "html_bytes": 11848,
+      "image": null,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 25/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 86 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 25/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 87/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Ver tu suscripción\" → https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "11.6 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 11848
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Welcomes new subscriber with intro to NOMAD atHome and required CTA link.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Informative, educational tone; avoids forbidden words and claims.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Serves as day 0 welcome email setting expectations for the series.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "CTA links directly to the specified subscription page.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "All statements align strictly with brief and Brand Core.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject welcomes, preheader elaborates on origin and subscription delivery.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 1,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 3,
+        "purpose": "value",
+        "subject": "Cómo preparar mejor tu café en casa",
+        "preheader": "Tres ajustes sencillos, pensados para quien empieza, que mejoran la taza sin equipo complicado.",
+        "headline": "Prepara mejor tu café en casa",
+        "body_blocks": [
+          "Mejorar tu café no requiere ser profesional. Empieza con tres hábitos.",
+          "1. Pesa. Usa una báscula para el café y para el agua. Así puedes repetir la receta que te gustó.",
+          "2. Muele justo antes de preparar. El café molido pierde aroma con el tiempo, así que muele solo lo que vas a usar.",
+          "3. Cambia una sola cosa cada vez. Si la taza sale amarga o ácida, ajusta la molienda y anota el resultado antes de tocar otra variable.",
+          "Cada café de tu suscripción llega con sus notas de cata. Úsalas como guía para saber qué buscar en la taza."
+        ],
+        "cta": {
+          "label": "Explora NOMAD atHome",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Recomendaciones generales de preparación: pesar, moler justo antes y cambiar una variable cada vez",
+          "Los cafés de la suscripción incluyen notas de cata"
+        ]
+      },
+      "html_bytes": 12710,
+      "image": null,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 35/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 95 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 29/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 101/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Explora NOMAD atHome\" → https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "12.4 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 12710
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Delivers educational guide on brewing coffee at home as requested.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Direct, non-pretentious; emphasizes that professional skills are not needed.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Day 3 value-add educational content follows the initial welcome.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "CTA links to the specified subscription landing page.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Brewing tips are general and supported by the brief.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject states guide topic; preheader specifies three simple adjustments.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 2,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 7,
+        "purpose": "convert",
+        "subject": "Ajusta o pausa tu suscripción",
+        "preheader": "NOMAD atHome se adapta a tu consumo: cambia lo que necesites cuando lo necesites.",
+        "headline": "Tu suscripción, a tu ritmo",
+        "body_blocks": [
+          "NOMAD atHome es una suscripción flexible. Si bebes más o menos café de lo previsto, puedes ajustarla.",
+          "Si te vas de viaje o necesitas un descanso, puedes pausarla y retomarla cuando te venga bien.",
+          "Toda la información sobre las opciones de tu suscripción está en la página de NOMAD atHome. Revísala y deja el plan como mejor te encaje."
+        ],
+        "cta": {
+          "label": "Gestiona tu suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "La suscripción NOMAD atHome es flexible",
+          "La suscripción se puede ajustar o pausar",
+          "Las opciones de suscripción están en la página de NOMAD atHome"
+        ]
+      },
+      "html_bytes": 11696,
+      "image": null,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 29/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 81 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 26/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 59/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Gestiona tu suscripción\" → https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "11.4 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 11696
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Covers adjusting and pausing the subscription as required by the brief.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Direct, clear explanation of flexible home subscription without forbidden terms.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Day 7 conclusion focuses on subscription management flexibility.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "CTA leads directly to the required subscription management URL.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Claims about subscription flexibility and pausing are supported.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject names action; preheader explains adaptation to personal consumption.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    }
+  ],
+  "spec": {
+    "task": "email_sequence",
+    "language": "es",
+    "smp": "NOMAD atHome lleva a tu casa café de especialidad de nuestros tostadores de Barcelona, con una suscripción mensual que se adapta a tu ritmo.",
+    "emails": [
+      {
+        "day_offset": 0,
+        "purpose": "welcome",
+        "subject": "Bienvenido a NOMAD atHome",
+        "preheader": "De nuestra casa a la tuya: así empieza tu suscripción mensual de café de especialidad.",
+        "headline": "Bienvenido a NOMAD atHome",
+        "body_blocks": [
+          "Somos Nomad Coffee, tostadores de café de especialidad en Barcelona. Con NOMAD atHome recibes café en casa cada mes, de nuestra casa a la tuya.",
+          "Para nosotros, buen café es el que tiene origen claro, un tueste cuidado y notas de cata que puedes reconocer en la taza. Es nuestro punto de vista, y te lo contamos con detalle en cada café.",
+          "No necesitas experiencia previa. En los próximos días te enviaremos ideas para preparar mejor tu café y te explicaremos cómo ajustar o pausar la suscripción."
+        ],
+        "cta": {
+          "label": "Ver tu suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Nomad Coffee es un tostador de café de especialidad de Barcelona",
+          "NOMAD atHome es una suscripción mensual de café para casa",
+          "Nomad ofrece notas de cata e información de origen y tueste"
+        ]
+      },
+      {
+        "day_offset": 3,
+        "purpose": "value",
+        "subject": "Cómo preparar mejor tu café en casa",
+        "preheader": "Tres ajustes sencillos, pensados para quien empieza, que mejoran la taza sin equipo complicado.",
+        "headline": "Prepara mejor tu café en casa",
+        "body_blocks": [
+          "Mejorar tu café no requiere ser profesional. Empieza con tres hábitos.",
+          "1. Pesa. Usa una báscula para el café y para el agua. Así puedes repetir la receta que te gustó.",
+          "2. Muele justo antes de preparar. El café molido pierde aroma con el tiempo, así que muele solo lo que vas a usar.",
+          "3. Cambia una sola cosa cada vez. Si la taza sale amarga o ácida, ajusta la molienda y anota el resultado antes de tocar otra variable.",
+          "Cada café de tu suscripción llega con sus notas de cata. Úsalas como guía para saber qué buscar en la taza."
+        ],
+        "cta": {
+          "label": "Explora NOMAD atHome",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Recomendaciones generales de preparación: pesar, moler justo antes y cambiar una variable cada vez",
+          "Los cafés de la suscripción incluyen notas de cata"
+        ]
+      },
+      {
+        "day_offset": 7,
+        "purpose": "convert",
+        "subject": "Ajusta o pausa tu suscripción",
+        "preheader": "NOMAD atHome se adapta a tu consumo: cambia lo que necesites cuando lo necesites.",
+        "headline": "Tu suscripción, a tu ritmo",
+        "body_blocks": [
+          "NOMAD atHome es una suscripción flexible. Si bebes más o menos café de lo previsto, puedes ajustarla.",
+          "Si te vas de viaje o necesitas un descanso, puedes pausarla y retomarla cuando te venga bien.",
+          "Toda la información sobre las opciones de tu suscripción está en la página de NOMAD atHome. Revísala y deja el plan como mejor te encaje."
+        ],
+        "cta": {
+          "label": "Gestiona tu suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "La suscripción NOMAD atHome es flexible",
+          "La suscripción se puede ajustar o pausar",
+          "Las opciones de suscripción están en la página de NOMAD atHome"
+        ]
+      }
+    ]
+  },
+  "metrics": {
+    "total_ms": 23463,
+    "stage_ms": {
+      "Planning": 0,
+      "Writing": 4,
+      "Imaging": 16279,
+      "Checking": 16310,
+      "Ready": 23463
+    },
+    "cost": {
+      "total_usd": 0.0296,
+      "calls": 2,
+      "by_step": {
+        "writing": 0.0256,
+        "review": 0.0039
+      },
+      "limits": {
+        "maxUsd": 0.5,
+        "maxImageCalls": 7,
+        "maxTextCalls": 10,
+        "imageConcurrency": 3
+      }
+    },
+    "ledger": [
+      {
+        "at": "2026-10-12T16:36:35.210Z",
+        "kind": "text",
+        "step": "writing",
+        "model": "claude-sonnet-5-5",
+        "cost_usd": 0.025648,
+        "ms": 16272,
+        "tokens_in": 1509,
+        "tokens_out": 2263,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:36:42.396Z",
+        "kind": "text",
+        "step": "review",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.0039195,
+        "ms": 7152,
+        "tokens_in": 1351,
+        "tokens_out": 775,
+        "fallback_from": null,
+        "error": null
+      }
+    ],
+    "models": [
+      "claude-sonnet-5-5",
+      "google/gemini-3.8-flash"
+    ]
+  },
+  "progress": [
+    {
+      "at": "0.0",
+      "index": 0,
+      "status": "writing"
+    },
+    {
+      "at": "0.0",
+      "index": 1,
+      "status": "writing"
+    },
+    {
+      "at": "0.0",
+      "index": 2,
+      "status": "writing"
+    },
+    {
+      "at": "16.3",
+      "index": 0,
+      "status": "checking"
+    },
+    {
+      "at": "16.3",
+      "index": 1,
+      "status": "checking"
+    },
+    {
+      "at": "16.3",
+      "index": 2,
+      "status": "checking"
+    },
+    {
+      "at": "16.3",
+      "index": 0,
+      "status": "checking"
+    },
+    {
+      "at": "16.3",
+      "index": 1,
+      "status": "checking"
+    },
+    {
+      "at": "16.3",
+      "index": 2,
+      "status": "checking"
+    },
+    {
+      "at": "23.5",
+      "index": 0,
+      "status": "ready"
+    },
+    {
+      "at": "23.5",
+      "index": 1,
+      "status": "ready"
+    },
+    {
+      "at": "23.5",
+      "index": 2,
+      "status": "ready"
+    }
+  ]
+}

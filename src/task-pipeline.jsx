@@ -1,0 +1,226 @@
+import React from "react";
+import { apiFetch } from "./lib/supabase-browser.js";
+
+// Task pipeline run board (feat/task-pipeline). One card per deliverable,
+// stage progress as verbs, skeletons + ETA, progressive results, and the
+// task keeps running server-side if the user leaves (resumed from storage).
+const { useState, useEffect, useRef } = React;
+
+const STAGES = ["Planning", "Writing", "Imaging", "Checking", "Fixing", "Ready"];
+const TYPES = {
+  social_post: { label: "Social post", hint: "3 Instagram posts, 1 image each", writer: "a16 Social Captions", skills: "a37 Headlines", reviewer: "a18 Voice QA + a24 Brand Consistency" },
+  email_sequence: { label: "Email sequence", hint: "3 branded HTML emails", writer: "a13 Email Sequence", skills: "a14 Subject Lines, a12 Conversion Copy", reviewer: "a18 Voice QA" },
+};
+const STATUS_DOT = { queued: "#a8a29e", writing: "#a16207", imaging: "#a16207", checking: "#a16207", fixing: "#b45309", ready: "#15803d", flagged: "#b91c1c" };
+const STATUS_WORD = { queued: "Queued", writing: "Writing", imaging: "Designing", checking: "Checking", fixing: "Fixing", ready: "Ready", flagged: "Needs review" };
+const storageKey = (brandId) => `brandos.task.${brandId}`;
+const RULE_CHECKS = new Set(["BANNED", "BRIEF_BANNED", "voice_on_brand", "no_unsupported_claim"]);
+
+const css = {
+  page: { maxWidth: 1180, margin: "0 auto", padding: "28px 24px 80px", fontFamily: "'Instrument Sans', system-ui, sans-serif", color: "var(--c-ink, #1c1917)" },
+  h1: { fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 34, margin: "0 0 4px" },
+  card: { background: "var(--c-card, #fff)", border: "1px solid var(--c-line, #e7e5e4)", borderRadius: 8, overflow: "hidden" },
+  primary: { background: "#1c1917", color: "#fff", border: 0, borderRadius: 999, padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
+  secondary: { background: "transparent", color: "#1c1917", border: "1px solid #d6d3d1", borderRadius: 999, padding: "6px 12px", fontSize: 12, cursor: "pointer" },
+  dim: { color: "var(--c-dim, #78716c)", fontSize: 12 },
+};
+
+function Status({ status }) {
+  return <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12 }}><span style={{ width: 8, height: 8, borderRadius: 999, background: STATUS_DOT[status] || "#a8a29e" }} />{STATUS_WORD[status] || status}</span>;
+}
+
+function Stepper({ stage, status }) {
+  const at = stage === "Flagged" ? 5 : Math.max(0, STAGES.indexOf(stage));
+  return (
+    <ol style={{ display: "flex", gap: 6, listStyle: "none", padding: 0, margin: "16px 0", flexWrap: "wrap" }}>
+      {STAGES.map((s, i) => {
+        const done = i < at || (i === at && (status === "ready" || status === "flagged"));
+        const live = i === at && !done;
+        return <li key={s} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: done || live ? "#1c1917" : "#a8a29e" }}>
+          <span style={{ width: 8, height: 8, borderRadius: 999, background: done ? "#15803d" : live ? "#a16207" : "#d6d3d1" }} />
+          {s === "Ready" && status === "flagged" ? "Needs review" : s === "Imaging" ? "Designing" : s}{i < STAGES.length - 1 && <span style={{ color: "#d6d3d1", marginLeft: 6 }}>—</span>}
+        </li>;
+      })}
+    </ol>
+  );
+}
+
+function Skeleton({ type }) {
+  return <div style={{ ...css.card, padding: 14 }}>
+    <div style={{ background: "#f5f5f4", borderRadius: 4, aspectRatio: type === "social_post" ? "4 / 5" : "3 / 4", animation: "tpPulse 1.6s ease-in-out infinite" }} />
+    <div style={{ height: 10, background: "#f5f5f4", borderRadius: 4, marginTop: 12, width: "80%" }} />
+    <div style={{ height: 10, background: "#f5f5f4", borderRadius: 4, marginTop: 8, width: "55%" }} />
+  </div>;
+}
+
+function Preview({ type, html, scale }) {
+  if (!html) return null;
+  if (type === "social_post") {
+    return <div style={{ width: "100%", aspectRatio: "4 / 5", overflow: "hidden", position: "relative", background: "#f5f5f4" }}>
+      <iframe title="post" srcDoc={html} sandbox="" style={{ border: 0, width: 1080, height: 1350, transform: `scale(${scale})`, transformOrigin: "0 0", position: "absolute", top: 0, left: 0 }} />
+    </div>;
+  }
+  return <iframe title="email" srcDoc={html} sandbox="" style={{ border: 0, width: "100%", height: 560, background: "#fff" }} />;
+}
+
+function CheckPanel({ checks = [], review = [], onSaveRule }) {
+  const all = [...checks, ...review];
+  const failed = all.filter((c) => !c.pass);
+  return <details open={failed.length > 0} style={{ borderTop: "1px solid #e7e5e4", padding: "8px 14px" }}>
+    <summary style={{ cursor: "pointer", fontSize: 12 }}>{failed.length ? `${failed.length} issue${failed.length > 1 ? "s" : ""}` : "All checks passed"} · {all.length} checks</summary>
+    <ul style={{ margin: "6px 0 0", padding: 0, listStyle: "none" }}>
+      {all.map((c, i) => <li key={c.id + i} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12, padding: "3px 0" }}>
+        <span style={{ width: 8, height: 8, borderRadius: 999, marginTop: 4, flex: "none", background: c.pass ? "#15803d" : c.severity === "soft" ? "#b45309" : "#b91c1c" }} />
+        <span style={{ flex: 1 }}><strong style={{ fontWeight: 600 }}>{c.id.replace(/_/g, " ").toLowerCase()}</strong> <span style={css.dim}>{c.reason}</span></span>
+        {!c.pass && RULE_CHECKS.has(c.id) && onSaveRule && <button style={css.secondary} onClick={() => onSaveRule(c)}>Save as rule</button>}
+      </li>)}
+    </ul>
+  </details>;
+}
+
+function RuleForm({ check, onCancel, onSave }) {
+  const guess = (String(check.reason).match(/:\s*([^.(]+)/) || [])[1] || "";
+  const [value, setValue] = useState(guess.split(",")[0].trim());
+  const [reason, setReason] = useState(check.reason);
+  const [kind, setKind] = useState(check.id.includes("BANNED") ? "banned_word" : "guideline");
+  return <div style={{ padding: "10px 14px", borderTop: "1px solid #e7e5e4", background: "#fafaf9", fontSize: 12, display: "grid", gap: 6 }}>
+    <label>Rule type <select value={kind} onChange={(e) => setKind(e.target.value)}><option value="banned_word">Never use this word or phrase</option><option value="guideline">Guideline</option></select></label>
+    <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="Word, phrase or guideline" style={{ padding: 6, border: "1px solid #d6d3d1", borderRadius: 4 }} />
+    <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why" style={{ padding: 6, border: "1px solid #d6d3d1", borderRadius: 4 }} />
+    <div style={{ display: "flex", gap: 8 }}><button style={css.primary} disabled={!value.trim()} onClick={() => onSave({ kind, value, reason, checkId: check.id })}>Save to Brand Core</button><button style={css.secondary} onClick={onCancel}>Cancel</button></div>
+  </div>;
+}
+
+function ItemCard({ type, item, taskId, onItem }) {
+  const [rule, setRule] = useState(null);
+  const [saved, setSaved] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [showBefore, setShowBefore] = useState(false);
+  const [err, setErr] = useState(null);
+  const box = useRef(null);
+  const [scale, setScale] = useState(0.3);
+  useEffect(() => { const w = box.current?.offsetWidth; if (w) setScale(w / 1080); });
+  const copy = showBefore && item.before ? item.before.copy : item.copy;
+  const save = async (body) => {
+    setErr(null);
+    const res = await apiFetch(`/api/tasks/${taskId}/rules`, { method: "POST", body: JSON.stringify({ ...body, index: item.index }) });
+    const j = await res.json();
+    if (!res.ok) return setErr(j.error || "Could not save the rule");
+    setSaved(j.rule); setRule(null);
+  };
+  const rerun = async () => {
+    setBusy(true); setErr(null);
+    const res = await apiFetch(`/api/tasks/${taskId}/items/${item.index}/rerun`, { method: "POST", body: JSON.stringify({ ruleIds: saved ? [saved.id] : undefined }) });
+    const j = await res.json(); setBusy(false);
+    if (!res.ok) return setErr(j.error || "Re-run failed");
+    onItem(j.item, j.metrics);
+  };
+  return <article ref={box} style={css.card}>
+    {type === "social_post"
+      ? (showBefore && item.before?.image_url ? <img alt="" src={item.before.image_url} style={{ width: "100%", display: "block" }} /> : <Preview type={type} html={item.html} scale={scale} />)
+      : <div style={{ padding: "10px 14px", borderBottom: "1px solid #e7e5e4", fontSize: 13 }}><div><strong>{copy?.subject}</strong></div><div style={css.dim}>{copy?.preheader}</div></div>}
+    {type === "email_sequence" && !showBefore && <Preview type={type} html={item.html} />}
+    <div style={{ padding: "10px 14px", display: "grid", gap: 6 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+        <Status status={busy ? "fixing" : item.status} />
+        <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {item.rule_applied?.some((r) => r.applied) && <span style={{ fontSize: 11, border: "1px solid #15803d", color: "#15803d", borderRadius: 999, padding: "2px 8px" }}>Rule applied</span>}
+          {item.before && <button style={css.secondary} onClick={() => setShowBefore(!showBefore)}>{showBefore ? "Show after" : "Show before"}</button>}
+        </span>
+      </div>
+      {type === "social_post" && copy && <p style={{ margin: 0, fontSize: 13, whiteSpace: "pre-wrap" }}>{copy.caption}<br /><span style={css.dim}>{(copy.hashtags || []).join(" ")}</span></p>}
+      {item.before && showBefore && <div style={{ fontSize: 12, color: "#b91c1c" }}>Before: {item.before.failed.map((f) => `${f.id}: ${f.reason}`).join(" · ")}</div>}
+      {item.image && <span style={css.dim}>Image: {item.image.model?.replace("vendor/fal/", "")}{item.image.fallback_from ? " (fallback)" : ""} · {item.image.reference_count || 0} Brand Core refs · {item.image.ocr?.pass ? "no text detected" : item.image.ocr?.reason || ""}</span>}
+      <span style={css.dim}>Written by {TYPES[type].writer} (skills: {TYPES[type].skills}) · reviewed by {TYPES[type].reviewer}</span>
+    </div>
+    <CheckPanel checks={item.checks} review={item.review} onSaveRule={item.status === "ready" || item.status === "flagged" ? setRule : null} />
+    {rule && <RuleForm check={rule} onCancel={() => setRule(null)} onSave={save} />}
+    {saved && <div style={{ padding: "10px 14px", borderTop: "1px solid #e7e5e4", fontSize: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+      <span><span style={{ color: "#15803d" }}>●</span> Saved to Brand Core: {saved.kind === "banned_word" ? `never use “${saved.value}”` : saved.value}</span>
+      <button style={css.primary} disabled={busy} onClick={rerun}>{busy ? "Rewriting…" : "Re-run this copy"}</button>
+    </div>}
+    {err && <div style={{ padding: "6px 14px", fontSize: 12, color: "#b91c1c" }}>{err}</div>}
+  </article>;
+}
+
+export function TaskPipelineView({ go }) {
+  const brandId = window.useCurrentBrandId ? window.useCurrentBrandId() : null;
+  const [type, setType] = useState("social_post");
+  const [brief, setBrief] = useState("");
+  const [heroes, setHeroes] = useState(false);
+  const [task, setTask] = useState(null);
+  const [taskId, setTaskId] = useState(null);
+  const [error, setError] = useState(null);
+  const [startedAt, setStartedAt] = useState(null);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => { if (!brandId) return; const saved = localStorage.getItem(storageKey(brandId)); if (saved) setTaskId(saved); }, [brandId]);
+  useEffect(() => {
+    if (!taskId) return undefined;
+    let stop = false; let timer;
+    const poll = async () => {
+      const res = await apiFetch(`/api/tasks/${taskId}`);
+      if (stop) return;
+      if (res.status === 404) { localStorage.removeItem(storageKey(brandId)); setTaskId(null); setTask(null); return; }
+      const j = await res.json();
+      setTask(j); setType(j.type);
+      if (!startedAt) setStartedAt(Date.parse(j.created_at));
+      if (j.status === "running") timer = setTimeout(poll, 1500);
+    };
+    poll();
+    return () => { stop = true; clearTimeout(timer); };
+  }, [taskId]);
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+
+  const run = async () => {
+    setError(null); setTask(null);
+    const res = await apiFetch("/api/tasks", { method: "POST", body: JSON.stringify({ brandId, type, brief, heroes }) });
+    const j = await res.json();
+    if (!res.ok) return setError(j.error || "Could not start the task");
+    localStorage.setItem(storageKey(brandId), j.id);
+    setStartedAt(Date.now()); setTaskId(j.id);
+    setTask({ id: j.id, type, status: "running", stage: j.stage, eta_s: j.eta_s, items: [], notices: [] });
+  };
+  const onItem = (item) => setTask((t) => ({ ...t, items: t.items.map((it) => (it.index === item.index ? item : it)) }));
+
+  const running = task?.status === "running";
+  const elapsed = startedAt ? Math.round((now - startedAt) / 1000) : 0;
+  const remaining = task?.eta_s ? Math.max(0, task.eta_s - elapsed) : null;
+  const count = 3;
+  const metrics = task?.result?.metrics;
+
+  return <div style={css.page}>
+    <style>{"@keyframes tpPulse{0%,100%{opacity:1}50%{opacity:.55}}"}</style>
+    <h1 style={css.h1}>Tasks</h1>
+    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>One brief, one finished deliverable. Written, designed and checked against your Brand Core.</p>
+    {!brandId && <p>Select a brand first.</p>}
+    <section style={{ ...css.card, padding: 16, display: "grid", gap: 12, marginTop: 16 }}>
+      <div style={{ display: "flex", gap: 8 }}>
+        {Object.entries(TYPES).map(([id, t]) => <button key={id} onClick={() => setType(id)} disabled={running} style={{ flex: 1, textAlign: "left", padding: 12, borderRadius: 8, cursor: "pointer", background: type === id ? "#1c1917" : "#fff", color: type === id ? "#fff" : "#1c1917", border: "1px solid #d6d3d1" }}><div style={{ fontWeight: 600 }}>{t.label}</div><div style={{ fontSize: 12, opacity: 0.75 }}>{t.hint}</div></button>)}
+      </div>
+      <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={4} placeholder="What should this deliverable achieve? Audience, key message, call to action." style={{ padding: 10, border: "1px solid #d6d3d1", borderRadius: 8, font: "inherit" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {type === "email_sequence" ? <label style={{ fontSize: 13 }}><input type="checkbox" checked={heroes} onChange={(e) => setHeroes(e.target.checked)} /> Add a hero image to each email</label> : <span />}
+        <button style={css.primary} disabled={!brandId || running || brief.trim().length < 10} onClick={run}>Run</button>
+      </div>
+      {error && <div style={{ color: "#b91c1c", fontSize: 13 }}>{error}</div>}
+    </section>
+
+    {task && <section style={{ marginTop: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+        <h2 style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 24, margin: 0 }}>{TYPES[task.type]?.label}</h2>
+        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? `Finished in ${(metrics.total_ms / 1000).toFixed(0)}s · $${metrics.cost.total_usd.toFixed(3)}` : task.status === "failed" ? task.error : ""}</span>
+      </div>
+      <Stepper stage={task.stage} status={task.status} />
+      {(task.notices || []).map((n, i) => <div key={i} style={{ fontSize: 12, color: "#b45309", marginBottom: 4 }}>● {n}</div>)}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginTop: 12 }}>
+        {Array.from({ length: Math.max(count, task.items.length) }, (_, i) => task.items[i]).map((item, i) =>
+          item && (item.html || item.status === "ready" || item.status === "flagged")
+            ? <ItemCard key={i} type={task.type} item={item} taskId={task.id} onItem={onItem} />
+            : <div key={i}><Skeleton type={task.type} /><div style={{ ...css.dim, marginTop: 6 }}><Status status={item?.status || "queued"} /></div></div>)}
+      </div>
+    </section>}
+  </div>;
+}
+
+Object.assign(window, { TaskPipelineView });

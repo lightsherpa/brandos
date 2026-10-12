@@ -35,6 +35,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 const CLIENT_ROUTES = [
   { id:"home",        labelKey:"nav.create",      icon:"sparkles", sectionKey:"section.createBriefs" },
   { id:"briefs",      labelKey:"nav.briefs",      icon:"brief",    sectionKey:"section.createBriefs" },
+  { id:"tasks",       labelKey:"nav.tasks",       icon:"sparkles", sectionKey:"section.createBriefs" },
   { id:"bio",         labelKey:"nav.bio",         icon:"bio",      sectionKey:"section.bioLibrary" },
   { id:"library",     labelKey:"nav.library",     icon:"files",    sectionKey:"section.bioLibrary" },
   { id:"specialists", labelKey:"nav.specialists", icon:"team",     sectionKey:"section.specialistsHumans" },
@@ -850,6 +851,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "specialist-new": return <SpecialistAuthor go={go} />;
     case "canvas":       return <CanvasView go={go} prototype={route.param === "prototype"} />;
     case "formats":      return <window.FormatPreviewView briefId={route.param} go={go} />;
+    case "tasks":        return <window.TaskPipelineView go={go} />;
     case "craft":        return <CraftMarketplace go={go} tier={tweaks.tier} />;
     case "credits":      return <SettingsView section="usage" go={go} onLogout={onLogout} />;
     case "settings":     return <SettingsView section={route.param} go={go} onLogout={onLogout} />;
