@@ -61,3 +61,12 @@ export function validateFoundationVisual(visual = {}) {
   }
   return null;
 }
+
+// Proposals for a legacy palette when the designer opens the editor.
+// Existing assigned roles win; framework defaults stay unassigned.
+export function suggestColourRoles(palette = []) {
+  if(palette.some(colour=>COLOUR_ROLES.includes(colour.role)))return palette.map(colour=>({...colour}));
+  const candidates=palette.filter(colour=>/^#[\da-f]{6}$/i.test(colour?.hex||'')&&!['#000000','#ffffff','#161616'].includes(colour.hex.toLowerCase()));
+  const suggested=new Map(inferColourRoles(candidates).map(colour=>[colour.hex.toLowerCase(),colour]));
+  return palette.map(colour=>suggested.get(colour.hex?.toLowerCase()) || {...colour});
+}

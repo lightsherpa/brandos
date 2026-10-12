@@ -1,3 +1,4 @@
+@font-face{font-family:FoundationFallbackInstrument;src:url(/caastor/assets/fonts/instrument-sans.ttf) format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
 .foundation-strip{border:1px solid var(--c-line);border-radius:12px;padding:20px;margin:0 0 24px;background:var(--c-card)}
 .foundation-heading{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px}.foundation-heading p{font-size:12px;color:var(--c-dim);margin:6px 0 0}
 .foundation-grid{display:grid;grid-template-columns:1.3fr 1fr 1.2fr 1fr;gap:12px}.foundation-card{min-width:0;border:1px solid var(--c-line);border-radius:8px;padding:12px}.foundation-card h3{font-size:12px;margin:0 0 12px;font-weight:600}.foundation-card small,.foundation-card p{font-size:11px;color:var(--c-dim)}
@@ -10,3 +11,5 @@
 .foundation-logo--dark .btn--link{color:#fff!important}.foundation-incomplete{color:var(--status-warning,#9b6b28);max-width:230px;line-height:1.5}.bio-hero .page-actions{flex-wrap:wrap;justify-content:flex-end}
 
 .bio-viewer .foundation-specimen,.bio-viewer .brand-font-specimen{font-family:var(--brand-specimen-font)!important}.cos-bio .bio-hero .num{white-space:nowrap}
+
+.foundation-fallback{display:block;color:var(--status-warning,#9b6b28)!important;margin-bottom:8px}

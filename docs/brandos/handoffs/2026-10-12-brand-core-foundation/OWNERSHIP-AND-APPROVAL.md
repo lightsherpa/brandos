@@ -2,20 +2,17 @@
 
 Read-only comparison on 12 October 2026. Foundation branch remains based on `17c5e21`; no task-pipeline checkout files were modified.
 
-`CaastorOS/.work/PLAN.md` is absent on this host. The path was checked again after clarification, along with the accessible worktree/handoff directories. Only `PLAN-VERIFIED.md` is available. The supplied build order is recorded here without claiming that section 8 was read.
+The user has now supplied section 8 directly. `SECTION-8-SCOPE.md` is the authoritative current scope. Earlier numbering below is historical: F1/F2/F5 and copy-agent guard belong to task-pipeline; our current slices are F3, F0, F7, F6b, F6 and F4.
 
-| Slice | Foundation branch / owner |
+| Current slice | Result |
 |---|---|
-| F1 logo | Implemented: uploads, inert SVG/PNG, variants, fetched-HTML discovery. |
-| F2 colour roles | Implemented: primary/ink/surface/accent, designer edits and audit, framework default filtering. |
-| F3 references | Skip implementation: `feat/task-pipeline` `737c039` and `8897c18` pass up to three references to image routes. The foundation strip provides upload/visibility. |
-| F0 strip | Implemented with Missing states and local Cake Me before/after screenshots. |
-| F7 branded email | Skip implementation: task-pipeline's harness renderer and MJML template already consume logo and palette tokens. |
-| F6b fonts | Implemented: Google Font selection, licensed upload, display/body, px scale and real-font specimen. |
-| F6 cert gate | Implemented: certification and shared production-loader gate; image gateway response is `foundation_incomplete` before credit/model work; displayed score caps at 79. |
-| F4 logo on posts | Skip image/render implementation: task-pipeline already has the HTML logo composite. Its own handoff notes that variant selection and PNG export remain renderer follow-ups owned there. |
-| F5 Cake Me load | **Prepared only. Requires Oscar's approval and official asset inputs. No production load, seed, certification or backfill applied.** |
-| F8 before/after | Local foundation screenshots are complete. Production post/email rehearsal is prepared in the checklist below and depends on approved F5 plus pipeline integration. No paid run was initiated. |
+| F3 logo | SVG/PNG upload, variants, five HTML fixtures, deterministic auto-find, uploads win at confidence 100. |
+| F0 strip | Current Brand Core screen, above strategy, logo light/dark, primary/ink/surface, real-font specimen, reference thumbnails, Missing + Upload. |
+| F7 palette roles | Per-swatch role selection; new extraction and legacy editor default guesses; framework defaults are excluded from automatic proposals. Explicit designer choices remain editable. |
+| F6b fonts | Google Font or licensed upload; display/body and px scale; labelled Instrument Sans fallback cannot satisfy missing display type. |
+| F6 gate | Certification/shared production gate and read-only image gateway; cap 79, foundation_incomplete, zero model/credit/ledger work. |
+| F4 compositor | Standalone Sharp/SVG PNG compositor and local CLI, real font outlines and real logo buffers, contrast variant and primary bar; no protected-path wiring. |
+| F1/F2/F5 + copy guard | Task-pipeline-owned; skipped in this follow-up. Earlier Cake Me approval artifacts remain unexecuted preparation only and are handed to that owner. |
 
 ## Protected-file boundary
 
@@ -34,11 +31,11 @@ A saved uploaded logo stores **source IDs**, not an expiring signed URL. `resolv
 
 These values are a runtime projection; the persisted payload, hash and durable IDs are unchanged. Missing/deleted/unresolvable pinned assets fail closed.
 
-Task-pipeline's current `buildLayer1` reads `logo.url` / `dark_url`, so an uploaded source-ID logo can now reach it without a change to that file. Its renderer still owns choosing contrast variants, loading the real font in exported HTML, and PNG export. Those are documented integration follow-ups, not claimed complete here.
+Task-pipeline's current `buildLayer1` reads `logo.url` / `dark_url`, so an uploaded source-ID logo can now reach it without a change to that file. The standalone `composeSocial` now provides contrast selection, actual font outlines and PNG export. The task-pipeline owner controls when to invoke it from the harness; that protected wiring is unchanged. Supply resolved image/logo/font buffers; the compositor does no URL fetch or model work.
 
 Both branches modify `visual-assets.js`, `ingest-guards.js` and have a backfill script. During integration, preserve foundation's logo/font separation, explicit rights and ownership validation, and source-ID URL projection, alongside task-pipeline's multi-reference behavior. Keep the safer **local-only** backfill contract. Do not cherry-pick a conflicting backfill blindly.
 
-## F5 approval packet
+## Earlier F5 approval packet · handed to task-pipeline owner, not executed
 
 [CAKE-ME-APPROVAL.json](CAKE-ME-APPROVAL.json) was generated entirely from the saved local snapshot with `scripts/prepare-cake-me-foundation.mjs`. The tool has no Supabase client, network call or apply mode.
 
@@ -48,7 +45,7 @@ Before a concrete load can be approved, provide the official light/dark logo fil
 
 No production action is authorized by this packet or this document. The local backfill script continues to refuse remote targets.
 
-## F8 rehearsal checklist after approval/integration
+## Earlier rehearsal checklist · outside the clarified scope
 
 For Cake Me (and Nomad when separately ready), capture two social posts and one branded email with:
 

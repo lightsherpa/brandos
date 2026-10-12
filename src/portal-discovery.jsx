@@ -2,7 +2,7 @@ import {FoundationStrip} from "./brand-foundation.jsx";
 import {useBrandFonts} from "./brand-fonts.jsx";
 import {saveFixtureFoundation} from "./lib/ui-fixture.js";
 import {scoreBio} from "../server/src/lib/score-bio.js";
-import {foundationStatus} from "../server/src/lib/brand-foundation.js";
+import {foundationStatus,suggestColourRoles} from "../server/src/lib/brand-foundation.js";
 import React from "react";
 import {discoveryWebsiteError, bioIntegrityError} from "../server/src/lib/brand-source-integrity.js";
 import {BioSelfCertification} from "./bio-self-certification.jsx";
@@ -1593,7 +1593,7 @@ function BioViewer({ go, bioScore = 91 }) {
             </>
           )}
           <window.OverflowMenu items={[
-            { label: t("discovery.bio.editProfile"), disabled: editing || !bio, onClick: () => setEditing(true) },
+            { label: t("discovery.bio.editProfile"), disabled: editing || !bio, onClick: () => {setBio(current=>({...current,palette:suggestColourRoles(current.palette || [])}));setEditing(true);} },
             { label: t("discovery.bio.rerunDiscovery"), onClick: () => go("discovery") },
             { label: live.reviewPending ? t("discovery.bio.inReviewShort") : t("discovery.bio.requestHumanReview"), disabled: !live.bio || reviewBusy || live.reviewPending || hasUnappliedSourceChanges, onClick: requestReview },
             { label: t("discovery.bio.addSources"), disabled: !live.brandId, onClick: () => setTab("sources") },

@@ -4,6 +4,7 @@ import {usableDisplayFont,googleFontCssUrl,validateFoundationVisual} from './bra
 import {mergeTypographyFromAssets} from './visual-assets.js';
 test('only a selected Google Font or licensed upload supplies usable display type',()=>{
  assert.equal(usableDisplayFont({kind:'Display',family:'Invented'}),false);
+ assert.equal(usableDisplayFont({kind:'Display',family:'Instrument Sans',provider:'fallback'}),false);
  assert.equal(usableDisplayFont({kind:'Display',family:'Inter',provider:'google'}),true);
  const font=mergeTypographyFromAssets([],[{id:'font',signals:{font_family:'Brand Sans',font_usage:'Both',license_type:'commercial'}}])[0];
  assert.equal(usableDisplayFont(font),true);
