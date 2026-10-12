@@ -1,3 +1,5 @@
+import {validateFoundationAssets} from "../lib/foundation-assets.js";
+import {writeAuthorizationAudit} from "../lib/audit.js";
 import {safeLogoSvg} from "../lib/extract-logo.js";
 import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 import { Hono } from "hono";
@@ -263,6 +265,8 @@ app.patch("/:brandId", requireAuth, async (c) => {
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
+  const foundationAssetError = await validateFoundationAssets(brandId, body.payload.visual || {}, previousBio?.payload?.visual || {});
+  if (foundationAssetError) return c.json({error:foundationAssetError,code:"FOUNDATION_ASSET"},400);
   const cleanPayload = prepareClientBioEditPayload(body.payload, previousBio?.payload || {});
 
   const { data: newRow, error } = await supabaseAdmin
@@ -274,6 +278,8 @@ app.patch("/:brandId", requireAuth, async (c) => {
       p_discovery_id: null,
     });
   if (error) return c.json({ error: error.message }, 500);
+
+  if (JSON.stringify(previousBio?.payload?.visual) !== JSON.stringify(cleanPayload.visual)) await writeAuthorizationAudit(c,{permission:"brand.update",action:"brand.foundation.edit",targetType:"bio",targetId:newRow.id,workspaceId,priorState:previousBio?.payload?.visual || null,newState:cleanPayload.visual});
 
   /* P1.5-005 — every BIO edit enqueues a drift_check Steward job so a
      senior human re-reviews the user's edits before this version
