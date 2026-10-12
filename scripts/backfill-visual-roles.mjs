@@ -1,52 +1,48 @@
 #!/usr/bin/env node
-// S1 backfill: legacy visual-bucket image uploads have no signals.asset_role
-// and no rights_confirmed (they predate ingest-guards), so they never reach
-// generation. This lists them and, only with --apply, sets
-// asset_role='canonical' and rights_confirmed=true.
-//
-//   node --env-file=server/.env scripts/backfill-visual-roles.mjs --only=<brandId>[,<brandId>] [--role=canonical|inspiration] [--apply]
-//
-// Dry-run is the default. --only is required (no workspace-wide writes).
-// Production writes need Oscar's approval; do not pass --apply against prod
-// without it.
-import { createClient } from "@supabase/supabase-js";
+import {pathToFileURL} from 'node:url';
+import {readFile} from 'node:fs/promises';
 
-const IMAGE_EXT = /\.(png|jpe?g|webp|gif|avif)$/i;
-
-export function parseArgs(argv) {
-  const out = { only: [], apply: false, role: "canonical" };
-  for (const a of argv) {
-    if (a.startsWith("--only=")) out.only = a.slice(7).split(",").map((s) => s.trim()).filter(Boolean);
-    else if (a === "--apply") out.apply = true;
-    else if (a === "--dry-run") out.apply = false;
-    else if (a.startsWith("--role=")) out.role = a.slice(7);
+export function parseBackfillArgs(args) {
+  const options={dryRun:true,only:null,input:null};
+  for(const arg of args){
+    if(arg==='--dry-run')options.dryRun=true;
+    else if(arg==='--apply')options.dryRun=false;
+    else if(arg.startsWith('--only='))options.only=arg.slice(7);
+    else if(arg.startsWith('--input='))options.input=arg.slice(8);
+    else throw Error(`Unknown argument: ${arg}`);
   }
-  if (!out.only.length) throw new Error("--only=<brandId> is required");
-  if (!["canonical", "inspiration"].includes(out.role)) throw new Error("--role must be canonical or inspiration");
-  return out;
+  if(!options.only || !/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(options.only))throw Error('Required: --only=<brandId UUID>');
+  if(options.input&&!options.dryRun)throw Error('--input is dry-run only');
+  return options;
 }
-
-export function rowsToBackfill(rows = []) {
-  return rows.filter((r) => r.bucket === "visual" && r.kind === "file_upload" && !r.signals?.asset_role && IMAGE_EXT.test(String(r.src || r.raw_ref || "")));
+export function assertLocalBackfillTarget(rawUrl) {
+  const url=new URL(rawUrl);
+  if(!['localhost','127.0.0.1','[::1]'].includes(url.hostname)||!['http:','https:'].includes(url.protocol))throw Error('Backfill may run only against local Supabase. Production and remote targets are blocked.');
 }
-
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-  const db = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
-  console.log(`[backfill] target ${new URL(process.env.SUPABASE_URL).host} · ${args.apply ? "APPLY" : "dry-run"} · role=${args.role}`);
-  for (const brandId of args.only) {
-    const { data, error } = await db.from("bio_sources").select("id, src, raw_ref, bucket, kind, signals").eq("brand_id", brandId);
-    if (error) throw error;
-    const todo = rowsToBackfill(data || []);
-    console.log(`[backfill] brand ${brandId}: ${todo.length} row(s)`);
-    for (const r of todo) {
-      console.log(`  - ${r.id} ${r.src}`);
-      if (!args.apply) continue;
-      const signals = { ...(r.signals || {}), asset_kind: "image_reference", asset_role: args.role, rights_confirmed: true, backfilled_at: new Date().toISOString() };
-      const { error: upErr } = await db.from("bio_sources").update({ signals }).eq("id", r.id);
-      if (upErr) throw upErr;
-    }
+export function legacyVisualChanges(rows,brandId){
+  return rows.filter(row=>row.brand_id===brandId&&row.kind==='file_upload'&&row.bucket==='visual'&&row.raw_ref)
+    .filter(row=>['png','jpg','jpeg','webp','gif'].includes(String(row.signals?.ext || row.src?.split('.').pop() || '').toLowerCase()))
+    .filter(row=>!row.signals?.asset_role&&row.signals?.purpose!=='aspiration')
+    .map(row=>({id:row.id,src:row.src,signals:{...row.signals,ext:String(row.signals?.ext || row.src.split('.').pop()).toLowerCase(),asset_kind:'image_reference',asset_role:'canonical',rights_confirmed:true,legacy_visual_backfill:true}}));
+}
+export async function runBackfill(args,env=process.env){
+  const options=parseBackfillArgs(args);
+  let rows,client;
+  if(options.input){rows=JSON.parse(await readFile(options.input,'utf8'));if(!Array.isArray(rows))throw Error('Input must be a source-row array');}
+  else{
+    if(!env.SUPABASE_URL||!env.SUPABASE_SERVICE_ROLE_KEY)throw Error('Set local SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+    assertLocalBackfillTarget(env.SUPABASE_URL);
+    const {createClient}=await import('@supabase/supabase-js');
+    client=createClient(env.SUPABASE_URL,env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+    const {data,error}=await client.from('bio_sources').select('id,brand_id,kind,bucket,src,signals,raw_ref').eq('brand_id',options.only).eq('bucket','visual').eq('kind','file_upload');
+    if(error)throw Error(error.message);rows=data||[];
   }
+  const changes=legacyVisualChanges(rows,options.only);
+  console.log(JSON.stringify({dryRun:options.dryRun,brandId:options.only,count:changes.length,changes},null,2));
+  if(!options.dryRun)for(const change of changes){
+    const {error}=await client.from('bio_sources').update({signals:change.signals}).eq('id',change.id).eq('brand_id',options.only);
+    if(error)throw Error(`Update failed for ${change.id}: ${error.message}`);
+  }
+  return changes;
 }
-
-if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e.message); process.exit(1); });
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){runBackfill(process.argv.slice(2)).catch(error=>{console.error(error.message);process.exitCode=1;});}
