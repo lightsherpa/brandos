@@ -7,6 +7,7 @@ import {foundationStatus,suggestColourRoles} from "../server/src/lib/brand-found
 import React from "react";
 import {discoveryWebsiteError, bioIntegrityError} from "../server/src/lib/brand-source-integrity.js";
 import {BioSelfCertification} from "./bio-self-certification.jsx";
+import {ClientQuestions} from "./certify/ClientQuestions.jsx";
 import {watchDiscoveryBio} from "./lib/discovery-progress.js";
 import {SectionTour} from "./section-tour.jsx";
 import {validateUpload} from "../server/src/lib/ingest-guards.js";
@@ -1610,6 +1611,8 @@ function BioViewer({ go, bioScore = 91 }) {
         const json=await res.json();if(!res.ok)throw Error(json.error || 'Foundation save failed');
         await live.refresh();
       }}/>}
+
+      {live.brandId && <ClientQuestions brandId={live.brandId} />}
 
       {/* Live cert chip — pulls real DB state, polls every 5s */}
       {live.brandId && (
