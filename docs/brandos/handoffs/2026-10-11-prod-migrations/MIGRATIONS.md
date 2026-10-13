@@ -306,3 +306,23 @@ docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supab
 docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations(version,name) values ('20261013020000','cert_messages')"
 docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supabase/tests/cert_messages_rls.sql
 ```
+
+## 15. `20261013030000_certifier_s2.sql` (feat/certifier-agent)
+
+Adds internal `certifier_briefs` (including run audit/cost), draft-only questions, and append-only human claim confirmations. Clients cannot read these tables. A non-login `certifier_agent` role has only scoped SELECT on Brand Core and source rows. Safe before the merge with `CERTIFIER_V2_S2` off. **File only: not applied locally, to dev, or to production.** Do not apply this list from the handoff; deployment requires separate approval. No seeds.
+
+Reference command for the approved deployment only:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013030000_certifier_s2.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013030000', 'certifier_s2') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select relrowsecurity from pg_class where oid = 'public.certifier_briefs'::regclass;
+select has_table_privilege('authenticated', 'public.certifier_briefs', 'select'); -- false
+select has_table_privilege('certifier_agent', 'public.bios', 'update'); -- false
+```
+
+The server still binds every read tool to its immutable run manifest. It never hands the model database credentials, the service key, or a user JWT.
