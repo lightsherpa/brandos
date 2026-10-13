@@ -13,7 +13,7 @@ const nonEmpty = (v) => Array.isArray(v) ? v.length > 0 : (v != null && String(v
 
 // Returns the score AND its subterms — the certification rubric's auto
 // criteria (coverage, evidence grounding) read these directly.
-export function scoreBioBreakdown(payload = {}) {
+export function scoreBioBreakdown(payload = {}, options) {
   const conf = payload.confidence || {};
   const present = SCORED_PATHS.filter(([s,k]) => nonEmpty(payload?.[s]?.[k]));
   if (SCORED_PATHS.length === 0) return { score: 0, coverage: 0, avgConf: 0, sourceDiversity: 0 };
@@ -29,11 +29,11 @@ export function scoreBioBreakdown(payload = {}) {
   const sourceDiversity = Math.min(sources.size, 5) / 5;
   const raw = 0.5*coverage + 0.35*avgConf + 0.15*sourceDiversity;
   const rawScore = Math.round(Math.max(0, Math.min(1, raw)) * 100);
-  const foundation = foundationStatus(payload);
+  const foundation = foundationStatus(payload, options);
   const score = foundation.certifiable ? rawScore : Math.min(79,rawScore);
   return { score, rawScore, coverage, avgConf, sourceDiversity, ...foundation };
 }
 
-export function scoreBio(payload = {}) {
-  return scoreBioBreakdown(payload).score;
+export function scoreBio(payload = {}, options) {
+  return scoreBioBreakdown(payload, options).score;
 }

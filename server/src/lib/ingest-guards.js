@@ -156,3 +156,13 @@ export function assertPublicUrl(raw) {
   }
   return u.href;
 }
+
+/* Storage policy rejections (bucket MIME list / size limit) are the client's
+   file, not a server fault. Matched on the storage error's status/code only,
+   never its message text. storage-js StorageApiError: status = HTTP status,
+   statusCode = body.statusCode || body.code (e.g. "415", "413", "InvalidMimeType"). */
+const STORAGE_REJECT_CODES = new Set(["413", "415", "InvalidMimeType", "invalid_mime_type", "EntityTooLarge", "entity_too_large"]);
+export function isStorageRejection(error) {
+  if (!error || typeof error !== "object") return false;
+  return [413, 415].includes(Number(error.status)) || STORAGE_REJECT_CODES.has(String(error.statusCode ?? "")) || STORAGE_REJECT_CODES.has(String(error.code ?? ""));
+}

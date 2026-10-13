@@ -56,7 +56,7 @@ const app = new Hono();
  * Fails closed: if asset validation itself errors, 503 before any spend.
  */
 export async function imageFoundationGate({ bio, brandId }, { validate = validateFoundationAssets } = {}) {
-  const pinned = foundationError(bio);
+  const pinned = foundationError(bio, { logoRights: bio?.logoRights });
   if (pinned) return { status: 409, body: pinned };
   try {
     const invalid = await validate(brandId, bio?.visual, bio?.visual);

@@ -8,7 +8,7 @@ mock.module(new URL('middleware/auth.js',root).href,{namedExports:{requireAuth:a
 mock.module(new URL('lib/permissions.js',root).href,{namedExports:{hasPermission:()=>true}});
 const db={from:table=>({select(){return this;},eq(){return this;},insert(){writes++;throw Error('unexpected write');},async maybeSingle(){return {data:table==='brands'?{id:'brand',workspace_id:'ws'}:{payload:{modelRouting:{primary:route}}}};}})};
 mock.module(new URL('lib/supabase.js',root).href,{namedExports:{supabaseAdmin:db}});
-mock.module(new URL('lib/load-brand-bio.js',root).href,{namedExports:{loadBioForImage:async()=>{imageLoads++;const error=foundationError(active);if(error)throw Object.assign(Error(error.error),error,{status:409});return {bio:active,brand:{id:'brand'}};}}});
+mock.module(new URL('lib/load-brand-bio.js',root).href,{namedExports:{loadBioForImage:async()=>{imageLoads++;const error=foundationError(active,{logoRights:active.logoRights});if(error)throw Object.assign(Error(error.error),error,{status:409});return {bio:active,brand:{id:'brand'}};}}});
 mock.module(new URL('lib/models/fal-image.js',root).href,{namedExports:{isImageRoute:r=>r.startsWith('vendor/fal/')}});
 mock.module(new URL('lib/foundation-assets.js',root).href,{namedExports:{validateFoundationAssets:async()=>null}});
 const downstream=new Hono();downstream.post('/stream',c=>{creditReads++;writes++;modelCalls++;return c.json({ok:true});});
@@ -26,6 +26,6 @@ test('text run with no foundation passes without image preflight',async()=>{
  const response=await request();assert.equal(response.status,200);assert.equal(imageLoads,before);assert.equal(modelCalls,1);
 });
 test('image preflight uses eligible certified foundation even with an incomplete latest draft',async()=>{
- route='vendor/fal/flux-schnell';active={visual:{logo:{sourceId:'logo-src',conf:90},palette:[{hex:'#ffd115',role:'primary'}],type:[{family:'Inter',kind:'Display',provider:'google'}]}};
+ route='vendor/fal/flux-schnell';active={logoRights:['logo-src'],visual:{logo:{sourceId:'logo-src',conf:90},palette:[{hex:'#ffd115',role:'primary'}],type:[{family:'Inter',kind:'Display',provider:'google'}]}};
  assert.equal((await request()).status,200);
 });

@@ -1463,8 +1463,9 @@ function BioViewer({ go, bioScore = 91 }) {
     return () => { alive = false; };
   }, [live.brandId, live.bio?.id]);
 
-  const score = live.bio?.payload ? scoreBio(live.bio.payload) : 0;
-  const foundation = foundationStatus(live.bio?.payload);
+  const logoRights = live.bio?.logoRights || [];
+  const score = live.bio?.payload ? scoreBio(live.bio.payload, { logoRights }) : 0;
+  const foundation = foundationStatus(live.bio?.payload, { logoRights });
   const patch = (key, value) => setBio(b => b ? { ...b, [key]: value } : b);
   const patchStrategic = (key, value) => setBio(b => b ? { ...b, strategic: { ...b.strategic, [key]: value } } : b);
 
@@ -1602,7 +1603,7 @@ function BioViewer({ go, bioScore = 91 }) {
         </div>
       </div>
 
-      {live.bio?.payload && <FoundationStrip key={live.brandId} brandId={live.brandId} payload={live.bio.payload} disabled={editing || saving} onSave={async visual=>{
+      {live.bio?.payload && <FoundationStrip key={live.brandId} brandId={live.brandId} payload={live.bio.payload} logoRights={logoRights} onRightsConfirmed={live.refresh} disabled={editing || saving} onSave={async visual=>{
         const payload={...live.bio.payload,visual};
         if(uiFixtureEnabled){saveFixtureFoundation(payload);return;}
         const res=await apiFetch(`/api/bios/${live.brandId}`,{method:'PATCH',body:JSON.stringify({payload})});

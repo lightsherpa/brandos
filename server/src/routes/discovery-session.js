@@ -17,6 +17,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { normalizeBio } from "../lib/bio-schema.js";
 import { scoreBio } from "../lib/score-bio.js";
+import { loadLogoRights } from "../lib/foundation-assets.js";
 import { payloadHash } from "../lib/bio-hash.js";
 import { validateCertificationReview } from "../lib/certification-review.js";
 import { isWorkspaceOwner } from "../lib/permissions.js";
@@ -118,11 +119,12 @@ app.post("/session/:brandId/prepare-review", requireAuth, async c=>{
  if(bioError)return c.json({error:"Could not load the current Brand Core"},500);
  if(!latest)return c.json({error:"Generate the Brand Core from sources first",code:"NO_BIO"},400);
  const draft=normalizeBio(session.draft_payload||{});
- if(sameJson(normalizeBio(latest.payload),draft))return c.json({bio:latest});
+ if(sameJson(normalizeBio(latest.payload),draft))return c.json({bio:{...latest,logoRights:await loadLogoRights(brandId,latest.payload).catch(()=>[])}});
  const payload=prepareClientBioEditPayload(draft,latest.payload||{});
- const {data:appended,error}=await supabaseAdmin.rpc("append_bio_version",{p_brand_id:brandId,p_payload:payload,p_score:scoreBio(payload),p_created_by:userId,p_discovery_id:null});
+ const logoRights=await loadLogoRights(brandId,payload).catch(()=>[]);
+ const {data:appended,error}=await supabaseAdmin.rpc("append_bio_version",{p_brand_id:brandId,p_payload:payload,p_score:scoreBio(payload,{logoRights}),p_created_by:userId,p_discovery_id:null});
  if(error||!appended)return c.json({error:"Could not save the review candidate"},500);
- return c.json({bio:{id:appended.id,version:appended.version,payload,self_certified:false}});
+ return c.json({bio:{id:appended.id,version:appended.version,payload,self_certified:false,logoRights}});
 });
 
 /* Compatibility endpoint: same v2 contract, validator and atomic receipt as

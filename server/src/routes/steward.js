@@ -1,5 +1,5 @@
 import {foundationError} from "../lib/brand-foundation.js";
-import {validateFoundationAssets} from "../lib/foundation-assets.js";
+import {validateFoundationAssets, loadLogoRights} from "../lib/foundation-assets.js";
 // ─────────────────────────────────────────────────────────────────────
 // Steward operation — backend routes (stage-2 human certification).
 //
@@ -207,7 +207,8 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
       return c.json({ ok: true, status: "changes_requested", action: "sent_back" });
     }
 
-    const foundation=foundationError(bioRow.payload);
+    let logoRights;try{logoRights=await loadLogoRights(job.brand_id,bioRow.payload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
+    const foundation=foundationError(bioRow.payload,{logoRights});
     if(foundation)return c.json(foundation,409);
     const invalid=await validateFoundationAssets(job.brand_id,bioRow.payload?.visual,bioRow.payload?.visual);
     if(invalid)return c.json({error:invalid,code:"FOUNDATION_ASSET"},400);
@@ -277,8 +278,9 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
   const decision = result.recommendedDecision;                 // approve | approve_with_conditions | return_changes | reject
   const approves = decision === "approve" || decision === "approve_with_conditions";
+  let logoRights;try{logoRights=await loadLogoRights(bio.brand_id,workingPayload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
   if (approves) {
-    const foundation=foundationError(workingPayload);if(foundation)return c.json(foundation,409);
+    const foundation=foundationError(workingPayload,{logoRights});if(foundation)return c.json(foundation,409);
     const invalid=await validateFoundationAssets(bio.brand_id,workingPayload.visual,bio.payload?.visual);
     if(invalid)return c.json({error:invalid,code:"FOUNDATION_ASSET"},400);
   }
@@ -291,7 +293,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
     const { data: appended, error: appendErr } = await supabaseAdmin.rpc("append_bio_version", {
       p_brand_id: bio.brand_id,
       p_payload: workingPayload,
-      p_score: scoreBio(workingPayload),
+      p_score: scoreBio(workingPayload, { logoRights }),
       p_created_by: null,
       p_discovery_id: null,
     });

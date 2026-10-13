@@ -72,19 +72,20 @@ test("report names the sections, answers, and sources that raise the score", () 
   assert.ok(report.sections.every((s, i, all) => i === 0 || all[i - 1].points >= s.points));
 });
 
+const R = { logoRights: ["logo"] };
 test("a fully sourced BIO clears the floor and has nothing left to add", () => {
-  const report = selfCertScoreReport(filled(100));
+  const report = selfCertScoreReport(filled(100), undefined, R);
   assert.equal(report.score, 100);
   assert.equal(report.meetsFloor, true);
   assert.deepEqual(report.sections, []);
-  assert.equal(selfCertScoreReport(filled(100), 85).meetsFloor, true);
-  assert.equal(selfCertScoreReport(filled(100), 85).minScore, 85);
+  assert.equal(selfCertScoreReport(filled(100), 85, R).meetsFloor, true);
+  assert.equal(selfCertScoreReport(filled(100), 85, R).minScore, 85);
 });
 
 test("self-certification rejects a score under the floor, including a stale lower override", async () => {
   const rejected = await selfCertifyBio({
     brandId: "brand", bioId: "bio", payload: {visual:filled().visual}, userId: "user",
-    statements: STATEMENTS, statementVersion: "2", review: REVIEW, minScore: 58,
+    statements: STATEMENTS, statementVersion: "2", review: REVIEW, logoRights: ["logo"], minScore: 58,
   });
   assert.equal(rejected.ok, false);
   assert.equal(rejected.code, "BELOW_MIN_SCORE");
@@ -94,7 +95,7 @@ test("self-certification rejects a score under the floor, including a stale lowe
 
   const stricter = await selfCertifyBio({
     brandId: "brand", bioId: "bio", payload: filled(50), userId: "user",
-    statements: STATEMENTS, statementVersion: "2", review: REVIEW, minScore: 85,
+    statements: STATEMENTS, statementVersion: "2", review: REVIEW, logoRights: ["logo"], minScore: 85,
   });
   assert.equal(stricter.code, "BELOW_MIN_SCORE");
   assert.equal(stricter.minScore, 85);

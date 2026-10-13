@@ -1,5 +1,5 @@
 import {foundationStatus,foundationError} from "../lib/brand-foundation.js";
-import {validateFoundationAssets} from "../lib/foundation-assets.js";
+import {validateFoundationAssets, loadLogoRights} from "../lib/foundation-assets.js";
 import {writeAuthorizationAudit} from "../lib/audit.js";
 import {foundationUploadError} from "../lib/foundation-upload.js";
 import {bioIntegrityError} from "../lib/brand-source-integrity.js";
@@ -8,7 +8,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { assignSteward } from "../lib/assign-steward.js";
 import { scoreBio } from "../lib/score-bio.js";
-import { validateUpload, contentTypeForExt, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
+import { validateUpload, isStorageRejection, contentTypeForExt, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
 import {validateCertificationReview} from "../lib/certification-review.js";
 import { isWorkspaceOwner, hasPermission } from "../lib/permissions.js";
@@ -140,8 +140,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
     .upload(objectPath, buf, { contentType: mime, upsert: false });
   if (uploadErr) {
     // Storage rejects types/sizes outside the bucket policy: that's the client's file, not a server fault.
-    const status = Number(uploadErr.statusCode || uploadErr.status);
-    if (status === 400 || status === 413 || status === 415 || /mime|content.?type|size|too large/i.test(uploadErr.message || "")) return c.json({ error: `Unsupported file: ${uploadErr.message}`, code: "STORAGE_REJECTED" }, 400);
+    if (isStorageRejection(uploadErr)) return c.json({ error: "This file type or size isn't accepted for Brand Core sources", code: "STORAGE_REJECTED" }, 400);
     return c.json({ error: `Storage upload failed: ${uploadErr.message}` }, 500);
   }
 
@@ -232,6 +231,31 @@ app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
   return c.json({ deleted:true });
 });
 
+/* Confirm the brand has rights to use an uploaded logo (e.g. a PNG rasterized
+   from the site's inline SVG during Discovery, stored with rights unconfirmed).
+   Same permission as uploading with rights. Only flips the signal; the Brand
+   Core version is unchanged, and foundationStatus reads rights live. */
+app.post("/:brandId/sources/:sourceId/confirm-rights", requireAuth, async (c) => {
+  const { userId } = c.get("auth");
+  const brandId = c.req.param("brandId");
+  const sourceId = c.req.param("sourceId");
+  const { data: brand } = await supabaseAdmin.from("brands").select("id, workspace_id").eq("id", brandId).maybeSingle();
+  if (!brand || !hasPermission(c.get("auth"), "bio.propose", brand.workspace_id)) return c.json({ error:"Brand not in workspace" }, 403);
+  const body = await c.req.json().catch(() => ({}));
+  if (body.rightsConfirmed !== true) return c.json({ error:"Confirm that the brand has rights to use this logo", code:"RIGHTS_REQUIRED" }, 400);
+  const { data: source, error: findErr } = await supabaseAdmin.from("bio_sources").select("id, kind, bucket, raw_ref, signals")
+    .eq("id", sourceId).eq("brand_id", brandId).maybeSingle();
+  if (findErr) return c.json({ error:"Could not load source" }, 500);
+  if (!source || source.kind !== "file_upload" || source.bucket !== "visual" || !source.raw_ref) return c.json({ error:"Source not found" }, 404);
+  if (source.signals?.asset_role !== "logo" || source.signals?.ext !== "png") return c.json({ error:"Only PNG logos can be confirmed here", code:"NOT_A_LOGO" }, 400);
+  if (source.signals?.rights_confirmed === true) return c.json({ ok:true, sourceId, rightsConfirmed:true, unchanged:true });
+  const signals = { ...source.signals, rights_confirmed:true, rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() };
+  const { error } = await supabaseAdmin.from("bio_sources").update({ signals }).eq("id", sourceId).eq("brand_id", brandId);
+  if (error) return c.json({ error:"Could not confirm rights" }, 500);
+  await writeAuthorizationAudit(c,{permission:"bio.propose",action:"brand.logo.confirm_rights",targetType:"bio_source",targetId:sourceId,workspaceId:brand.workspace_id,priorState:{rights_confirmed:source.signals?.rights_confirmed ?? false},newState:{rights_confirmed:true}});
+  return c.json({ ok:true, sourceId, rightsConfirmed:true });
+});
+
 /* Fresh private URL for an approved visual/font source. BIO payloads store a
    stable source id, never an expiring signed URL. */
 app.get("/:brandId/sources/:sourceId/url", requireAuth, async (c) => {
@@ -248,10 +272,12 @@ app.get("/:brandId/sources/:sourceId/url", requireAuth, async (c) => {
     .eq("brand_id", brandId)
     .eq("bucket", "visual")
     .maybeSingle();
-  if (!source?.raw_ref || source.signals?.rights_confirmed !== true) return c.json({ error:"Approved source not found" }, 404);
+  // A PNG logo awaiting rights confirmation may be previewed (so the owner sees what they confirm); nothing else unconfirmed is served.
+  const pendingLogo = source?.signals?.asset_role === "logo" && source?.signals?.ext === "png" && source?.signals?.rights_confirmed !== true;
+  if (!source?.raw_ref || (source.signals?.rights_confirmed !== true && !pendingLogo)) return c.json({ error:"Approved source not found" }, 404);
   const { data, error } = await supabaseAdmin.storage.from("bio-sources").createSignedUrl(source.raw_ref, 60 * 60);
   if (error || !data?.signedUrl) return c.json({ error:"Could not sign source" }, 500);
-  return c.json({ url:data.signedUrl, family:source.signals?.font_family || null, mime:source.signals?.mime || null });
+  return c.json({ url:data.signedUrl, family:source.signals?.font_family || null, mime:source.signals?.mime || null, rightsConfirmed:source.signals?.rights_confirmed === true });
 });
 
 /* PATCH /api/bios/:brandId
@@ -277,7 +303,8 @@ app.patch("/:brandId", requireAuth, async (c) => {
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
-  const foundationAssetError = await validateFoundationAssets(brandId, body.payload.visual || {}, previousBio?.payload?.visual || {});
+  const logoUnchanged = JSON.stringify(body.payload.visual?.logo ?? null) === JSON.stringify(previousBio?.payload?.visual?.logo ?? null);
+  const foundationAssetError = await validateFoundationAssets(brandId, body.payload.visual || {}, previousBio?.payload?.visual || {}, { allowUnconfirmedLogos: logoUnchanged });
   if (foundationAssetError) return c.json({error:foundationAssetError,code:"FOUNDATION_ASSET"},400);
   const cleanPayload = prepareClientBioEditPayload(body.payload, previousBio?.payload || {});
 
@@ -285,7 +312,7 @@ app.patch("/:brandId", requireAuth, async (c) => {
     .rpc("append_bio_version", {
       p_brand_id: brandId,
       p_payload: cleanPayload,
-      p_score: scoreBio(cleanPayload),
+      p_score: scoreBio(cleanPayload, { logoRights: await loadLogoRights(brandId, cleanPayload).catch(() => []) }),
       p_created_by: userId,
       p_discovery_id: null,
     });
@@ -416,7 +443,9 @@ app.get("/:brandId", requireAuth, async (c) => {
     }
   }
 
-  return c.json({ brand, bio:bio ? {...bio,score:scoreBio(bio.payload),...foundationStatus(bio.payload)} : null, reviewPending, focusCount, review, diff });
+  let logoRights = [];
+  if (bio) { try { logoRights = await loadLogoRights(brandId, bio.payload); } catch { return c.json({ error:"Could not verify logo rights", code:"RIGHTS_LOOKUP_FAILED" }, 503); } }
+  return c.json({ brand, bio:bio ? {...bio,score:scoreBio(bio.payload,{logoRights}),...foundationStatus(bio.payload,{logoRights}),logoRights} : null, reviewPending, focusCount, review, diff });
 });
 
 /* POST /api/bios/:brandId/self-certify
@@ -465,7 +494,8 @@ app.post("/:brandId/accept-changes",requireAuth,async c=>{
  const body=await c.req.json().catch(()=>({}));
  const {data:bio}=await supabaseAdmin.from("bios").select("id,version,payload,certified,client_acceptance_required,client_accepted_at").eq("brand_id",brandId).order("version",{ascending:false}).limit(1).maybeSingle();
  if(!bio)return c.json({error:"No Brand Core to accept",code:"NO_BIO"},400);
- const foundation=foundationError(bio.payload);if(foundation)return c.json(foundation,409);
+ let logoRights;try{logoRights=await loadLogoRights(brandId,bio.payload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
+ const foundation=foundationError(bio.payload,{logoRights});if(foundation)return c.json(foundation,409);
  const review=validateCertificationReview({body,bio});if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
  const {data:result,error}=await supabaseAdmin.rpc("accept_bio_client_changes",{p_brand_id:brandId,p_bio_id:bio.id,p_version:body.version,p_user_id:userId,p_review:review.review});
  if(error)return c.json({error:"Could not record acceptance"},500);

@@ -49,10 +49,10 @@ function perfectSection(payload, section) {
  * @returns {{ score:number, minScore:number, meetsFloor:boolean, shortfall:number,
  *   sections: Array<{ section:string, points:number, answers:Array<{section:string,key:string}>, sources:Array<{section:string,key:string}> }> }}
  */
-export function selfCertScoreReport(payload = {}, configured) {
+export function selfCertScoreReport(payload = {}, configured, options) {
   const minScore = resolveSelfCertMinScore(configured);
-  const score = scoreBio(payload);
-  const foundation = foundationStatus(payload);
+  const score = scoreBio(payload, options);
+  const foundation = foundationStatus(payload, options);
   const seen = new Set();
   const sections = [];
   for (const [section] of SCORED_PATHS) {
@@ -70,7 +70,7 @@ export function selfCertScoreReport(payload = {}, configured) {
       else if (!source || conf == null || conf < minScore) sources.push({ section, key });
     }
     if (!answers.length && !sources.length) continue;
-    const points = Math.max(0, scoreBio(perfectSection(payload, section)) - score);
+    const points = Math.max(0, scoreBio(perfectSection(payload, section), options) - score);
     sections.push({ section, points, answers, sources });
   }
   sections.sort((a, b) => b.points - a.points || a.section.localeCompare(b.section));

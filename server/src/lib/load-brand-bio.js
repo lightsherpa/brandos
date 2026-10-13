@@ -1,5 +1,5 @@
 import {foundationError} from "./brand-foundation.js";
-import {validateFoundationAssets} from "./foundation-assets.js";
+import {validateFoundationAssets, loadLogoRights} from "./foundation-assets.js";
 import {resolveFoundationForUse} from "./visual-assets.js";
 import {scoreBio} from "./score-bio.js";
 // Loads a brand + its active BIO from Supabase, and enforces the
@@ -89,7 +89,8 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       .or(`certified.eq.true,and(self_certified.eq.true,score.gte.${SELF_CERT_MIN_SCORE})`)
       .order("version", { ascending: false });
     bioErr = error;
-    bioRow = selectProductionBio((rows || []).filter(row => !foundationError(row.payload))) || selectProductionBio(rows || []);
+    const rowRights = error ? [] : await loadLogoRights(brandRow.id, ...(rows || []).map(row => row.payload));
+    bioRow = selectProductionBio((rows || []).filter(row => !foundationError(row.payload, { logoRights: rowRights }))) || selectProductionBio(rows || []);
   } else {
     let bioQuery = supabaseAdmin
       .from("bios")
@@ -117,10 +118,11 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     throw err;
   }
 
+  const logoRights = await loadLogoRights(brandRow.id, bioRow.payload);
   let runtimeVisual=bioRow.payload?.visual;
   if(requireCertified){
     const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);
-    const foundation=foundationError(bioRow.payload);
+    const foundation=foundationError(bioRow.payload,{logoRights});
     if(requireFoundation && foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
     if(requireFoundation){
       const invalid=await validateFoundationAssets(brandRow.id,runtimeVisual,runtimeVisual);
@@ -146,7 +148,8 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       ...(runtimeVisual?{visual:runtimeVisual}:{}),
       id:                bioRow.id,
       version:           bioRow.version,
-      score:             scoreBio(bioRow.payload),
+      score:             scoreBio(bioRow.payload, { logoRights }),
+      logoRights,
       certified:         bioRow.certified,
       certified_by:      bioRow.certified_by,
       certified_at:      bioRow.certified_at,
