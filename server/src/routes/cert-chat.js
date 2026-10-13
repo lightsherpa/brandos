@@ -17,7 +17,8 @@
 // author_role is derived from the caller, never the body, so nothing else
 // (e.g. the certifier agent) can post.
 // ─────────────────────────────────────────────────────────────────────
-import { createHash } from "node:crypto";
+import { claimId } from "../lib/claim-id.js";
+export { claimId } from "../lib/claim-id.js";
 import { BIO_FIELDS } from "../lib/bio-schema.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
@@ -29,8 +30,6 @@ import { requireSteward } from "./steward.js";
 const app = new Hono();
 export const certChatEnabled = () => String(process.env.CERTIFIER_V2_S3 || "").toLowerCase() === "true";
 const FIELD_PATHS = new Set(BIO_FIELDS.map((f) => f.path.join(".")));
-export const claimId = (brandId, version, path) => createHash("sha256")
-  .update(JSON.stringify([brandId, version, path])).digest("hex");
 const CLOSED = new Set(["completed", "cancelled", "rejected", "decertified", "closed", "certified"]);
 const MSG_COLS = "id, job_id, bio_version, claim_ids, field_paths, author_role, reply_to, body, source_id, sent_at, created_at";
 

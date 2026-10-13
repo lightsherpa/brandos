@@ -1,3 +1,4 @@
+import { CertifyView } from "./certify/CertifyView.jsx";
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_BRANDS, useReadProgress } from "./lib/ui-fixture.js";
@@ -370,7 +371,7 @@ function Sidebar({ portal, currentRoute, onNav, onLogout, tweaks, brandName, bio
               || (r.id === "briefs" && currentRoute === "brief-detail")
               || (r.id === "bio" && ["discovery","brand-book"].includes(currentRoute))
               || (r.id === "specialists" && currentRoute === "specialist-new")
-              || (r.id === "team" && currentRoute === "team-job");
+              || (r.id === "team" && ["team-job", "certify"].includes(currentRoute));
             return (
               <React.Fragment key={r.id}>
                 {showSection && r.sectionKey && (
@@ -619,6 +620,7 @@ function TopBar({ portal, route, brandName, go }) {
     "team-review":["Review desk",      t("section.teamPortal")],
     team:        [t("team.jobQueue"),   t("section.teamPortal")],
     "team-craft":[t("team.craftPolish"), t("section.teamPortal")],
+    "certify": ["Certify", "Creative Director"],
     "team-job":  [t("title.activeJob"), t("section.teamPortal")],
     "team-capacity":[t("title.capacitySla"), t("section.teamPortal")],
     "team-clients":[t("title.clientRoster"), t("section.teamPortal")],
@@ -693,7 +695,7 @@ function AppDock({ portal, currentRoute, onNav }) {
     || (id === "briefs" && currentRoute === "brief-detail")
     || (id === "bio" && ["discovery","brand-book"].includes(currentRoute))
     || (id === "specialists" && currentRoute === "specialist-new")
-    || (id === "team" && currentRoute === "team-job");
+    || (id === "team" && ["team-job", "certify"].includes(currentRoute));
 
   /* Logo doubles as a "back to dashboard" affordance — clickable
      whenever the user is anywhere except home. A back-arrow chip
@@ -785,7 +787,7 @@ function App() {
     if ((portal === "admin" || portal === "super_admin") && route.id === "settings") { go(`admin-account/${route.param || "workspace"}`); return; }
     if (portal === "team" && route.id === "team-me") { go("team-account/profile"); return; }
     const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "formats" || route.id === "upgrade";
-    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || route.id === "team-job" || route.id === "team-account";
+    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || ["team-job", "certify"].includes(route.id) || route.id === "team-account";
     const isAdminRoute = route.id === "admin-account" || [...ADMIN_ROUTES,...SUPER_ADMIN_ROUTES].some(r => r.id === route.id);
     const legacySection = LEGACY_ADMIN_SECTION[route.id];
     if (legacySection) { go(`admin-account/${legacySection}`); return; }
@@ -879,6 +881,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "team":         return <TeamQueue go={go} />;
     case "team-review":  return <TeamReview />;
     case "team-craft":   return <CraftQueue />;
+    case "certify":      return <CertifyView id={route.param} go={go} />;
     case "team-job":     return <TeamJob id={route.param} go={go} />;
     case "team-capacity":return <TeamCapacity />;
     case "team-clients": return <TeamClients />;

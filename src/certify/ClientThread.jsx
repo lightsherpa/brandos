@@ -72,6 +72,7 @@ function DraftRow({ draft, thread, setErr }) {
 function Composer({ thread, fields, setErr }) {
   const [field, setField] = React.useState(fields[0]?.field || "");
   const [text, setText] = React.useState("");
+  React.useEffect(() => setField(fields[0]?.field || ""), [fields[0]?.field]);
   const add = () => thread.addDraft([field], text.trim()).then(() => setText("")).catch((e) => setErr(e.message));
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
