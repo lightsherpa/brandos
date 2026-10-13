@@ -9,19 +9,28 @@
 
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB
 
-// Documents the compiler can read + images for the visual bucket.
+// Exactly the bio-sources bucket allowed_mime_types (see BUCKET_MIME_TYPES):
+// anything else would be accepted here and then 500 at Storage, so it 400s instead.
+export const BUCKET_MIME_TYPES = Object.freeze([
+  "application/font-woff", "application/pdf",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "font/otf", "font/ttf", "font/woff", "font/woff2",
+  "image/jpeg", "image/png", "image/webp", "text/markdown", "text/plain",
+]);
 export const ALLOWED_UPLOAD_EXTS = new Set([
-  "pdf", "txt", "md", "markdown", "doc", "docx", "rtf", "csv",
-  "png", "jpg", "jpeg", "webp", "gif",
+  "pdf", "txt", "md", "markdown", "docx", "pptx",
+  "png", "jpg", "jpeg", "webp",
   "otf", "ttf", "woff", "woff2",
 ]);
-export const IMAGE_UPLOAD_EXTS = new Set(["png", "jpg", "jpeg", "webp", "gif"]);
+export const IMAGE_UPLOAD_EXTS = new Set(["png", "jpg", "jpeg", "webp"]);
 export const SVG_UNSUPPORTED_MESSAGE = "SVG files aren't supported. Export the logo as a PNG (transparent background works best) and upload that.";
 /* Stored content type comes from the validated extension, never the browser. */
 export const CONTENT_TYPE_BY_EXT = Object.freeze({
-  pdf: "application/pdf", txt: "text/plain", md: "text/markdown", markdown: "text/markdown", csv: "text/csv", rtf: "application/rtf",
-  doc: "application/msword", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", gif: "image/gif",
+  pdf: "application/pdf", txt: "text/plain", md: "text/markdown", markdown: "text/markdown",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp",
   ttf: "font/ttf", otf: "font/otf", woff: "font/woff", woff2: "font/woff2",
 });
 export const contentTypeForExt = (ext) => CONTENT_TYPE_BY_EXT[String(ext || "").toLowerCase()] || null;
@@ -30,9 +39,8 @@ export const FONT_UPLOAD_EXTS = new Set(["otf", "ttf", "woff", "woff2"]);
 const ALLOWED_MIME_PREFIXES = ["text/", "image/", "font/"];
 const ALLOWED_MIME_EXACT = new Set([
   "application/pdf",
-  "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/rtf",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "application/font-woff",
   "application/octet-stream", // some browsers send this for docs (never accepted for fonts)
   "",

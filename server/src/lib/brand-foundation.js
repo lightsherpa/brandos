@@ -13,8 +13,9 @@ export function usableDisplayFont(font) {
 export function foundationStatus(payload = {}) {
   const visual = payload?.visual || {};
   const logo = visual.logo;
+  // Only stored PNG logos count (a bio_sources sourceId); remote URLs and inline SVG never do.
   const validLogo = !!logo && (Number(logo.conf) >= 60) &&
-    (!!logo.sourceId || Object.values(logo.variants || {}).some(v => v?.sourceId) || /^(https?:\/\/|data:image\/svg\+xml,)/i.test(logo.url || ''));
+    (!!logo.sourceId || Object.values(logo.variants || {}).some(v => v?.sourceId));
   const primary = (Array.isArray(visual.palette) ? visual.palette : []).find(c => c?.role === 'primary' && /^#[\da-f]{6}$/i.test(c.hex || ''));
   const display = (Array.isArray(visual.type) ? visual.type : []).find(usableDisplayFont);
   const missing = [!validLogo && 'visual.logo',!primary && 'visual.palette.primary',!display && 'visual.type.display'].filter(Boolean);

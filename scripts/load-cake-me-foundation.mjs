@@ -96,7 +96,7 @@ if (assetErr) throw Error(`foundation assets: ${assetErr}`);
 // Re-check right before writing: a concurrent run/edit must not stack another version.
 const { data: now } = await db.from("bios").select("version").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
 if (now?.version !== prev.version) throw Error(`latest moved to v${now?.version} during the run; aborting`);
-const { data: row, error: aErr } = await db.rpc("append_bio_version", { p_brand_id: only, p_payload: payload, p_score: scoreBio(payload), p_created_by: actor, p_discovery_id: null });
+const { data: row, error: aErr } = await db.rpc("append_bio_version", { p_brand_id: only, p_payload: payload, p_score: scoreBio(payload), p_created_by: actor, p_discovery_id: null, p_expected_version: prev.version });
 if (aErr) throw Error(`append_bio_version: ${aErr.message}`);
 const { data: nb } = await db.from("bios").select("id, version, payload").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
 log(`appended v${nb.version} (${nb.id})`);

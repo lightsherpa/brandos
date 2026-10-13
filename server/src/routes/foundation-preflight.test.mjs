@@ -26,6 +26,6 @@ test('text run with no foundation passes without image preflight',async()=>{
  const response=await request();assert.equal(response.status,200);assert.equal(imageLoads,before);assert.equal(modelCalls,1);
 });
 test('image preflight uses eligible certified foundation even with an incomplete latest draft',async()=>{
- route='vendor/fal/flux-schnell';active={visual:{logo:{url:'https://brand.test/logo.svg',conf:90},palette:[{hex:'#ffd115',role:'primary'}],type:[{family:'Inter',kind:'Display',provider:'google'}]}};
+ route='vendor/fal/flux-schnell';active={visual:{logo:{sourceId:'logo-src',conf:90},palette:[{hex:'#ffd115',role:'primary'}],type:[{family:'Inter',kind:'Display',provider:'google'}]}};
  assert.equal((await request()).status,200);
 });

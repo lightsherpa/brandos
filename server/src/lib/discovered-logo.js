@@ -48,3 +48,45 @@ export async function verifyDiscoveredLogo(logo, {head=headPublicLogo} = {}) {
 export async function discoverLogo(html,url,options) {
  return verifyDiscoveredLogo(extractLogo(html,url),options);
 }
+
+/* Inline header SVGs are never stored or certified as SVG. They are rasterized
+   to PNG (sharp, librsvg: no scripts, no external fetches; safeLogoSvg already
+   rejects active/external content) and stored as a brand bio_source, so the
+   foundation rule only ever counts stored PNG logos (sourceId). */
+export const DISCOVERED_LOGO_WIDTH = 1024;
+export async function rasterizeSvgLogo(svg) {
+ if(typeof svg!=='string'||Buffer.byteLength(svg)>MAX_UPLOAD_BYTES||!safeLogoSvg(svg))return null;
+ try{
+  const {default:sharp}=await import('sharp');
+  const png=await sharp(Buffer.from(svg),{density:300,limitInputPixels:50_000_000,failOn:'error'})
+   .resize({width:DISCOVERED_LOGO_WIDTH,fit:'inside'}).png().toBuffer();
+  const meta=await sharp(png).metadata();
+  return meta.format==='png'&&meta.width&&meta.height&&png.length<=MAX_UPLOAD_BYTES?png:null;
+ }catch{return null;}
+}
+export function inlineSvgOf(logo) {
+ return typeof logo?.url==='string'&&logo.url.startsWith('data:image/svg+xml,')?decodeURIComponent(logo.url.slice('data:image/svg+xml,'.length)):null;
+}
+// Returns the logo to put in visual.logo: stored PNG {sourceId,...} for inline SVG,
+// the original for URL logos, null if the SVG cannot be rasterized.
+// Rights are NOT confirmed: an owner must confirm before certification (validateFoundationAssets).
+export async function storeDiscoveredLogo({db,brandId,workspaceId,logo}) {
+ const svg=inlineSvgOf(logo);
+ if(!svg)return logo||null;
+ const png=await rasterizeSvgLogo(svg);
+ if(!png)return null;
+ const {createHash,randomUUID}=await import('node:crypto');
+ const name=`discovered-logo-${createHash('sha256').update(png).digest('hex').slice(0,12)}.png`;
+ const out=id=>({sourceId:id,source:`${logo.source||'header SVG'} (rasterized PNG)`,conf:logo.conf??90});
+ // Idempotent across Inngest step retries and re-discoveries of the same artwork.
+ const {data:existing,error:findErr}=await db.from('bio_sources').select('id').eq('brand_id',brandId).eq('kind','file_upload').eq('bucket','visual').eq('src',name).maybeSingle();
+ if(findErr)throw Error(`discovered logo lookup: ${findErr.message}`);
+ if(existing)return out(existing.id);
+ const objectPath=`${workspaceId}/${brandId}/${randomUUID()}-${name}`;
+ const up=await db.storage.from('bio-sources').upload(objectPath,png,{contentType:'image/png',upsert:false});
+ if(up.error)throw Error(`discovered logo storage: ${up.error.message}`);
+ const {data:row,error}=await db.from('bio_sources').insert({brand_id:brandId,kind:'file_upload',bucket:'visual',src:name,raw_ref:objectPath,
+  signals:{ext:'png',mime:'image/png',size:png.length,asset_role:'logo',asset_kind:'logo',logo_variant:'light',purpose:'current',origin:'discovery_inline_svg',rights_confirmed:false}}).select('id').single();
+ if(error)throw Error(`discovered logo source: ${error.message}`);
+ return out(row.id);
+}

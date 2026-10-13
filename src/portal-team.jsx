@@ -505,7 +505,7 @@ function AddReferencePanel({ brandId, onAdded }) {
 
       <label style={{display:"flex", alignItems:"center", gap: 8, fontSize: 12, color:"var(--c-dim)", cursor:"pointer"}}>
         <input ref={fileRef} type="file" disabled={busy}
-          accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.doc,.docx"
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md,.docx,.pptx"
           onChange={(e) => submitFile(e.target.files?.[0])}
           style={{flex: 1, fontSize: 12}}
         />

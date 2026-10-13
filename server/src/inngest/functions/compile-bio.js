@@ -1,4 +1,4 @@
-import {discoverLogo} from "../../lib/discovered-logo.js";
+import {discoverLogo, storeDiscoveredLogo} from "../../lib/discovered-logo.js";
 import {mergeLogoFromAssets} from "../../lib/extract-logo.js";
 // ─────────────────────────────────────────────────────────────────────
 // P1 · a30 BIO Compiler — Discovery → BIO synthesis
@@ -380,7 +380,7 @@ export const compileBio = inngest.createFunction(
           });
 
           return {
-            logo: await discoverLogo(rawHtml, url),
+            logo: await storeDiscoveredLogo({ db: supabaseAdmin, brandId, workspaceId, logo: await discoverLogo(rawHtml, url) }).catch(() => null),
             palette: extractPalette(rawHtml),
             type: mergeTypographyFromAssets(extractFonts(rawHtml), assets.fonts),
             imagery,
