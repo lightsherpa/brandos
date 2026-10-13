@@ -21,7 +21,8 @@ export async function validateFoundationAssets(brandId, visual = {}, previous = 
   }
   for (const font of fonts) {
     const row=rows.get(font.sourceId);
-    if (!row?.raw_ref || (row.signals?.rights_confirmed !== true && !allowUnconfirmedLogos) || row.signals.asset_kind !== 'font' || row.signals.font_family !== font.family || row.signals.purpose === 'aspiration') return 'Choose a licensed font uploaded to this brand';
+    // Fonts always need confirmed rights; allowUnconfirmedLogos never applies to them.
+    if (!row?.raw_ref || row.signals?.rights_confirmed !== true || row.signals.asset_kind !== 'font' || row.signals.font_family !== font.family || row.signals.purpose === 'aspiration') return 'Choose a licensed font uploaded to this brand';
   }
   return null;
 }

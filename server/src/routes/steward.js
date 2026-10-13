@@ -121,7 +121,10 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
     };
   }));
   const rubric = await loadActiveRubric();
-  const autoSignals = scoreBioBreakdown(job?.bio?.payload || {});
+  let caseRights;
+  try { caseRights = await loadLogoRights(job.brand_id, job?.bio?.payload || {}); }
+  catch { return c.json({ error:"Could not verify logo rights", code:"RIGHTS_LOOKUP_FAILED" }, 503); }
+  const autoSignals = scoreBioBreakdown(job?.bio?.payload || {}, { logoRights: caseRights });
   const { data: previousBio } = job?.bio?.version
     ? await supabaseAdmin
       .from("bios")
@@ -146,6 +149,7 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
     sources: reviewableSources,
     previousBio,
     latestDecision,
+    logoRights: caseRights,
   });
 
   return c.json({
@@ -269,7 +273,8 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
   // Evaluate the rubric.
   const rubric = await loadActiveRubric();
-  const bd = scoreBioBreakdown(workingPayload);
+  let logoRights;try{logoRights=await loadLogoRights(bio.brand_id,workingPayload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
+  const bd = scoreBioBreakdown(workingPayload, { logoRights });
   const autoSignals = { coverage: bd.coverage, avgConf: bd.avgConf, sourceDiversity: bd.sourceDiversity };
   const result = evaluateCertification({ autoSignals, reviewerScores: body.reviewerScores || {}, rubricConfig: rubric.config });
   if (result.incomplete) {
@@ -278,7 +283,6 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
 
   const decision = result.recommendedDecision;                 // approve | approve_with_conditions | return_changes | reject
   const approves = decision === "approve" || decision === "approve_with_conditions";
-  let logoRights;try{logoRights=await loadLogoRights(bio.brand_id,workingPayload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
   if (approves) {
     const foundation=foundationError(workingPayload,{logoRights});if(foundation)return c.json(foundation,409);
     const invalid=await validateFoundationAssets(bio.brand_id,workingPayload.visual,bio.payload?.visual);

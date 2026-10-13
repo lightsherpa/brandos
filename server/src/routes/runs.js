@@ -137,6 +137,7 @@ app.post("/stream", requireAuth, async (c) => {
     if (err.code === "NO_BIO") {
       return c.json({ error: "This brand has no Brand Core yet — run Discovery first.", code: err.code }, 409);
     }
+    if (err.code === "RIGHTS_LOOKUP_FAILED") return c.json({ error: "Could not verify logo rights. Please retry.", code: err.code }, 503);
     return c.json({ error: err.message || String(err) }, 400);
   }
 

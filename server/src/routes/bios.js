@@ -496,6 +496,8 @@ app.post("/:brandId/accept-changes",requireAuth,async c=>{
  if(!bio)return c.json({error:"No Brand Core to accept",code:"NO_BIO"},400);
  let logoRights;try{logoRights=await loadLogoRights(brandId,bio.payload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
  const foundation=foundationError(bio.payload,{logoRights});if(foundation)return c.json(foundation,409);
+ const invalidAssets=await validateFoundationAssets(brandId,bio.payload?.visual,bio.payload?.visual);
+ if(invalidAssets)return c.json({error:invalidAssets,code:"FOUNDATION_INCOMPLETE",state:"foundation_incomplete",credits:0},409);
  const review=validateCertificationReview({body,bio});if(!review.ok)return c.json(review,review.code==="STALE_BIO"?409:400);
  const {data:result,error}=await supabaseAdmin.rpc("accept_bio_client_changes",{p_brand_id:brandId,p_bio_id:bio.id,p_version:body.version,p_user_id:userId,p_review:review.review});
  if(error)return c.json({error:"Could not record acceptance"},500);

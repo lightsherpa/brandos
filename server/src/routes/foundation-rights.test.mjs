@@ -1,12 +1,12 @@
 import {test,mock} from 'node:test';import assert from 'node:assert/strict';
 const root=new URL('../',import.meta.url);
-let auth,source,updates=[],audits=[],uploadErr=null,rightsRows=[];
+let auth,source,updates=[],audits=[],uploadErr=null,rightsRows=[],bioRow=null,rpcs=0;
 const db={from(table){const q={_t:table,select(){return q;},eq(){return q;},in(){return q;},order(){return q;},limit(){return q;},
   update(v){updates.push(v);return {eq:()=>({eq:async()=>({error:null})})};},
   insert(){return q;},async single(){return {data:{id:'row'},error:null};},
-  async maybeSingle(){return {data:table==='brands'?{id:'brand',workspace_id:'ws'}:table==='bio_sources'?source:null,error:null};},
+  async maybeSingle(){return {data:table==='brands'?{id:'brand',workspace_id:'ws'}:table==='bio_sources'?source:table==='bios'?bioRow:null,error:null};},
   then(res,rej){return Promise.resolve({data:table==='bio_sources'?rightsRows:[],error:null}).then(res,rej);}};return q;},
-  storage:{from:()=>({upload:async()=>({data:null,error:uploadErr}),remove:async()=>({error:null}),createSignedUrl:async()=>({data:{signedUrl:'https://local.test/s'}})})},async rpc(){return {data:null,error:null};}};
+  storage:{from:()=>({upload:async()=>({data:null,error:uploadErr}),remove:async()=>({error:null}),createSignedUrl:async()=>({data:{signedUrl:'https://local.test/s'}})})},async rpc(){rpcs++;return {data:{ok:true},error:null};}};
 mock.module(new URL('lib/supabase.js',root).href,{namedExports:{supabaseAdmin:db}});
 mock.module(new URL('middleware/auth.js',root).href,{namedExports:{requireAuth:async(c,next)=>{c.set('auth',auth);await next();}}});
 mock.module(new URL('lib/assign-steward.js',root).href,{namedExports:{assignSteward:async()=>{}}});
@@ -44,4 +44,25 @@ test('storage policy rejection → 400 STORAGE_REJECTED by status/code; other st
  uploadErr={message:'internal',status:500,statusCode:'500'};r=await upload();assert.equal(r.status,500);
  uploadErr={message:'mime type text/plain is not supported',status:500,statusCode:'500'};r=await upload();assert.equal(r.status,500,'message text alone must not map to 400');
  uploadErr=null;
+});
+
+const {validateFoundationAssets}=await import('../lib/foundation-assets.js');
+const L={id:'L',raw_ref:'ws/brand/l.png',signals:{asset_role:'logo',ext:'png',rights_confirmed:false}};
+const F={id:'F',raw_ref:'ws/brand/f.woff2',signals:{asset_kind:'font',asset_role:'canonical',font_family:'Brand Sans',rights_confirmed:false}};
+const vis={logo:{sourceId:'L',conf:100},palette:[{role:'primary',hex:'#ffd115'}],type:[{kind:'Display',family:'Brand Sans',sourceId:'F'}]};
+test('BLOCKER: fonts always need confirmed rights, even when unconfirmed logos are allowed',async()=>{
+ rightsRows=[L,F];
+ assert.match(await validateFoundationAssets('brand',vis,vis,{allowUnconfirmedLogos:true}),/licensed font/);
+ rightsRows=[L,{...F,signals:{...F.signals,rights_confirmed:true}}];
+ assert.equal(await validateFoundationAssets('brand',vis,vis,{allowUnconfirmedLogos:true}),null);
+ assert.match(await validateFoundationAssets('brand',vis,vis),/approved logo/);
+ rightsRows=[];
+});
+const owner=()=>({userId:'owner',workspaceId:'ws',memberships:[{workspace_id:'ws',status:'active',is_owner:true}],permissions:new Set(['bio.read','bio.propose']),assignedWorkspaceIds:new Set(['ws'])});
+const accept=()=>app.request('/brand/accept-changes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({version:3})});
+test('accept-changes runs validateFoundationAssets (unlicensed font → 409, nothing recorded)',async()=>{
+ auth=owner();rpcs=0;bioRow={id:'bio',version:3,payload:{visual:vis}};
+ rightsRows=[{...L,signals:{...L.signals,rights_confirmed:true}},F];
+ const res=await accept();assert.equal(res.status,409);const body=await res.json();assert.equal(body.code,'FOUNDATION_INCOMPLETE');assert.match(body.error,/licensed font/);assert.equal(rpcs,0);
+ bioRow=null;rightsRows=[];
 });
