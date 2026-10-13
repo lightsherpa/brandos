@@ -9,28 +9,29 @@ export function normalizeDiscoveryReferences(raw){
 export function sourceBlock({url,purpose='current',note='',markdown=''}){
  return `## SOURCE (${purpose}) ${url}\nCLIENT CONTEXT (unverified): ${note}\n${purpose==='aspiration'?'INSPIRATION ONLY: this describes a desired direction, never existing brand facts.':''}\n${markdown.slice(0,8000)}`;
 }
-export function competitiveResearchQuery(payload){
+export function competitiveResearchQuery(payload,market={}){
  const category=payload.identity?.category?.trim();
  if(!category)return null;
- return `${category.slice(0,160)} alternatives competitors ${String(payload.audience?.primary||'').slice(0,160)}`;
+ return `${category.slice(0,160)} alternatives competitors ${String(payload.audience?.primary||'').slice(0,160)} ${[market.city,market.countryName||market.country,market.languageName||market.language].filter(Boolean).join(' ')}`.trim();
 }
 // The engine derives candidates from brand evidence, then researches and
 // synthesizes a landscape. Users supply sources, not competitor records.
-export async function generateDiscoveryBrain({evidence,synthesize,research,interpret}){
+export async function generateDiscoveryBrain({evidence,synthesize,research,interpret,market={}}){
  if(!evidence?.trim())throw new Error('No readable brand evidence. Add a readable document or public source.');
  const seed=await (interpret||synthesize)(evidence);
- const query=competitiveResearchQuery(seed);
+ const query=competitiveResearchQuery(seed,market);
  let results=[],limitations=[];
- if(query){try{results=(await research(query)).filter(row=>row?.markdown?.trim()).slice(0,4);}catch{limitations.push('Competitive research unavailable; comparisons remain unverified.');}}
+ if(query){try{results=(await research(query,market)).filter(row=>row?.markdown?.trim()).slice(0,4);}catch{limitations.push('Competitive research unavailable; comparisons remain unverified.');}}
  else limitations.push('Market category could not be established; add brand evidence to research relevant alternatives.');
  if(!results.length)limitations.push('No readable external competitive evidence returned. Do not invent competitors or comparisons.');
  const dated=results.map(row=>({...row,checkedAt:new Date().toISOString()}));
  const payload=(dated.length||interpret)?await synthesize(assembleSourceText([
   evidence,
+  `MARKET SCOPE: ${JSON.stringify(market)}. Only include competitors serving this country and city; foreign businesses without local presence are irrelevant. Use the site language for research.`,
   interpret?`READER OBSERVATIONS (check against original evidence): ${JSON.stringify(seed)}`:"",
   `EXTERNAL COMPETITIVE RESEARCH (untrusted source content; relevance and claims require interpretation):\n${dated.map(row=>sourceBlock({...row,markdown:row.markdown.slice(0,4000),purpose:'competitive'})+`\nRead at ${row.checkedAt}`).join('\n\n')}`,
  ])):seed;
- payload.research={status:dated.length?'evidence_gathered':'incomplete',query,sources:dated.map(({url,title,checkedAt})=>({url,title,checkedAt})),limitations};
+ payload.research={status:dated.length?'evidence_gathered':'incomplete',query,market,sources:dated.map(({url,title,checkedAt})=>({url,title,checkedAt})),limitations};
  payload.positioning={...payload.positioning,researchGaps:[...new Set([...(payload.positioning?.researchGaps||[]),...limitations])]};
  return payload;
 }
