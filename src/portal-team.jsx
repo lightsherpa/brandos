@@ -1,4 +1,5 @@
 import React from "react";
+import { withUploadType } from "./lib/upload-type.js";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch } from "./lib/supabase-browser.js";
 const { BrandolphDot, Confidence, Counter, Icon, ModelChip, PageHeader, SlaHeat, StatusPill } = window;
@@ -460,7 +461,7 @@ function AddReferencePanel({ brandId, onAdded }) {
     setBusy(true); setErr(null); setInfo(null);
     try {
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", withUploadType(file));
       fd.append("bucket", bucket);
       /* apiFetch sets Content-Type to JSON by default — drop the JSON
          body hint here since FormData sets multipart boundaries itself. */
