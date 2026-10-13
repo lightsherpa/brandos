@@ -91,7 +91,7 @@ export function validateVisualAssetMetadata({
       },
     };
   }
-  if (role === "logo" && !["light", "dark"].includes(logoVariant)) return { ok:false, code:"LOGO_VARIANT", message:"Choose light or dark background" };
+  if (role === "logo" && !["light", "dark"].includes(logoVariant)) return { ok:false, code:"LOGO_VARIANT", message:"Choose a light or dark logo variant (light logo for dark backgrounds, dark logo for light backgrounds)" };
   return {
     ok: true,
     metadata: {

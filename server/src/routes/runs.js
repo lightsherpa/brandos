@@ -36,6 +36,8 @@ import { mergeUsage, selfCorrectText } from "../lib/self-correction.js";
 import { visionQa } from "../lib/qa-vision.js";
 import { recordSignal } from "../lib/brandolph-memory.js";
 import { generateWithFallback as generateImage, isImageRoute, resolveImageRequest } from "../lib/models/fal-image.js";
+import { foundationError } from "../lib/brand-foundation.js";
+import { validateFoundationAssets } from "../lib/foundation-assets.js";
 import { maxTokensForDeliverables, parseDeliverables, buildDeliverableContract, falSizeForPlatform } from "../lib/deliverables.js";
 import { assertCreditsAvailable, creditErrorResponse, estimateRunCredits, reserveCredits, failRunAndReleaseCredits } from "../lib/credits.js";
 import { findEffectiveRateCard, preflightApiUsage, recordApiUsage } from "../lib/api-usage.js";
@@ -46,6 +48,26 @@ import { hasPermission } from "../lib/permissions.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
 
 const app = new Hono();
+
+/**
+ * Image-path foundation check, run inside runs.js so it holds even if the
+ * gateway is bypassed (direct mount, future caller). Uses the certified
+ * Brand Core this run already loaded. Returns null (ok) or { status, body }.
+ * Fails closed: if asset validation itself errors, 503 before any spend.
+ */
+export async function imageFoundationGate({ bio, brandId }, { validate = validateFoundationAssets } = {}) {
+  const pinned = foundationError(bio);
+  if (pinned) return { status: 409, body: pinned };
+  try {
+    const invalid = await validate(brandId, bio?.visual, bio?.visual);
+    if (invalid) return { status: 409, body: { code: "FOUNDATION_INCOMPLETE", state: "foundation_incomplete", error: invalid, credits: 0 } };
+  } catch (err) {
+    if (err?.code === "FOUNDATION_INCOMPLETE") return { status: 409, body: { code: err.code, state: "foundation_incomplete", error: err.message, missing: err.missing || [], credits: 0 } };
+    console.error(`[runs] foundation asset check failed: ${err?.message || err}`);
+    return { status: 503, body: { code: "FOUNDATION_CHECK_UNAVAILABLE", error: "Could not verify the Brand Core foundation. Nothing was charged.", credits: 0 } };
+  }
+  return null;
+}
 
 app.post("/stream", requireAuth, async (c) => {
   const auth = c.get("auth");
@@ -130,6 +152,10 @@ app.post("/stream", requireAuth, async (c) => {
   /* Tool permission (harness §3): a copy agent may never run on an image route. */
   try { assertSpecRouteAllowed(spec, route); }
   catch (err) { if (err instanceof ToolPermissionError) return c.json({ error: err.message, code: err.code }, 403); throw err; }
+  if (isImage) {
+    const blocked = await imageFoundationGate({ bio: brandBio.bio, brandId: brandBio.brand?.id || brandId });
+    if (blocked) return c.json(blocked.body, blocked.status);
+  }
   const overrideOperation = isImage ? "specialist.image" : "specialist.text";
   const mayOverride = hasPermission(auth, "opex.override") && auth.aal === "aal2";
   const guardrailOverride = guardrailOverrideToken && mayOverride ? verifyOpexOverride(guardrailOverrideToken,{userId,operationKey:overrideOperation}) : null;
