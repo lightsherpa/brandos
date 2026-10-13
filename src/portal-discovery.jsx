@@ -1,3 +1,4 @@
+import {ReviewGateNotice} from "./discovery-review-gate.jsx";
 import {FoundationStrip} from "./brand-foundation.jsx";
 import { withUploadType } from "./lib/upload-type.js";
 import {useBrandFonts} from "./brand-fonts.jsx";
@@ -413,9 +414,11 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
     const stop = watchDiscoveryBio({
       discoveryId: runContext?.discoveryId,
       read: async () => {
+        let runFinished=true;
         setElapsed(Math.floor((Date.now() - startedAt) / 1000));
         if(runContext?.discoveryId){
           const progress=await apiFetch(`/api/discovery/${runContext.discoveryId}/status`);
+          if(!progress.ok)throw new Error("Progress temporarily unavailable");
           if(progress.ok){
             const {run}=await progress.json();
             if(run?.stage){
@@ -423,18 +426,19 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
               const idx = stages.indexOf(run.stage);
               publishReadProgress({ done: idx >= 0 ? idx + 1 : 1, total: stages.length });
             }
+            runFinished=["completed","gated"].includes(run?.status);
             if(run?.status==='failed')throw Object.assign(new Error(run.error_code||'DISCOVERY_FAILED'),{terminal:true});
           }
         }
         const res = await apiFetch(`/api/bios/${runContext?.brandId}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const {bio} = await res.json();
-        return bio;
+        return runFinished ? bio : null;
       },
       onStatus: failed => setError(failed ? t("discovery.running.reconnecting") : null),
       onFailure: failure=>setError(t("discovery.running.errors."+failure.message)),
-      onComplete: () => {
-        setStage("done");
+      onComplete: bio => {
+        setStage(bio?.reviewGate?.status==='gated'?"review_gate":"done");
         publishReadProgress(null);
         completionTimer = setTimeout(onDone, 400);
       },
@@ -978,6 +982,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       ) : (
         <>
           {/* Steward / cert chip — flips live if certification lands. */}
+          <ReviewGateNotice gate={live.bio?.reviewGate} />
           <p className="bio-landscape-notice">{t("discovery.landscape.draftNotice")}</p>
 
           {/* Brand row + completion meter */}
@@ -1637,6 +1642,8 @@ function BioViewer({ go, bioScore = 91 }) {
                   <>{t("discovery.results.certifiedBy")} <span style={{color:"var(--green-600)"}}>{live.cert.byName}</span> · {formatCertDate(live.cert.at)}</>
                 ) : live.reviewPending && live.bio ? (
                   <>{t("discovery.bio.reviewingThis")}</>
+                ) : live.bio?.reviewGate?.status==='gated' ? (
+                  <>{t("discovery.reviewGate.waiting",{reasons:live.bio.reviewGate.reasons.map(reason=>t("discovery.reviewGate."+reason.code,{minScore:live.bio.reviewGate.min_score})).join(" · ")})}</>
                 ) : live.bio ? (
                   <>{t("discovery.bio.awaitingCert")}</>
                 ) : (
@@ -1660,7 +1667,7 @@ function BioViewer({ go, bioScore = 91 }) {
               )}
             </div>
           </div>
-          {!live.cert && live.bio && (
+          {!live.cert && live.bio && live.bio.reviewGate?.status!=='gated' && (
             <span style={{fontSize: 11.5, color:"var(--c-dim)", fontStyle:"italic", whiteSpace:"nowrap"}}>
               {live.reviewPending ? t("discovery.bio.inReview") : t("discovery.bio.within24h")}
             </span>
@@ -1670,6 +1677,7 @@ function BioViewer({ go, bioScore = 91 }) {
 
       {/* From your Steward — change requests / returned BIO / conditions.
           CTA drops the BIO into the existing edit flow (Save → re-certify). */}
+      <ReviewGateNotice gate={live.bio?.reviewGate} />
       {live.brandId && <StewardReviewPanel review={live.review} onEdit={() => setEditing(true)} />}
 
       {/* What your Steward changed — before → after diff of the Steward's edits */}

@@ -1,6 +1,5 @@
 import {discoveryMarket,readDiscoveryInstagram} from '../../lib/discovery-source-context.js';
-import {selfCertScoreReport} from '../../lib/self-cert-floor.js';
-import {queueDiscoveryReview} from '../../lib/discovery-review.js';
+import {reconcileDiscoveryReview} from '../../lib/discovery-review.js';
 import {discoverLogo, storeDiscoveredLogo} from "../../lib/discovered-logo.js";
 import {mergeLogoFromAssets} from "../../lib/extract-logo.js";
 // ─────────────────────────────────────────────────────────────────────
@@ -26,7 +25,6 @@ import { inngest } from "../../lib/inngest.js";
 import { supabaseAdmin } from "../../lib/supabase.js";
 import { scrape, mapAndScrape, searchCompetitiveSources } from "../../lib/firecrawl.js";
 import { assembleSourceText, discoverySourceRow } from "../../lib/bio-source-policy.js";
-import { assignSteward } from "../../lib/assign-steward.js";
 import { completeDiscoveryStep } from "../../lib/discovery-models.js";
 import { scoreBio } from "../../lib/score-bio.js";
 import { loadLogoRights } from "../../lib/foundation-assets.js";
@@ -453,37 +451,6 @@ export const compileBio = inngest.createFunction(
       return { written: true, count: refusals.length };
     });
 
-    // ── Step 4 · Enqueue Steward certification job ──────────────
-    // Per rev-2 §5: every BIO is certified by a senior human before
-    // any specialist run reads it. Discovery just produced an
-    // uncertified BIO — queue a Steward only after the confidence gate. Assignment uses
-    // the shared assignSteward() helper (P1.5-002) which handles
-    // round-robin + Lead-Steward capacity fallback.
-    const stewardJob = await step.run("enqueue-steward-cert", async () => {
-      const logoRights=await loadLogoRights(brandId,bioPayload).catch(()=>[]);
-      const report=selfCertScoreReport(bioPayload,undefined,{logoRights});
-      return queueDiscoveryReview(report,async()=>{
-        const { data: job, error } = await supabaseAdmin
-          .from("steward_jobs")
-          .insert({
-            bio_id: bioRow.id,
-            brand_id: brandId,
-            kind: "onboarding",
-            status: "queued",
-          })
-          .select("id")
-          .single();
-        if (error) throw new Error(`steward_jobs insert failed: ${error.message}`);
-        const assignment = await assignSteward(job.id);
-        logger.info("Steward cert queued", {
-          jobId: job.id,
-          assignedTo: assignment.name || "(unassigned)",
-          override: assignment.override || null,
-        });
-        return { id: job.id, ...assignment };
-      });
-    });
-
     // ── Step 5 · Seed discovery draft session (best-effort) ──────
     // Upsert one resumable draft per brand (brand_id is UNIQUE) so the rebuilt
     // discovery UI can reopen the compiled BIO as an editable draft. Non-fatal
@@ -516,7 +483,9 @@ export const compileBio = inngest.createFunction(
       }
     });
 
-    await progress("done","completed",bioRow.id);
-    return { bioId: bioRow.id, version: bioRow.version, brandId, stewardJobId: stewardJob?.id||null };
+    // Bind the run before reconciliation so gated status survives completion.
+    await step.run("bind-review-gate-run",()=>recordDiscoveryStage({discoveryId,brandId,workspaceId,stage:"save",status:"running",bioId:bioRow.id}));
+    const reviewGate=await step.run("reconcile-review-gate",()=>reconcileDiscoveryReview({brandId,bioId:bioRow.id,payload:bioPayload}));
+    return {bioId:bioRow.id,version:bioRow.version,brandId,stewardJobId:reviewGate.job_id,reviewGate};
   }
 );

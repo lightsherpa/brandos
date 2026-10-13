@@ -27,7 +27,7 @@ export function discoveryMarket({url,html='',metadata={},evidence=''}={}) {
  const tldCountry=/^[a-z]{2}$/i.test(tld)?(tld==='uk'?'GB':tld.toUpperCase()):'';
  const text=html.replace(/<[^>]*>/g,' ')+' '+evidence;
  const namedCountry=Object.keys(COUNTRY_ALIASES).find(name=>new RegExp(`\\b${name}\\b`,'i').test(text));
- const country=countryCode(address.addressCountry)|| (namedCountry?COUNTRY_ALIASES[namedCountry]:'') ||tldCountry;
+ const country=countryCode(address.addressCountry)||tldCountry||(namedCountry?COUNTRY_ALIASES[namedCountry]:'');
  const rawLanguage=(html.match(/<html\b[^>]*\blang=["']([^"']+)/i)?.[1]||metadata.language||'').split(/[-_]/)[0].toLowerCase();
  const language=LANGUAGE_ALIASES[rawLanguage]||(/^[a-z]{2,3}$/.test(rawLanguage)?rawLanguage:'');
  const city=String(address.addressLocality||html.match(/itemprop=["']addressLocality["'][^>]*>([^<]+)/i)?.[1]||text.match(/\b\d{5}\s+([\p{L} .'-]+?)(?:[,\n]|\s+(?:España|Spain|Portugal|France))/u)?.[1]||'').trim();
@@ -55,7 +55,7 @@ export async function readDiscoveryInstagram({instagram,html='',markdown='',scra
    if(loginOnly||!isReadableSource(page)||/log in to (?:continue|instagram)|login required|challenge required|access denied/i.test(page.markdown)||/^\s*(?:#\s*)?(?:Login|Log in|Instagram)\s*$/i.test(page.markdown))throw Error('Profile blocked or unreadable');
    source.status='read';source.markdownChars=page.markdown.length;
    blocks.push(sourceBlock({...source,markdown:page.markdown}));
-  }catch{source.reason='Instagram profile blocked or unreadable';failures.push(`Instagram could not be read: ${url}`);}
+  }catch(error){if(error?.code==='TEST_BUDGET_EXHAUSTED')throw error;source.reason='Instagram profile blocked or unreadable';failures.push(`Instagram could not be read: ${url}`);}
   sources.push(source);
  }
  return {sources,blocks,failures};

@@ -9,8 +9,7 @@ import {collectDiscoveryVisuals} from './discovery-visuals.js';
 import {discoveryMarket,readDiscoveryInstagram} from './discovery-source-context.js';
 import {generateDiscoveryBrain} from './discovery-intelligence.js';
 import {scrape,searchCompetitiveSources} from './firecrawl.js';
-import {queueDiscoveryReview} from './discovery-review.js';
-import {selfCertScoreReport} from './self-cert-floor.js';
+import {discoveryReviewReport} from './discovery-review.js';
 import {SCORED_PATHS} from './bio-schema.js';
 
 const icons='<link rel="icon" sizes="32x32" href="/favicon.png"><link rel="apple-touch-icon" href="/apple.png"><meta property="og:image" content="/og.jpg">';
@@ -91,15 +90,22 @@ test('blocked Instagram is recorded as an unread source, including provider logi
  }
 });
 
-test('reviewer queue performs no writes below the confidence gate, and queues only on passing it',async()=>{
- let writes=0;const enqueue=async()=>{writes++;return {id:'review'};};
- assert.equal(await queueDiscoveryReview({score:73,minScore:80,meetsFloor:false},enqueue),null);assert.equal(writes,0);
- assert.equal(await queueDiscoveryReview(undefined,enqueue),null);assert.equal(writes,0);
+test('review confidence gate fails without rights and passes the fully sourced version',()=>{
  const payload={confidence:{}};
  for(const [section,key] of SCORED_PATHS){payload[section]??={};payload[section][key]='recorded';payload.confidence[`${section}.${key}`]={conf:100,source:`source-${section}-${key}`};}
  payload.visual={logo:{sourceId:'logo',conf:100},palette:[{role:'primary',hex:'#4ba5aa'}],type:[{kind:'Display',family:'Inter',provider:'google'}]};
- const passing=selfCertScoreReport(payload,undefined,{logoRights:['logo']});assert.equal(passing.meetsFloor,true);
- assert.deepEqual(await queueDiscoveryReview(passing,enqueue),{id:'review'});assert.equal(writes,1);
- const missingRights=selfCertScoreReport(payload,undefined,{logoRights:[]});
- assert.equal(await queueDiscoveryReview(missingRights,enqueue),null);assert.equal(writes,1);
+ assert.equal(discoveryReviewReport(payload,['logo']).meetsFloor,true);
+ const pending=discoveryReviewReport(payload,[]);assert.equal(pending.meetsFloor,false);assert.equal(pending.score,79);
+ assert.deepEqual(pending.reasons.map(r=>r.code),['LOGO_RIGHTS_UNCONFIRMED']);
+});
+
+test('JSON-LD logo outranks og:image, while header remains first',()=>{
+ const structured='<script type="application/ld+json">{"@type":"Organization","logo":"/official-logo.png"}</script>';
+ assert.equal(extractLogo(icons+structured,'https://brand.es').source,'Organization.logo');
+ assert.equal(extractLogo(icons+structured+'<header><img class="logo" src="/header.png"></header>','https://brand.es').source,'header image');
+});
+test('country detection prioritizes address, then ccTLD, then text',()=>{
+ assert.equal(discoveryMarket({url:'https://brand.fr',html:marketHtml+'Canada Germany'}).country,'ES');
+ assert.equal(discoveryMarket({url:'https://brand.fr',evidence:'Exporting to Spain'}).country,'FR');
+ assert.equal(discoveryMarket({url:'https://brand.com',evidence:'Valencia, Spain'}).country,'ES');
 });

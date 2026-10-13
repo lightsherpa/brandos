@@ -23,7 +23,7 @@ export async function scrape(url, opts = {}) {
 
   const started = Date.now();
   const requestId = crypto.randomUUID();
-  reserveDiscoveryTestSpend(.10,"firecrawl:scrape");
+  reserveDiscoveryTestSpend(.10, /^https?:\/\/(?:www\.)?instagram\.com\//i.test(url)?"firecrawl:instagram":"firecrawl:scrape");
   const res = await fetch(FIRECRAWL_URL, {
     method: "POST",
     headers: {

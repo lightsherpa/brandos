@@ -35,14 +35,6 @@ export function extractLogo(html = '', baseUrl = '') {
       const found = a.src && publicLogo(a.src, baseUrl, 'header image', 90); if (found) return found;
     }
   }
-  for (const match of html.matchAll(/<meta\b[^>]*>/gi)) {
-    const a = attrs(match[0]);
-    if (a.property === 'og:image') { const found = publicLogo(a.content, baseUrl, 'og:image', 50); if (found) return found; }
-  }
-  const icons = [...html.matchAll(/<link\b[^>]*>/gi)].map(m => attrs(m[0]));
-  for (const a of icons.filter(a => /(?:^|\s)apple-touch-icon(?:-precomposed)?(?:\s|$)/i.test(a.rel || ''))) {
-    const found = a.href && publicLogo(a.href, baseUrl, 'apple-touch-icon', 50); if (found) return found;
-  }
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const walk = value => {
@@ -57,6 +49,14 @@ export function extractLogo(html = '', baseUrl = '') {
       };
       const found = walk(JSON.parse(match[1])); if (found) return found;
     } catch { /* malformed site metadata */ }
+  }
+  for (const match of html.matchAll(/<meta\b[^>]*>/gi)) {
+    const a = attrs(match[0]);
+    if (a.property === 'og:image') { const found = publicLogo(a.content, baseUrl, 'og:image', 50); if (found) return found; }
+  }
+  const icons = [...html.matchAll(/<link\b[^>]*>/gi)].map(m => attrs(m[0]));
+  for (const a of icons.filter(a => /(?:^|\s)apple-touch-icon(?:-precomposed)?(?:\s|$)/i.test(a.rel || ''))) {
+    const found = a.href && publicLogo(a.href, baseUrl, 'apple-touch-icon', 50); if (found) return found;
   }
   for (const a of icons.filter(a => /(?:^|\s)icon(?:\s|$)/i.test(a.rel || ''))) {
     // Unknown-size favicons cannot establish a usable brand mark.

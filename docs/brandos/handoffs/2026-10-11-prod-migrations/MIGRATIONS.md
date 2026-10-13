@@ -306,3 +306,20 @@ docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supab
 docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations(version,name) values ('20261013020000','cert_messages')"
 docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supabase/tests/cert_messages_rls.sql
 ```
+
+## 15. `20261013030000_discovery_review_gate.sql` (fix/discovery-quality)
+
+Persists a confidence gate for each Brand Core version, including score and actionable waiting reasons. The service-only `reconcile_bio_review` RPC locks the BIO row, records a gated Discovery state, and queues the first review when checks pass. All prior jobs (including completed jobs) count, so concurrent rights confirmation, edits and self-certification cannot duplicate an automatic review for a version. Safe before the merge. Existing callers do not use this additive table/RPC until the application deploy. Run the verify query first and skip if a row comes back.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013030000_discovery_review_gate.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013030000', 'discovery_review_gate') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select to_regclass('public.bio_review_gates'), has_function_privilege('authenticated','public.reconcile_bio_review(uuid,jsonb,text)','execute'); -- table, false
+select pg_get_constraintdef(oid) from pg_constraint where conname = 'discovery_runs_status_check'; -- includes gated
+```
+
+Regression checks: `supabase/tests/discovery_review_gate.sql` (transactional, rolled back).

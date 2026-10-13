@@ -1,3 +1,4 @@
+import {reconcileDiscoveryReview,reconcileLatestDiscoveryReview} from '../lib/discovery-review.js';
 import {foundationStatus,foundationError} from "../lib/brand-foundation.js";
 import {validateFoundationAssets, loadLogoRights} from "../lib/foundation-assets.js";
 import {writeAuthorizationAudit} from "../lib/audit.js";
@@ -248,12 +249,16 @@ app.post("/:brandId/sources/:sourceId/confirm-rights", requireAuth, async (c) =>
   if (findErr) return c.json({ error:"Could not load source" }, 500);
   if (!source || source.kind !== "file_upload" || source.bucket !== "visual" || !source.raw_ref) return c.json({ error:"Source not found" }, 404);
   if (source.signals?.asset_role !== "logo" || source.signals?.ext !== "png") return c.json({ error:"Only PNG logos can be confirmed here", code:"NOT_A_LOGO" }, 400);
-  if (source.signals?.rights_confirmed === true) return c.json({ ok:true, sourceId, rightsConfirmed:true, unchanged:true });
+  if (source.signals?.rights_confirmed === true) {
+    const reviewGate=await reconcileLatestDiscoveryReview(brandId);
+    return c.json({ok:true,sourceId,rightsConfirmed:true,unchanged:true,reviewGate});
+  }
   const signals = { ...source.signals, rights_confirmed:true, rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() };
   const { error } = await supabaseAdmin.from("bio_sources").update({ signals }).eq("id", sourceId).eq("brand_id", brandId);
   if (error) return c.json({ error:"Could not confirm rights" }, 500);
   await writeAuthorizationAudit(c,{permission:"bio.propose",action:"brand.logo.confirm_rights",targetType:"bio_source",targetId:sourceId,workspaceId:brand.workspace_id,priorState:{rights_confirmed:source.signals?.rights_confirmed ?? false},newState:{rights_confirmed:true}});
-  return c.json({ ok:true, sourceId, rightsConfirmed:true });
+  const reviewGate=await reconcileLatestDiscoveryReview(brandId);
+  return c.json({ok:true,sourceId,rightsConfirmed:true,reviewGate});
 });
 
 /* Fresh private URL for an approved visual/font source. BIO payloads store a
@@ -283,8 +288,7 @@ app.get("/:brandId/sources/:sourceId/url", requireAuth, async (c) => {
 /* PATCH /api/bios/:brandId
    Body: { payload }
    Creates a NEW bios row (append-only versioned per rev-2 §5.5) with
-   certified=false. Doesn't auto-enqueue a Steward drift_check yet —
-   that's P1.5-005, deferred. Returns the new bios row. */
+   certified=false. Re-evaluates the review gate for this version. */
 app.patch("/:brandId", requireAuth, async (c) => {
   let { workspaceId, userId } = c.get("auth");
   const brandId = c.req.param("brandId");
@@ -320,29 +324,9 @@ app.patch("/:brandId", requireAuth, async (c) => {
 
   if (JSON.stringify(previousBio?.payload?.visual) !== JSON.stringify(cleanPayload.visual)) await writeAuthorizationAudit(c,{permission:"brand.update",action:"brand.foundation.edit",targetType:"bio",targetId:newRow.id,workspaceId,priorState:previousBio?.payload?.visual || null,newState:cleanPayload.visual});
 
-  /* P1.5-005 — every BIO edit enqueues a drift_check Steward job so a
-     senior human re-reviews the user's edits before this version
-     becomes the active BIO for specialist runs. loadBioForRun (§5.5)
-     keeps serving the previously-certified version until this one is
-     certified. Fire-and-forget here — the route returns immediately;
-     the helper handles its own errors via the override_reason field. */
-  try {
-    const { data: stewardJob } = await supabaseAdmin
-      .from("steward_jobs")
-      .insert({
-        bio_id: newRow.id,
-        brand_id: brandId,
-        kind: "drift_check",
-        status: "queued",
-      })
-      .select("id")
-      .single();
-    if (stewardJob?.id) await assignSteward(stewardJob.id);
-  } catch (e) {
-    console.warn("[bios PATCH] failed to enqueue drift_check Steward job:", e?.message || e);
-  }
+  const reviewGate=await reconcileDiscoveryReview({brandId,bioId:newRow.id,payload:cleanPayload,kind:"drift_check"});
 
-  return c.json({ bio: newRow });
+  return c.json({bio:{...newRow,reviewGate}});
 });
 
 /* GET /api/bios/:brandId
@@ -445,7 +429,9 @@ app.get("/:brandId", requireAuth, async (c) => {
 
   let logoRights = [];
   if (bio) { try { logoRights = await loadLogoRights(brandId, bio.payload); } catch { return c.json({ error:"Could not verify logo rights", code:"RIGHTS_LOOKUP_FAILED" }, 503); } }
-  return c.json({ brand, bio:bio ? {...bio,score:scoreBio(bio.payload,{logoRights}),...foundationStatus(bio.payload,{logoRights}),logoRights} : null, reviewPending, focusCount, review, diff });
+  const {data:reviewGate,error:gateError}=bio?await supabaseAdmin.from('bio_review_gates').select('status,score,min_score,reasons,job_id,updated_at').eq('bio_id',bio.id).maybeSingle():{data:null};
+  if(gateError)return c.json({error:'Could not load review status'},503);
+  return c.json({ brand, bio:bio ? {...bio,reviewGate,score:scoreBio(bio.payload,{logoRights}),...foundationStatus(bio.payload,{logoRights}),logoRights} : null, reviewPending, focusCount, review, diff });
 });
 
 /* POST /api/bios/:brandId/self-certify
