@@ -84,3 +84,12 @@ test("assertPublicUrl blocks internal hosts and private/metadata IPs", () => {
 test("assertPublicUrl rejects garbage", () => {
   assert.throws(() => assertPublicUrl("not a url"), (e) => e.code === "BAD_URL" || e.code === "BAD_SCHEME");
 });
+
+test("assetRole allowlist applies to fonts as well as images",()=>{
+ for(const role of ["hero","avoid","__proto__"]){
+  assert.equal(validateVisualAssetMetadata({ext:"png",assetRole:role,rightsConfirmed:true}).code,"ASSET_ROLE");
+  assert.equal(validateVisualAssetMetadata({ext:"ttf",assetRole:role,rightsConfirmed:true,fontFamily:"Brand",licenseType:"commercial"}).code,"ASSET_ROLE");
+ }
+ assert.equal(validateVisualAssetMetadata({ext:"png",assetRole:"font",rightsConfirmed:true}).code,"ASSET_ROLE");
+ assert.equal(validateVisualAssetMetadata({ext:"ttf",assetRole:"font",rightsConfirmed:true,fontFamily:"Brand",licenseType:"commercial"}).metadata.asset_role,"font");
+});

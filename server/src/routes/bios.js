@@ -445,7 +445,7 @@ app.post("/:brandId/self-certify", requireAuth, async (c) => {
     statements: body.statements, fieldMarks: body.fieldMarks, statementVersion: body.statementVersion,
     review: review.review,
   });
-  if (!result.ok) { const { ok, ...err } = result; return c.json(err, result.code==="STALE_BIO"?409:result.code==="ATTESTATION_FAILED"?500:400); }
+  if (!result.ok) { const { ok, ...err } = result; return c.json(err, ["STALE_BIO","FOUNDATION_INCOMPLETE"].includes(result.code)?409:result.code==="ATTESTATION_FAILED"?500:400); }
 
   return c.json({ ok: true, self_certified: true, version: bio.version, score: result.score, attestationId:result.attestationId, attestedAt:result.attestedAt,reviewQueued:result.reviewQueued });
 });

@@ -60,3 +60,13 @@ Snapshot: `server/src/lib/fixtures/social/square.png` (synthetic raster/mark, re
 ## Ownership boundaries
 
 No changes to `server/src/lib/runs.js`, `server/src/lib/models/fal-image.js`, or `server/src/lib/format-preview/`. `routes/runs.js` is also byte-for-byte unchanged from the base. The read-only preflight wraps that router in `foundation-run-gateway.js`, mounted by `index.js`. The shared `loadBrandBio(requireCertified:true)` gate protects task production before writer/model work; legacy certified foundations must be completed before production resumes. Internal `bio` identifiers are preserved. No files under `backups/` or `.work/` are committed. No production writes, migrations, seeds, certification or image runs were performed.
+
+## Quinn unblock — 2026-10-13
+
+Rebased on `origin/dev` at `2be3ab74eb6c4e25d63d848be5ca78c0d73afb37`, including the merged task pipeline. Foundation completeness gates certification and image work. Shared certified loading, craft, source deletion, plain email tasks and copy reruns do not require a foundation. Loading prefers the newest certified version with a foundation, falling back to a legacy certified version for text when none exists. Image loading fails with HTTP 409 `FOUNDATION_INCOMPLETE` before any model, credit reservation or ledger insert. An incomplete latest draft does not override the selected certification.
+
+Task context requires a foundation for social images and email heroes. Its copy-only rerun path explicitly bypasses that visual gate. Discovered external logos require a DNS-pinned HEAD request (public redirects checked again), HTTP 200, image content type and positive Content-Length no larger than 15MB; unverified URLs are discarded. Every compositor image, logo variant and font input has the same size limit before parsing. Upload roles are restricted to logo, canonical, inspiration and font. Legacy avoid references remain readable but cannot be newly uploaded.
+
+One backfill script remains: `scripts/backfill-visual-roles.mjs`, dry-run by default, a single UUID `--only` required, remote targets blocked. No production writes, seeds, or backfill executions were performed.
+
+Validation: `npm run test:units` includes the foundation module-mock regressions and the task-pipeline tests (525 tests).

@@ -1,4 +1,4 @@
-import {extractLogo} from "./extract-logo.js";
+import {discoverLogo} from "./discovered-logo.js";
 import {resolveVisualStyles} from './discovery-styles.js';
 
 // Each reference stays separate: inspiration never becomes the brand's palette.
@@ -9,7 +9,7 @@ export async function collectDiscoveryVisuals({url,references=[],scrape,readImag
     const entry={...target,checkedAt:new Date().toISOString(),status:'unreadable',visual:{palette:[],type:[],imagery:[],avoid:[]},limitations:[]};
     try {
       const page=await scrape(target.url,{formats:['rawHtml','screenshot'],onlyMainContent:false,telemetry});
-      entry.visual.logo=extractLogo(page.rawHtml||"",target.url);
+      entry.visual.logo=await discoverLogo(page.rawHtml||"",target.url);
       const styles=await resolveVisualStyles({html:page.rawHtml||'',url:target.url,...(readStyles?{read:readStyles}:{})});
       entry.visual.palette=styles.palette;entry.visual.type=styles.type;entry.visual.contrastPairs=styles.contrastPairs;entry.styles=styles;
       if(styles.unreadableStylesheets.length)entry.limitations.push('Some linked stylesheets could not be read.');

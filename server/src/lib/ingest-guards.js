@@ -47,7 +47,7 @@ export function validateUpload({ mime = "", size = 0, filename = "" } = {}) {
   return { ok: true, ext };
 }
 
-const VISUAL_ROLES = new Set(["canonical", "inspiration", "avoid", "logo"]);
+const VISUAL_ROLES = new Set(["canonical", "inspiration", "font", "logo"]);
 const FONT_LICENSES = new Set(["commercial", "open_source", "custom", "system"]);
 
 /* Visual evidence carries intent and rights at ingest time. A file merely
@@ -65,9 +65,12 @@ export function validateVisualAssetMetadata({
   const normalizedExt = String(ext).toLowerCase().replace(/^\./, "");
   const isFont = FONT_UPLOAD_EXTS.has(normalizedExt);
   const isImage = IMAGE_UPLOAD_EXTS.has(normalizedExt);
+  const role = String(assetRole || "inspiration").trim();
+  if (!VISUAL_ROLES.has(role) || (role === "font" && !isFont)) return {ok:false,code:"ASSET_ROLE",message:"Choose logo, canonical, inspiration or font"};
   if (!rightsConfirmed) {
     return { ok: false, code: "RIGHTS", message: "Confirm that this brand has the right to use this visual asset" };
   }
+  if (role === "logo" && !["svg", "png"].includes(normalizedExt)) return {ok:false,code:"LOGO_EXT",message:"Logos must be SVG or PNG"};
   if (isFont) {
     const family = String(fontFamily).trim();
     const license = String(licenseType).trim();
@@ -79,7 +82,7 @@ export function validateVisualAssetMetadata({
       ok: true,
       metadata: {
         asset_kind: "font",
-        asset_role: "canonical",
+        asset_role: "font",
         rights_confirmed: true,
         font_family: family,
         font_usage: usage[0].toUpperCase() + usage.slice(1).toLowerCase(),
@@ -88,12 +91,7 @@ export function validateVisualAssetMetadata({
       },
     };
   }
-  const role = String(assetRole || "inspiration").trim();
-  if (role === "logo" && !["svg", "png"].includes(normalizedExt)) return { ok:false, code:"LOGO_EXT", message:"Logos must be SVG or PNG" };
   if (role === "logo" && !["light", "dark"].includes(logoVariant)) return { ok:false, code:"LOGO_VARIANT", message:"Choose light or dark background" };
-  if (!VISUAL_ROLES.has(role)) {
-    return { ok: false, code: "ASSET_ROLE", message: "Choose whether this reference is canonical, inspiration, or something to avoid" };
-  }
   return {
     ok: true,
     metadata: {

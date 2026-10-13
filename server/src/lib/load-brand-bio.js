@@ -8,7 +8,8 @@ import {scoreBio} from "./score-bio.js";
 //
 // Two tiers, per the two-stage certification model:
 //   • production (specialist runs, human craft)  → requireCertified: reads the
-//     newest certified version. Creative Director certification qualifies at
+//     newest certified version with a foundation, or newest certification
+//     for text work when no version has a foundation. Creative Director certification qualifies at
 //     any score; a self-certified version qualifies only at score >= 80.
 //     Throws BIO_NOT_CERTIFIED (409) otherwise.
 //   • briefing (sharpener, brief authoring)       → requireSelfCertified: reads
@@ -41,6 +42,7 @@ function bioError(code, message, status = 409) {
  * @param {string} [opts.brandId]                specific brand; defaults to first brand in workspace
  * @param {boolean} [opts.requireCertified=false]      production gate — highest human-certified version
  * @param {boolean} [opts.requireSelfCertified=false]  briefing gate — highest self-certified version
+ * @param {boolean} [opts.requireFoundation=false] image/compositor gate only
  */
 export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false, requireFoundation = false }) {
   // Resolve brand
@@ -85,8 +87,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       .select(bioColumns)
       .eq("brand_id", brandRow.id)
       .or(`certified.eq.true,and(self_certified.eq.true,score.gte.${SELF_CERT_MIN_SCORE})`)
-      .order("version", { ascending: false })
-      .limit(20);
+      .order("version", { ascending: false });
     bioErr = error;
     bioRow = selectProductionBio((rows || []).filter(row => !foundationError(row.payload))) || selectProductionBio(rows || []);
   } else {

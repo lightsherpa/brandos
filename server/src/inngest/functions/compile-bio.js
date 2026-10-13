@@ -1,4 +1,5 @@
-import {extractLogo,mergeLogoFromAssets} from "../../lib/extract-logo.js";
+import {discoverLogo} from "../../lib/discovered-logo.js";
+import {mergeLogoFromAssets} from "../../lib/extract-logo.js";
 // ─────────────────────────────────────────────────────────────────────
 // P1 · a30 BIO Compiler — Discovery → BIO synthesis
 //
@@ -379,7 +380,7 @@ export const compileBio = inngest.createFunction(
           });
 
           return {
-            logo: extractLogo(rawHtml, url),
+            logo: await discoverLogo(rawHtml, url),
             palette: extractPalette(rawHtml),
             type: mergeTypographyFromAssets(extractFonts(rawHtml), assets.fonts),
             imagery,

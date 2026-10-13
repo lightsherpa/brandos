@@ -15,7 +15,7 @@ import { runTask, rerunItem } from "./pipeline.js";
 import { renderEmail } from "./render.js";
 import { composeTaskImagePrompt } from "./images.js";
 import { TASKS } from "./registry.js";
-import { parseArgs, rowsToBackfill } from "../../../scripts/backfill-visual-roles.mjs";
+import { parseBackfillArgs, legacyVisualChanges } from "../../../scripts/backfill-visual-roles.mjs";
 import { classifyVisualSources, selectGenerationReferences } from "../lib/visual-assets.js";
 
 const CAKE_ME_DONT = ["formal", "corporativo", "distante", "agresivo", "negativo", "aburrido", "exclusivo", "cliente"];
@@ -215,9 +215,9 @@ test("S1: legacy role-less visual uploads count as inspiration; refs capped at 3
 });
 
 test("backfill script requires --only and defaults to dry-run", () => {
-  assert.throws(() => parseArgs([]), /--only/);
-  assert.equal(parseArgs(["--only=abc"]).apply, false);
-  assert.equal(rowsToBackfill([{ bucket: "visual", kind: "file_upload", src: "53.png", signals: {} }, { bucket: "foundations", kind: "file_upload", src: "x.pdf" }]).length, 1);
+  assert.throws(() => parseBackfillArgs([]), /--only/);
+  assert.equal(parseBackfillArgs(["--only=35f265f0-0546-4a9a-b793-a49887ad7125"]).dryRun, true);
+  assert.equal(legacyVisualChanges([{ brand_id: "35f265f0-0546-4a9a-b793-a49887ad7125", bucket: "visual", kind: "file_upload", src: "53.png", raw_ref: "local/53.png", signals: {} }, { bucket: "foundations", kind: "file_upload", src: "x.pdf" }], "35f265f0-0546-4a9a-b793-a49887ad7125").length, 1);
 });
 
 test("don't-list variants: gender, number and light derivations (es/en)", () => {

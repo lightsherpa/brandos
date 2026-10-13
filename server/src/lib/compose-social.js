@@ -1,3 +1,4 @@
+import {MAX_UPLOAD_BYTES} from "./ingest-guards.js";
 // Code compositor, deliberately independent of all model/run/harness paths.
 // Inputs are resolved asset buffers; output is exactly one PNG, never AI type.
 import sharp from 'sharp';
@@ -41,6 +42,9 @@ export function headlineOutlineSvg({font,text,width,height,size=64,left=43,botto
  *  beyond reading the bundled OFL fallback font; it has no network/model client.
  */
 export async function composeSocial({image,logo,headline,visual={},fontBuffer=null,fontFamily=null,aspect='1:1'}={}){
+ for(const [name,input] of [["image",image],["font",fontBuffer],...(Buffer.isBuffer(logo)||logo instanceof Uint8Array?[["logo",logo]]:Object.entries(logo || {}))]){
+  if(input?.byteLength>MAX_UPLOAD_BYTES)throw Object.assign(Error(`${name} exceeds 15MB`),{code:'TOO_LARGE',status:413});
+ }
  const size=SOCIAL_SIZES[aspect];if(!size)throw Error('Aspect must be 1:1, 4:5 or 9:16');
  const imageBytes=bytes(image);if(!imageBytes)throw Error('Supply the image as a resolved buffer');
  const primary=(visual.palette || []).find(colour=>colour.role==='primary'&&/^#[\da-f]{6}$/i.test(colour.hex||''));

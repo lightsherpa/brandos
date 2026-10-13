@@ -48,3 +48,8 @@ test('supplied licensed WOFF2 Arabic font produces glyphs without fallback',asyn
  const output=await composeSocial({...await fixtureArgs(),fontBuffer:arabic,fontFamily:'IBM Plex Sans Arabic',headline:'كعكة لنهار أجمل'});
  assert.equal(output.font.fallback,false);assert.equal(output.font.unsupportedGlyphs.length,0);
 });
+
+test('compositor rejects oversized image, logo and font before parsing',async()=>{
+ const huge=Buffer.alloc(15*1024*1024+1);
+ for(const inputs of [{image:huge},{image:huge,logo:{image:Buffer.from('x')}},{image:Buffer.from('x'),logo:huge},{image:Buffer.from('x'),logo:{light:huge}},{image:Buffer.from('x'),fontBuffer:huge}])await assert.rejects(()=>composeSocial(inputs),e=>e.code==='TOO_LARGE'&&e.status===413);
+});
