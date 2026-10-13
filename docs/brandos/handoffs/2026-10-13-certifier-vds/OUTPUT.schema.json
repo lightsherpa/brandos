@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "certifier.brief.v1",
+  "title": "Certifier brief (final, after code enrichment)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["brand_core_version","mode","brand_in_60s","claims","question_groups","meta"],
+  "properties": {
+    "brand_core_version": {"type":"string"},
+    "mode": {"enum":["full","single_claim"]},
+    "brand_in_60s": {"type":"array","maxItems":12,"items":{"$ref":"#/$defs/statement"}},
+    "claims": {"type":"array","items":{"$ref":"#/$defs/claim"}},
+    "question_groups": {"type":"array","items":{"type":"object","required":["section","questions"],"additionalProperties":false,
+      "properties":{"section":{"$ref":"#/$defs/section"},"questions":{"type":"array","items":{"$ref":"#/$defs/question"}}}}},
+    "meta": {"type":"object","required":["model","cost_usd","repair_passes","replaced_with_unknown"],"properties":{
+      "model":{"type":"string"},"cost_usd":{"type":"number","maximum":0.30},"repair_passes":{"type":"integer","maximum":1},
+      "replaced_with_unknown":{"type":"integer"},"label":{"const":"Prepared by assistant — not a certification"}}}
+  },
+  "$defs": {
+    "section": {"enum":["identity","visual","voice","audience","goals","strategic"]},
+    "citation": {"type":"object","additionalProperties":false,"required":["source_id","span"],"properties":{
+      "source_id":{"type":"string"},
+      "span":{"type":"string","minLength":3,"maxLength":400},
+      "page":{"type":"integer","minimum":1},
+      "image":{"type":"string","description":"asset/source id of the image shown side-by-side"},
+      "char_start":{"type":"integer","description":"set by validator"},"char_end":{"type":"integer","description":"set by validator"}}},
+    "statement": {"type":"object","additionalProperties":false,"required":["text"],"properties":{
+      "text":{"type":"string","maxLength":600},
+      "citations":{"type":"array","items":{"$ref":"#/$defs/citation"}},
+      "unknown":{"type":"boolean"}},
+      "oneOf":[
+        {"required":["citations"],"properties":{"citations":{"minItems":1},"unknown":{"const":false}}},
+        {"required":["unknown"],"properties":{"unknown":{"const":true},"citations":{"maxItems":0}}}]},
+    "claim": {"type":"object","additionalProperties":false,
+      "required":["claim_id","layer","section","field","value","rationale","confidence","rank","status_label","blocks_certification"],
+      "properties":{
+        "claim_id":{"type":"string"},"layer":{"enum":[1,2,3]},"section":{"$ref":"#/$defs/section"},"field":{"type":"string"},"value":{},
+        "rationale":{"type":"array","items":{"$ref":"#/$defs/statement"}},
+        "suggested_concern":{"enum":["none","weak","conflict"],"description":"model hint only"},
+        "confidence":{"enum":["to_confirm","conflicting","guessed","low","medium","high"],"description":"CODE ONLY"},
+        "rank":{"type":"integer","minimum":1,"description":"CODE ONLY"},
+        "status_label":{"enum":["To confirm","Needs review","New evidence","Evidence ok"],"description":"CODE ONLY; Brand Core page maps to Certified/Needs review/Missing"},
+        "blocks_certification":{"type":"boolean","description":"CODE ONLY: foundation gate (logo, primary colour, display font)"},
+        "actions":{"type":"array","items":{"enum":["ask_client","add"]}}}},
+    "question": {"type":"object","additionalProperties":false,"required":["question_id","claim_ids","text","why"],"properties":{
+      "question_id":{"type":"string"},"claim_ids":{"type":"array","minItems":1,"items":{"type":"string"}},
+      "text":{"type":"string","maxLength":300},"answer_type":{"enum":["free_text","choice","upload"]},
+      "why":{"$ref":"#/$defs/statement"},"draft_id":{"type":"string"}}},
+    "model_output": {"type":"object","additionalProperties":false,"required":["brand_in_60s","claims","questions"],
+      "description":"What the model submits. Code adds confidence/rank/status/gate/meta and groups questions by section.",
+      "properties":{
+        "brand_in_60s":{"type":"array","maxItems":12,"items":{"$ref":"#/$defs/statement"}},
+        "claims":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["claim_id","rationale"],"properties":{
+          "claim_id":{"type":"string"},"rationale":{"type":"array","items":{"$ref":"#/$defs/statement"}},"suggested_concern":{"enum":["none","weak","conflict"]}}}},
+        "questions":{"type":"array","maxItems":8,"items":{"type":"object","additionalProperties":false,"required":["claim_ids","section","text","why"],"properties":{
+          "claim_ids":{"type":"array","minItems":1,"items":{"type":"string"}},"section":{"$ref":"#/$defs/section"},
+          "text":{"type":"string","maxLength":300},"answer_type":{"enum":["free_text","choice","upload"]},"why":{"$ref":"#/$defs/statement"}}}}}}
+  }
+}

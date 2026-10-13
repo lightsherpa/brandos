@@ -41,3 +41,20 @@ export function resolveTextTokenBudget({ maxTokens, spec } = {}) {
   const clamped = Math.min(TEXT_TOKEN_CAP, Math.max(TEXT_TOKEN_FLOOR, requested));
   return Math.max(PROVIDER_TOKEN_FLOOR, clamped);
 }
+
+// Certifier reservations use a conservative UTF-8 byte token upper bound,
+// including tools and cache-write pricing. Reserve the worst fallback price
+// BEFORE calling the provider, not after its usage has already been billed.
+export class CertifierBudget {
+  constructor(cap = 0.30) { this.cap = cap; this.spent = 0; }
+  allowance(inputTokens, requested = 8000, mayFallback = true) {
+    const inputCost = inputTokens * (mayFallback ? 6.25 : 3.75) / 1e6;
+    const output = Math.min(requested, Math.floor((this.cap - this.spent - inputCost) * 1e6 / 15));
+    if (output < 16) throw Object.assign(new Error('Certifier cost cap reached'), { code: 'CERTIFIER_COST_CAP', status: 429 });
+    return output;
+  }
+  charge(cost) {
+    if (!Number.isFinite(cost) || cost < 0 || this.spent + cost > this.cap + 1e-9) throw Object.assign(new Error('Certifier cost cap reached'), { code: 'CERTIFIER_COST_CAP', status: 429 });
+    this.spent = Number((this.spent + cost).toFixed(9));
+  }
+}

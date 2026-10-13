@@ -16,7 +16,7 @@ const STATUS_LABELS = {
   "steward-certified": "steward-certified",
 };
 
-const HIGH_IMPACT = new Set([
+export const HIGH_IMPACT = new Set([
   "identity.positioning",
   "voice.forbidden",
   "audience.primary",
@@ -42,7 +42,7 @@ function normalizeStatus(status, conf, source) {
   return source ? "source-backed" : "client-stated";
 }
 
-function groupClaims(payload) {
+export function groupClaims(payload) {
   const bio = normalizeBio(payload);
   const groups = {
     sourceBacked: [],
