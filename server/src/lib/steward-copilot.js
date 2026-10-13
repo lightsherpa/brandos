@@ -136,10 +136,10 @@ function riskFromClaim(claim, severity, reason, action) {
   return { field: claim.field, label: claim.label, severity, reason, action };
 }
 
-export function buildStewardCaseFile({ job, bio, brand, sources = [], previousBio = null, latestDecision = null } = {}) {
+export function buildStewardCaseFile({ job, bio, brand, sources = [], previousBio = null, latestDecision = null, logoRights = [] } = {}) {
   const payload = normalizeBio(bio?.payload || {});
   const focus = computeFocus(payload);
-  const scoreBreakdown = scoreBioBreakdown(payload);
+  const scoreBreakdown = scoreBioBreakdown(payload, { logoRights });
   const groups = groupClaims(payload);
   const risks = [
     ...groups.conflicting.map((claim) => riskFromClaim(claim, "high", "Conflicting evidence or values exist for this claim.", "Resolve before certification.")),
@@ -244,7 +244,7 @@ export function buildStewardSuggestions({ caseFile } = {}) {
   return { suggestions };
 }
 
-export function buildStewardCopilot({ job, bio, brand, sources = [], previousBio = null, latestDecision = null } = {}) {
-  const caseFile = buildStewardCaseFile({ job, bio, brand, sources, previousBio, latestDecision });
+export function buildStewardCopilot({ job, bio, brand, sources = [], previousBio = null, latestDecision = null, logoRights = [] } = {}) {
+  const caseFile = buildStewardCaseFile({ job, bio, brand, sources, previousBio, latestDecision, logoRights });
   return { caseFile, ...buildStewardSuggestions({ caseFile }) };
 }

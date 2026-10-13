@@ -22,7 +22,25 @@ async function sourceUrl(brandId,item) {
   const res=await apiFetch(`/api/bios/${brandId}/sources/${item.sourceId}/url`);
   if(!res.ok)throw Error('Asset unavailable');return (await res.json()).url;
 }
-export function FoundationStrip({brandId,payload,onSave,disabled=false}) {
+export const LOGO_RIGHTS_MESSAGE='Confirm the brand has rights to use this logo before certification';
+export function foundationIncompleteMessage(status){
+  if(status?.logoStatus==='needs_rights'&&status.missing?.length===1)return 'Foundation incomplete · confirm rights to use the logo';
+  return 'Foundation incomplete · add logo, primary colour and display font';
+}
+export async function confirmLogoRights(brandId,sourceIds){
+  for(const id of sourceIds){
+    const res=await apiFetch(`/api/bios/${brandId}/sources/${id}/confirm-rights`,{method:'POST',body:JSON.stringify({rightsConfirmed:true})});
+    if(!res.ok){const json=await res.json().catch(()=>({}));throw Error(json.error||'Could not confirm logo rights');}
+  }
+}
+function LogoRightsPrompt({brandId,sourceIds,disabled,onConfirmed}){
+  const [checked,setChecked]=React.useState(false);const [busy,setBusy]=React.useState(false);const [error,setError]=React.useState('');
+  return <div className="foundation-rights-prompt" role="group" aria-label="Confirm logo rights"><small>{LOGO_RIGHTS_MESSAGE}</small>
+    <label><input type="checkbox" checked={checked} disabled={disabled||busy} onChange={e=>setChecked(e.target.checked)}/> The brand has rights to use this logo</label>
+    <button className="btn btn--sm" disabled={!checked||disabled||busy} onClick={async()=>{setBusy(true);setError('');try{await confirmLogoRights(brandId,sourceIds);await onConfirmed?.();}catch(e){setError(e.message);}finally{setBusy(false);}}}>Confirm rights</button>
+    {error&&<small role="alert">{error}</small>}</div>;
+}
+export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRights=[],onRightsConfirmed}) {
   const visual=payload?.visual || {};
   const [draft,setDraft]=React.useState(visual);
   const [editing,setEditing]=React.useState(false);
@@ -36,7 +54,7 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false}) {
   const fonts=useBrandFonts(displayed.type || [],brandId);
   const font=(displayed.type || []).find(usableDisplayFont);
   const fontState=fonts[font?.sourceId || font?.family];
-  const status=foundationStatus({visual:displayed});
+  const status=foundationStatus({visual:displayed},{logoRights});
   React.useEffect(()=>{
     let alive=true;setImages({});
     const logo=displayed.logo;
@@ -74,9 +92,9 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false}) {
   const save=async()=>{setBusy(true);setError('');try{await onSave({...draft,typeScale:{...DEFAULT_TYPE_SCALE,...draft.typeScale}});setEditing(false);}catch(e){setError(e.message || String(e));}finally{setBusy(false);}};
   const missing=<span className="foundation-missing">Missing</span>;
   return <section className="foundation-strip" aria-label="Brand Core foundation">
-    <div className="foundation-heading"><div><span className="eyebrow">Brand Core · Foundation</span><p>{status.certifiable?'Foundation ready for certification':'Add logo, primary colour and display font to enable certification'}</p></div><button className="btn btn--ghost btn--sm" disabled={disabled||busy} onClick={editing?()=>setEditing(false):edit}>{editing?'Cancel':'Edit foundation'}</button></div>
+    <div className="foundation-heading"><div><span className="eyebrow">Brand Core · Foundation</span><p>{status.certifiable?'Foundation ready for certification':status.logoStatus==='needs_rights'&&status.missing.length===1?'Confirm logo rights to enable certification':'Add logo, primary colour and display font to enable certification'}</p></div><button className="btn btn--ghost btn--sm" disabled={disabled||busy} onClick={editing?()=>setEditing(false):edit}>{editing?'Cancel':'Edit foundation'}</button></div>
     <div className="foundation-grid">
-      <article className="foundation-card"><h3>Logo</h3><div className="foundation-logos">{['light','dark'].map(variant=><div key={variant} className={`foundation-logo foundation-logo--${variant}`}><span>{variant === 'light'?'On light background':'On dark background'}</span>{images[variant]?<img alt={`${logoVariantForBackground(variant)} brand logo on ${variant} background`} src={images[variant]} onError={()=>setImages(state=>({...state,[variant]:null}))}/>:<>{missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload logo for {variant} background</button></>}</div>)}</div>{visual.logo?.conf<60&&<small>Site icon found · upload the brand logo</small>}</article>
+      <article className="foundation-card"><h3>Logo</h3><div className="foundation-logos">{['light','dark'].map(variant=><div key={variant} className={`foundation-logo foundation-logo--${variant}`}><span>{variant === 'light'?'On light background':'On dark background'}</span>{images[variant]?<img alt={`${logoVariantForBackground(variant)} brand logo on ${variant} background`} src={images[variant]} onError={()=>setImages(state=>({...state,[variant]:null}))}/>:<>{missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload logo for {variant} background</button></>}</div>)}</div>{visual.logo?.conf<60&&<small>Site icon found · upload the brand logo</small>}{status.logoStatus==='needs_rights'&&!editing&&<LogoRightsPrompt brandId={brandId} sourceIds={status.needsRights} disabled={disabled} onConfirmed={onRightsConfirmed}/>}</article>
       <article className="foundation-card"><h3>Colour roles</h3><div className="foundation-swatches">{['primary','ink','surface'].map(role=>{const colour=(displayed.palette || []).find(c=>c.role===role);return <div key={role}><span className="foundation-swatch" style={colour?{background:colour.hex}:undefined}/><strong>{role}</strong>{colour?<code>{colour.hex}</code>:<>{missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload / set colour</button></>}</div>;})}</div></article>
       <article className="foundation-card"><h3>Typography</h3>{font&&fontState?.status==='loaded'?<><div className="foundation-specimen" style={{"--brand-specimen-font":`"${fontState.family}"`,fontSize:Math.min(displayed.typeScale?.h1 || 48,56)}}>Aa · Brand in focus</div><small>{font.family} · Display</small></>:<>{missing}<div className="foundation-specimen" style={{"--brand-specimen-font":'FoundationFallbackInstrument',fontSize:48}}>Aa · Headline</div><small className="foundation-fallback" role="status">Instrument Sans · flagged fallback</small><p>{font?(fontState?.status==='failed'?'Brand font could not load':'Loading brand font…'):'No display font selected'}</p><button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload / choose font</button></>}<div className="foundation-body-font">Body: {(displayed.type || []).find(f=>/^(Body|Both)$/i.test(f.kind))?.family || <><span className="foundation-missing">Missing</span><button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload / choose body font</button></>}</div></article>
       <article className="foundation-card"><h3>Reference images</h3><div className="foundation-references">{(displayed.references || []).filter(ref=>ref.role!=='avoid').slice(0,3).map(ref=>{const index=displayed.references.indexOf(ref);return images[`ref-${index}`]?<img key={ref.sourceId || index} alt={ref.name || 'Brand reference'} src={images[`ref-${index}`]} onError={()=>setImages(state=>({...state,[`ref-${index}`]:null}))}/>:<span key={index}>{missing}</span>;})}</div>{!(displayed.references || []).some(ref=>ref.role!=='avoid')&&missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload reference</button></article>

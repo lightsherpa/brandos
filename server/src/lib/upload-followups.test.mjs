@@ -27,8 +27,8 @@ test("types the bucket would reject are refused up front (400, not a Storage 500
 test("foundation counts only stored logos (sourceId), never URLs or inline SVG", () => {
   assert.equal(foundationStatus(base({ url: "https://brand.test/logo.png", conf: 90 })).logo, false);
   assert.equal(foundationStatus(base({ url: dataUrl, conf: 90 })).logo, false);
-  assert.equal(foundationStatus(base({ sourceId: "s1", conf: 90 })).logo, true);
-  assert.equal(foundationStatus(base({ conf: 90, variants: { dark: { sourceId: "s2" } } })).logo, true);
+  assert.equal(foundationStatus(base({ sourceId: "s1", conf: 90 }), { logoRights: ["s1"] }).logo, true);
+  assert.equal(foundationStatus(base({ conf: 90, variants: { dark: { sourceId: "s2" } } }), { logoRights: ["s2"] }).logo, true);
 });
 test("rasterizeSvgLogo returns a real PNG; unsafe SVG is refused", async () => {
   const png = await rasterizeSvgLogo(SVG);
@@ -52,7 +52,9 @@ test("inline SVG discovery stores a PNG bio_source and returns a sourceId logo",
   assert.equal((await sharp(db.calls.uploads[0].buf).metadata()).format, "png");
   const s = db.calls.inserts[0].signals;
   assert.equal(s.ext, "png"); assert.equal(s.asset_role, "logo"); assert.equal(s.rights_confirmed, false);
-  assert.equal(foundationStatus(base(logo)).logo, true);
+  const pending = foundationStatus(base(logo));
+  assert.equal(pending.logo, false); assert.equal(pending.logoStatus, "needs_rights"); assert.deepEqual(pending.needsRights, ["new-src"]);
+  assert.equal(foundationStatus(base(logo), { logoRights: ["new-src"] }).logo, true);
 });
 test("re-discovery of the same artwork reuses the stored PNG; URL logos pass through", async () => {
   const db = fakeDb("old-src");
@@ -69,4 +71,25 @@ test("append_bio_version migration is additive and the loader passes p_expected_
   assert.match(sql, /grant execute on function append_bio_version\(uuid, jsonb, integer, uuid, text, integer\) to service_role/);
   const loader = fs.readFileSync(new URL("../../../scripts/load-cake-me-foundation.mjs", import.meta.url), "utf8");
   assert.match(loader, /p_expected_version: prev\.version/);
+});
+import { isStorageRejection } from "./ingest-guards.js";
+import { foundationError } from "./brand-foundation.js";
+test("isStorageRejection matches status/code, never message text", () => {
+  assert.ok(isStorageRejection({ status: 400, statusCode: "415" }));
+  assert.ok(isStorageRejection({ status: 413, statusCode: "413" }));
+  assert.ok(isStorageRejection({ status: 400, statusCode: "InvalidMimeType" }));
+  assert.ok(isStorageRejection({ status: 400, code: "EntityTooLarge" }));
+  assert.ok(!isStorageRejection({ status: 400, statusCode: "400", message: "mime type not supported, payload too large" }));
+  assert.ok(!isStorageRejection({ status: 500, statusCode: "500" }));
+  assert.ok(!isStorageRejection(null));
+});
+test("logo without confirmed rights → needs_rights, never counted by default", () => {
+  const p = base({ sourceId: "s1", conf: 90 });
+  const st = foundationStatus(p);
+  assert.equal(st.logo, false); assert.equal(st.logoStatus, "needs_rights"); assert.deepEqual(st.needsRights, ["s1"]); assert.deepEqual(st.missing, ["visual.logo"]);
+  const err = foundationError(p, { logoRights: [] });
+  assert.equal(err.logoStatus, "needs_rights"); assert.match(err.error, /rights/);
+  assert.equal(foundationStatus(base(null)).logoStatus, "missing");
+  assert.equal(foundationStatus(p, { logoRights: ["s1"] }).logoStatus, "ok");
+  assert.equal(foundationStatus(p, { logoRights: ["other"] }).logo, false);
 });

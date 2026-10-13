@@ -12,7 +12,7 @@ test('legacy Cake Me shape cannot certify and displayed score caps at 79',()=>{
  assert.equal(scoreBioBreakdown(payload).rawScore,100);
 });
 test('adding logo, primary and usable font releases the cap; every requirement is mandatory',()=>{
- const payload={...rich(),visual:complete};assert.equal(foundationStatus(payload).certifiable,true);assert.equal(scoreBioBreakdown(payload).score,100);
- for(const key of ['logo','palette','type']){const visual={...complete};delete visual[key];assert.equal(foundationStatus({visual}).certifiable,false);assert.equal(foundationError({visual}).credits,0);}
+ const payload={...rich(),visual:complete},R={logoRights:['logo']};assert.equal(foundationStatus(payload,R).certifiable,true);assert.equal(scoreBioBreakdown(payload,R).score,100);
+ for(const key of ['logo','palette','type']){const visual={...complete};delete visual[key];assert.equal(foundationStatus({visual},R).certifiable,false);assert.equal(foundationError({visual},R).credits,0);}
  assert.equal(foundationStatus({visual:{...complete,logo:{url:'https://brand.test/icon.png',conf:50}}}).logo,false);
 });

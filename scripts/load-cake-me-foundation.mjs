@@ -20,7 +20,7 @@ if (argErr) { console.error(argErr); process.exit(2); }
 const { supabaseAdmin: db } = await import("../server/src/lib/supabase.js");
 const { validateVisualAssetMetadata } = await import("../server/src/lib/ingest-guards.js");
 const { foundationUploadError } = await import("../server/src/lib/foundation-upload.js");
-const { validateFoundationAssets } = await import("../server/src/lib/foundation-assets.js");
+const { validateFoundationAssets, loadLogoRights } = await import("../server/src/lib/foundation-assets.js");
 const { foundationStatus } = await import("../server/src/lib/brand-foundation.js");
 const { prepareClientBioEditPayload } = await import("../server/src/lib/bio-evidence.js");
 const { scoreBio } = await import("../server/src/lib/score-bio.js");
@@ -29,9 +29,9 @@ const log = (...a) => console.log(apply ? "[apply]" : "[dry-run]", ...a);
 const { data: brand } = await db.from("brands").select("id, name, workspace_id").eq("id", only).single();
 if (!/^cake[\s-]?me$/i.test(brand?.name || "")) { console.error("Refusing: brand is not Cake Me"); process.exit(2); }
 const { data: prev } = await db.from("bios").select("id, version, payload, score").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
-const latestErr = checkLatest({ latest: prev, expectVersion, foundationComplete: !!prev && foundationStatus(prev.payload).certifiable });
+const latestErr = checkLatest({ latest: prev, expectVersion, foundationComplete: !!prev && foundationStatus(prev.payload, { logoRights: await loadLogoRights(only, prev.payload) }).certifiable });
 if (latestErr) { console.error(latestErr); process.exit(2); }
-log(`brand ${brand.name} · current v${prev.version} stored score ${prev.score} · displayed ${scoreBio(prev.payload)} · foundation ${JSON.stringify(foundationStatus(prev.payload).missing)}`);
+log(`brand ${brand.name} · current v${prev.version} stored score ${prev.score} · displayed ${scoreBio(prev.payload, { logoRights: await loadLogoRights(only, prev.payload) })} · foundation ${JSON.stringify(foundationStatus(prev.payload, { logoRights: await loadLogoRights(only, prev.payload) }).missing)}`);
 
 const FILES = [
   { key: "primary", file: "logos/logo-wordmark-primary.png", role: "logo", logoVariant: "light" },  // Golden Pop wordmark (a light-coloured logo)
@@ -88,18 +88,20 @@ visual.type = [
 ];
 visual.references = refs.map((r) => ({ sourceId: r.id, name: r.src, role: "canonical" }));
 const payload = prepareClientBioEditPayload({ ...prev.payload, visual }, prev.payload);
-const status = foundationStatus(payload);
-log(`new payload: foundation ${status.certifiable ? "PASS" : "FAIL " + status.missing.join(",")} · score ${scoreBio(payload)}`);
+// Dry-run ids are placeholders for uploads this script makes with rights confirmed.
+const newRights = apply ? await loadLogoRights(only, payload) : [ids.primary, ids.onDark, ids.ink];
+const status = foundationStatus(payload, { logoRights: newRights });
+log(`new payload: foundation ${status.certifiable ? "PASS" : "FAIL " + status.missing.join(",")} · score ${scoreBio(payload, { logoRights: newRights })}`);
 if (!apply) { console.log(JSON.stringify(payload.visual, null, 1)); process.exit(0); }
 const assetErr = await validateFoundationAssets(only, payload.visual, prev.payload.visual);
 if (assetErr) throw Error(`foundation assets: ${assetErr}`);
 // Re-check right before writing: a concurrent run/edit must not stack another version.
 const { data: now } = await db.from("bios").select("version").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
 if (now?.version !== prev.version) throw Error(`latest moved to v${now?.version} during the run; aborting`);
-const { data: row, error: aErr } = await db.rpc("append_bio_version", { p_brand_id: only, p_payload: payload, p_score: scoreBio(payload), p_created_by: actor, p_discovery_id: null, p_expected_version: prev.version });
+const { data: row, error: aErr } = await db.rpc("append_bio_version", { p_brand_id: only, p_payload: payload, p_score: scoreBio(payload, { logoRights: newRights }), p_created_by: actor, p_discovery_id: null, p_expected_version: prev.version });
 if (aErr) throw Error(`append_bio_version: ${aErr.message}`);
 const { data: nb } = await db.from("bios").select("id, version, payload").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
 log(`appended v${nb.version} (${nb.id})`);
 log("not certified: certification is human — review and certify this version in the UI");
 const { data: fin } = await db.from("bios").select("version, score, certified, self_certified, payload").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
-console.log(JSON.stringify({ version: fin.version, stored_score: fin.score, displayed_score: scoreBio(fin.payload), self_certified: fin.self_certified, foundation: foundationStatus(fin.payload) }));
+console.log(JSON.stringify({ version: fin.version, stored_score: fin.score, displayed_score: scoreBio(fin.payload, { logoRights: newRights }), self_certified: fin.self_certified, foundation: foundationStatus(fin.payload, { logoRights: newRights }) }));

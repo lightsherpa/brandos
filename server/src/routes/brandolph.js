@@ -61,11 +61,13 @@ app.post("/ask", requireAuth, async (c) => {
      the fictional seed; a brand with no BIO gets a clear NO_BIO. */
   let brandBio;
   try {
-    brandBio = await loadBrandBio({ workspaceId, brandId });
+    // Q&A degrades if the logo-rights lookup fails: it reads text, not visual assets.
+    brandBio = await loadBrandBio({ workspaceId, brandId, degradeRights: true });
   } catch (err) {
     if (err.code === "NO_BIO") {
       return c.json({ error: "This brand has no Brand Core yet — run Discovery to create one.", code: err.code }, 409);
     }
+    if (err.code === "RIGHTS_LOOKUP_FAILED") return c.json({ error: "Could not verify logo rights. Please retry.", code: err.code }, 503);
     return c.json({ error: err.message || String(err) }, 400);
   }
 
