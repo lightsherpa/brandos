@@ -10,10 +10,11 @@ export function useCertThread(jobId) {
     if (!jobId) return;
     const res = await apiFetch(`/api/cert-chat/jobs/${jobId}`).catch(() => null);
     if (!res?.ok) { setState({ enabled: false, messages: [] }); return; }
-    setState({ enabled: true, messages: (await res.json()).messages || [] });
+    const json = await res.json();
+    setState({ enabled: true, messages: json.messages || [], bio_version: json.bio_version });
   }, [jobId]);
   React.useEffect(() => { reload(); }, [reload]);
-  const claims = React.useMemo(() => claimThreadState(state.messages), [state.messages]);
+  const claims = React.useMemo(() => claimThreadState(state.messages, state.bio_version), [state.messages, state.bio_version]);
   const call = async (path, method, body) => {
     const res = await apiFetch(path, { method, ...(body ? { body: JSON.stringify(body) } : {}) });
     const json = await res.json().catch(() => ({}));
@@ -60,8 +61,8 @@ function DraftRow({ draft, thread, setErr }) {
   const save = () => { if (text.trim() && text !== draft.body) thread.editDraft(draft.id, text).catch((e) => setErr(e.message)); };
   return (
     <div className="card card--inset" style={{ padding: "8px 10px" }}>
-      <div style={{ fontSize: 10.5, color: "var(--c-faint)", fontFamily: "var(--font-mono)", marginBottom: 4 }}>{draft.claim_ids.join(", ")}</div>
-      <textarea aria-label={`Question about ${draft.claim_ids.join(", ")}`} value={text} onChange={(e) => setText(e.target.value)} onBlur={save}
+      <div style={{ fontSize: 10.5, color: "var(--c-faint)", fontFamily: "var(--font-mono)", marginBottom: 4 }}>{(draft.field_paths || draft.claim_ids).join(", ")}</div>
+      <textarea aria-label={`Question about ${(draft.field_paths || draft.claim_ids).join(", ")}`} value={text} onChange={(e) => setText(e.target.value)} onBlur={save}
         rows={2} maxLength={4000} style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
       <button type="button" className="btn btn--link" style={{ fontSize: 11, padding: 0 }} onClick={() => thread.dropDraft(draft.id).catch((e) => setErr(e.message))}>Remove</button>
     </div>
@@ -113,7 +114,7 @@ export function ClientThread({ thread, sources = [], fields = FOUNDATION_FIELDS 
         return (
           <div key={q.id} className="card card--inset" style={{ padding: "8px 10px", marginBottom: 6 }}>
             <div style={{ fontSize: 11, color: "var(--c-dim)" }}>
-              {answers.length ? dot("var(--green-600)") : dot("var(--yellow-800)")}{answers.length ? "Answered" : "Asked"} · <span style={{ fontFamily: "var(--font-mono)" }}>{q.claim_ids.join(", ")}</span>
+              {answers.length ? dot("var(--green-600)") : dot("var(--yellow-800)")}{answers.length ? "Answered" : "Asked"} · <span style={{ fontFamily: "var(--font-mono)" }}>{(q.field_paths || q.claim_ids).join(", ")}</span>
             </div>
             <div style={{ fontSize: 12, color: "var(--c-ink)", marginTop: 3 }}>{q.body}</div>
             {answers.map((a) => <AnswerEvidence key={a.id} answer={a} sources={sources} />)}

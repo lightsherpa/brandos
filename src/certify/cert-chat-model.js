@@ -1,6 +1,5 @@
-/* Pure helpers for the S3 CD ↔ client thread. Claim ids are Brand Core field
-   paths ("visual.typography", "identity.positioning"); the section is the
-   first segment. */
+/* Pure helpers for the S3 CD ↔ client thread. Stable claim_ids bind brand +
+   BIO version + schema path. field_paths provide section and focus lookup. */
 export const sectionOf = (claimId = "") => String(claimId).split(".")[0] || "other";
 
 /* Unsent CD drafts grouped by section → { visual: [msg, ...], ... } (batch-send unit). */
@@ -8,7 +7,7 @@ export function draftsBySection(messages = []) {
   const out = {};
   for (const m of messages) {
     if (m.author_role !== "cd" || m.sent_at) continue;
-    (out[sectionOf(m.claim_ids?.[0])] ||= []).push(m);
+    (out[sectionOf((m.field_paths || m.claim_ids)?.[0])] ||= []).push(m);
   }
   return out;
 }
@@ -21,12 +20,12 @@ export function openQuestions(messages = []) {
 
 /* Per claim: "new_evidence" (client answered) beats "asked" (sent, unanswered).
    Returns Map claimId → { state, answers: [clientMsg, ...] }. */
-export function claimThreadState(messages = []) {
+export function claimThreadState(messages = [], bioVersion) {
   const map = new Map();
   const entry = (id) => map.get(id) || map.set(id, { state: null, answers: [] }).get(id);
   for (const m of messages) {
-    if (!m.sent_at) continue;
-    for (const id of m.claim_ids || []) {
+    if (!m.sent_at || (bioVersion != null && m.bio_version !== bioVersion)) continue;
+    for (const id of m.field_paths || m.claim_ids || []) {
       const e = entry(id);
       if (m.author_role === "client") { e.state = "new_evidence"; e.answers.push(m); }
       else if (!e.state) e.state = "asked";

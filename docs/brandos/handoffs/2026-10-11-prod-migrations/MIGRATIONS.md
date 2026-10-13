@@ -263,7 +263,11 @@ select pg_get_function_identity_arguments('public.append_bio_version'::regproc);
 
 ## 14. `20261013020000_cert_messages.sql` (feat/certifier-s3)
 
-Certifier v2 S3: one new table, `cert_messages`, for Creative Director ↔ client questions. The thread is `(brand_id, job_id)`, so there is no separate `cert_threads` table. CD questions start as drafts (`sent_at` null) and are batch-sent. Client answers reply to a sent question and point at their evidence in `bio_sources` (`kind = 'client_answer'` for text, or the existing `file_upload` row). `author_role` only allows `cd` or `client`, so the certifier agent can't post. RLS is on: `authenticated` can only select sent rows for brands they can see, and all writes go through the API with the service role. Additive and idempotent (`create table if not exists`, `drop policy if exists`). Safe before the merge. Nothing reads it unless `CERTIFIER_V2_S3=true` on the API. Applied to local only. Do not apply to production without Oscar's approval.
+Certifier v2 S3: `cert_messages` stores versioned CD ↔ client questions. Every message has the job's `bio_version`, schema-validated `field_paths`, and stable SHA-256 `claim_ids` derived from `[brand_id, bio_version, field_path]`. Client replies inherit these references, so evidence never silently moves to another Brand Core version. Drafts have `sent_at` null.
+
+The service-only `answer_cert_question` RPC atomically creates text evidence and the reply. A unique constraint on `(brand_id, author_user_id, idempotency_key)` and a transaction key lock make retries/concurrent requests return the same answer. Reusing a key for different content returns 409. Closed/certified jobs reject new answers. File replies must reference this brand's file upload. Answers never write `bios`.
+
+RLS restricts clients to their brands' sent messages. Column-limited SELECT excludes `author_user_id`, `idempotency_key`, and `request_hash`; clients have no writes or RPC execution. All changes are inside this migration, which has **not been applied to production**. The previous local-only shape must be dropped and this migration reapplied from scratch (do not rely on `create table if not exists` to upgrade it). Safe before the merge. Nothing reads it unless `CERTIFIER_V2_S3=true`. Do not apply to production without Oscar's approval.
 
 ```
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013020000_cert_messages.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013020000', 'cert_messages') on conflict do nothing" -c 'commit'
@@ -273,6 +277,9 @@ Verify:
 
 ```sql
 select relrowsecurity from pg_class where oid = 'public.cert_messages'::regclass;  -- true
+select has_column_privilege('authenticated', 'public.cert_messages', 'author_user_id', 'select'); -- false
+select has_function_privilege('authenticated', 'public.answer_cert_question(uuid,uuid,uuid,text,text,uuid)', 'execute'); -- false
+select pg_get_constraintdef(oid) from pg_constraint where conname = 'cert_messages_answer_key'; -- unique brand/user/key
 ```
 
 RLS check (self-asserting, rolled back): `supabase/tests/cert_messages_rls.sql`.
@@ -280,6 +287,22 @@ RLS check (self-asserting, rolled back): `supabase/tests/cert_messages_rls.sql`.
 Rollback (only if no questions have been sent yet):
 
 ```sql
+drop function if exists public.answer_cert_question(uuid,uuid,uuid,text,text,uuid);
 drop table if exists public.cert_messages;
 delete from supabase_migrations.schema_migrations where version = '20261013020000';
+```
+
+Local rebuild of #14 (only the local S3 table; preserves other local data):
+
+```sh
+docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 <<'SQL'
+begin;
+drop function if exists public.answer_cert_question(uuid,uuid,uuid,text,text,uuid);
+drop table if exists public.cert_messages;
+delete from supabase_migrations.schema_migrations where version = '20261013020000';
+commit;
+SQL
+docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supabase/migrations/20261013020000_cert_messages.sql
+docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations(version,name) values ('20261013020000','cert_messages')"
+docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supabase/tests/cert_messages_rls.sql
 ```

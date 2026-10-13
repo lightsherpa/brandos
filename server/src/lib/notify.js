@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { supabaseAdmin } from "./supabase.js";
 import { inngest } from "./inngest.js";
 
@@ -5,7 +6,7 @@ import { inngest } from "./inngest.js";
    push) and/or emits an email event, gated by the recipient's per-channel
    prefs (default both on). Fire-and-forget: a delivery failure is logged and
    swallowed so it can never break the action that triggered it. */
-export async function notify({ recipientUserId, kind, title, body = null, link = null, brandId = null }) {
+export async function notify({ recipientUserId, kind, title, body = null, link = null, brandId = null, eventKey = null }) {
   if (!recipientUserId) return; // no addressable recipient (e.g. team member with no login)
   try {
     const { data: pref } = await supabaseAdmin
@@ -23,14 +24,17 @@ export async function notify({ recipientUserId, kind, title, body = null, link =
     }
     if (email) {
       // Async via Inngest — never send inline (esp. from the runs SSE stream).
-      await inngest.send({ name: "notification/email", data: { recipientUserId, kind, title, body, link } });
+      const id = `notification:${createHash("sha256").update(JSON.stringify(
+        [recipientUserId, kind, eventKey || [brandId, title, body, link]],
+      )).digest("hex")}`;
+      await inngest.send({ id, name: "notification/email", data: { recipientUserId, kind, title, body, link } });
     }
   } catch (err) {
     console.error("notify() failed:", kind, err?.message);
   }
 }
 
-/* Resolve a brand's client recipient = the workspace's owner (earliest user).
+/* Resolve a brand's client recipient = the workspace's active owner membership.
    ponytail: notifies the account owner, not every collaborator in the
    workspace — revisit if shared workspaces need broadcast. */
 export async function brandOwnerUserId(brandId) {
@@ -39,12 +43,12 @@ export async function brandOwnerUserId(brandId) {
     .from("brands").select("workspace_id").eq("id", brandId).maybeSingle();
   if (!brand?.workspace_id) return null;
   const { data: owner } = await supabaseAdmin
-    .from("users").select("id")
+    .from("workspace_memberships").select("user_id")
     .eq("workspace_id", brand.workspace_id)
-    .order("created_at", { ascending: true })
-    .limit(1)
+    .eq("is_owner", true)
+    .eq("status", "active")
     .maybeSingle();
-  return owner?.id || null;
+  return owner?.user_id || null;
 }
 
 /* Notify every team member holding a role (e.g. 'craft', 'steward') who has a

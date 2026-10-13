@@ -19,6 +19,7 @@ function AnswerForm({ brandId, question, onDone }) {
   const [rights, setRights] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState(null);
+  const attempt = React.useRef(null);
   const isFont = file && FONT_EXT.test(file.name);
   const isVisual = file && (isFont || IMAGE_EXT.test(file.name));
 
@@ -26,8 +27,12 @@ function AnswerForm({ brandId, question, onDone }) {
     e.preventDefault();
     setBusy(true); setErr(null);
     try {
-      let sourceId = null;
-      if (file) {
+      const signature = JSON.stringify([text.trim(), file?.name, file?.size, file?.lastModified, family, license, rights]);
+      if (attempt.current?.signature !== signature) {
+        attempt.current = { signature, key: crypto.randomUUID(), sourceId: null };
+      }
+      let sourceId = attempt.current.sourceId;
+      if (file && !sourceId) {
         // Reuse the existing source upload; the answer only links the new row.
         const form = new FormData();
         form.set("file", withUploadType(file));
@@ -38,10 +43,11 @@ function AnswerForm({ brandId, question, onDone }) {
         const upJson = await up.json().catch(() => ({}));
         if (!up.ok) throw new Error(upJson.error || "Upload failed");
         sourceId = upJson.source?.id;
+        attempt.current.sourceId = sourceId;
       }
       const res = await apiFetch(`/api/cert-chat/brands/${brandId}/answers`, {
         method: "POST",
-        body: JSON.stringify({ question_id: question.id, body: text.trim() || undefined, source_id: sourceId || undefined }),
+        body: JSON.stringify({ question_id: question.id, idempotency_key: attempt.current.key, body: text.trim() || undefined, source_id: sourceId || undefined }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Answer failed");
