@@ -42,7 +42,7 @@ function bioError(code, message, status = 409) {
  * @param {boolean} [opts.requireCertified=false]      production gate — highest human-certified version
  * @param {boolean} [opts.requireSelfCertified=false]  briefing gate — highest self-certified version
  */
-export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false }) {
+export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false, requireFoundation = false }) {
   // Resolve brand
   let brandRow;
   if (brandId) {
@@ -73,10 +73,6 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   if(latestError)throw bioError("BIO_UNAVAILABLE","Brand Core integrity check unavailable",503);
   const integrity=latest&&bioIntegrityError(latest,brandRow);
   if(integrity)throw bioError(integrity.code,integrity.error);
-  if (requireCertified && latest) {
-    const foundation=foundationError(latest.payload);
-    if(foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
-  }
   // Resolve the gated BIO version.
   const bioColumns = "id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at, client_acceptance_required, client_accepted_at, client_accepted_by";
   let bioRow;
@@ -92,7 +88,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       .order("version", { ascending: false })
       .limit(20);
     bioErr = error;
-    bioRow = selectProductionBio(rows || []);
+    bioRow = selectProductionBio((rows || []).filter(row => !foundationError(row.payload))) || selectProductionBio(rows || []);
   } else {
     let bioQuery = supabaseAdmin
       .from("bios")
@@ -124,10 +120,15 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   if(requireCertified){
     const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);
     const foundation=foundationError(bioRow.payload);
-    if(foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
-    const invalid=await validateFoundationAssets(brandRow.id,runtimeVisual,runtimeVisual);
-    if(invalid)throw bioError('FOUNDATION_INCOMPLETE',invalid);
-    runtimeVisual=await resolveFoundationForUse(brandRow.id,runtimeVisual);
+    if(requireFoundation && foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
+    if(requireFoundation){
+      const invalid=await validateFoundationAssets(brandRow.id,runtimeVisual,runtimeVisual);
+      if(invalid)throw bioError('FOUNDATION_INCOMPLETE',invalid);
+      runtimeVisual=await resolveFoundationForUse(brandRow.id,runtimeVisual);
+    }else if(!foundation){
+      // Text work must remain usable even if a visual upload is unavailable.
+      try{runtimeVisual=await resolveFoundationForUse(brandRow.id,runtimeVisual);}catch{}
+    }
   }
 
   return {
@@ -174,4 +175,9 @@ export function loadBioForRun({ workspaceId, brandId }) {
  */
 export function loadBioForBriefing({ workspaceId, brandId }) {
   return loadBrandBio({ workspaceId, brandId, requireSelfCertified: true });
+}
+
+/** Image/compositor preflight; never use for copy-only work. */
+export function loadBioForImage({workspaceId,brandId}) {
+ return loadBrandBio({workspaceId,brandId,requireCertified:true,requireFoundation:true});
 }

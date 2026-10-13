@@ -3,7 +3,7 @@ import {Hono} from 'hono';
 import {requireAuth} from '../middleware/auth.js';
 import {supabaseAdmin} from '../lib/supabase.js';
 import {hasPermission} from '../lib/permissions.js';
-import {loadBrandBio,loadBioForRun} from '../lib/load-brand-bio.js';
+import {loadBioForImage} from '../lib/load-brand-bio.js';
 import {isImageRoute} from '../lib/models/fal-image.js';
 import {foundationError} from '../lib/brand-foundation.js';
 import {validateFoundationAssets} from '../lib/foundation-assets.js';
@@ -28,9 +28,7 @@ export async function imageFoundationPreflight(c,next) {
   const {data:spec,error}=await supabaseAdmin.from('specs').select('payload').eq('specialist_id',body.specialistId).eq('active',true).maybeSingle();
   if(error || !spec || !isImageRoute(body.modelOverride || spec.payload?.modelRouting?.primary || ''))return next();
   try{
-    const latest=await loadBrandBio({workspaceId,brandId});
-    const incomplete=foundationError(latest.bio);if(incomplete)return c.json(incomplete,409);
-    const active=await loadBioForRun({workspaceId,brandId});
+    const active=await loadBioForImage({workspaceId,brandId});
     const pinned=foundationError(active.bio);if(pinned)return c.json(pinned,409);
     const invalid=await validateFoundationAssets(active.brand.id,active.bio.visual,active.bio.visual);
     if(invalid)return c.json({code:'FOUNDATION_INCOMPLETE',state:'foundation_incomplete',error:invalid,credits:0},409);
