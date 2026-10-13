@@ -96,3 +96,27 @@ export async function* streamCompletion({ model, system, messages, maxTokens = T
     yield { type: "error", message: err?.message || String(err), status: err?.status };
   }
 }
+
+// Structured content stays structured: tool-result and tool-use blocks must
+// not pass through the legacy text adapter's String(content) conversion.
+export async function* streamToolCompletion({ model, system, messages, tools, tool_choice, maxTokens, signal, temperatureEnabled = true }) {
+  if (!client) { yield { type: 'error', message: 'Server has no ANTHROPIC_API_KEY configured.' }; return; }
+  let run; let started = false;
+  try {
+    run = client.messages.stream({ model, system, messages, tools, tool_choice,
+      max_tokens: maxTokens, ...(temperatureEnabled ? { temperature: 0.2 } : {}), output_config: { effort: 'medium' } }, { signal, maxRetries: 0 });
+    for await (const ev of run) {
+      if (ev.type === 'message_start') yield { type: 'usage', usage: normalizeAnthropicUsage(ev.message.usage || {}, model) };
+      if (ev.type === 'content_block_delta' && ['text_delta', 'input_json_delta'].includes(ev.delta?.type)) {
+        started = true;
+        yield { type: 'token', text: ev.delta.text || ev.delta.partial_json || '' };
+      }
+    }
+    const final = await run.finalMessage();
+    yield { type: 'done', content: final.content, usage: normalizeAnthropicUsage(final.usage || {}, model) };
+  } catch (err) {
+    if (!started && temperatureEnabled && err?.status === 400 && /temperature/i.test(err.message || '')) {
+      yield* streamToolCompletion({ model, system, messages, tools, tool_choice, maxTokens, signal, temperatureEnabled: false });
+    } else yield { type: 'error', message: err?.message || String(err), status: err?.status };
+  } finally { if (signal?.aborted) run?.abort(); }
+}

@@ -1,0 +1,36 @@
+{
+  "version": "certifier.tools.v1",
+  "tools": [
+    {
+      "name": "read_brand_core",
+      "description": "Read-only. Return the claim ledger for the pinned Brand Core version, or one claim.",
+      "input_schema": {"type":"object","additionalProperties":false,"properties":{"claim_id":{"type":"string"}}},
+      "output_schema": {"type":"object","required":["brand_core_version","claims"],"properties":{"brand_core_version":{"type":"string"},"claims":{"type":"array","items":{"type":"object","required":["claim_id","layer","section","value","provenance"],"properties":{"claim_id":{"type":"string"},"layer":{"enum":[1,2,3]},"section":{"type":"string"},"value":{},"provenance":{"type":"string"},"gate":{"type":["string","null"]},"evidence_source_ids":{"type":"array","items":{"type":"string"}}}}}}}
+    },
+    {
+      "name": "read_source",
+      "description": "Read-only. Return the verbatim text of one source (or one page/chunk) from this run's manifest.",
+      "input_schema": {"type":"object","required":["source_id"],"additionalProperties":false,"properties":{"source_id":{"type":"string"},"page":{"type":"integer","minimum":1}}},
+      "output_schema": {"type":"object","required":["source_id","kind","text"],"properties":{"source_id":{"type":"string"},"kind":{"type":"string"},"page":{"type":["integer","null"]},"text":{"type":"string"},"first_party":{"type":"boolean"},"derived_from_model":{"type":"boolean"},"asset_role":{"type":["string","null"]}}}
+    },
+    {
+      "name": "search_sources",
+      "description": "Read-only. Keyword search inside this run's source manifest only. No web.",
+      "input_schema": {"type":"object","required":["query"],"additionalProperties":false,"properties":{"query":{"type":"string","maxLength":200},"limit":{"type":"integer","minimum":1,"maximum":10}}},
+      "output_schema": {"type":"object","required":["hits"],"properties":{"hits":{"type":"array","items":{"type":"object","required":["source_id","snippet"],"properties":{"source_id":{"type":"string"},"page":{"type":["integer","null"]},"snippet":{"type":"string"}}}}}}
+    },
+    {
+      "name": "draft_client_question",
+      "description": "Save a DRAFT question for the CD. Never sends, never notifies the client. The CD edits and sends batches per section.",
+      "input_schema": {"type":"object","required":["claim_ids","section","text","why"],"additionalProperties":false,"properties":{"claim_ids":{"type":"array","minItems":1,"items":{"type":"string"}},"section":{"enum":["identity","visual","voice","audience","goals","strategic"]},"text":{"type":"string","maxLength":300},"answer_type":{"enum":["free_text","choice","upload"]},"why":{"$ref":"OUTPUT.schema.json#/$defs/statement"}}},
+      "output_schema": {"type":"object","required":["draft_id","status"],"properties":{"draft_id":{"type":"string"},"status":{"const":"draft"}}}
+    },
+    {
+      "name": "submit_brief",
+      "description": "Terminal. Submit the final brief (certifier.brief.v1). Validated in code.",
+      "input_schema": {"$ref":"OUTPUT.schema.json#/$defs/model_output"},
+      "output_schema": {"type":"object","required":["accepted"],"properties":{"accepted":{"type":"boolean"},"errors":{"type":"array"}}}
+    }
+  ],
+  "forbidden_tool_names": ["certify","approve","self_certify","edit_claim","update_bio","patch_bio","send_message","send_question","decertify","web_fetch","web_search"]
+}

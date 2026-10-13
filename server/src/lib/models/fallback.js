@@ -21,6 +21,9 @@ export function createCompletionStreamer(streamRoute, timeoutMs = FIRST_TOKEN_TI
       return;
     }
     const controller = new AbortController();
+    const abortFromCaller = () => controller.abort(params.signal.reason);
+    if (params.signal?.aborted) abortFromCaller();
+    else params.signal?.addEventListener('abort', abortFromCaller, { once: true });
     const iterator = streamRoute({ ...params, route: primary, signal: controller.signal })[Symbol.asyncIterator]();
     let timer;
     let hasToken = false;
@@ -59,12 +62,14 @@ export function createCompletionStreamer(streamRoute, timeoutMs = FIRST_TOKEN_TI
       }
     } finally {
       clearTimeout(timer);
+      params.signal?.removeEventListener('abort', abortFromCaller);
       controller.abort();
       // Abort the provider before requesting generator cleanup; a pending next()
       // may otherwise keep the old request alive throughout the fallback.
       Promise.resolve(iterator.return?.()).catch(() => {});
     }
     if (failure) {
+      params.signal?.throwIfAborted();
       console.warn(`[router] primary ${primary} failed; falling back to ${fallback}`);
       const telemetry = { ...params.telemetry, fallbackFrom: primary };
       for await (const event of streamRoute({ ...params, route: fallback, telemetry })) {
