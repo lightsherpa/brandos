@@ -1,4 +1,5 @@
 import {FoundationStrip} from "./brand-foundation.jsx";
+import { withUploadType } from "./lib/upload-type.js";
 import {useBrandFonts} from "./brand-fonts.jsx";
 import {saveFixtureFoundation} from "./lib/ui-fixture.js";
 import {scoreBio} from "../server/src/lib/score-bio.js";
@@ -281,7 +282,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
           const form = new FormData();
           form.set("bucket", item.bucket);
           form.set("purpose", sourcePurposes[item.bucket]);
-          form.set("file", item.file);
+          form.set("file", withUploadType(item.file));
           if (item.bucket === "visual") {
             const meta = visualMeta[visualFileKey(item.file)] || defaultVisualMeta(item.file);
             Object.entries(meta).forEach(([key, value]) => form.set(key, String(value)));
@@ -2092,7 +2093,7 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
     try {
       const form = new FormData();
       form.set("bucket", "foundations");
-      form.set("file", file);
+      form.set("file", withUploadType(file));
       const res = await apiFetch(`/api/bios/${brandId}/sources/upload`, { method:"POST", body:form });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);

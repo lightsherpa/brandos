@@ -32,7 +32,8 @@ test("validateUpload rejects a disallowed mime even with an ok-ish name", () => 
 
 test("validateUpload accepts licensed font binaries", () => {
   assert.equal(validateUpload({ filename: "BrandDisplay.woff2", mime: "font/woff2", size: 2048 }).ok, true);
-  assert.equal(validateUpload({ filename: "BrandDisplay.otf", mime: "application/octet-stream", size: 2048 }).ok, true);
+  assert.equal(validateUpload({ filename: "BrandDisplay.otf", mime: "font/otf", size: 2048 }).ok, true);
+  assert.equal(validateUpload({ filename: "BrandDisplay.otf", mime: "application/octet-stream", size: 2048 }).ok, false);
 });
 
 test("visual references default to inspiration and require rights confirmation", () => {

@@ -1,18 +1,22 @@
 #!/usr/bin/env node
 // Load Cake Me's Brand Core foundation into ONE brand (approved by Oscar 2026-10-13 11:34).
 // Dry-run by default. Requires --only=<brandId> matching CAKE_ME_ID; refuses anything else.
-//   node --env-file=server/.env scripts/load-cake-me-foundation.mjs --only=35f265f0-0546-4a9a-b793-a49887ad7125 --assets=/tmp/cakeme --actor=<owner uuid> [--apply]
+//   node --env-file=server/.env scripts/load-cake-me-foundation.mjs --only=35f265f0-0546-4a9a-b793-a49887ad7125 --assets=/tmp/cakeme --actor=<owner uuid> --expect-version=<latest> [--apply [--i-know-this-is-prod]]
+// Re-run safe: refuses unless the latest version equals --expect-version AND its foundation is incomplete.
+// --apply against a non-local SUPABASE_URL also needs --i-know-this-is-prod.
 // Steps (mirrors the UI routes): upload 3 logos + Fraunces (bio_sources, rights confirmed) →
 // tag the 3 role-less reference PNGs canonical → append a new Brand Core version (append_bio_version)
-// → self-certify it through selfCertifyBio (v2 review) → verify foundation + score.
+// → verify foundation + score. It does NOT certify: certification is a human step in the UI.
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 const CAKE_ME_ID = "35f265f0-0546-4a9a-b793-a49887ad7125";
 const arg = (k) => { const a = process.argv.find((x) => x.startsWith(`--${k}=`)); return a ? a.slice(k.length + 3) : null; };
-const only = arg("only"), assets = arg("assets"), actor = arg("actor"), apply = process.argv.includes("--apply");
-if (only !== CAKE_ME_ID) { console.error(`Refusing: --only=${CAKE_ME_ID} is required (got ${only || "none"})`); process.exit(2); }
-if (!assets || !actor) { console.error("--assets and --actor are required"); process.exit(2); }
+const only = arg("only"), assets = arg("assets"), actor = arg("actor"), expectVersion = arg("expect-version");
+const apply = process.argv.includes("--apply"), iKnowProd = process.argv.includes("--i-know-this-is-prod");
+const { checkArgs, checkLatest } = await import("./lib/loader-guards.mjs");
+const argErr = checkArgs({ only, expectedId: CAKE_ME_ID, assets, actor, expectVersion, apply, iKnowProd, supabaseUrl: process.env.SUPABASE_URL });
+if (argErr) { console.error(argErr); process.exit(2); }
 const { supabaseAdmin: db } = await import("../server/src/lib/supabase.js");
 const { validateVisualAssetMetadata } = await import("../server/src/lib/ingest-guards.js");
 const { foundationUploadError } = await import("../server/src/lib/foundation-upload.js");
@@ -20,13 +24,13 @@ const { validateFoundationAssets } = await import("../server/src/lib/foundation-
 const { foundationStatus } = await import("../server/src/lib/brand-foundation.js");
 const { prepareClientBioEditPayload } = await import("../server/src/lib/bio-evidence.js");
 const { scoreBio } = await import("../server/src/lib/score-bio.js");
-const { selfCertifyBio } = await import("../server/src/lib/self-certify.js");
-const { CERTIFICATION_SECTIONS } = await import("../server/src/lib/certification-review.js").catch(() => ({}));
 
 const log = (...a) => console.log(apply ? "[apply]" : "[dry-run]", ...a);
 const { data: brand } = await db.from("brands").select("id, name, workspace_id").eq("id", only).single();
 if (!/^cake[\s-]?me$/i.test(brand?.name || "")) { console.error("Refusing: brand is not Cake Me"); process.exit(2); }
 const { data: prev } = await db.from("bios").select("id, version, payload, score").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
+const latestErr = checkLatest({ latest: prev, expectVersion, foundationComplete: !!prev && foundationStatus(prev.payload).certifiable });
+if (latestErr) { console.error(latestErr); process.exit(2); }
 log(`brand ${brand.name} · current v${prev.version} stored score ${prev.score} · displayed ${scoreBio(prev.payload)} · foundation ${JSON.stringify(foundationStatus(prev.payload).missing)}`);
 
 const FILES = [
@@ -89,14 +93,13 @@ log(`new payload: foundation ${status.certifiable ? "PASS" : "FAIL " + status.mi
 if (!apply) { console.log(JSON.stringify(payload.visual, null, 1)); process.exit(0); }
 const assetErr = await validateFoundationAssets(only, payload.visual, prev.payload.visual);
 if (assetErr) throw Error(`foundation assets: ${assetErr}`);
+// Re-check right before writing: a concurrent run/edit must not stack another version.
+const { data: now } = await db.from("bios").select("version").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
+if (now?.version !== prev.version) throw Error(`latest moved to v${now?.version} during the run; aborting`);
 const { data: row, error: aErr } = await db.rpc("append_bio_version", { p_brand_id: only, p_payload: payload, p_score: scoreBio(payload), p_created_by: actor, p_discovery_id: null });
 if (aErr) throw Error(`append_bio_version: ${aErr.message}`);
 const { data: nb } = await db.from("bios").select("id, version, payload").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
 log(`appended v${nb.version} (${nb.id})`);
-const sections = CERTIFICATION_SECTIONS || ["identity", "voice", "visual", "audience", "proof"];
-const cert = await selfCertifyBio({ brandId: only, bioId: nb.id, payload: nb.payload, userId: actor, statements: { authority: true, reflects: true, aspirationalMarked: true }, fieldMarks: {}, statementVersion: "2",
-  review: { reviewedSections: [...sections], statements: { authority: true, reflects: true, aspirationalMarked: true } } });
-log(`self-certify: ${JSON.stringify(cert)}`);
-if (!cert.ok) process.exit(1);
+log("not certified: certification is human — review and certify this version in the UI");
 const { data: fin } = await db.from("bios").select("version, score, certified, self_certified, payload").eq("brand_id", only).order("version", { ascending: false }).limit(1).single();
 console.log(JSON.stringify({ version: fin.version, stored_score: fin.score, displayed_score: scoreBio(fin.payload), self_certified: fin.self_certified, foundation: foundationStatus(fin.payload) }));

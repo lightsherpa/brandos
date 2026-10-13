@@ -15,7 +15,7 @@ export async function validateFoundationAssets(brandId, visual = {}, previous = 
   for (const logo of logos) {
     if (!logo.sourceId) continue;
     const row=rows.get(logo.sourceId);
-    if (!row?.raw_ref || row.signals?.rights_confirmed !== true || row.signals.asset_role !== 'logo' || !['png','svg'].includes(row.signals.ext) || row.signals.purpose === 'aspiration') return 'Choose an approved logo uploaded to this brand';
+    if (!row?.raw_ref || row.signals?.rights_confirmed !== true || row.signals.asset_role !== 'logo' || row.signals.ext !== 'png' || row.signals.purpose === 'aspiration') return 'Choose an approved logo uploaded to this brand';
   }
   for (const font of fonts) {
     const row=rows.get(font.sourceId);

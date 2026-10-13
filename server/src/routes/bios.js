@@ -8,7 +8,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { assignSteward } from "../lib/assign-steward.js";
 import { scoreBio } from "../lib/score-bio.js";
-import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
+import { validateUpload, contentTypeForExt, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
 import {validateCertificationReview} from "../lib/certification-review.js";
 import { isWorkspaceOwner, hasPermission } from "../lib/permissions.js";
@@ -109,7 +109,8 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   const vUp = validateUpload({ mime: file.type, size: file.size, filename });
   if (!vUp.ok) return c.json({ error: vUp.message, code: vUp.code }, vUp.code === "TOO_LARGE" ? 413 : 400);
   const ext = vUp.ext || "bin";
-  const mime = file.type || "application/octet-stream";
+  const mime = contentTypeForExt(ext);   // from the validated extension, never the browser
+  if (!mime) return c.json({ error: `Unsupported file type .${ext}`, code: "EXT" }, 400);
   if (FONT_UPLOAD_EXTS.has(ext) && bucket !== "visual") {
     return c.json({ error: "Font assets belong in Visual references", code: "FONT_BUCKET" }, 400);
   }
