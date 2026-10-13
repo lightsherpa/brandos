@@ -1,6 +1,6 @@
 import {test,mock} from 'node:test';import assert from 'node:assert/strict';
 let latest,active,versions=null,rows=[],signed=[],queried=[];
-const base={visual:{logo:{url:'https://brand.test/logo.png',conf:90},palette:[{role:'primary',hex:'#ffd115'}],type:[{kind:'Display',family:'Inter',provider:'google'}]}};
+const base={visual:{logo:{sourceId:'logo-src',conf:90},palette:[{role:'primary',hex:'#ffd115'}],type:[{kind:'Display',family:'Inter',provider:'google'}]}};
 const brand={id:'brand',workspace_id:'ws',name:'Cake Me',url:'https://brand.test',refusals:[]};
 const db={from(table){let exact=[];const q={select(){return this;},eq(key,value){queried.push([table,key,value]);return this;},order(){return this;},limit(){return this;},or(){return this;},in(_key,ids){exact=ids;return this;},async maybeSingle(){return {data:table==='brands'?brand:latest,error:null};},then(resolve,reject){return Promise.resolve({data:table==='bios'?(versions || [active]):rows.filter(row=>exact.includes(row.id)),error:null}).then(resolve,reject);}};return q;},storage:{from:()=>({createSignedUrl:async ref=>{signed.push(ref);return {data:{signedUrl:`https://local.test/signed/${ref}`},error:null};}})}};
 mock.module(new URL('./supabase.js',import.meta.url).href,{namedExports:{supabaseAdmin:db}});
@@ -12,7 +12,7 @@ test('text run with no foundation passes and image work fails with 409 and zero 
  assert.equal(signed.length,0);
 });
 test('newest certified version with foundation is selected despite newer incomplete certification and draft',async()=>{
- latest={payload:{}};
+ latest={payload:{}};rows=[{id:'logo-src',src:'logo.png',raw_ref:'logo.png',signals:{ext:'png',asset_role:'logo',rights_confirmed:true}}];
  versions=[{version:5,certified:true,score:96,payload:{}},{version:3,certified:true,score:96,payload:base},{version:2,certified:true,score:96,payload:base}];
  const image=await loadBrandBio({workspaceId:'ws',brandId:'brand',requireCertified:true,requireFoundation:true});assert.equal(image.bio.version,3);
  versions=null;

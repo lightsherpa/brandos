@@ -74,5 +74,6 @@ test("the production handoff lists every dev migration missing from main, in ord
     "20261012000000_brand_rules.sql",
     "20261012010000_runs_release_failed.sql",
     "20261013000000_bio_sources_font_mime.sql",
+    "20261013010000_append_bio_version_expected.sql",
   ]);
 });

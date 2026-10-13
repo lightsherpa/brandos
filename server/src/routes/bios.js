@@ -138,7 +138,12 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   const { data: uploadData, error: uploadErr } = await supabaseAdmin
     .storage.from("bio-sources")
     .upload(objectPath, buf, { contentType: mime, upsert: false });
-  if (uploadErr) return c.json({ error: `Storage upload failed: ${uploadErr.message}` }, 500);
+  if (uploadErr) {
+    // Storage rejects types/sizes outside the bucket policy: that's the client's file, not a server fault.
+    const status = Number(uploadErr.statusCode || uploadErr.status);
+    if (status === 400 || status === 413 || status === 415 || /mime|content.?type|size|too large/i.test(uploadErr.message || "")) return c.json({ error: `Unsupported file: ${uploadErr.message}`, code: "STORAGE_REJECTED" }, 400);
+    return c.json({ error: `Storage upload failed: ${uploadErr.message}` }, 500);
+  }
 
   /* Store the durable object path, not an expiring signed URL. */
   const { data: signed } = await supabaseAdmin

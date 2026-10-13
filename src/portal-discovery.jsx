@@ -21,8 +21,8 @@ const { BrandolphAvatar, BrandolphDot, Confidence, Counter, Icon, Reveal } = win
 /* Discovery (3-step intake) + BIO viewer. */
 
 const { useState: useDState, useEffect: useDEffect } = React;
-const DOCUMENT_FILE_ACCEPT = ".pdf,.doc,.docx,.txt,.md";
-const SOURCE_FILE_ACCEPT = `${DOCUMENT_FILE_ACCEPT},.otf,.ttf,.woff,.woff2,image/*`;
+const DOCUMENT_FILE_ACCEPT = ".pdf,.docx,.pptx,.txt,.md";
+const SOURCE_FILE_ACCEPT = `${DOCUMENT_FILE_ACCEPT},.otf,.ttf,.woff,.woff2,.png,.jpg,.jpeg,.webp`;
 const FONT_FILE_EXTS = new Set(["otf", "ttf", "woff", "woff2"]);
 const fileExt = (file) => String(file?.name || "").split(".").pop().toLowerCase();
 const visualFileKey = (file) => `${file?.name}:${file?.size}:${file?.lastModified}`;
