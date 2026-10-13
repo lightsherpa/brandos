@@ -30,7 +30,7 @@ function useStewardJobs() {
 }
 
 function useStewardJob(jobId) {
-  const empty = { job: null, sources: [], you: null, focus: [], rubric: null, autoSignals: null, copilot: null };
+  const empty = { job: null, sources: [], you: null, focus: [], rubric: null, autoSignals: null, copilot: null, certify: null };
   const [data, setData] = useTState({ ...empty, error: null, loading: true });
   const reload = async () => {
     if (!jobId) { setData({ ...empty, error: "No job id", loading: false }); return; }
@@ -41,7 +41,7 @@ function useStewardJob(jobId) {
       const json = await res.json();
       setData({
         job: json.job, sources: json.sources || [], you: json.you || null, focus: json.focus || [],
-        rubric: json.rubric || null, autoSignals: json.autoSignals || null, copilot: json.copilot || null, error: null, loading: false,
+        rubric: json.rubric || null, autoSignals: json.autoSignals || null, copilot: json.copilot || null, certify: json.certify || null, error: null, loading: false,
       });
     } catch (e) {
       setData({ ...empty, error: e?.message || String(e), loading: false });
@@ -620,7 +620,7 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
    approve_with_conditions / return_changes / reject). May patch the BIO first. */
 function TeamJob({ id, go }) {
   const { t } = useLocale();
-  const { job, sources, you, focus, rubric, autoSignals, copilot, error, loading, reload } = useStewardJob(id);
+  const { job, sources, you, focus, rubric, autoSignals, copilot, certify, error, loading, reload } = useStewardJob(id);
   const thread = useCertThread(id);                         /* S3 client thread — inert when CERTIFIER_V2_S3 is off */
   const [notes, setNotes] = useTState("");
   const [edited, setEdited] = useTState(null);                /* edited BIO payload — null until job loads */
@@ -821,6 +821,7 @@ function TeamJob({ id, go }) {
     <div className="tjob" style={{gridTemplateColumns: "minmax(0,1fr) 360px"}}>
       {/* Main — candidate BIO review */}
       <main className="scroll" style={{overflowY:"auto", padding: "20px 28px 40px"}}>
+        {certify?.enabled && <button className="btn btn--primary" style={{marginBottom:16}} onClick={() => go("certify/" + id)}>Open in Certify</button>}
         <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom: 18}}>
           <div>
             <button onClick={() => go("team")} className="btn btn--link" style={{fontSize: 12, marginBottom: 8}}>

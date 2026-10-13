@@ -1,3 +1,6 @@
+import { assertHumanActor } from "../lib/human-actor.js";
+import { buildClaimLedger, certifierS1Enabled } from "../lib/claim-ledger.js";
+import { validateClaimReview } from "../lib/claim-review.js";
 import {foundationError} from "../lib/brand-foundation.js";
 import {validateFoundationAssets, loadLogoRights} from "../lib/foundation-assets.js";
 // ─────────────────────────────────────────────────────────────────────
@@ -55,6 +58,22 @@ export async function requireSteward(c, next) {
   if (!steward) return c.json({ error: "Steward role required" }, 403);
   c.set("steward", steward);
   await next();
+}
+
+async function claimMessages(brandId, jobId) {
+  if (String(process.env.CERTIFIER_V2_S3 || '').toLowerCase() !== 'true') return [];
+  const { data, error } = await supabaseAdmin.from('cert_messages')
+    .select('id, bio_version, claim_ids, author_role, reply_to, body, source_id, sent_at')
+    .eq('brand_id', brandId).eq('job_id', jobId).order('created_at', { ascending: true });
+  if (error) throw Object.assign(new Error('Could not load claim evidence'), { status: 503 });
+  return data || [];
+}
+async function currentClaimLedger(job, bio) {
+  const { data: sources, error } = await supabaseAdmin.from('bio_sources')
+    .select('id, kind, src, signals').eq('brand_id', job.brand_id);
+  if (error) throw Object.assign(new Error('Could not load claim evidence'), { status: 503 });
+  return buildClaimLedger({ brandId: job.brand_id, bioVersion: bio.version, payload: bio.payload,
+    sources: sources || [], messages: await claimMessages(job.brand_id, job.id) });
 }
 
 /* GET /api/steward/jobs — jobs visible to the caller (queued/in_review/pending,
@@ -152,7 +171,17 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
     logoRights: caseRights,
   });
 
+  let certify;
+  if (certifierS1Enabled()) {
+    try {
+      certify = { enabled: true, logoRights: caseRights,
+        ...buildClaimLedger({ brandId: job.brand_id, bioVersion: job.bio.version,
+          payload: job.bio.payload, sources: reviewableSources, brandUrl: job.brand?.url,
+          messages: await claimMessages(job.brand_id, job.id) }) };
+    } catch (err) { return c.json({ error: err.message }, err.status || 503); }
+  }
   return c.json({
+    ...(certify ? { certify } : {}),
     job,
     focus: computeFocus(job?.bio?.payload || {}),
     sources: reviewableSources,
@@ -173,6 +202,8 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
      { status: "cancelled" }
 */
 app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
+  try { assertHumanActor(c.get("auth")); }
+  catch (err) { return c.json({ error: err.message, code: err.code }, err.status); }
   const steward = c.get("steward");
   const isLead = (steward.roles || []).includes("lead_steward");
   const calibration = (process.env.STEWARD_CALIBRATION_REQUIRED || "true").toLowerCase() !== "false";
@@ -214,6 +245,13 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
     let logoRights;try{logoRights=await loadLogoRights(job.brand_id,bioRow.payload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
     const foundation=foundationError(bioRow.payload,{logoRights});
     if(foundation)return c.json(foundation,409);
+    if (certifierS1Enabled()) {
+      try {
+        const ledger = await currentClaimLedger(job, bioRow);
+        const invalidReview = validateClaimReview(ledger, body.claimReview, bioRow.payload, logoRights);
+        if (invalidReview) return c.json(invalidReview, 409);
+      } catch (err) { return c.json({ error: err.message }, err.status || 503); }
+    }
     const invalid=await validateFoundationAssets(job.brand_id,bioRow.payload?.visual,bioRow.payload?.visual);
     if(invalid)return c.json({error:invalid,code:"FOUNDATION_ASSET"},400);
     await supabaseAdmin.from("bios").update({
@@ -229,7 +267,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
       lead_reviewed_by: steward.id,
       lead_reviewed_at: new Date().toISOString(),
     }).eq("id", jobId);
-    await writeDecision({ job, bioRow, actor: steward, actorRole: "lead_steward", decision: job.decision || "approve", narrative: body.leadNotes });
+    await writeDecision({ job, bioRow, actor: steward, actorRole: "lead_steward", decision: job.decision || "approve", narrative: certifierS1Enabled() ? JSON.stringify({ notes: body.leadNotes || null, claimReview: body.claimReview }) : body.leadNotes });
     await notifyCertified(job.brand_id);
     return c.json({ ok: true, status: "completed", action: "approved", certifiedVersion: bioRow.version });
   }
@@ -284,6 +322,13 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
   const decision = result.recommendedDecision;                 // approve | approve_with_conditions | return_changes | reject
   const approves = decision === "approve" || decision === "approve_with_conditions";
   if (approves) {
+    if (certifierS1Enabled()) {
+      try {
+        const ledger = await currentClaimLedger(job, bio);
+        const invalidReview = validateClaimReview(ledger, body.claimReview, workingPayload, logoRights);
+        if (invalidReview) return c.json(invalidReview, 409);
+      } catch (err) { return c.json({ error: err.message }, err.status || 503); }
+    }
     const foundation=foundationError(workingPayload,{logoRights});if(foundation)return c.json(foundation,409);
     const invalid=await validateFoundationAssets(bio.brand_id,workingPayload.visual,bio.payload?.visual);
     if(invalid)return c.json({error:invalid,code:"FOUNDATION_ASSET"},400);
@@ -347,7 +392,9 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
     conditions: body.conditions,
     requiredChanges: body.required_changes,
     rejectReasonCode: body.reject_reason_code,
-    narrative: body.notes,
+    narrative: certifierS1Enabled() && body.claimReview
+      ? JSON.stringify({ notes: body.notes || null, claimReview: body.claimReview })
+      : body.notes,
   });
 
   if (finalCertified) await notifyCertified(job.brand_id);
