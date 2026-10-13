@@ -35,9 +35,11 @@ test("validateUpload accepts licensed font binaries", () => {
   assert.equal(validateUpload({ filename: "BrandDisplay.otf", mime: "application/octet-stream", size: 2048 }).ok, true);
 });
 
-test("visual references require a role and rights confirmation", () => {
+test("visual references default to inspiration and require rights confirmation", () => {
   assert.equal(validateVisualAssetMetadata({ ext: "png", assetRole: "canonical" }).code, "RIGHTS");
-  assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true }).code, "ASSET_ROLE");
+  // F1: an unlabelled image upload defaults to inspiration; a bad role is still rejected.
+  assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true }).metadata.asset_role, "inspiration");
+  assert.equal(validateVisualAssetMetadata({ ext: "png", rightsConfirmed: true, assetRole: "hero" }).code, "ASSET_ROLE");
   assert.deepEqual(
     validateVisualAssetMetadata({ ext: "png", assetRole: "inspiration", rightsConfirmed: true }).metadata,
     { asset_kind: "image_reference", asset_role: "inspiration", rights_confirmed: true },
@@ -81,4 +83,13 @@ test("assertPublicUrl blocks internal hosts and private/metadata IPs", () => {
 
 test("assertPublicUrl rejects garbage", () => {
   assert.throws(() => assertPublicUrl("not a url"), (e) => e.code === "BAD_URL" || e.code === "BAD_SCHEME");
+});
+
+test("assetRole allowlist applies to fonts as well as images",()=>{
+ for(const role of ["hero","avoid","__proto__"]){
+  assert.equal(validateVisualAssetMetadata({ext:"png",assetRole:role,rightsConfirmed:true}).code,"ASSET_ROLE");
+  assert.equal(validateVisualAssetMetadata({ext:"ttf",assetRole:role,rightsConfirmed:true,fontFamily:"Brand",licenseType:"commercial"}).code,"ASSET_ROLE");
+ }
+ assert.equal(validateVisualAssetMetadata({ext:"png",assetRole:"font",rightsConfirmed:true}).code,"ASSET_ROLE");
+ assert.equal(validateVisualAssetMetadata({ext:"ttf",assetRole:"font",rightsConfirmed:true,fontFamily:"Brand",licenseType:"commercial"}).metadata.asset_role,"font");
 });

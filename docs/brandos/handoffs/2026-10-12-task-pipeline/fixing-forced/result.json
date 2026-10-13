@@ -1,0 +1,195 @@
+{
+  "run_id": "75216d53-a3ca-4269-8370-a6732b01425f",
+  "status": "ready",
+  "seconds": 121.704,
+  "cost_usd": 0.3005,
+  "by_step": {
+    "writing": 0.0326,
+    "imaging": 0.21,
+    "ocr": 0.0046,
+    "review": 0.0187,
+    "fixing": 0.0345
+  },
+  "stages": [
+    [
+      "Planning",
+      "0.0"
+    ],
+    [
+      "Writing",
+      "0.0"
+    ],
+    [
+      "Imaging",
+      "22.0"
+    ],
+    [
+      "Checking",
+      "78.8"
+    ],
+    [
+      "Fixing",
+      "96.0"
+    ],
+    [
+      "Ready",
+      "121.7"
+    ]
+  ],
+  "items": [
+    {
+      "index": 0,
+      "status": "ready",
+      "revisions": 1,
+      "before_failed": [
+        "voice_on_brand"
+      ]
+    },
+    {
+      "index": 1,
+      "status": "ready",
+      "revisions": 0,
+      "before_failed": []
+    },
+    {
+      "index": 2,
+      "status": "ready",
+      "revisions": 0,
+      "before_failed": []
+    }
+  ],
+  "db": {
+    "run": {
+      "status": "completed",
+      "cost_usd": 0.3005,
+      "latency_ms": 121686,
+      "model_used": "claude-sonnet-5-5,vendor/fal/gpt-image-2.5-edit,google/gemini-3.8-flash"
+    },
+    "outputs": [
+      {
+        "id": "08a5f8a9-5ccc-4169-9ce7-65737fc68b39",
+        "kind": "task",
+        "status": "approved"
+      }
+    ],
+    "ledger": [
+      {
+        "kind": "run",
+        "credits": 12,
+        "balance_after": 1002,
+        "idempotency_key": "task:75216d53-a3ca-4269-8370-a6732b01425f:credits"
+      }
+    ],
+    "api_usage": {
+      "rows": 10,
+      "images": 3
+    }
+  },
+  "spec": {
+    "task": "social_post",
+    "language": "es",
+    "smp": "NOMAD atHome Classics lleva cada mes a tu casa café de especialidad tostado en Barcelona, pensado para quien prepara su café en casa.",
+    "posts": [
+      {
+        "angle": "Ritual mensual: café de especialidad en casa cada mes",
+        "overlay_line": "Café de especialidad, cada mes.",
+        "caption": "Cada mes, café de especialidad tostado en Barcelona, en tu casa.\n\nNOMAD atHome Classics es nuestra suscripción mensual para quien prepara su café en casa. Tú eliges tu forma de prepararlo y nosotros nos ocupamos del tueste.\n\nAbre la bolsa, huele el café y prepáralo a tu ritmo.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#CaféDeEspecialidad",
+          "#CaféEnCasa",
+          "#Barcelona"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "NOMAD atHome Classics es una suscripción mensual",
+          "El café es de especialidad",
+          "El café se tuesta en Barcelona",
+          "Está pensada para home brewers",
+          "La suscripción se contrata en nomadcoffee.es"
+        ],
+        "image_brief": {
+          "subject": "Manos abriendo una bolsa de café kraft lisa, sin etiquetas ni impresiones, sobre una encimera de cocina con granos de café sueltos al lado",
+          "composition": "Primer plano cenital ligeramente inclinado, poca profundidad de campo, manos y bolsa en el tercio inferior, espacio limpio arriba para tipografía añadida después",
+          "light": "Luz natural cálida de ventana lateral, sombras suaves, sin filtros",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "muted"
+          ],
+          "ref_ids": [
+            "ref1"
+          ],
+          "negative": "no text, no letters, no logo, no labels, no signage",
+          "aspect": "4:5"
+        }
+      },
+      {
+        "angle": "From our home to yours: del tostador de Barcelona a tu cocina",
+        "overlay_line": "From our home to yours.",
+        "caption": "De nuestra casa a la tuya: así entendemos NOMAD atHome.\n\nSomos un tostador de café de especialidad de Barcelona. Con NOMAD atHome Classics, ese café llega cada mes a tu cocina.\n\nBuen café según nosotros, y queremos que lo compruebes en la taza. Por eso nos gusta hablar de origen, de tueste y de notas de cata.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#NomadCoffee",
+          "#CaféDeEspecialidad",
+          "#Barcelona"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "Nomad Coffee es un tostador de café de especialidad de Barcelona",
+          "NOMAD atHome es la suscripción mensual para casa",
+          "Lema de marca: From our home to yours",
+          "La calidad se plantea como buen café según nosotros, respaldada por notas de cata",
+          "La marca explica origen y tueste"
+        ],
+        "image_brief": {
+          "subject": "Rincón real de una cafetería de Barcelona: detalle de una máquina de espresso y una jarra de acero inoxidable junto a una bolsa kraft lisa sin impresión",
+          "composition": "Encuadre documental editorial, plano medio cerrado, primer plano de acero inoxidable con fondo desenfocado, pieza principal ligeramente descentrada",
+          "light": "Luz ambiente cálida y natural, reflejos suaves en el acero, fondos apagados",
+          "palette_roles": [
+            "muted",
+            "ink",
+            "primary"
+          ],
+          "ref_ids": [
+            "ref2"
+          ],
+          "negative": "no text, no letters, no logo, no labels, no signage",
+          "aspect": "4:5"
+        }
+      },
+      {
+        "angle": "Abierto a quien empieza: no hace falta ser profesional",
+        "overlay_line": "No hace falta ser profesional.",
+        "caption": "El café de especialidad también es para tu cocina.\n\nNo necesitas experiencia ni material de profesional. NOMAD atHome Classics está pensada para quien prepara su café en casa, tanto si empieza como si ya tiene su rutina.\n\n1. Abre la bolsa.\n2. Prepara el café como sueles hacerlo.\n3. Fíjate en lo que notas en la taza.\n\nCada mes, un café nuevo que probar.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#HomeBrewing",
+          "#CaféEnCasa",
+          "#CaféDeEspecialidad"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "NOMAD atHome Classics es una suscripción mensual para home brewers",
+          "El café de especialidad no es solo para profesionales; la marca se dirige también a quien no tiene experiencia",
+          "La suscripción se contrata en nomadcoffee.es"
+        ],
+        "image_brief": {
+          "subject": "Manos sirviendo agua caliente sobre café en un filtro de goteo casero, con una taza de cerámica lisa al lado, en una cocina doméstica real",
+          "composition": "Plano cercano a la altura de la encimera, poca profundidad de campo, foco en el chorro de agua y el filtro, fondo desenfocado y despejado",
+          "light": "Luz natural cálida de mañana desde un lateral, tonos apagados, sin saturación artificial",
+          "palette_roles": [
+            "surface",
+            "muted",
+            "ink"
+          ],
+          "ref_ids": [
+            "ref3"
+          ],
+          "negative": "no text, no letters, no logo, no labels, no signage",
+          "aspect": "4:5"
+        }
+      }
+    ]
+  }
+}

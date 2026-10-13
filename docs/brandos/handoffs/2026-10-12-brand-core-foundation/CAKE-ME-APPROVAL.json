@@ -1,0 +1,77 @@
+{
+  "kind": "cake_me_foundation_approval",
+  "approvalRequired": "Oscar",
+  "approved": false,
+  "preparedOnly": true,
+  "executable": false,
+  "target": {
+    "brandId": "35f265f0-0546-4a9a-b793-a49887ad7125",
+    "brandName": "Cake-me",
+    "bioId": "f46b7cd3-b339-4ccd-881f-078866c195ba",
+    "version": 1,
+    "payloadHash": "fe4c5a39db37d9f1c5f4ae60f9bd28425a15fb5886a6bb6c1fed3c3c6a829198"
+  },
+  "current": {
+    "storedScore": 96,
+    "displayedScore": 79,
+    "certifiable": false,
+    "missing": [
+      "visual.logo",
+      "visual.palette.primary",
+      "visual.type.display"
+    ],
+    "logo": false,
+    "primary": false,
+    "display": false
+  },
+  "proposals": {
+    "primaryColour": {
+      "hex": "#ffd115",
+      "role": "primary",
+      "status": "requires_designer_confirmation"
+    },
+    "referenceSources": [
+      {
+        "sourceId": "192ed447-6a9b-4394-8910-8e39c5819ae5",
+        "name": "58.png",
+        "assetRole": "canonical",
+        "rightsConfirmed": true,
+        "status": "requires_Oscar_rights_approval"
+      },
+      {
+        "sourceId": "de0cbc49-2c82-4379-9993-0176db76294d",
+        "name": "53.png",
+        "assetRole": "canonical",
+        "rightsConfirmed": true,
+        "status": "requires_Oscar_rights_approval"
+      },
+      {
+        "sourceId": "57452734-2e7f-4e28-b030-61a098743c73",
+        "name": "56.png",
+        "assetRole": "canonical",
+        "rightsConfirmed": true,
+        "status": "requires_Oscar_rights_approval"
+      }
+    ]
+  },
+  "requiredBeforeLoad": [
+    "Supply the official light and dark logo files (no synthetic fixture assets).",
+    "Confirm primary/ink/surface/accent roles against the brand guide.",
+    "Choose the actual display and body Google Fonts or upload licensed binaries and licence reference.",
+    "Confirm rights for the three existing reference images.",
+    "Review a concrete final payload diff against the pinned version/hash before approving any production load."
+  ],
+  "plannedActions": [
+    "Upload approved brand assets using the existing UI, retaining durable source IDs.",
+    "Create an uncertified append-only Brand Core version with approved roles, fonts and references.",
+    "Re-check score and missing foundation fields; certify through the normal review flow.",
+    "After approval and pipeline integration, capture two social posts and one email as before/after proof."
+  ],
+  "constraints": {
+    "productionWrites": false,
+    "seed": false,
+    "modelCalls": 0,
+    "testAssetsExcluded": true,
+    "backfillScriptLocalOnly": true
+  }
+}

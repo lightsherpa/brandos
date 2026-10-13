@@ -47,14 +47,15 @@ export function validateUpload({ mime = "", size = 0, filename = "" } = {}) {
   return { ok: true, ext };
 }
 
-const VISUAL_ROLES = new Set(["canonical", "inspiration", "avoid"]);
+const VISUAL_ROLES = new Set(["canonical", "inspiration", "font", "logo"]);
 const FONT_LICENSES = new Set(["commercial", "open_source", "custom", "system"]);
 
 /* Visual evidence carries intent and rights at ingest time. A file merely
    existing in Storage must never make it eligible for model conditioning. */
 export function validateVisualAssetMetadata({
   ext = "",
-  assetRole = "",
+  assetRole = "inspiration",
+  logoVariant = "light",
   rightsConfirmed = false,
   fontFamily = "",
   fontUsage = "",
@@ -64,35 +65,38 @@ export function validateVisualAssetMetadata({
   const normalizedExt = String(ext).toLowerCase().replace(/^\./, "");
   const isFont = FONT_UPLOAD_EXTS.has(normalizedExt);
   const isImage = IMAGE_UPLOAD_EXTS.has(normalizedExt);
+  const role = String(assetRole || "inspiration").trim();
+  if (!VISUAL_ROLES.has(role) || (role === "font" && !isFont)) return {ok:false,code:"ASSET_ROLE",message:"Choose logo, canonical, inspiration or font"};
   if (!rightsConfirmed) {
     return { ok: false, code: "RIGHTS", message: "Confirm that this brand has the right to use this visual asset" };
   }
+  if (role === "logo" && !["svg", "png"].includes(normalizedExt)) return {ok:false,code:"LOGO_EXT",message:"Logos must be SVG or PNG"};
   if (isFont) {
     const family = String(fontFamily).trim();
     const license = String(licenseType).trim();
+    const usage = String(fontUsage || "Display").trim();
+    if (!/^(Display|Body|Both)$/i.test(usage)) return {ok:false,code:"FONT_USAGE",message:"Choose Display, Body or Both"};
     if (!family) return { ok: false, code: "FONT_FAMILY", message: "Font family name is required" };
     if (!FONT_LICENSES.has(license)) return { ok: false, code: "FONT_LICENSE", message: "Choose a supported font licence type" };
     return {
       ok: true,
       metadata: {
         asset_kind: "font",
-        asset_role: "canonical",
+        asset_role: "font",
         rights_confirmed: true,
         font_family: family,
-        font_usage: String(fontUsage || "Brand typography").trim(),
+        font_usage: usage[0].toUpperCase() + usage.slice(1).toLowerCase(),
         license_type: license,
         license_reference: String(licenseReference).trim(),
       },
     };
   }
-  const role = String(assetRole).trim();
-  if (!VISUAL_ROLES.has(role)) {
-    return { ok: false, code: "ASSET_ROLE", message: "Choose whether this reference is canonical, inspiration, or something to avoid" };
-  }
+  if (role === "logo" && !["light", "dark"].includes(logoVariant)) return { ok:false, code:"LOGO_VARIANT", message:"Choose a light or dark logo variant (light logo for dark backgrounds, dark logo for light backgrounds)" };
   return {
     ok: true,
     metadata: {
-      asset_kind: isImage ? "image_reference" : "visual_document",
+      ...(role === "logo" ? { logo_variant:logoVariant } : {}),
+      asset_kind: role === "logo" ? "logo" : isImage ? "image_reference" : "visual_document",
       asset_role: role,
       rights_confirmed: true,
     },

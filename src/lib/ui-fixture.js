@@ -1,3 +1,5 @@
+import cakeMePayload from "../fixtures/cake-me-foundation.json";
+import {scoreBio} from "../../server/src/lib/score-bio.js";
 import React from "react";
 
 /* Dev-only sample workspace for UI review screenshots.
@@ -6,7 +8,8 @@ import React from "react";
 
 export const uiFixtureEnabled = import.meta.env.DEV && import.meta.env.VITE_UI_FIXTURE === "1";
 
-export const FIXTURE_BRAND_ID = "fixture-brand-northshore";
+const cakeMeFixture = import.meta.env.VITE_UI_FIXTURE_BRAND === "cakeme";
+export const FIXTURE_BRAND_ID = cakeMeFixture ? "fixture-brand-cakeme" : "fixture-brand-northshore";
 
 export const FIXTURE_SESSION = {
   id: "fixture-user",
@@ -19,7 +22,7 @@ export const FIXTURE_SESSION = {
 };
 
 export const FIXTURE_BRANDS = [
-  { id: FIXTURE_BRAND_ID, name: "Northshore", created_at: "2026-04-02T09:00:00.000Z" },
+  { id: FIXTURE_BRAND_ID, name: cakeMeFixture ? "Cake Me" : "Northshore", created_at: "2026-04-02T09:00:00.000Z" },
 ];
 
 const hoursAgo = (h) => new Date(Date.now() - h * 3600 * 1000).toISOString();
@@ -152,6 +155,16 @@ export const FIXTURE_BIO_STATE = {
     },
   },
 };
+
+if(cakeMeFixture){
+  FIXTURE_BIO_STATE.brandName='Cake Me';FIXTURE_BIO_STATE.brandUrl='https://thecake-me.com';
+  FIXTURE_BIO_STATE.bio={id:'fixture-cakeme-v1',version:1,payload:cakeMePayload,score:scoreBio(cakeMePayload),certified:false,self_certified:false};
+}
+export function saveFixtureFoundation(payload){
+  if(!uiFixtureEnabled)throw Error('Fixture saves only run locally');
+  FIXTURE_BIO_STATE.bio={...FIXTURE_BIO_STATE.bio,id:`fixture-bio-${crypto.randomUUID()}`,version:FIXTURE_BIO_STATE.bio.version+1,payload,score:scoreBio(payload),certified:false,self_certified:false};
+  window.dispatchEvent(new Event('fixture:bio'));
+}
 
 export const FIXTURE_SOURCES = [
   { src: "northshore.example", date: "2 Apr", n: 18, bucket: "foundations" },

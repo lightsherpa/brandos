@@ -25,6 +25,7 @@ function filled(conf = 100) {
     payload[section][key] = "recorded";
     payload.confidence[`${section}.${key}`] = { conf, source: `src-${section}-${key}` };
   }
+  payload.visual={logo:{sourceId:"logo",conf:100},palette:[{role:"primary",hex:"#ffd115"}],type:[{kind:"Display",family:"Inter",provider:"google"}]};
   return payload;
 }
 
@@ -82,7 +83,7 @@ test("a fully sourced BIO clears the floor and has nothing left to add", () => {
 
 test("self-certification rejects a score under the floor, including a stale lower override", async () => {
   const rejected = await selfCertifyBio({
-    brandId: "brand", bioId: "bio", payload: {}, userId: "user",
+    brandId: "brand", bioId: "bio", payload: {visual:filled().visual}, userId: "user",
     statements: STATEMENTS, statementVersion: "2", review: REVIEW, minScore: 58,
   });
   assert.equal(rejected.ok, false);

@@ -12,7 +12,7 @@ import discovery from "./routes/discovery.js";
 import discoverySession from "./routes/discovery-session.js";
 import discoveryDelegation from "./routes/discovery-delegation.js";
 import steward from "./routes/steward.js";
-import runs from "./routes/runs.js";
+import runs from "./routes/foundation-run-gateway.js";
 import outputs from "./routes/outputs.js";
 import craft from "./routes/craft.js";
 import credits from "./routes/credits.js";
@@ -24,6 +24,7 @@ import me from "./routes/me.js";
 import access from "./routes/access.js";
 import opex from "./routes/opex.js";
 import teamPortal from "./routes/team-portal.js";
+import tasks from "./routes/tasks.js";
 import { inngestHandler } from "./routes/inngest.js";
 import { applyPerimeter, healthPayload, resolveAllowedOrigin } from "./lib/http-policy.js";
 import { redactingLogPrinter } from "./lib/log-redact.js";
@@ -79,6 +80,7 @@ app.route("/api/me", me);
 app.route("/api/access", access);
 app.route("/api/opex", opex);
 app.route("/api/team", teamPortal);
+app.route("/api/tasks", tasks);
 // Inngest serve — local dev server auto-discovers this endpoint
 // (GET introspection + POST function invocations + PUT registration).
 app.on(["GET", "POST", "PUT"], "/api/inngest", inngestHandler);

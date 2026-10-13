@@ -1,0 +1,995 @@
+{
+  "brand": "Nomad Coffee",
+  "brief": "Secuencia de bienvenida de 3 emails para nuevos suscriptores de NOMAD atHome: bienvenida, cómo preparar mejor tu café en casa, y cómo ajustar o pausar la suscripción. CTA a https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+  "type": "email_sequence",
+  "status": "ready",
+  "items": [
+    {
+      "index": 0,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 0,
+        "purpose": "welcome",
+        "subject": "Bienvenido a NOMAD atHome",
+        "preheader": "De nuestra casa a la tuya: así empieza tu suscripción mensual de café de especialidad.",
+        "headline": "Ya eres parte de NOMAD atHome",
+        "body_blocks": [
+          "Gracias por suscribirte. NOMAD atHome es la forma que tenemos en Nomad Coffee, tostadores de café de especialidad en Barcelona, de llevar nuestro café a tu casa cada mes.",
+          "Qué puedes esperar: café tostado por nosotros, con información clara sobre su origen, su tueste y sus notas de cata. Es buen café según nosotros, y por eso te explicamos qué encontrarás en cada taza.",
+          "No necesitas experiencia previa. Si preparas café en casa por primera vez o llevas años haciéndolo, esta suscripción es para ti.",
+          "En los próximos días te contaremos cómo sacar más partido a cada bolsa y cómo ajustar o pausar tu suscripción si lo necesitas."
+        ],
+        "cta": {
+          "label": "Ver mi suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Nomad Coffee es un tostador de café de especialidad en Barcelona",
+          "NOMAD atHome es una suscripción mensual de café para casa",
+          "Nomad informa sobre origen, tueste y notas de cata",
+          "La suscripción está abierta a quienes no tienen experiencia previa"
+        ],
+        "hero_image_brief": {
+          "subject": "Manos abriendo con cuidado una bolsa de café lisa, sin impresión alguna, sobre una encimera de cocina doméstica con una taza de cerámica al lado",
+          "composition": "Primer plano cercano, profundidad de campo corta, encuadre editorial documental con las manos y el borde de la bolsa en primer término",
+          "light": "Luz natural cálida de ventana, fondo desenfocado en tonos neutros y apagados",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "primary"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo",
+          "aspect": "16:9"
+        }
+      },
+      "html_bytes": 14663,
+      "image": {
+        "asset_url": "https://v3b.fal.media/files/b/0aae1adf/K4hmxdXAZ6jkLNFdvIRzU_C0nLg6yu.png",
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": true,
+        "reference_count": 3,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 41214,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "ms": 36545,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      },
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 25/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 86 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 29/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 108/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Ver mi suscripción\" → https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "14.3 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 14663
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Welcomes new NOMAD atHome subscribers and sets clear expectations for the monthly subscription.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Direct, informative, unpretentious, and correctly uses 'buen café según nosotros' without forbidden words.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Logically serves as the initial welcome email introducing the service and upcoming guidance.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "Points directly to the required Nomad atHome subscription landing page URL.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Contains no superlatives or unsupported claims outside the provided brief.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Preheader expands on the subject line without echoing its phrasing.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 1,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 3,
+        "purpose": "value",
+        "subject": "Cómo preparar mejor tu café en casa",
+        "preheader": "Tres hábitos sencillos para sacar más de cada bolsa, sin necesidad de experiencia previa.",
+        "headline": "Tu mejor taza empieza con tres hábitos",
+        "body_blocks": [
+          "No hace falta ser profesional para disfrutar del café de especialidad. Estos son tres hábitos prácticos para empezar.",
+          "1. Lee las notas de cata. Cada café llega con información de origen, tueste y sabor. Úsala como guía de lo que buscas en la taza.",
+          "2. Cambia una sola cosa cada vez. Si quieres ajustar el resultado, modifica una variable de tu método y prueba de nuevo. Así sabrás qué ha cambiado.",
+          "3. Prueba y apunta. Anota qué te gusta de cada café. Tu paladar es la referencia final.",
+          "Si quieres seguir aprendiendo, en Nomad también ofrecemos educación sobre café, abierta a quienes preparan en casa."
+        ],
+        "cta": {
+          "label": "Ver mi suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Cada café incluye información de origen, tueste y notas de cata",
+          "Nomad ofrece educación sobre café abierta a personas sin experiencia"
+        ],
+        "hero_image_brief": {
+          "subject": "Preparación de café filtrado en casa: café cayendo sobre un filtro en un goteador, con una jarra y detalles de acero inoxidable",
+          "composition": "Plano medio cercano desde un lateral, profundidad de campo corta, encuadre editorial documental",
+          "light": "Luz natural cálida y suave, fondo apagado y sin elementos de atrezo",
+          "palette_roles": [
+            "ink",
+            "surface",
+            "muted"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo",
+          "aspect": "16:9"
+        }
+      },
+      "html_bytes": 15064,
+      "image": {
+        "asset_url": "https://v3b.fal.media/files/b/0aae1adf/ykiie6q80zSN_JJRCHjpT_j0qx5jDU.png",
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": true,
+        "reference_count": 3,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 44435,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "ms": 33272,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      },
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 35/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 89 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 38/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 105/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Ver mi suscripción\" → https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "14.7 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 15064
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Delivers practical home brewing advice specifically accessible to beginners without prior experience.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Maintains an unpretentious, educational tone accessible to home brewers without forbidden terms.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Progresses naturally from welcome to educational brewing guidance.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "Maintains sequence consistency linking to the required subscription page.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "All tips and mentions of educational courses align with brand parameters.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Preheader introduces the three habits, complementing the subject line without repetition.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 2,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 7,
+        "purpose": "convert",
+        "subject": "Ajusta o pausa tu suscripción NOMAD atHome",
+        "preheader": "Tu suscripción se adapta a tu ritmo. Te explicamos cómo cambiarla en la página de suscripciones.",
+        "headline": "Tu suscripción, a tu ritmo",
+        "body_blocks": [
+          "NOMAD atHome es una suscripción mensual flexible. Si cambia tu forma de tomar café, puedes ajustarla o pausarla.",
+          "Ajustar: revisa tu suscripción y adáptala a lo que realmente consumes en casa.",
+          "Pausar: si necesitas un descanso, puedes pausarla y retomarla más adelante.",
+          "Todo está explicado en la página de suscripciones. Entra, revisa tus opciones y deja la suscripción como mejor te encaje."
+        ],
+        "cta": {
+          "label": "Gestionar mi suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "NOMAD atHome es una suscripción mensual",
+          "La suscripción puede ajustarse o pausarse"
+        ],
+        "hero_image_brief": {
+          "subject": "Bolsas de café lisas, sin impresión alguna, apiladas junto a una cafetera de acero inoxidable en una cocina o cafetería real",
+          "composition": "Plano medio con profundidad de campo corta, enfoque en la textura del papel y el brillo del acero, encuadre editorial documental",
+          "light": "Luz ambiente natural y cálida, fondo apagado",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "accent"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo",
+          "aspect": "16:9"
+        }
+      },
+      "html_bytes": 14465,
+      "image": {
+        "asset_url": "https://v3b.fal.media/files/b/0aae1adf/43nreykztvyh5eioX_Jy0_sTqh1biz.png",
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": true,
+        "reference_count": 3,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 35285,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "ms": 29990,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      },
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 42/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 96 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 26/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 62/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Gestionar mi suscripción\" → https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "14.1 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 14465
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Directly addresses how to pause or adjust the monthly subscription as required by the brief.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Direct and informative tone emphasizing flexible subscription management without forbidden buzzwords.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Concludes the sequence by explaining account flexibility and retention options.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "Label and destination clearly support managing the NOMAD atHome subscription.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Statements accurately reflect subscription management options without unverified claims.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Preheader complements the subject line by highlighting flexibility and providing next steps.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    }
+  ],
+  "spec": {
+    "task": "email_sequence",
+    "language": "es",
+    "smp": "Buen café de especialidad en casa cada mes, a tu ritmo: tú decides cómo lo preparas y cuándo lo recibes.",
+    "emails": [
+      {
+        "day_offset": 0,
+        "purpose": "welcome",
+        "subject": "Bienvenido a NOMAD atHome",
+        "preheader": "De nuestra casa a la tuya: así empieza tu suscripción mensual de café de especialidad.",
+        "headline": "Ya eres parte de NOMAD atHome",
+        "body_blocks": [
+          "Gracias por suscribirte. NOMAD atHome es la forma que tenemos en Nomad Coffee, tostadores de café de especialidad en Barcelona, de llevar nuestro café a tu casa cada mes.",
+          "Qué puedes esperar: café tostado por nosotros, con información clara sobre su origen, su tueste y sus notas de cata. Es buen café según nosotros, y por eso te explicamos qué encontrarás en cada taza.",
+          "No necesitas experiencia previa. Si preparas café en casa por primera vez o llevas años haciéndolo, esta suscripción es para ti.",
+          "En los próximos días te contaremos cómo sacar más partido a cada bolsa y cómo ajustar o pausar tu suscripción si lo necesitas."
+        ],
+        "cta": {
+          "label": "Ver mi suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Nomad Coffee es un tostador de café de especialidad en Barcelona",
+          "NOMAD atHome es una suscripción mensual de café para casa",
+          "Nomad informa sobre origen, tueste y notas de cata",
+          "La suscripción está abierta a quienes no tienen experiencia previa"
+        ],
+        "hero_image_brief": {
+          "subject": "Manos abriendo con cuidado una bolsa de café lisa, sin impresión alguna, sobre una encimera de cocina doméstica con una taza de cerámica al lado",
+          "composition": "Primer plano cercano, profundidad de campo corta, encuadre editorial documental con las manos y el borde de la bolsa en primer término",
+          "light": "Luz natural cálida de ventana, fondo desenfocado en tonos neutros y apagados",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "primary"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo",
+          "aspect": "16:9"
+        }
+      },
+      {
+        "day_offset": 3,
+        "purpose": "value",
+        "subject": "Cómo preparar mejor tu café en casa",
+        "preheader": "Tres hábitos sencillos para sacar más de cada bolsa, sin necesidad de experiencia previa.",
+        "headline": "Tu mejor taza empieza con tres hábitos",
+        "body_blocks": [
+          "No hace falta ser profesional para disfrutar del café de especialidad. Estos son tres hábitos prácticos para empezar.",
+          "1. Lee las notas de cata. Cada café llega con información de origen, tueste y sabor. Úsala como guía de lo que buscas en la taza.",
+          "2. Cambia una sola cosa cada vez. Si quieres ajustar el resultado, modifica una variable de tu método y prueba de nuevo. Así sabrás qué ha cambiado.",
+          "3. Prueba y apunta. Anota qué te gusta de cada café. Tu paladar es la referencia final.",
+          "Si quieres seguir aprendiendo, en Nomad también ofrecemos educación sobre café, abierta a quienes preparan en casa."
+        ],
+        "cta": {
+          "label": "Ver mi suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "Cada café incluye información de origen, tueste y notas de cata",
+          "Nomad ofrece educación sobre café abierta a personas sin experiencia"
+        ],
+        "hero_image_brief": {
+          "subject": "Preparación de café filtrado en casa: café cayendo sobre un filtro en un goteador, con una jarra y detalles de acero inoxidable",
+          "composition": "Plano medio cercano desde un lateral, profundidad de campo corta, encuadre editorial documental",
+          "light": "Luz natural cálida y suave, fondo apagado y sin elementos de atrezo",
+          "palette_roles": [
+            "ink",
+            "surface",
+            "muted"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo",
+          "aspect": "16:9"
+        }
+      },
+      {
+        "day_offset": 7,
+        "purpose": "convert",
+        "subject": "Ajusta o pausa tu suscripción NOMAD atHome",
+        "preheader": "Tu suscripción se adapta a tu ritmo. Te explicamos cómo cambiarla en la página de suscripciones.",
+        "headline": "Tu suscripción, a tu ritmo",
+        "body_blocks": [
+          "NOMAD atHome es una suscripción mensual flexible. Si cambia tu forma de tomar café, puedes ajustarla o pausarla.",
+          "Ajustar: revisa tu suscripción y adáptala a lo que realmente consumes en casa.",
+          "Pausar: si necesitas un descanso, puedes pausarla y retomarla más adelante.",
+          "Todo está explicado en la página de suscripciones. Entra, revisa tus opciones y deja la suscripción como mejor te encaje."
+        ],
+        "cta": {
+          "label": "Gestionar mi suscripción",
+          "url": "https://nomadcoffee.es/pages/suscripciones-nomad-coffee-athome"
+        },
+        "claims": [
+          "NOMAD atHome es una suscripción mensual",
+          "La suscripción puede ajustarse o pausarse"
+        ],
+        "hero_image_brief": {
+          "subject": "Bolsas de café lisas, sin impresión alguna, apiladas junto a una cafetera de acero inoxidable en una cocina o cafetería real",
+          "composition": "Plano medio con profundidad de campo corta, enfoque en la textura del papel y el brillo del acero, encuadre editorial documental",
+          "light": "Luz ambiente natural y cálida, fondo apagado",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "accent"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo",
+          "aspect": "16:9"
+        }
+      }
+    ]
+  },
+  "metrics": {
+    "total_ms": 84458,
+    "stage_ms": {
+      "Planning": 0,
+      "Writing": 3,
+      "Imaging": 23376,
+      "Checking": 67821,
+      "Ready": 84457
+    },
+    "cost": {
+      "total_usd": 0.2619,
+      "calls": 8,
+      "by_step": {
+        "writing": 0.0356,
+        "imaging": 0.21,
+        "ocr": 0.0046,
+        "review": 0.0117
+      },
+      "limits": {
+        "maxUsd": 0.5,
+        "maxImageCalls": 7,
+        "maxTextCalls": 10,
+        "imageConcurrency": 3
+      }
+    },
+    "ledger": [
+      {
+        "at": "2026-10-12T16:37:13.350Z",
+        "kind": "text",
+        "step": "writing",
+        "model": "claude-sonnet-5-5",
+        "cost_usd": 0.035616,
+        "ms": 23371,
+        "tokens_in": 1623,
+        "tokens_out": 3237,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:37:43.344Z",
+        "kind": "image",
+        "step": "imaging",
+        "slot": 2,
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "cost_usd": 0.07,
+        "ms": 29990,
+        "fallback_from": null,
+        "uses_reference": true,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:37:46.626Z",
+        "kind": "image",
+        "step": "imaging",
+        "slot": 1,
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "cost_usd": 0.07,
+        "ms": 33272,
+        "fallback_from": null,
+        "uses_reference": true,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:37:48.638Z",
+        "kind": "text",
+        "step": "ocr",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.00166275,
+        "ms": 5293,
+        "tokens_in": 1187,
+        "tokens_out": 206,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:37:49.898Z",
+        "kind": "image",
+        "step": "imaging",
+        "slot": 0,
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "cost_usd": 0.07,
+        "ms": 36545,
+        "fallback_from": null,
+        "uses_reference": true,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:37:54.567Z",
+        "kind": "text",
+        "step": "ocr",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.00134025,
+        "ms": 4669,
+        "tokens_in": 1187,
+        "tokens_out": 120,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:37:57.789Z",
+        "kind": "text",
+        "step": "ocr",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.00159525,
+        "ms": 11163,
+        "tokens_in": 1187,
+        "tokens_out": 188,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:38:14.432Z",
+        "kind": "text",
+        "step": "review",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.01167975,
+        "ms": 16634,
+        "tokens_in": 5058,
+        "tokens_out": 2103,
+        "fallback_from": null,
+        "error": null
+      }
+    ],
+    "models": [
+      "claude-sonnet-5-5",
+      "vendor/fal/gpt-image-2.5-edit",
+      "google/gemini-3.8-flash"
+    ]
+  },
+  "progress": [
+    {
+      "at": "0.0",
+      "index": 0,
+      "status": "writing"
+    },
+    {
+      "at": "0.0",
+      "index": 1,
+      "status": "writing"
+    },
+    {
+      "at": "0.0",
+      "index": 2,
+      "status": "writing"
+    },
+    {
+      "at": "23.4",
+      "index": 0,
+      "status": "imaging"
+    },
+    {
+      "at": "23.4",
+      "index": 1,
+      "status": "imaging"
+    },
+    {
+      "at": "23.4",
+      "index": 2,
+      "status": "imaging"
+    },
+    {
+      "at": "58.7",
+      "index": 2,
+      "status": "checking"
+    },
+    {
+      "at": "58.7",
+      "index": 2,
+      "status": "checking"
+    },
+    {
+      "at": "64.6",
+      "index": 0,
+      "status": "checking"
+    },
+    {
+      "at": "64.6",
+      "index": 0,
+      "status": "checking"
+    },
+    {
+      "at": "67.8",
+      "index": 1,
+      "status": "checking"
+    },
+    {
+      "at": "67.8",
+      "index": 1,
+      "status": "checking"
+    },
+    {
+      "at": "84.5",
+      "index": 0,
+      "status": "ready"
+    },
+    {
+      "at": "84.5",
+      "index": 1,
+      "status": "ready"
+    },
+    {
+      "at": "84.5",
+      "index": 2,
+      "status": "ready"
+    }
+  ]
+}

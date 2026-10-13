@@ -1,3 +1,5 @@
+import {validateFoundationAssets} from "./foundation-assets.js";
+import {foundationError} from "./brand-foundation.js";
 // self-certify.js — shared Stage-1 client self-certification.
 //
 // Extracted from the bios POST /:brandId/self-certify handler so the M3
@@ -52,6 +54,9 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
     }
   }
 
+  const foundation = foundationError(bio);
+  if (foundation) return foundation;
+
   // 3) No high-importance field may be missing.
   const highGaps = computeFocus(bio).filter((f) => f.status === "missing" && f.importance >= 1.0);
   if (highGaps.length) {
@@ -72,6 +77,9 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
       sections: report.sections,
     };
   }
+
+  const invalidFoundationAssets=await validateFoundationAssets(brandId,bio.visual,bio.visual);
+  if(invalidFoundationAssets)return {ok:false,code:"FOUNDATION_INCOMPLETE",state:"foundation_incomplete",error:invalidFoundationAssets,credits:0};
 
   // Record and unlock atomically; a failed attestation must never unlock briefing.
   const {data, error} = await supabaseAdmin.rpc("record_bio_self_certification", {

@@ -1,0 +1,38 @@
+{
+  "rule": {
+    "id": "9d321981-dd05-4c38-89d7-c6109d1f932a",
+    "kind": "banned_word",
+    "value": "sin complicarte",
+    "reason": "Repeated across posts; Nomad prefers concrete brewing guidance",
+    "created_at": "2026-10-12T16:41:10.079647+00:00",
+    "created_by": null,
+    "source_task_id": "e2e:social-nomad",
+    "source_item_index": 1
+  },
+  "before": "¿Quieres buen café en casa sin complicarte? Esto es para ti.\n\nNOMAD atHome Classics es nuestra suscripción mensual de café de especialidad tostado en Barcelona. Pensada para quien prepara su café en casa, tenga o no experiencia.\n\nNo hace falta ser profesional para disfrutar del café de especialidad. Solo ganas de tomar un buen café cada mañana.\n\nSuscríbete en nomadcoffee.es.",
+  "after": "¿Quieres buen café en casa cada mañana? Esto es para ti.\n\nNOMAD atHome Classics es nuestra suscripción mensual de café de especialidad tostado en Barcelona. Pensada para quien prepara su café en casa, tenga o no experiencia.\n\nNo hace falta ser profesional para disfrutar del café de especialidad. Solo ganas de tomar un buen café cada mañana.\n\nSuscríbete en nomadcoffee.es.",
+  "image_reused": true,
+  "rule_applied": [
+    {
+      "id": "9d321981-dd05-4c38-89d7-c6109d1f932a",
+      "value": "sin complicarte",
+      "applied": true
+    }
+  ],
+  "status": "ready",
+  "total_ms": 21298,
+  "cost": {
+    "total_usd": 0.039,
+    "calls": 2,
+    "by_step": {
+      "fixing": 0.0344,
+      "review": 0.0046
+    },
+    "limits": {
+      "maxUsd": 0.6,
+      "maxImageCalls": 0,
+      "maxTextCalls": 12,
+      "imageConcurrency": 3
+    }
+  }
+}

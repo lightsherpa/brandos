@@ -14,6 +14,9 @@ import { requestIdFrom, writeAuthorizationAudit } from "../lib/audit.js";
 import { enforceUserRateLimit } from "../lib/http-policy.js";
 
 export async function requireAuth(c, next) {
+  // A gateway and its mounted router share one request context. Reuse only
+  // a context verified by this middleware; HTTP input cannot set this flag.
+  if (c.get("authVerified") === true) return next();
   const authz = c.req.header("authorization") || c.req.header("Authorization");
   const jwt = authz?.startsWith("Bearer ") ? authz.slice(7) : null;
   if (!jwt) return c.json({ error: "Missing Authorization: Bearer <jwt>" }, 401);
@@ -54,6 +57,7 @@ export async function requireAuth(c, next) {
     mfaRequired: roleRequiresMfa(authorization.persona),
     ...authorization,
   });
+  c.set("authVerified", true);
   await next();
 }
 

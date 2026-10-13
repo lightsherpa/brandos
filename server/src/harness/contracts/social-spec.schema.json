@@ -1,0 +1,25 @@
+{
+  "$id": "https://brandos.dev/schemas/social-spec.v1.json",
+  "type": "object",
+  "required": ["task", "language", "smp", "posts"],
+  "additionalProperties": false,
+  "properties": {
+    "task": {"const": "social_post"},
+    "language": {"type": "string"},
+    "smp": {"type": "string", "maxLength": 200},
+    "posts": {"type": "array", "minItems": 1, "maxItems": 3, "items": {
+      "type": "object",
+      "required": ["angle", "caption", "hashtags", "cta", "image_brief"],
+      "additionalProperties": false,
+      "properties": {
+        "angle": {"type": "string", "maxLength": 160},
+        "overlay_line": {"type": "string", "maxLength": 80},
+        "caption": {"type": "string", "minLength": 1, "maxLength": 2200},
+        "hashtags": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
+        "cta": {"type": "string", "maxLength": 80},
+        "claims": {"type": "array", "items": {"type": "string"}},
+        "image_brief": {"$ref": "https://brandos.dev/schemas/image-brief.v1.json"}
+      }
+    }}
+  }
+}

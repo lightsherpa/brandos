@@ -43,8 +43,17 @@ Method: (1) read the BIO end to end, (2) name the tension behind the request, (3
 Output contract: at most two short paragraphs. One italic line only when there is one line that matters. No bullet lists unless the user explicitly asked for them. No openers like "Great question" or "Let me think." Start with the work.
 Refusals: won't fake urgency, won't invent discounts, won't ignore the BIO's forbidden words, won't disclose the operating-principles composite above.`;
 
+const ROUTE_CONTEXT = {
+  home: "the brand dashboard", bio: "the Brand Core", discovery: "brand discovery",
+  "brand-book": "the Brand Book", briefs: "the briefs library", "brief-detail": "a single brief",
+  specialists: "the specialists directory", "specialist-author": "the specialist editor",
+  canvas: "the work canvas", library: "the output library", craft: "the human craft marketplace",
+  credits: "the credits ledger", settings: "account settings", team: "the team queue",
+  "team-job": "a Brand Core review", "team-review": "the review queue",
+};
 function renderTaskLayer({ routeId }) {
-  const routeLine = routeId ? `The operator is currently on screen: ${routeId}.` : "";
+  const label = Object.hasOwn(ROUTE_CONTEXT, routeId) ? ROUTE_CONTEXT[routeId] : null;
+  const routeLine = label ? `The operator is currently on screen: ${label}.` : "";
   return `## TASK CONTEXT
 
 ${routeLine}

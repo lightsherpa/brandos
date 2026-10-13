@@ -33,7 +33,8 @@
     "specialists": "Especialistas",
     "humans": "Humanos",
     "credits": "Créditos",
-    "account": "Cuenta"
+    "account": "Cuenta",
+    "tasks": "Tareas"
   },
   "section": {
     "createBriefs": "Crear / Briefs",
@@ -1246,7 +1247,7 @@
       },
       "inReview": "en revisión",
       "within24h": "en 24 h",
-      "eyebrow": "Objeto de Inteligencia de Marca",
+      "eyebrow": "Brand Core",
       "of100": "DE 100",
       "certifiedDate": "Certificado {date}",
       "uncertified": "Sin certificar",

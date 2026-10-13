@@ -1,10 +1,15 @@
+import {foundationError} from "./brand-foundation.js";
+import {validateFoundationAssets} from "./foundation-assets.js";
+import {resolveFoundationForUse} from "./visual-assets.js";
+import {scoreBio} from "./score-bio.js";
 // Loads a brand + its active BIO from Supabase, and enforces the
 // certification gate at the data layer (the only place it can live — the
 // assembly runner is a client-side loop, so per-run loading is the gate).
 //
 // Two tiers, per the two-stage certification model:
 //   • production (specialist runs, human craft)  → requireCertified: reads the
-//     newest certified version. Creative Director certification qualifies at
+//     newest certified version with a foundation, or newest certification
+//     for text work when no version has a foundation. Creative Director certification qualifies at
 //     any score; a self-certified version qualifies only at score >= 80.
 //     Throws BIO_NOT_CERTIFIED (409) otherwise.
 //   • briefing (sharpener, brief authoring)       → requireSelfCertified: reads
@@ -37,8 +42,9 @@ function bioError(code, message, status = 409) {
  * @param {string} [opts.brandId]                specific brand; defaults to first brand in workspace
  * @param {boolean} [opts.requireCertified=false]      production gate — highest human-certified version
  * @param {boolean} [opts.requireSelfCertified=false]  briefing gate — highest self-certified version
+ * @param {boolean} [opts.requireFoundation=false] image/compositor gate only
  */
-export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false }) {
+export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false, requireFoundation = false }) {
   // Resolve brand
   let brandRow;
   if (brandId) {
@@ -81,10 +87,9 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       .select(bioColumns)
       .eq("brand_id", brandRow.id)
       .or(`certified.eq.true,and(self_certified.eq.true,score.gte.${SELF_CERT_MIN_SCORE})`)
-      .order("version", { ascending: false })
-      .limit(20);
+      .order("version", { ascending: false });
     bioErr = error;
-    bioRow = selectProductionBio(rows || []);
+    bioRow = selectProductionBio((rows || []).filter(row => !foundationError(row.payload))) || selectProductionBio(rows || []);
   } else {
     let bioQuery = supabaseAdmin
       .from("bios")
@@ -112,7 +117,20 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     throw err;
   }
 
-  if(requireCertified){const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);}
+  let runtimeVisual=bioRow.payload?.visual;
+  if(requireCertified){
+    const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);
+    const foundation=foundationError(bioRow.payload);
+    if(requireFoundation && foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
+    if(requireFoundation){
+      const invalid=await validateFoundationAssets(brandRow.id,runtimeVisual,runtimeVisual);
+      if(invalid)throw bioError('FOUNDATION_INCOMPLETE',invalid);
+      runtimeVisual=await resolveFoundationForUse(brandRow.id,runtimeVisual);
+    }else if(!foundation){
+      // Text work must remain usable even if a visual upload is unavailable.
+      try{runtimeVisual=await resolveFoundationForUse(brandRow.id,runtimeVisual);}catch{}
+    }
+  }
 
   return {
     brand: {
@@ -125,9 +143,10 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     },
     bio: normalizeBio({
       ...bioRow.payload,
+      ...(runtimeVisual?{visual:runtimeVisual}:{}),
       id:                bioRow.id,
       version:           bioRow.version,
-      score:             bioRow.score,
+      score:             scoreBio(bioRow.payload),
       certified:         bioRow.certified,
       certified_by:      bioRow.certified_by,
       certified_at:      bioRow.certified_at,
@@ -157,4 +176,9 @@ export function loadBioForRun({ workspaceId, brandId }) {
  */
 export function loadBioForBriefing({ workspaceId, brandId }) {
   return loadBrandBio({ workspaceId, brandId, requireSelfCertified: true });
+}
+
+/** Image/compositor preflight; never use for copy-only work. */
+export function loadBioForImage({workspaceId,brandId}) {
+ return loadBrandBio({workspaceId,brandId,requireCertified:true,requireFoundation:true});
 }

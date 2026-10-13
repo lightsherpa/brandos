@@ -5,7 +5,7 @@ test('linked Google/Adobe CSS and relative sheets are retained; private URLs are
  assert.deepEqual(stylesheetLinks(html,'https://brand.test').sort(),['https://brand.test/brand.css','https://fonts.googleapis.com/css2?family=Plex'].sort());
 });
 test('extracts linked font declarations, palette roles and measured contrast with bounded imports',async()=>{
- const calls=[];const result=await resolveVisualStyles({html:'<link rel="stylesheet" href="/brand.css">',url:'https://brand.test',read:async url=>{calls.push(url);return url.endsWith('brand.css')?'@import "type.css"; :root{--brand-primary:#123456} body{background:#ffffff;color:#123456}':'@font-face{font-family:"IBM Plex Sans";src:url("font.woff2")}';}});
+ const calls=[];const result=await resolveVisualStyles({html:'<link rel="stylesheet" href="/brand.css">',url:'https://brand.test',read:async url=>{calls.push(url);return url.endsWith('brand.css')?'@import "type.css"; :root{--brand-primary:#123456} body{background:#f5eddc;color:#123456}':'@font-face{font-family:"IBM Plex Sans";src:url("font.woff2")}';}});
  assert.equal(calls.length,2);assert.ok(result.type.some(t=>t.family==='IBM Plex Sans'));assert.ok(result.palette.some(c=>c.hex==='#123456'&&c.role==='primary'));assert.equal(result.computed,false);assert.equal(contrastRatio('#000000','#ffffff'),21);assert.ok(result.contrastPairs.length);
 });
 test('missing CSS stays an explicit gap and never produces invented values',async()=>{

@@ -35,6 +35,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 const CLIENT_ROUTES = [
   { id:"home",        labelKey:"nav.create",      icon:"sparkles", sectionKey:"section.createBriefs" },
   { id:"briefs",      labelKey:"nav.briefs",      icon:"brief",    sectionKey:"section.createBriefs" },
+  { id:"tasks",       labelKey:"nav.tasks",       icon:"sparkles", sectionKey:"section.createBriefs" },
   { id:"bio",         labelKey:"nav.bio",         icon:"bio",      sectionKey:"section.bioLibrary" },
   { id:"library",     labelKey:"nav.library",     icon:"files",    sectionKey:"section.bioLibrary" },
   { id:"specialists", labelKey:"nav.specialists", icon:"team",     sectionKey:"section.specialistsHumans" },
@@ -651,6 +652,22 @@ function TopBar({ portal, route, brandName, go }) {
   );
 }
 
+/* Tasks pipeline is behind the server flag TASKS_ENABLED (default off).
+   GET /api/tasks/enabled is the one ungated endpoint; until it answers
+   true the nav item and the route stay hidden. */
+let tasksEnabledCache = null;
+export function useTasksEnabled() {
+  const [enabled, setEnabled] = React.useState(tasksEnabledCache === true);
+  React.useEffect(() => {
+    if (tasksEnabledCache !== null) { setEnabled(tasksEnabledCache); return; }
+    let live = true;
+    apiFetch("/api/tasks/enabled").then((r) => (r.ok ? r.json() : { enabled: false })).catch(() => ({ enabled: false }))
+      .then((j) => { tasksEnabledCache = j?.enabled === true; if (live) setEnabled(tasksEnabledCache); });
+    return () => { live = false; };
+  }, []);
+  return enabled;
+}
+
 /* App-wide menu — a persistent, always-open sidebar with a prominent
    brand logo at the top. No collapse. */
 function AppDock({ portal, currentRoute, onNav }) {
@@ -665,7 +682,10 @@ function AppDock({ portal, currentRoute, onNav }) {
       ? [...CLIENT_ROUTES.filter((item) => !["credits", "settings"].includes(item.id)), ADMIN_ACCOUNT_ROUTE]
       : CLIENT_ROUTES.filter((item) => item.id !== "credits");
   const allowed = new Set(session?.permissions || []);
-  const routes = candidateRoutes.filter(r => !ROUTE_PERMISSION[r.id] || allowed.has(ROUTE_PERMISSION[r.id]));
+  const tasksEnabled = useTasksEnabled();
+  const routes = candidateRoutes
+    .filter(r => r.id !== "tasks" || tasksEnabled)
+    .filter(r => !ROUTE_PERMISSION[r.id] || allowed.has(ROUTE_PERMISSION[r.id]));
   const isActive = (id) => currentRoute === id
     || (id === "settings" && currentRoute === "credits")
     || (id === "admin-account" && currentRoute === "credits")
@@ -837,6 +857,7 @@ function AdminAccount({ section, go, onLogout }) {
 
 /* Screen router — dispatches to the right page component ------- */
 function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
+  const tasksEnabled = useTasksEnabled();
   switch(route.id) {
     case "home":         return <BrandolphHome tweaks={tweaks} setTweak={setTweak} go={go} />;
     case "discovery":    return <Discovery go={go} newBrand={route.param === "new"} />;
@@ -850,6 +871,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "specialist-new": return <SpecialistAuthor go={go} />;
     case "canvas":       return <CanvasView go={go} prototype={route.param === "prototype"} />;
     case "formats":      return <window.FormatPreviewView briefId={route.param} go={go} />;
+    case "tasks":        return tasksEnabled ? <window.TaskPipelineView go={go} /> : <BrandolphHome tweaks={tweaks} setTweak={setTweak} go={go} />;
     case "craft":        return <CraftMarketplace go={go} tier={tweaks.tier} />;
     case "credits":      return <SettingsView section="usage" go={go} onLogout={onLogout} />;
     case "settings":     return <SettingsView section={route.param} go={go} onLogout={onLogout} />;
