@@ -232,3 +232,31 @@ Reconciliation query (should normally return 0 rows):
 ```sql
 select id, started_at, ended_at from public.runs where status = 'release_failed' order by ended_at desc;
 ```
+
+## 12. `20261013000000_bio_sources_font_mime.sql` (chore/bio-sources-font-mime)
+
+Adds `font/ttf`, `font/otf`, `font/woff`, `font/woff2` and `application/font-woff` to the `bio-sources` bucket's allowed MIME types, keeping the existing ones. SVG stays disallowed. Safe before the merge. **Already applied to production on 2026-10-13 at 11:40 (Europe/Madrid), with Oscar's approval, for the Cake Me foundation load.** Only record the version on prod; don't re-run the update.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013000000_bio_sources_font_mime.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013000000', 'bio_sources_font_mime') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select allowed_mime_types from storage.buckets where id = 'bio-sources';  -- includes font/ttf … application/font-woff, no image/svg+xml
+```
+
+## 13. `20261013010000_append_bio_version_expected.sql` (fix/upload-followups)
+
+Adds an optional `p_expected_version integer default null` to `append_bio_version`. When it's set, the append is refused with `STALE_BIO_VERSION` (errcode 40001) unless the brand's latest version equals it. Existing callers pass 5 named args and behave exactly as before. The 5-arg function is dropped and the 6-arg one created in the same transaction, so PostgREST never sees two ambiguous overloads. Grants stay service_role only. Additive. Safe before the merge. Do not apply to production without Oscar's approval.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013010000_append_bio_version_expected.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013010000', 'append_bio_version_expected') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select pg_get_function_identity_arguments('public.append_bio_version'::regproc);  -- ends with p_expected_version integer
+```

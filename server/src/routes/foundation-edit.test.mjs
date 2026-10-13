@@ -19,7 +19,9 @@ test('foreign logo source cannot enter a brand foundation',async()=>{
 });
 test('upload defaults to inspiration and logo variant persists at ingest',async()=>{
  auth=designer();
- const upload=async extra=>{const form=new FormData();form.set('file',new File(['<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0h10v10H0z"/></svg>'],'mark.svg',{type:'image/svg+xml'}));form.set('bucket','visual');form.set('rightsConfirmed','true');for(const [k,v]of Object.entries(extra))form.set(k,v);return app.request('/brand/sources/upload',{method:'POST',body:form});};
+ const png=await (await import('sharp')).default({create:{width:10,height:10,channels:4,background:'#ffd115'}}).png().toBuffer();
+ const upload=async (extra,file=new File([png],'mark.png',{type:'application/octet-stream'}))=>{const form=new FormData();form.set('file',file);form.set('bucket','visual');form.set('rightsConfirmed','true');for(const [k,v]of Object.entries(extra))form.set(k,v);return app.request('/brand/sources/upload',{method:'POST',body:form});};
  assert.equal((await upload({})).status,200);assert.equal(metadata.asset_role,'inspiration');
  assert.equal((await upload({assetRole:'logo',logoVariant:'dark'})).status,200);assert.equal(metadata.asset_role,'logo');assert.equal(metadata.logo_variant,'dark');
+ const svg=await upload({assetRole:'logo'},new File(['<svg xmlns="http://www.w3.org/2000/svg"/>'],'mark.svg',{type:'image/svg+xml'}));assert.equal(svg.status,400);assert.match(JSON.stringify(await svg.json()),/SVG/);
 });

@@ -40,7 +40,7 @@ export async function imageFoundationPreflight(c,next) {
   if(!spec || !isImageRoute(body.modelOverride || spec.payload?.modelRouting?.primary || ''))return next();
   try{
     const active=await loadBioForImage({workspaceId,brandId});
-    const pinned=foundationError(active.bio);if(pinned)return c.json(pinned,409);
+    const pinned=foundationError(active.bio,{logoRights:active.bio?.logoRights});if(pinned)return c.json(pinned,409);
     const invalid=await validateFoundationAssets(active.brand.id,active.bio.visual,active.bio.visual);
     if(invalid)return c.json({code:'FOUNDATION_INCOMPLETE',state:'foundation_incomplete',error:invalid,credits:0},409);
   }catch(error){

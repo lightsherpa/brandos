@@ -10,8 +10,8 @@ import './bio-self-certification.css';
 export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,renderSection,initiallyOpen=false,onClose}){
  const {t}=useLocale();
  const [open,setOpen]=React.useState(initiallyOpen);
- const foundation=foundationStatus(bio.payload);
- if(!foundation.certifiable)return <span className="bio-cert-receipt foundation-incomplete" role="status">Foundation incomplete · add logo, primary colour and display font</span>;
+ const foundation=foundationStatus(bio.payload,{logoRights:bio.logoRights});
+ if(!foundation.certifiable)return <span className="bio-cert-receipt foundation-incomplete" role="status">{foundation.logoStatus==='needs_rights'&&foundation.missing.length===1?'Foundation incomplete · confirm rights to use the logo':'Foundation incomplete · add logo, primary colour and display font'}</span>;
  if(bio.self_certified&&!(bio.client_acceptance_required&&!bio.client_accepted_at))return <span className="bio-cert-receipt">{t('discovery.selfCert.attestedBold')} · Brand Core v{bio.version}</span>;
  return <>
   <button className="btn btn--primary btn--sm" disabled={blocked} title={blocked?t('discovery.certification.pending'):undefined} onClick={()=>setOpen(true)}>{t(bio.certified?'discovery.certification.acceptChanges':'discovery.certification.open')}</button>
@@ -30,7 +30,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
  const [receipt,setReceipt]=React.useState(null);
  const issues=computeFocus(bio.payload||{});
  const blocking=issues.filter(i=>i.status==='missing'&&i.importance>=1);
- const gate=selfCertScoreReport(bio.payload||{});
+ const gate=selfCertScoreReport(bio.payload||{},undefined,{logoRights:bio.logoRights});
  const allReviewed=CERTIFICATION_SECTIONS.every(s=>reviewed.includes(s));
  const focusable=root=>[...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')];
  React.useEffect(()=>{

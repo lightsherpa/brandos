@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 process.env.SUPABASE_URL ||= 'http://127.0.0.1:54321';
 process.env.SUPABASE_SERVICE_ROLE_KEY ||= 'test';
 const {imageFoundationGate}=await import('./runs.js');
-const complete={visual:{logo:{url:'https://brand.test/logo.svg',conf:90},palette:[{hex:'#ffd115',role:'primary'}],type:[{family:'Inter',kind:'Display',provider:'google'}]}};
+const complete={logoRights:['logo-src'],visual:{logo:{sourceId:'logo-src',conf:90},palette:[{hex:'#ffd115',role:'primary'}],type:[{family:'Inter',kind:'Display',provider:'google'}]}};
 const quiet=async(fn)=>{const o=console.error;console.error=()=>{};try{return await fn();}finally{console.error=o;}};
 test('runs.js image path: missing foundation → 409 FOUNDATION_INCOMPLETE, 0 credits',async()=>{
   const r=await imageFoundationGate({bio:{visual:{}},brandId:'b'},{validate:async()=>{throw Error('unreached');}});

@@ -1,5 +1,5 @@
 import {foundationError} from "./brand-foundation.js";
-import {validateFoundationAssets} from "./foundation-assets.js";
+import {validateFoundationAssets, loadLogoRights} from "./foundation-assets.js";
 import {resolveFoundationForUse} from "./visual-assets.js";
 import {scoreBio} from "./score-bio.js";
 // Loads a brand + its active BIO from Supabase, and enforces the
@@ -44,7 +44,15 @@ function bioError(code, message, status = 409) {
  * @param {boolean} [opts.requireSelfCertified=false]  briefing gate — highest self-certified version
  * @param {boolean} [opts.requireFoundation=false] image/compositor gate only
  */
-export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false, requireFoundation = false }) {
+/* degradeRights: read-only callers (Brandolph Q&A) keep working if the logo-rights
+   lookup fails; rights-dependent parts (foundation status, live score) are skipped
+   and bio.rightsUnavailable is set. Production paths never pass it: they fail closed (503). */
+export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false, requireFoundation = false, degradeRights = false }) {
+  let rightsUnavailable = false;
+  const rightsFor = async (...payloads) => {
+    try { return await loadLogoRights(brandRow.id, ...payloads); }
+    catch (error) { if (!degradeRights || requireCertified) throw error; rightsUnavailable = true; return []; }
+  };
   // Resolve brand
   let brandRow;
   if (brandId) {
@@ -79,6 +87,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   const bioColumns = "id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at, client_acceptance_required, client_accepted_at, client_accepted_by";
   let bioRow;
   let bioErr;
+  let logoRights = [];
   if (requireCertified) {
     // Newest CD certification, or a newer self-cert at the floor. Expired
     // rows are skipped in selectProductionBio. Acceptance still blocks.
@@ -89,7 +98,20 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       .or(`certified.eq.true,and(self_certified.eq.true,score.gte.${SELF_CERT_MIN_SCORE})`)
       .order("version", { ascending: false });
     bioErr = error;
-    bioRow = selectProductionBio((rows || []).filter(row => !foundationError(row.payload))) || selectProductionBio(rows || []);
+    if (!error) {
+      // One rights set, used for selection AND the checks below.
+      logoRights = await rightsFor(...(rows || []).map(row => row.payload));
+      const withFoundation = (rows || []).filter(row => !foundationError(row.payload, { logoRights }));
+      if (requireFoundation) {
+        // Image work: never fall back to a version without a rights-confirmed foundation.
+        bioRow = selectProductionBio(withFoundation);
+        const newest = bioRow ? null : selectProductionBio(rows || []);
+        if (newest) { const f = foundationError(newest.payload, { logoRights }); throw Object.assign(bioError(f.code, f.error), { missing: f.missing, logoStatus: f.logoStatus, needsRights: f.needsRights, credits: 0, state: f.state }); }
+      } else {
+        // Text work doesn't need a foundation: prefer one, filtered by the same rights set.
+        bioRow = selectProductionBio(withFoundation) || selectProductionBio(rows || []);
+      }
+    }
   } else {
     let bioQuery = supabaseAdmin
       .from("bios")
@@ -117,10 +139,11 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     throw err;
   }
 
+  if (!requireCertified) logoRights = await rightsFor(bioRow.payload);
   let runtimeVisual=bioRow.payload?.visual;
   if(requireCertified){
     const blocker=productionBlocker(bioRow);if(blocker)throw bioError(blocker.code,blocker.message);
-    const foundation=foundationError(bioRow.payload);
+    const foundation=foundationError(bioRow.payload,{logoRights});
     if(requireFoundation && foundation)throw Object.assign(bioError(foundation.code,foundation.error),{missing:foundation.missing,credits:0,state:foundation.state});
     if(requireFoundation){
       const invalid=await validateFoundationAssets(brandRow.id,runtimeVisual,runtimeVisual);
@@ -146,7 +169,9 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       ...(runtimeVisual?{visual:runtimeVisual}:{}),
       id:                bioRow.id,
       version:           bioRow.version,
-      score:             scoreBio(bioRow.payload),
+      score:             rightsUnavailable ? bioRow.score : scoreBio(bioRow.payload, { logoRights }),
+      logoRights,
+      ...(rightsUnavailable ? { rightsUnavailable: true } : {}),
       certified:         bioRow.certified,
       certified_by:      bioRow.certified_by,
       certified_at:      bioRow.certified_at,

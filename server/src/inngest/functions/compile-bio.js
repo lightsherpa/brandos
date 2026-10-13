@@ -1,4 +1,4 @@
-import {discoverLogo} from "../../lib/discovered-logo.js";
+import {discoverLogo, storeDiscoveredLogo} from "../../lib/discovered-logo.js";
 import {mergeLogoFromAssets} from "../../lib/extract-logo.js";
 // ─────────────────────────────────────────────────────────────────────
 // P1 · a30 BIO Compiler — Discovery → BIO synthesis
@@ -26,6 +26,7 @@ import { assembleSourceText, discoverySourceRow } from "../../lib/bio-source-pol
 import { assignSteward } from "../../lib/assign-steward.js";
 import { completeDiscoveryStep } from "../../lib/discovery-models.js";
 import { scoreBio } from "../../lib/score-bio.js";
+import { loadLogoRights } from "../../lib/foundation-assets.js";
 import { extractPalette, extractFonts } from "../../lib/extract-visual-deterministic.js";
 import { extractImageryAvoid } from "../../lib/extract-visual-vision.js";
 import { loadVisualAssets, mergeTypographyFromAssets } from "../../lib/visual-assets.js";
@@ -380,7 +381,7 @@ export const compileBio = inngest.createFunction(
           });
 
           return {
-            logo: await discoverLogo(rawHtml, url),
+            logo: await storeDiscoveredLogo({ db: supabaseAdmin, brandId, workspaceId, logo: await discoverLogo(rawHtml, url) }).catch(() => null),
             palette: extractPalette(rawHtml),
             type: mergeTypographyFromAssets(extractFonts(rawHtml), assets.fonts),
             imagery,
@@ -410,7 +411,7 @@ export const compileBio = inngest.createFunction(
         .rpc("append_bio_version", {
           p_brand_id: brandId,
           p_payload: bioPayload,
-          p_score: scoreBio(bioPayload),
+          p_score: scoreBio(bioPayload, { logoRights: await loadLogoRights(brandId, bioPayload).catch(() => []) }),
           p_created_by: null,
           p_discovery_id: discoveryId || null,
         });

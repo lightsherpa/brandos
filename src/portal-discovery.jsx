@@ -1,4 +1,5 @@
 import {FoundationStrip} from "./brand-foundation.jsx";
+import { withUploadType } from "./lib/upload-type.js";
 import {useBrandFonts} from "./brand-fonts.jsx";
 import {saveFixtureFoundation} from "./lib/ui-fixture.js";
 import {scoreBio} from "../server/src/lib/score-bio.js";
@@ -20,8 +21,8 @@ const { BrandolphAvatar, BrandolphDot, Confidence, Counter, Icon, Reveal } = win
 /* Discovery (3-step intake) + BIO viewer. */
 
 const { useState: useDState, useEffect: useDEffect } = React;
-const DOCUMENT_FILE_ACCEPT = ".pdf,.doc,.docx,.txt,.md";
-const SOURCE_FILE_ACCEPT = `${DOCUMENT_FILE_ACCEPT},.otf,.ttf,.woff,.woff2,image/*`;
+const DOCUMENT_FILE_ACCEPT = ".pdf,.docx,.pptx,.txt,.md";
+const SOURCE_FILE_ACCEPT = `${DOCUMENT_FILE_ACCEPT},.otf,.ttf,.woff,.woff2,.png,.jpg,.jpeg,.webp`;
 const FONT_FILE_EXTS = new Set(["otf", "ttf", "woff", "woff2"]);
 const fileExt = (file) => String(file?.name || "").split(".").pop().toLowerCase();
 const visualFileKey = (file) => `${file?.name}:${file?.size}:${file?.lastModified}`;
@@ -281,7 +282,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
           const form = new FormData();
           form.set("bucket", item.bucket);
           form.set("purpose", sourcePurposes[item.bucket]);
-          form.set("file", item.file);
+          form.set("file", withUploadType(item.file));
           if (item.bucket === "visual") {
             const meta = visualMeta[visualFileKey(item.file)] || defaultVisualMeta(item.file);
             Object.entries(meta).forEach(([key, value]) => form.set(key, String(value)));
@@ -1462,8 +1463,9 @@ function BioViewer({ go, bioScore = 91 }) {
     return () => { alive = false; };
   }, [live.brandId, live.bio?.id]);
 
-  const score = live.bio?.payload ? scoreBio(live.bio.payload) : 0;
-  const foundation = foundationStatus(live.bio?.payload);
+  const logoRights = live.bio?.logoRights || [];
+  const score = live.bio?.payload ? scoreBio(live.bio.payload, { logoRights }) : 0;
+  const foundation = foundationStatus(live.bio?.payload, { logoRights });
   const patch = (key, value) => setBio(b => b ? { ...b, [key]: value } : b);
   const patchStrategic = (key, value) => setBio(b => b ? { ...b, strategic: { ...b.strategic, [key]: value } } : b);
 
@@ -1601,7 +1603,7 @@ function BioViewer({ go, bioScore = 91 }) {
         </div>
       </div>
 
-      {live.bio?.payload && <FoundationStrip key={live.brandId} brandId={live.brandId} payload={live.bio.payload} disabled={editing || saving} onSave={async visual=>{
+      {live.bio?.payload && <FoundationStrip key={live.brandId} brandId={live.brandId} payload={live.bio.payload} logoRights={logoRights} onRightsConfirmed={live.refresh} disabled={editing || saving} onSave={async visual=>{
         const payload={...live.bio.payload,visual};
         if(uiFixtureEnabled){saveFixtureFoundation(payload);return;}
         const res=await apiFetch(`/api/bios/${live.brandId}`,{method:'PATCH',body:JSON.stringify({payload})});
@@ -2092,7 +2094,7 @@ function BioSources({ brandId, sources, setSources, feed, setFeed, reading, addR
     try {
       const form = new FormData();
       form.set("bucket", "foundations");
-      form.set("file", file);
+      form.set("file", withUploadType(file));
       const res = await apiFetch(`/api/bios/${brandId}/sources/upload`, { method:"POST", body:form });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);

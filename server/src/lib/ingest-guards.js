@@ -9,24 +9,40 @@
 
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB
 
-// Documents the compiler can read + images for the visual bucket.
+// Exactly the bio-sources bucket allowed_mime_types (see BUCKET_MIME_TYPES):
+// anything else would be accepted here and then 500 at Storage, so it 400s instead.
+export const BUCKET_MIME_TYPES = Object.freeze([
+  "application/font-woff", "application/pdf",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "font/otf", "font/ttf", "font/woff", "font/woff2",
+  "image/jpeg", "image/png", "image/webp", "text/markdown", "text/plain",
+]);
 export const ALLOWED_UPLOAD_EXTS = new Set([
-  "pdf", "txt", "md", "markdown", "doc", "docx", "rtf", "csv",
-  "png", "jpg", "jpeg", "webp", "gif", "svg",
+  "pdf", "txt", "md", "markdown", "docx", "pptx",
+  "png", "jpg", "jpeg", "webp",
   "otf", "ttf", "woff", "woff2",
 ]);
-export const IMAGE_UPLOAD_EXTS = new Set(["png", "jpg", "jpeg", "webp", "gif", "svg"]);
+export const IMAGE_UPLOAD_EXTS = new Set(["png", "jpg", "jpeg", "webp"]);
+export const SVG_UNSUPPORTED_MESSAGE = "SVG files aren't supported. Export the logo as a PNG (transparent background works best) and upload that.";
+/* Stored content type comes from the validated extension, never the browser. */
+export const CONTENT_TYPE_BY_EXT = Object.freeze({
+  pdf: "application/pdf", txt: "text/plain", md: "text/markdown", markdown: "text/markdown",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp",
+  ttf: "font/ttf", otf: "font/otf", woff: "font/woff", woff2: "font/woff2",
+});
+export const contentTypeForExt = (ext) => CONTENT_TYPE_BY_EXT[String(ext || "").toLowerCase()] || null;
+const FONT_MIMES = new Set(["font/ttf", "font/otf", "font/woff", "font/woff2", "font/sfnt", "application/font-woff"]);
 export const FONT_UPLOAD_EXTS = new Set(["otf", "ttf", "woff", "woff2"]);
 const ALLOWED_MIME_PREFIXES = ["text/", "image/", "font/"];
 const ALLOWED_MIME_EXACT = new Set([
   "application/pdf",
-  "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/rtf",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "application/font-woff",
-  "application/x-font-ttf",
-  "application/x-font-opentype",
-  "application/octet-stream", // some browsers send this for docs; the extension is the real gate
+  "application/octet-stream", // some browsers send this for docs (never accepted for fonts)
   "",
 ]);
 
@@ -41,7 +57,9 @@ export function validateUpload({ mime = "", size = 0, filename = "" } = {}) {
   }
   const ext = filename.includes(".") ? filename.split(".").pop().toLowerCase() : "";
   const m = String(mime || "").toLowerCase();
+  if (ext === "svg" || m === "image/svg+xml") return { ok: false, code: "SVG_UNSUPPORTED", message: SVG_UNSUPPORTED_MESSAGE };
   if (!ALLOWED_UPLOAD_EXTS.has(ext)) return { ok: false, code: "EXT", message: `Unsupported file type .${ext || "?"}` };
+  if (FONT_UPLOAD_EXTS.has(ext) && !FONT_MIMES.has(m)) return { ok: false, code: "MIME", message: `Fonts must be uploaded as font/${ext === "otf" ? "otf" : ext} (got ${m || "no content-type"})` };
   const mimeOk = ALLOWED_MIME_EXACT.has(m) || ALLOWED_MIME_PREFIXES.some((p) => m.startsWith(p));
   if (!mimeOk) return { ok: false, code: "MIME", message: `Unsupported content-type ${m}` };
   return { ok: true, ext };
@@ -70,7 +88,8 @@ export function validateVisualAssetMetadata({
   if (!rightsConfirmed) {
     return { ok: false, code: "RIGHTS", message: "Confirm that this brand has the right to use this visual asset" };
   }
-  if (role === "logo" && !["svg", "png"].includes(normalizedExt)) return {ok:false,code:"LOGO_EXT",message:"Logos must be SVG or PNG"};
+  if (role === "logo" && normalizedExt === "svg") return {ok:false,code:"SVG_UNSUPPORTED",message:SVG_UNSUPPORTED_MESSAGE};
+  if (role === "logo" && normalizedExt !== "png") return {ok:false,code:"LOGO_EXT",message:"Logos must be PNG"};
   if (isFont) {
     const family = String(fontFamily).trim();
     const license = String(licenseType).trim();
@@ -136,4 +155,14 @@ export function assertPublicUrl(raw) {
     const e = new Error("Blocked private IPv6"); e.code = "PRIVATE_IP"; throw e;
   }
   return u.href;
+}
+
+/* Storage policy rejections (bucket MIME list / size limit) are the client's
+   file, not a server fault. Matched on the storage error's status/code only,
+   never its message text. storage-js StorageApiError: status = HTTP status,
+   statusCode = body.statusCode || body.code (e.g. "415", "413", "InvalidMimeType"). */
+const STORAGE_REJECT_CODES = new Set(["413", "415", "InvalidMimeType", "invalid_mime_type", "EntityTooLarge", "entity_too_large"]);
+export function isStorageRejection(error) {
+  if (!error || typeof error !== "object") return false;
+  return [413, 415].includes(Number(error.status)) || STORAGE_REJECT_CODES.has(String(error.statusCode ?? "")) || STORAGE_REJECT_CODES.has(String(error.code ?? ""));
 }

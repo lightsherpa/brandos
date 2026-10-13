@@ -24,3 +24,21 @@ test('logo variant naming: background → logo colour matches the server contrac
  const bad=validateVisualAssetMetadata({ext:'png',assetRole:'logo',logoVariant:'on-light',rightsConfirmed:true});
  assert.equal(bad.code,'LOGO_VARIANT');assert.match(bad.message,/logo variant/);assert.doesNotMatch(bad.message,/^Choose light or dark background$/);
 });
+
+test('UI rejects SVG logos with a clear message',async t=>{
+ const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"'}});t.after(()=>vite.close());
+ const {isSvgFile,SVG_LOGO_MESSAGE}=await vite.ssrLoadModule('/src/brand-foundation.jsx');
+ assert.ok(isSvgFile({name:'logo.SVG',type:''}));assert.ok(isSvgFile({name:'x',type:'image/svg+xml'}));
+ assert.ok(!isSvgFile({name:'logo.png',type:'image/png'}));assert.match(SVG_LOGO_MESSAGE,/SVG/);
+ const src=await readFile(new URL('./brand-foundation.jsx',import.meta.url),'utf8');assert.doesNotMatch(src,/accept="[^"]*svg/i);
+});
+
+test('needs_rights shows a confirm-rights prompt next to the logo',async t=>{
+ const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"'}});t.after(()=>vite.close());
+ const {FoundationStrip}=await vite.ssrLoadModule('/src/brand-foundation.jsx');
+ const visual={logo:{sourceId:'png1',conf:90},palette:[{role:'primary',hex:'#ffd115'}],type:[{kind:'Display',family:'Inter',provider:'google'}]};
+ const pending=renderToStaticMarkup(React.createElement(FoundationStrip,{brandId:'b',payload:{visual},logoRights:[]}));
+ assert.match(pending,/Confirm rights/);assert.match(pending,/Confirm logo rights to enable certification/);
+ const ok=renderToStaticMarkup(React.createElement(FoundationStrip,{brandId:'b',payload:{visual},logoRights:['png1']}));
+ assert.doesNotMatch(ok,/Confirm rights/);assert.match(ok,/Foundation ready for certification/);
+});

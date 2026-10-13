@@ -56,7 +56,7 @@ const app = new Hono();
  * Fails closed: if asset validation itself errors, 503 before any spend.
  */
 export async function imageFoundationGate({ bio, brandId }, { validate = validateFoundationAssets } = {}) {
-  const pinned = foundationError(bio);
+  const pinned = foundationError(bio, { logoRights: bio?.logoRights });
   if (pinned) return { status: 409, body: pinned };
   try {
     const invalid = await validate(brandId, bio?.visual, bio?.visual);
@@ -137,6 +137,7 @@ app.post("/stream", requireAuth, async (c) => {
     if (err.code === "NO_BIO") {
       return c.json({ error: "This brand has no Brand Core yet — run Discovery first.", code: err.code }, 409);
     }
+    if (err.code === "RIGHTS_LOOKUP_FAILED") return c.json({ error: "Could not verify logo rights. Please retry.", code: err.code }, 503);
     return c.json({ error: err.message || String(err) }, 400);
   }
 

@@ -1,4 +1,4 @@
-import {validateFoundationAssets} from "./foundation-assets.js";
+import {validateFoundationAssets, loadLogoRights} from "./foundation-assets.js";
 import {foundationError} from "./brand-foundation.js";
 // self-certify.js — shared Stage-1 client self-certification.
 //
@@ -33,7 +33,7 @@ import { selfCertScoreReport } from "./self-cert-floor.js";
  * @param {number}  [args.minScore]         override; else read the active rubric
  * @returns {Promise<{ok:true, score:number}|{ok:false, code:string, error:string}>}
  */
-export async function selfCertifyBio({ brandId, bioId, payload, userId, statements, fieldMarks, statementVersion, minScore, review = null }) {
+export async function selfCertifyBio({ brandId, bioId, payload, userId, statements, fieldMarks, statementVersion, minScore, review = null, logoRights: injectedRights }) {
   const integrity=bioIntegrityError({payload},{id:brandId});
   if(integrity)return {ok:false,...integrity};
   const marks = (fieldMarks && typeof fieldMarks === "object") ? fieldMarks : {};
@@ -54,7 +54,10 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
     }
   }
 
-  const foundation = foundationError(bio);
+  let logoRights;
+  try { logoRights = injectedRights ?? await loadLogoRights(brandId, bio); }
+  catch { return { ok:false, code:"RIGHTS_LOOKUP_FAILED", error:"Could not verify logo rights. Please retry." }; }
+  const foundation = foundationError(bio, { logoRights });
   if (foundation) return foundation;
 
   // 3) No high-importance field may be missing.
@@ -65,7 +68,7 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
 
   // 4) Score must clear the self-cert floor (default 80, allowed 80–85).
   //    The Creative Director rubric does not set this gate.
-  const report = selfCertScoreReport(bio, minScore);
+  const report = selfCertScoreReport(bio, minScore, { logoRights });
   const { score } = report;
   if (!report.meetsFloor) {
     return {

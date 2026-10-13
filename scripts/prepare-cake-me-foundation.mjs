@@ -15,6 +15,8 @@ export function prepareCakeMeFoundation(snapshot){
  return {
   kind:'cake_me_foundation_approval',approvalRequired:'Oscar',approved:false,preparedOnly:true,executable:false,
   target:{brandId:brand.id,brandName:brand.name,bioId:bio.id,version:bio.version,payloadHash:payloadHash(bio.payload)},
+  // This offline script has no bio_sources rights data: logo status is reported without rights, never as confirmed.
+  rightsData:'none — logo rights not loaded; logo shows needs_rights/missing regardless of bio_sources. Check rights in the app.',
   current:{storedScore:bio.score,displayedScore:scoreBio(bio.payload),...foundationStatus(bio.payload)},
   proposals:{primaryColour:primary?{hex:primary.hex,role:'primary',status:'requires_designer_confirmation'}:null,referenceSources:sources.map(row=>({sourceId:row.id,name:row.src,assetRole:'canonical',rightsConfirmed:true,status:'requires_Oscar_rights_approval'}))},
   requiredBeforeLoad:[
@@ -39,4 +41,4 @@ export async function prepareFromFiles(args){
  const packet=prepareCakeMeFoundation(JSON.parse(await readFile(values.snapshot,'utf8')));
  await writeFile(values.out,JSON.stringify(packet,null,2)+'\n');return packet;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)prepareFromFiles(process.argv.slice(2)).then(packet=>console.log(`Prepared only: ${packet.proposals.referenceSources.length} reference proposals; approval required.`)).catch(error=>{console.error(error.message);process.exitCode=1;});
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)prepareFromFiles(process.argv.slice(2)).then(packet=>console.log(`Prepared only: ${packet.proposals.referenceSources.length} reference proposals; approval required. No logo-rights data: foundation logo status here ignores rights_confirmed.`)).catch(error=>{console.error(error.message);process.exitCode=1;});

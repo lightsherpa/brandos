@@ -10,19 +10,35 @@ export function usableDisplayFont(font) {
   return !!font && /^(display|both)$/i.test(font.kind || '') && typeof font.family === 'string' && !!font.family.trim() &&
     (!!font.sourceId || (font.provider === 'google' && GOOGLE_FONTS.includes(font.family)));
 }
-export function foundationStatus(payload = {}) {
+// Stored logo source ids referenced by a payload (main logo + variants).
+export function logoSourceIds(payload = {}) {
+  const logo = payload?.visual?.logo;
+  return [...new Set([logo?.sourceId, ...Object.values(logo?.variants || {}).map(v => v?.sourceId)].filter(Boolean))];
+}
+/* logoRights: ids of logo sources whose bio_sources row has rights_confirmed === true
+   (server: loadLogoRights; UI: bio.logoRights from GET /api/bios/:brandId).
+   Without it, no logo is counted: rights are never assumed. */
+export function foundationStatus(payload = {}, { logoRights } = {}) {
   const visual = payload?.visual || {};
   const logo = visual.logo;
-  const validLogo = !!logo && (Number(logo.conf) >= 60) &&
-    (!!logo.sourceId || Object.values(logo.variants || {}).some(v => v?.sourceId) || /^(https?:\/\/|data:image\/svg\+xml,)/i.test(logo.url || ''));
+  const confirmed = new Set(logoRights || []);
+  // Only stored PNG logos count (a bio_sources sourceId); remote URLs and inline SVG never do.
+  const ids = logo && Number(logo.conf) >= 60 ? logoSourceIds(payload) : [];
+  const validLogo = ids.some(id => confirmed.has(id));
+  const needsRights = validLogo ? [] : ids;
+  const logoStatus = validLogo ? 'ok' : needsRights.length ? 'needs_rights' : 'missing';
   const primary = (Array.isArray(visual.palette) ? visual.palette : []).find(c => c?.role === 'primary' && /^#[\da-f]{6}$/i.test(c.hex || ''));
   const display = (Array.isArray(visual.type) ? visual.type : []).find(usableDisplayFont);
   const missing = [!validLogo && 'visual.logo',!primary && 'visual.palette.primary',!display && 'visual.type.display'].filter(Boolean);
-  return {certifiable:missing.length === 0,missing,logo:validLogo,primary:!!primary,display:!!display};
+  return {certifiable:missing.length === 0,missing,logo:validLogo,logoStatus,needsRights,primary:!!primary,display:!!display};
 }
-export function foundationError(payload) {
-  const status = foundationStatus(payload);
-  return status.certifiable ? null : {ok:false,code:'FOUNDATION_INCOMPLETE',state:'foundation_incomplete',error:'Add a logo, primary colour and display font before certification or image production.',missing:status.missing,credits:0};
+export function foundationError(payload, options) {
+  const status = foundationStatus(payload, options);
+  if (status.certifiable) return null;
+  const rightsOnly = status.logoStatus === 'needs_rights' && status.missing.length === 1;
+  return {ok:false,code:'FOUNDATION_INCOMPLETE',state:'foundation_incomplete',
+    error: rightsOnly ? 'Confirm the brand has rights to use its logo before certification or image production.' : 'Add a logo, primary colour and display font before certification or image production.',
+    missing:status.missing,logoStatus:status.logoStatus,needsRights:status.needsRights,credits:0};
 }
 export function inferColourRoles(palette = []) {
   const result = palette.map(c=>({...c}));
