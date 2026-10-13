@@ -1,3 +1,4 @@
+import { assertHumanActor } from "../lib/human-actor.js";
 import {foundationStatus,foundationError} from "../lib/brand-foundation.js";
 import {validateFoundationAssets, loadLogoRights} from "../lib/foundation-assets.js";
 import {writeAuthorizationAudit} from "../lib/audit.js";
@@ -454,7 +455,7 @@ app.get("/:brandId", requireAuth, async (c) => {
    briefing. Editing the BIO creates a new (self_certified=false) version, so
    the attestation auto-lapses. Preconditions are pure: three affirmed
    statements, no missing high-importance field, minimum score. */
-app.post("/:brandId/self-certify", requireAuth, async (c) => {
+app.post("/:brandId/self-certify", assertHumanActor, requireAuth, assertHumanActor, async (c) => {
   const { workspaceId, userId } = c.get("auth");
   const brandId = c.req.param("brandId");
 
