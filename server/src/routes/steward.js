@@ -49,7 +49,7 @@ async function getCallerSteward(userId) {
   return isSteward ? data : null;
 }
 
-async function requireSteward(c, next) {
+export async function requireSteward(c, next) {
   const { userId } = c.get("auth");
   const steward = await getCallerSteward(userId);
   if (!steward) return c.json({ error: "Steward role required" }, 403);

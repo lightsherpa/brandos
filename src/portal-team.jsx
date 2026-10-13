@@ -2,6 +2,7 @@ import React from "react";
 import { withUploadType } from "./lib/upload-type.js";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch } from "./lib/supabase-browser.js";
+import { useCertThread, ClientThread, AnswerEvidence, FOUNDATION_FIELDS } from "./certify/ClientThread.jsx";
 const { BrandolphDot, Confidence, Counter, Icon, ModelChip, PageHeader, SlaHeat, StatusPill } = window;
 /* Team portal — queue, job workspace, capacity, clients, earnings. */
 
@@ -620,6 +621,7 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
 function TeamJob({ id, go }) {
   const { t } = useLocale();
   const { job, sources, you, focus, rubric, autoSignals, copilot, error, loading, reload } = useStewardJob(id);
+  const thread = useCertThread(id);                         /* S3 client thread — inert when CERTIFIER_V2_S3 is off */
   const [notes, setNotes] = useTState("");
   const [edited, setEdited] = useTState(null);                /* edited BIO payload — null until job loads */
   const [scores, setScores] = useTState({});                 /* { C3: {score, confidence}, ... } */
@@ -677,6 +679,13 @@ function TeamJob({ id, go }) {
     const fallback = suggestion?.field
       ? `Please clarify ${suggestion.field}: ${suggestion.reason || "The Steward needs a clearer source-backed answer."}`
       : suggestion?.reason || "Please clarify this Brand Core item.";
+    if (thread.enabled && suggestion?.field) {
+      /* S3: the drafted question lands in the client thread for the CD to edit + batch-send. */
+      thread.addDraft([suggestion.field], suggestion?.patch?.requiredChangesPatch?.[0] || fallback)
+        .then(() => setDismissedSuggestions((prev) => new Set([...prev, suggestion.id])))
+        .catch(() => {});
+      return;
+    }
     const lines = suggestion?.patch?.requiredChangesPatch || [fallback];
     setActionItems((prev) => {
       const current = prev.split("\n").map((s) => s.trim()).filter(Boolean);
@@ -917,12 +926,28 @@ function TeamJob({ id, go }) {
                     {f.action && (
                       <div style={{fontSize: 11.5, color:"var(--c-dim)", lineHeight: 1.4}}>{f.action}</div>
                     )}
+                    {thread.enabled && f.field && (() => {
+                      const claim = thread.claims.get(f.field);
+                      return (
+                        <div style={{marginTop: 5}}>
+                          {claim?.answers.map((a) => <AnswerEvidence key={a.id} answer={a} sources={sources} />)}
+                          {claim?.state === "asked" && <div style={{fontSize: 11, color:"var(--c-dim)"}}><span aria-hidden="true" style={{color:"var(--yellow-800)"}}>●</span> Asked</div>}
+                          {!claim && (
+                            <button type="button" className="btn btn--link" style={{fontSize: 11, padding: 0}}
+                              onClick={() => thread.addDraft([f.field], `Can you confirm ${String(f.label || f.field).toLowerCase()}? ${f.action || ""}`.trim()).catch(() => {})}>
+                              Ask client
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}
             </div>
           )}
         </div>
+        <ClientThread thread={thread} sources={sources} fields={[...FOUNDATION_FIELDS, ...focus.filter((f) => f.field)]} />
         <div style={{padding: 20, borderBottom:"1px solid var(--c-line)"}}>
           <div className="eyebrow" style={{marginBottom: 12}}>{t("team.sourcesRead")} · {sources.length}</div>
           {Object.entries(sourcesByBucket).map(([bucket, list]) => (

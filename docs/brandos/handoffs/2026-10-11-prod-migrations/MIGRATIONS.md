@@ -260,3 +260,26 @@ Verify:
 ```sql
 select pg_get_function_identity_arguments('public.append_bio_version'::regproc);  -- ends with p_expected_version integer
 ```
+
+## 14. `20261013020000_cert_messages.sql` (feat/certifier-s3)
+
+Certifier v2 S3: one new table, `cert_messages`, for Creative Director ↔ client questions. The thread is `(brand_id, job_id)`, so there is no separate `cert_threads` table. CD questions start as drafts (`sent_at` null) and are batch-sent. Client answers reply to a sent question and point at their evidence in `bio_sources` (`kind = 'client_answer'` for text, or the existing `file_upload` row). `author_role` only allows `cd` or `client`, so the certifier agent can't post. RLS is on: `authenticated` can only select sent rows for brands they can see, and all writes go through the API with the service role. Additive and idempotent (`create table if not exists`, `drop policy if exists`). Safe before the merge. Nothing reads it unless `CERTIFIER_V2_S3=true` on the API. Applied to local only. Do not apply to production without Oscar's approval.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013020000_cert_messages.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013020000', 'cert_messages') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select relrowsecurity from pg_class where oid = 'public.cert_messages'::regclass;  -- true
+```
+
+RLS check (self-asserting, rolled back): `supabase/tests/cert_messages_rls.sql`.
+
+Rollback (only if no questions have been sent yet):
+
+```sql
+drop table if exists public.cert_messages;
+delete from supabase_migrations.schema_migrations where version = '20261013020000';
+```
