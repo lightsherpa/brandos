@@ -47,5 +47,32 @@ test("flux pro resolves references through documented ControlNet fields without 
     endpoint:"/fal-ai/z-image/turbo/controlnet",
     model:"vendor/fal/z-image-turbo-controlnet",
     costEstimateUsd:0.04,
+    referenceCount:1,
   });
+});
+
+test("every image route resolves a reference endpoint when refs exist (S1)", () => {
+  for (const route of ["vendor/fal/flux-1.1-pro", "vendor/fal/flux-schnell", "vendor/fal/gpt-image-2", "vendor/fal/gpt-image-2.5", "vendor/fal/nano-banana-2.1"]) {
+    const r = resolveImageRequest({ route, referenceImageUrls: ["https://a.test/1.png", "https://a.test/2.png"] });
+    assert.equal(r.usesReference, true, route);
+  }
+});
+
+test("gpt-image-2.5 uses the Sunburst quality tier with up to 3 refs and high quality", () => {
+  const cfg = FAL_ROUTES["vendor/fal/gpt-image-2.5"];
+  assert.equal(cfg.endpoint, "/openai/gpt-image-2.5/sunburst/text-to-image");
+  assert.equal(cfg.referenceEndpoint, "/openai/gpt-image-2.5/sunburst/edit");
+  const body = cfg.referencePayload({ prompt: "p", aspect: "4:5", referenceImageUrls: ["1", "2", "3", "4"] });
+  assert.equal(body.image_urls.length, 3);
+  assert.equal(body.quality, "high");
+  assert.deepEqual(body.image_size, { width: 1088, height: 1360 });
+  assert.ok(cfg.timeout_ms <= 120_000);
+});
+
+test("nano-banana-2.1 fallback is the 2.1 model (not the retiring Nano Banana 2)", () => {
+  const cfg = FAL_ROUTES["vendor/fal/nano-banana-2.1"];
+  assert.equal(cfg.referenceEndpoint, "/google/nano-banana-2.1/edit");
+  const body = cfg.referencePayload({ prompt: "p", aspect: "4:5", referenceImageUrls: ["1"] });
+  assert.equal(body.aspect_ratio, "4:5");
+  assert.equal(body.resolution, "2K");
 });

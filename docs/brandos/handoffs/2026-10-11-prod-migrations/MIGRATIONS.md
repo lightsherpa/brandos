@@ -183,3 +183,52 @@ where operation = 'completion'
   and model in ('claude-sonnet-5-5', 'claude-haiku-5-5', 'claude-opus-5-5', 'google/gemini-3.8-flash')
 order by model;
 ```
+
+## 10. `20261012000000_brand_rules.sql` (feat/task-pipeline, not merged)
+
+New table for "Save as rule" (Rehearsal beat 5). Additive. Safe before the merge. Do not apply to production without Oscar's approval.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261012000000_brand_rules.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261012000000', 'brand_rules') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select count(*) from public.brand_rules;                                   -- 0 on a fresh apply
+select relrowsecurity from pg_class where relname = 'brand_rules';         -- t (RLS on, no client policies)
+select indexname from pg_indexes where tablename = 'brand_rules';          -- brand_rules_pkey, brand_rules_brand_idx
+select version from supabase_migrations.schema_migrations where version = '20261012000000';
+```
+
+Runtime notes:
+- The server reads this table with the service role. If the lookup errors, task runs fail closed (503 `BRAND_RULES_UNAVAILABLE`) before any credits are reserved, so apply this migration **before** setting `TASKS_ENABLED=true`.
+- Only Owner/Editor (`brand.manage`) can insert rows via `POST /api/tasks/:id/rules`.
+- No backfill. Nothing else depends on it.
+
+Rollback (only if no rules have been saved yet):
+
+```sql
+drop table if exists public.brand_rules;
+delete from supabase_migrations.schema_migrations where version = '20261012000000';
+```
+
+## 11. `20261012010000_runs_release_failed.sql` (feat/task-pipeline, not merged)
+
+Widens `runs_status_check` to allow `release_failed`. Task settlement uses it when a credit release fails, so the run is flagged for reconciliation instead of being left `running`. Additive. Safe before the merge. Do not apply to production without Oscar's approval.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261012010000_runs_release_failed.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261012010000', 'runs_release_failed') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select pg_get_constraintdef(oid) from pg_constraint where conname = 'runs_status_check';  -- includes 'release_failed'
+```
+
+Reconciliation query (should normally return 0 rows):
+
+```sql
+select id, started_at, ended_at from public.runs where status = 'release_failed' order by ended_at desc;
+```

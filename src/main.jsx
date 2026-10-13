@@ -18,6 +18,7 @@ import "./portal-discovery.jsx";
 import "./brand-book.jsx";
 import "./portal-briefs.jsx";
 import "./format-preview.jsx";
+import "./task-pipeline.jsx";
 import "./portal-craft.jsx";
 import "./portal-team.jsx";
 import "./portal-admin.jsx";       // admin-only screens (spec editor, future memory)

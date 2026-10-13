@@ -1,0 +1,812 @@
+{
+  "brand": "Nomad Coffee",
+  "brief": "Tres posts para presentar nuestro café exclusivo de Etiopía en NOMAD atHome: tostado en Barcelona, para home brewers. CTA: suscríbete en nomadcoffee.es.",
+  "type": "social_post",
+  "status": "ready",
+  "items": [
+    {
+      "index": 0,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "angle": "Origen y tueste: de Etiopía a Barcelona, de Barcelona a tu taza",
+        "overlay_line": "Etiopía, tostado en Barcelona",
+        "caption": "Etiopía, tostado en Barcelona. Ahora en NOMAD atHome.\n\nEste café viaja desde Etiopía hasta nuestro tostador en Barcelona. Aquí lo tostamos y de aquí sale hacia tu casa.\n\nPara nosotros es buen café. Es nuestro punto de vista y te invitamos a comprobarlo en tu propia taza.\n\nFrom our home to yours.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#NomadCoffee",
+          "#CaféDeEspecialidad",
+          "#CaféEtiopía",
+          "#Barcelona"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "Nomad Coffee es un tostador de café de especialidad de Barcelona",
+          "El café de Etiopía está tostado en Barcelona",
+          "Está disponible en NOMAD atHome",
+          "Frase de marca: From our home to yours",
+          "La calidad se plantea como punto de vista propio (buen café según nosotros)"
+        ],
+        "image_brief": {
+          "subject": "Primer plano de unas manos que abren una bolsa de café lisa, sin impresión, sobre una barra de acero inoxidable en una cafetería real; granos tostados asomando por la abertura",
+          "composition": "Plano cerrado, encuadre editorial documental, poca profundidad de campo, manos y bolsa en el tercio inferior, espacio limpio arriba para el texto",
+          "light": "Luz natural cálida y ambiental desde una ventana lateral, fondos apagados, sin filtros dramáticos",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "muted"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo, no signage, no labels, no glossy stock look, no cluttered set",
+          "aspect": "4:5"
+        }
+      },
+      "html_bytes": null,
+      "image": {
+        "asset_url": "https://v3b.fal.media/files/b/0aae1afc/w5yJqqBVN6ho7A7xO1MTq_QU2jAc48.png",
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": true,
+        "reference_count": 3,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 59234,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "ms": 43421,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      },
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": false,
+          "severity": "soft",
+          "reason": "Brief uses don't-list word(s): exclusivo. Kept out of the copy.",
+          "target": "none"
+        },
+        {
+          "id": "LEN_CAPTION",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Caption 326/2200 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_FIRST_LINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "First line 53/125 chars",
+          "target": "copy"
+        },
+        {
+          "id": "HASHTAGS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "5/5 hashtags",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA present",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "ASPECT",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Dimensions not reported; skipped",
+          "target": "image"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "image_matches_brief",
+          "pass": true,
+          "reason": "Shows hands opening a coffee bag with roasted beans on a stainless steel cafe bar.",
+          "target": "none"
+        },
+        {
+          "id": "image_matches_palette_refs",
+          "pass": true,
+          "reason": "Muted tones, natural warm light, and documentary framing match the palette and visual guidelines.",
+          "target": "none"
+        },
+        {
+          "id": "caption_matches_image",
+          "pass": true,
+          "reason": "Caption introduces the roasted coffee beans shown being opened in the image.",
+          "target": "none"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Direct, unpretentious tone without forbidden words; frames quality as an internal point of view.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "All statements regarding origin, roasting location, and subscription are supported by the brief.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_present",
+          "pass": true,
+          "reason": "Includes the required CTA: 'Suscríbete en nomadcoffee.es'.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 1,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "angle": "Para home brewers: el café de especialidad también es para ti, aunque empieces hoy",
+        "overlay_line": "Café de especialidad, también en casa",
+        "caption": "No hace falta ser profesional para disfrutar de un buen café.\n\nEste café de Etiopía está pensado para quienes lo preparan en casa, tengan mucha experiencia o ninguna. Usa tu método de siempre, prueba, ajusta y vuelve a probar.\n\nLo tostamos en Barcelona y lo recibes con NOMAD atHome.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#HomeBrewing",
+          "#CaféEnCasa",
+          "#NomadCoffee",
+          "#CaféDeEspecialidad"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "El café está pensado para home brewers",
+          "El café de Etiopía está tostado en Barcelona",
+          "Se recibe con NOMAD atHome",
+          "El café de especialidad no es solo para profesionales"
+        ],
+        "image_brief": {
+          "subject": "Una persona vierte agua sobre café molido en un dripper de cerámica sobre una encimera de cocina doméstica real, con una jarra de acero inoxidable al lado",
+          "composition": "Plano medio-cercano desde un lateral, poca profundidad de campo, el dripper en primer plano y la cocina desenfocada al fondo",
+          "light": "Luz natural cálida de mañana, suave, fondos apagados, sin saturación artificial",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "muted",
+            "primary"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo, no signage, no labels, no glossy stock look, no cluttered set",
+          "aspect": "4:5"
+        }
+      },
+      "html_bytes": null,
+      "image": {
+        "asset_url": "https://v3b.fal.media/files/b/0aae1afc/E7Xbgii8eO30hicsaRinF_fhqq7RIY.png",
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": true,
+        "reference_count": 3,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 50093,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "ms": 44775,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      },
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": false,
+          "severity": "soft",
+          "reason": "Brief uses don't-list word(s): exclusivo. Kept out of the copy.",
+          "target": "none"
+        },
+        {
+          "id": "LEN_CAPTION",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Caption 313/2200 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_FIRST_LINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "First line 61/125 chars",
+          "target": "copy"
+        },
+        {
+          "id": "HASHTAGS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "5/5 hashtags",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA present",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "ASPECT",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Dimensions not reported; skipped",
+          "target": "image"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "image_matches_brief",
+          "pass": true,
+          "reason": "Depicts home brewing with a ceramic dripper and pour-over kettle in a domestic kitchen.",
+          "target": "none"
+        },
+        {
+          "id": "image_matches_palette_refs",
+          "pass": true,
+          "reason": "Soft morning natural light, shallow depth of field, and muted kitchen palette align with guidelines.",
+          "target": "none"
+        },
+        {
+          "id": "caption_matches_image",
+          "pass": true,
+          "reason": "Both image and caption focus on preparing specialty coffee at home.",
+          "target": "none"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Encouraging, accessible tone for home brewers with no forbidden words used.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Claims regarding home brewing and roasting in Barcelona align with the brief.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_present",
+          "pass": true,
+          "reason": "Includes the required CTA: 'Suscríbete en nomadcoffee.es'.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 2,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "angle": "Suscripción: el café de Etiopía llega a casa",
+        "overlay_line": "De nuestra casa a la tuya",
+        "caption": "De nuestra casa a la tuya.\n\nCon NOMAD atHome recibes en casa café de especialidad tostado en Barcelona, con una suscripción mensual flexible. Ahora, con café de Etiopía.\n\nTú eliges cómo prepararlo. Nosotros nos ocupamos del tueste.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#NomadCoffee",
+          "#SuscripciónDeCafé",
+          "#CaféEtiopía",
+          "#FromOurHomeToYours"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "NOMAD atHome es una suscripción mensual de café para casa",
+          "Las suscripciones domésticas son flexibles",
+          "El café de Etiopía está tostado en Barcelona",
+          "Frase de marca: From our home to yours"
+        ],
+        "image_brief": {
+          "subject": "Una bolsa de café lisa, sin impresión, y una taza de cerámica sobre una mesa de madera junto a la puerta de entrada de una casa, con un paquete de cartón abierto al lado",
+          "composition": "Plano cerrado a la altura de la mesa, poca profundidad de campo, bolsa y taza en primer plano, el interior de la casa desenfocado al fondo",
+          "light": "Luz natural cálida que entra por la puerta, ambiente real, fondos apagados, sin filtros",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "muted",
+            "accent"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo, no signage, no labels, no glossy stock look, no cluttered set",
+          "aspect": "4:5"
+        }
+      },
+      "html_bytes": null,
+      "image": {
+        "asset_url": "https://v3b.fal.media/files/b/0aae1afc/aGmiAJ-HIHyn3Z9hHGIhv_Th0pVHUi.png",
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": true,
+        "reference_count": 3,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 48418,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "ms": 43138,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      },
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": false,
+          "severity": "soft",
+          "reason": "Brief uses don't-list word(s): exclusivo. Kept out of the copy.",
+          "target": "none"
+        },
+        {
+          "id": "LEN_CAPTION",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Caption 261/2200 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_FIRST_LINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "First line 26/125 chars",
+          "target": "copy"
+        },
+        {
+          "id": "HASHTAGS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "5/5 hashtags",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA present",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "ASPECT",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Dimensions not reported; skipped",
+          "target": "image"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "image_matches_brief",
+          "pass": true,
+          "reason": "Shows delivered coffee package and mug on a wooden table near an entryway.",
+          "target": "none"
+        },
+        {
+          "id": "image_matches_palette_refs",
+          "pass": true,
+          "reason": "Editorial documentary style, natural doorway lighting, and neutral palette match reference guidelines.",
+          "target": "none"
+        },
+        {
+          "id": "caption_matches_image",
+          "pass": true,
+          "reason": "Caption explains the home subscription delivery depicted by the unboxed coffee bag and mug.",
+          "target": "none"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Clear and informative tone explaining the flexible home subscription without forbidden terminology.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Mentions flexible subscription, Ethiopian coffee, and Barcelona roasting, all supported by core brief.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_present",
+          "pass": true,
+          "reason": "Includes the required CTA: 'Suscríbete en nomadcoffee.es'.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    }
+  ],
+  "spec": {
+    "task": "social_post",
+    "language": "es",
+    "smp": "Nuestro café de Etiopía, tostado en Barcelona, llega a tu casa con NOMAD atHome para que lo prepares tú.",
+    "posts": [
+      {
+        "angle": "Origen y tueste: de Etiopía a Barcelona, de Barcelona a tu taza",
+        "overlay_line": "Etiopía, tostado en Barcelona",
+        "caption": "Etiopía, tostado en Barcelona. Ahora en NOMAD atHome.\n\nEste café viaja desde Etiopía hasta nuestro tostador en Barcelona. Aquí lo tostamos y de aquí sale hacia tu casa.\n\nPara nosotros es buen café. Es nuestro punto de vista y te invitamos a comprobarlo en tu propia taza.\n\nFrom our home to yours.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#NomadCoffee",
+          "#CaféDeEspecialidad",
+          "#CaféEtiopía",
+          "#Barcelona"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "Nomad Coffee es un tostador de café de especialidad de Barcelona",
+          "El café de Etiopía está tostado en Barcelona",
+          "Está disponible en NOMAD atHome",
+          "Frase de marca: From our home to yours",
+          "La calidad se plantea como punto de vista propio (buen café según nosotros)"
+        ],
+        "image_brief": {
+          "subject": "Primer plano de unas manos que abren una bolsa de café lisa, sin impresión, sobre una barra de acero inoxidable en una cafetería real; granos tostados asomando por la abertura",
+          "composition": "Plano cerrado, encuadre editorial documental, poca profundidad de campo, manos y bolsa en el tercio inferior, espacio limpio arriba para el texto",
+          "light": "Luz natural cálida y ambiental desde una ventana lateral, fondos apagados, sin filtros dramáticos",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "muted"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo, no signage, no labels, no glossy stock look, no cluttered set",
+          "aspect": "4:5"
+        }
+      },
+      {
+        "angle": "Para home brewers: el café de especialidad también es para ti, aunque empieces hoy",
+        "overlay_line": "Café de especialidad, también en casa",
+        "caption": "No hace falta ser profesional para disfrutar de un buen café.\n\nEste café de Etiopía está pensado para quienes lo preparan en casa, tengan mucha experiencia o ninguna. Usa tu método de siempre, prueba, ajusta y vuelve a probar.\n\nLo tostamos en Barcelona y lo recibes con NOMAD atHome.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#HomeBrewing",
+          "#CaféEnCasa",
+          "#NomadCoffee",
+          "#CaféDeEspecialidad"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "El café está pensado para home brewers",
+          "El café de Etiopía está tostado en Barcelona",
+          "Se recibe con NOMAD atHome",
+          "El café de especialidad no es solo para profesionales"
+        ],
+        "image_brief": {
+          "subject": "Una persona vierte agua sobre café molido en un dripper de cerámica sobre una encimera de cocina doméstica real, con una jarra de acero inoxidable al lado",
+          "composition": "Plano medio-cercano desde un lateral, poca profundidad de campo, el dripper en primer plano y la cocina desenfocada al fondo",
+          "light": "Luz natural cálida de mañana, suave, fondos apagados, sin saturación artificial",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "muted",
+            "primary"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo, no signage, no labels, no glossy stock look, no cluttered set",
+          "aspect": "4:5"
+        }
+      },
+      {
+        "angle": "Suscripción: el café de Etiopía llega a casa",
+        "overlay_line": "De nuestra casa a la tuya",
+        "caption": "De nuestra casa a la tuya.\n\nCon NOMAD atHome recibes en casa café de especialidad tostado en Barcelona, con una suscripción mensual flexible. Ahora, con café de Etiopía.\n\nTú eliges cómo prepararlo. Nosotros nos ocupamos del tueste.\n\nSuscríbete en nomadcoffee.es",
+        "hashtags": [
+          "#NOMADatHome",
+          "#NomadCoffee",
+          "#SuscripciónDeCafé",
+          "#CaféEtiopía",
+          "#FromOurHomeToYours"
+        ],
+        "cta": "Suscríbete en nomadcoffee.es",
+        "claims": [
+          "NOMAD atHome es una suscripción mensual de café para casa",
+          "Las suscripciones domésticas son flexibles",
+          "El café de Etiopía está tostado en Barcelona",
+          "Frase de marca: From our home to yours"
+        ],
+        "image_brief": {
+          "subject": "Una bolsa de café lisa, sin impresión, y una taza de cerámica sobre una mesa de madera junto a la puerta de entrada de una casa, con un paquete de cartón abierto al lado",
+          "composition": "Plano cerrado a la altura de la mesa, poca profundidad de campo, bolsa y taza en primer plano, el interior de la casa desenfocado al fondo",
+          "light": "Luz natural cálida que entra por la puerta, ambiente real, fondos apagados, sin filtros",
+          "palette_roles": [
+            "surface",
+            "ink",
+            "muted",
+            "accent"
+          ],
+          "ref_ids": [],
+          "negative": "no text, no letters, no logo, no signage, no labels, no glossy stock look, no cluttered set",
+          "aspect": "4:5"
+        }
+      }
+    ]
+  },
+  "metrics": {
+    "total_ms": 93237,
+    "stage_ms": {
+      "Planning": 0,
+      "Writing": 4,
+      "Imaging": 20308,
+      "Checking": 79542,
+      "Ready": 93237
+    },
+    "cost": {
+      "total_usd": 0.2573,
+      "calls": 8,
+      "by_step": {
+        "writing": 0.0327,
+        "imaging": 0.21,
+        "ocr": 0.0045,
+        "review": 0.0101
+      },
+      "limits": {
+        "maxUsd": 0.6,
+        "maxImageCalls": 7,
+        "maxTextCalls": 12,
+        "imageConcurrency": 3
+      }
+    },
+    "ledger": [
+      {
+        "at": "2026-10-12T16:42:03.032Z",
+        "kind": "text",
+        "step": "writing",
+        "model": "claude-sonnet-5-5",
+        "cost_usd": 0.032722,
+        "ms": 20300,
+        "tokens_in": 1471,
+        "tokens_out": 2978,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:42:46.174Z",
+        "kind": "image",
+        "step": "imaging",
+        "slot": 2,
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "cost_usd": 0.07,
+        "ms": 43138,
+        "fallback_from": null,
+        "uses_reference": true,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:42:46.456Z",
+        "kind": "image",
+        "step": "imaging",
+        "slot": 0,
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "cost_usd": 0.07,
+        "ms": 43421,
+        "fallback_from": null,
+        "uses_reference": true,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:42:47.811Z",
+        "kind": "image",
+        "step": "imaging",
+        "slot": 1,
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "cost_usd": 0.07,
+        "ms": 44775,
+        "fallback_from": null,
+        "uses_reference": true,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:42:51.454Z",
+        "kind": "text",
+        "step": "ocr",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.00156,
+        "ms": 5279,
+        "tokens_in": 1160,
+        "tokens_out": 184,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:42:53.129Z",
+        "kind": "text",
+        "step": "ocr",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.00157125,
+        "ms": 5318,
+        "tokens_in": 1160,
+        "tokens_out": 187,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:43:02.269Z",
+        "kind": "text",
+        "step": "ocr",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.00134775,
+        "ms": 15813,
+        "tokens_in": 1162,
+        "tokens_out": 127,
+        "fallback_from": null,
+        "error": null
+      },
+      {
+        "at": "2026-10-12T16:43:15.962Z",
+        "kind": "text",
+        "step": "review",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.010116,
+        "ms": 13692,
+        "tokens_in": 4953,
+        "tokens_out": 1707,
+        "fallback_from": null,
+        "error": null
+      }
+    ],
+    "models": [
+      "claude-sonnet-5-5",
+      "vendor/fal/gpt-image-2.5-edit",
+      "google/gemini-3.8-flash"
+    ]
+  },
+  "progress": [
+    {
+      "at": "0.0",
+      "index": 0,
+      "status": "writing"
+    },
+    {
+      "at": "0.0",
+      "index": 1,
+      "status": "writing"
+    },
+    {
+      "at": "0.0",
+      "index": 2,
+      "status": "writing"
+    },
+    {
+      "at": "20.3",
+      "index": 0,
+      "status": "imaging"
+    },
+    {
+      "at": "20.3",
+      "index": 1,
+      "status": "imaging"
+    },
+    {
+      "at": "20.3",
+      "index": 2,
+      "status": "imaging"
+    },
+    {
+      "at": "68.7",
+      "index": 2,
+      "status": "checking"
+    },
+    {
+      "at": "68.7",
+      "index": 2,
+      "status": "checking"
+    },
+    {
+      "at": "70.4",
+      "index": 1,
+      "status": "checking"
+    },
+    {
+      "at": "70.4",
+      "index": 1,
+      "status": "checking"
+    },
+    {
+      "at": "79.5",
+      "index": 0,
+      "status": "checking"
+    },
+    {
+      "at": "79.5",
+      "index": 0,
+      "status": "checking"
+    },
+    {
+      "at": "93.2",
+      "index": 0,
+      "status": "ready"
+    },
+    {
+      "at": "93.2",
+      "index": 1,
+      "status": "ready"
+    },
+    {
+      "at": "93.2",
+      "index": 2,
+      "status": "ready"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$id": "https://brandos.dev/schemas/verdict.v1.json",
+  "type": "object",
+  "required": ["items"],
+  "properties": {
+    "items": {"type": "array", "items": {
+      "type": "object",
+      "required": ["index", "checks"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "checks": {"type": "array", "items": {
+          "type": "object",
+          "required": ["id", "pass", "reason"],
+          "properties": {"id": {"type": "string"}, "pass": {"type": "boolean"}, "reason": {"type": "string"}, "target": {"enum": ["copy", "image", "none"]}}
+        }}
+      }
+    }}
+  }
+}

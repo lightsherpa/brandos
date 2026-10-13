@@ -1,0 +1,15 @@
+{
+  "$id": "https://brandos.dev/schemas/image-brief.v1.json",
+  "type": "object",
+  "required": ["subject", "composition", "light", "palette_roles", "negative", "aspect"],
+  "additionalProperties": false,
+  "properties": {
+    "subject": {"type": "string", "minLength": 3, "maxLength": 400},
+    "composition": {"type": "string", "maxLength": 300},
+    "light": {"type": "string", "maxLength": 200},
+    "palette_roles": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
+    "ref_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 3},
+    "negative": {"type": "string", "pattern": "no text"},
+    "aspect": {"type": "string", "enum": ["4:5", "1:1", "9:16", "16:9"]}
+  }
+}

@@ -47,7 +47,7 @@ export function validateUpload({ mime = "", size = 0, filename = "" } = {}) {
   return { ok: true, ext };
 }
 
-const VISUAL_ROLES = new Set(["canonical", "inspiration", "avoid"]);
+const VISUAL_ROLES = new Set(["canonical", "inspiration", "avoid", "logo"]);
 const FONT_LICENSES = new Set(["commercial", "open_source", "custom", "system"]);
 
 /* Visual evidence carries intent and rights at ingest time. A file merely
@@ -85,7 +85,8 @@ export function validateVisualAssetMetadata({
       },
     };
   }
-  const role = String(assetRole).trim();
+  // F1: an unlabelled image upload defaults to `inspiration` (never canonical).
+  const role = String(assetRole || "").trim() || (isImage ? "inspiration" : "");
   if (!VISUAL_ROLES.has(role)) {
     return { ok: false, code: "ASSET_ROLE", message: "Choose whether this reference is canonical, inspiration, or something to avoid" };
   }
