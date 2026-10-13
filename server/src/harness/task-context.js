@@ -1,7 +1,7 @@
 // Loads everything a task needs, Layer 1 first (CREWS §0.1): certified Brand
 // Core (production gate), up to 3 reference images (canonical first, then
 // inspiration; S1), saved rules (Beat 5) and the inlined skill prompts.
-import { loadBrandBio } from "../lib/load-brand-bio.js";
+import { loadBrandBio, loadBioForImage } from "../lib/load-brand-bio.js";
 import { loadVisualAssets } from "../lib/visual-assets.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { buildLayer1 } from "./brand-core.js";
@@ -23,8 +23,11 @@ export async function loadSkillPayloads(ids) {
   return Object.fromEntries((data || []).map((row) => [row.specialist_id, row.payload]));
 }
 
-export async function loadTaskContext({ workspaceId, brandId, type }) {
-  const { brand, bio, refusals } = await loadBrandBio({ workspaceId, brandId, requireCertified: true });
+export async function loadTaskContext({ workspaceId, brandId, type, heroes = false, copyOnly = false }) {
+  const needsImages = !copyOnly && (type === "social_post" || (type === "email_sequence" && heroes));
+  const { brand, bio, refusals } = needsImages
+    ? await loadBioForImage({ workspaceId, brandId })
+    : await loadBrandBio({ workspaceId, brandId, requireCertified: true });
   let references = [];
   try {
     const assets = await loadVisualAssets(brand.id);

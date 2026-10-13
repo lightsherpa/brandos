@@ -50,14 +50,16 @@ export function paletteWithRoles(css){
  const declarations=[...css.matchAll(/([\w-]+)\s*:\s*([^;{}]+)[;}]/g)].map(m=>({property:m[1],value:m[2].trim()}));
  const branded=declarations.filter(d=>/--(?:brand|primary|accent|background)/i.test(d.property));
  const weighted=branded.map(d=>`${d.property}:${d.value};`).join('\n').repeat(10)+css;
+ const seen=new Set();
  return extractPalette(weighted).map(color=>{
   const evidence=declarations.filter(d=>d.value.toLowerCase().includes(color.hex)).slice(0,8);
   const named=evidence.find(d=>/--.*(?:primary|brand)/i.test(d.property));
   const accent=evidence.find(d=>/--.*(?:accent|highlight|cta)/i.test(d.property));
   const rgb=color.hex.slice(1).match(/../g).map(x=>parseInt(x,16));
   const neutral=Math.max(...rgb)-Math.min(...rgb)<24;
-  const role=named?'primary':accent?'accent':neutral&&evidence.some(d=>/^background(?:-color)?$|--.*(?:background|bg)$/i.test(d.property))?'background':neutral?'neutral':'accent';
-  return {...color,role,roleStatus:'inferred',evidence:evidence.slice(0,2).map(d=>`${d.property}: ${d.value}`)};
+  const role=named?'primary':accent?'accent':color.role;
+  const chosen=['primary','ink','surface'].includes(role)&&seen.has(role)?'accent':role;seen.add(chosen);
+  return {...color,role:chosen,roleStatus:'inferred',evidence:evidence.slice(0,2).map(d=>`${d.property}: ${d.value}`)};
  });
 }
 export async function resolveVisualStyles({html,url,read=readPublicStylesheet}){

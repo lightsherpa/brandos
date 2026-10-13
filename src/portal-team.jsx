@@ -409,6 +409,7 @@ function EditablePalette({ value, onChange }) {
             <input value={c.name || ""} onChange={(e) => update(i, { name: e.target.value })}
               placeholder={t("team.namePlaceholder")}
               style={{width: 80, border:"none", outline:"none", fontSize: 12, fontFamily:"inherit", background:"transparent", color:"var(--c-ink)"}} />
+            <select aria-label="Colour role" value={c.role || ""} onChange={e=>onChange(list.map((item,j)=>j===i?{...item,role:e.target.value,roleStatus:"confirmed"}:item.role===e.target.value&&["primary","ink","surface"].includes(e.target.value)?{...item,role:"accent"}:item))}><option value="">Unclassified</option>{["primary","ink","surface","accent"].map(role=><option key={role}>{role}</option>)}</select>
             <button type="button" onClick={() => remove(i)} aria-label={t("team.removeColor")}
               style={{border:"none", background:"transparent", cursor:"pointer", color:"var(--c-faint)", padding:"0 4px"}}>×</button>
           </div>

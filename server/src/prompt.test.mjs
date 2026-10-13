@@ -16,11 +16,13 @@ const FULL_BIO = {
   strategic: { watchouts: ["don't chase trends"], notList: ["not a toy"] },
 };
 
-test("full BIO builds the standard 4 content blocks", () => {
+test("full BIO builds cacheable core and detail between platform, spec and task", () => {
   const blocks = buildBrandolphSystem({ brand: { name: "Acme" }, bio: FULL_BIO, refusals: ["no fake urgency"], routeId: "home" });
-  assert.equal(blocks.length, 4);
-  assert.match(blocks[1].text, /Palette: Ink #111/);
-  assert.match(blocks[1].text, /BIO score 82\/100/);
+  assert.equal(blocks.length, 5);
+  assert.match(blocks[1].text, /POSITIONING: The quiet default/);
+  assert.match(blocks[2].text, /PALETTE: Ink #111/);
+  assert.equal(blocks[1].cache_control.type, "ephemeral");
+  assert.equal(blocks[2].cache_control.type, "ephemeral");
 });
 
 test("P1: a partial/legacy BIO (missing whole sections) does not throw", () => {
@@ -30,10 +32,10 @@ test("P1: a partial/legacy BIO (missing whole sections) does not throw", () => {
     blocks = buildBrandolphSystem({ brand: { name: "Acme" }, bio: partial, refusals: ["no fake urgency"], routeId: "briefs" });
   });
   const bioBlock = blocks[1].text;
-  assert.match(bioBlock, /Positioning: The quiet default/);
-  // Sections with no data are simply omitted — not rendered with undefined.
-  assert.doesNotMatch(bioBlock, /VISUAL/);
-  assert.doesNotMatch(bioBlock, /AUDIENCE/);
+  assert.match(bioBlock, /POSITIONING: The quiet default/);
+  // Absent values are explicit gaps in the shared reader, never invented.
+  assert.match(bioBlock, /does not specify:.*PRIMARY AUDIENCE/);
+  assert.doesNotMatch(bioBlock, /PRIMARY AUDIENCE: undefined/);
   assert.doesNotMatch(bioBlock, /undefined/);
 });
 
@@ -57,10 +59,10 @@ test("P3: the shared persona composite is present in the platform block", () => 
 
 test("P3: routeId is humanized, never leaked raw; unknown slugs are omitted", () => {
   const known = buildBrandolphSystem({ brand: {}, bio: {}, refusals: [], routeId: "brief-detail" });
-  assert.match(known[3].text, /a single brief/);
-  assert.doesNotMatch(known[3].text, /brief-detail/);
+  assert.match(known.at(-1).text, /a single brief/);
+  assert.doesNotMatch(known.at(-1).text, /brief-detail/);
 
   const unknown = buildBrandolphSystem({ brand: {}, bio: {}, refusals: [], routeId: "some-internal-slug" });
-  assert.doesNotMatch(unknown[3].text, /some-internal-slug/);
-  assert.doesNotMatch(unknown[3].text, /currently on/);
+  assert.doesNotMatch(unknown.at(-1).text, /some-internal-slug/);
+  assert.doesNotMatch(unknown.at(-1).text, /currently on/);
 });

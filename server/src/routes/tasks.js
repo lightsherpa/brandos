@@ -60,11 +60,11 @@ app.post("/", requireAuth, async (c) => {
   if (scoped.error) return scoped.error;
   const workspaceId = scoped.brand.workspace_id;
   const credits = taskCredits({ type, heroes: !!heroes });
+  let ctx;
+  try { ctx = await loadTaskContext({ workspaceId, brandId, type, heroes: !!heroes }); }
+  catch (e) { return c.json({ error: e.message, code: e.code || "BRAND_CORE_UNAVAILABLE", ...(e.code === "FOUNDATION_INCOMPLETE" ? {state:"foundation_incomplete",credits:0,missing:e.missing || []}: {}) }, e.status || 409); }
   const pre = await preflight({ workspaceId, credits });
   if (!pre.ok) return creditErrorResponse(c, pre.check);
-  let ctx;
-  try { ctx = await loadTaskContext({ workspaceId, brandId, type }); }
-  catch (e) { return c.json({ error: e.message, code: e.code || "BRAND_CORE_UNAVAILABLE" }, e.status || 409); }
   let run;
   try { run = await openRun({ workspaceId, brandId, type, brief: brief.trim(), bioVersion: ctx.bio?.version, credits }); }
   catch (e) { return c.json({ error: e.message, code: e.code || "RUN_OPEN_FAILED", credits_required: credits }, e.status || 500); }
@@ -181,7 +181,7 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
     const credits = taskCredits({ type: job.type, rerun: true });
     const pre = await deps.preflight({ workspaceId: job.workspaceId, credits });
     if (!pre.ok) { rollback(); return { credit: pre.check }; }
-    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type });
+    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, copyOnly: true });
     run = await deps.openRun({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, brief: job.brief, bioVersion: ctx.bio?.version, credits, kind: "rerun", parentTaskId: job.id, itemIndex: index });
   } catch (e) {
     rollback();

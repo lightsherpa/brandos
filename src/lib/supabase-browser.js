@@ -11,7 +11,7 @@ import { uiFixtureEnabled } from "./ui-fixture.js";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+if (!uiFixtureEnabled && (!SUPABASE_URL || !SUPABASE_ANON_KEY)) {
   // Loud warning so a missing .env.local is obvious in dev console.
   console.error("[supabase-browser] VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing — auth + DB reads will fail. Check .env.local at repo root.");
 }

@@ -1,3 +1,8 @@
+import {FoundationStrip} from "./brand-foundation.jsx";
+import {useBrandFonts} from "./brand-fonts.jsx";
+import {saveFixtureFoundation} from "./lib/ui-fixture.js";
+import {scoreBio} from "../server/src/lib/score-bio.js";
+import {foundationStatus,suggestColourRoles} from "../server/src/lib/brand-foundation.js";
 import React from "react";
 import {discoveryWebsiteError, bioIntegrityError} from "../server/src/lib/brand-source-integrity.js";
 import {BioSelfCertification} from "./bio-self-certification.jsx";
@@ -83,7 +88,8 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
   }, [fixedBrandId, enabled]);
 
   useDEffect(() => {
-    if (uiFixtureEnabled || !enabled) return undefined;
+    if (uiFixtureEnabled) {const changed=()=>setState({...FIXTURE_BIO_STATE,bio:{...FIXTURE_BIO_STATE.bio}});window.addEventListener("fixture:bio",changed);return ()=>window.removeEventListener("fixture:bio",changed);}
+    if (!enabled) return undefined;
     let alive = true;
     const changed = () => {
       ++requestVersion.current;
@@ -153,7 +159,8 @@ function BucketDropZone({ bucket, files, onAdd, onRemove, statuses = {}, purpose
             <label>{t("discovery.visualIntake.fontUsage")}<select value={meta.fontUsage||"Display"} onChange={e=>setMeta({fontUsage:e.target.value})}>{["Display","Body","Both"].map(v=><option key={v} value={v}>{t("discovery.visualIntake."+v.toLowerCase())}</option>)}</select></label>
             <label>{t("discovery.visualIntake.fontLicence")}<select value={meta.licenseType||"commercial"} onChange={e=>setMeta({licenseType:e.target.value})}>{[["commercial","commercial"],["open_source","openSource"],["custom","custom"],["system","system"]].map(([v,k])=><option key={v} value={v}>{t("discovery.visualIntake."+k)}</option>)}</select></label>
             <label>{t("discovery.visualIntake.licenceReference")}<input value={meta.licenseReference||""} onChange={e=>setMeta({licenseReference:e.target.value})}/></label>
-          </>:<label>{t("discovery.visualIntake.referenceRole")}<select value={meta.assetRole||"inspiration"} onChange={e=>setMeta({assetRole:e.target.value})}>{["canonical","inspiration","avoid"].map(v=><option key={v} value={v}>{t("discovery.visualIntake."+v)}</option>)}</select></label>}
+          </>:<label>{t("discovery.visualIntake.referenceRole")}<select value={meta.assetRole||"inspiration"} onChange={e=>setMeta({assetRole:e.target.value})}>{["canonical","inspiration","logo"].map(v=><option key={v} value={v}>{v === "logo" ? "Logo" : t("discovery.visualIntake."+v)}</option>)}</select></label>}
+          {meta.assetRole === "logo" && <label>Logo variant<select value={meta.logoVariant || "light"} onChange={e=>setMeta({logoVariant:e.target.value})}><option value="light">Light logo (dark backgrounds)</option><option value="dark">Dark logo (light backgrounds)</option></select></label>}
           <label className="discovery-rights"><input type="checkbox" checked={!!meta.rightsConfirmed} onChange={e=>setMeta({rightsConfirmed:e.target.checked})}/>{t("discovery.visualIntake.rightsConfirm")}</label>
         </div>}
       </li>;
@@ -1455,7 +1462,8 @@ function BioViewer({ go, bioScore = 91 }) {
     return () => { alive = false; };
   }, [live.brandId, live.bio?.id]);
 
-  const score = live.bio?.score ?? 0;
+  const score = live.bio?.payload ? scoreBio(live.bio.payload) : 0;
+  const foundation = foundationStatus(live.bio?.payload);
   const patch = (key, value) => setBio(b => b ? { ...b, [key]: value } : b);
   const patchStrategic = (key, value) => setBio(b => b ? { ...b, strategic: { ...b.strategic, [key]: value } } : b);
 
@@ -1553,7 +1561,7 @@ function BioViewer({ go, bioScore = 91 }) {
             <span>{tone.word}</span>
             <span style={{color:"var(--c-faint)"}}>·</span>
             <span className="num" title={tone.hint}><Counter to={conf} /> {t("discovery.bio.of100")}</span>
-            {live.cert ? (
+            {live.cert && foundation.certifiable ? (
               <>
                 <span className="cert-seal" aria-hidden="true">
                   <Icon name="check" size={10} stroke={2} />
@@ -1579,19 +1587,27 @@ function BioViewer({ go, bioScore = 91 }) {
           ) : (
             <>
               {live.brandId && live.bio && (!live.cert || (live.bio.client_acceptance_required && !live.bio.client_accepted_at)) && (
-                <BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
+                <BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges || !foundation.certifiable} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
               )}
               <button className="btn btn--ghost" onClick={() => go("brand-book")}>{t("discovery.bio.openBook")}</button>
             </>
           )}
           <window.OverflowMenu items={[
-            { label: t("discovery.bio.editProfile"), disabled: editing || !bio, onClick: () => setEditing(true) },
+            { label: t("discovery.bio.editProfile"), disabled: editing || !bio, onClick: () => {setBio(current=>({...current,palette:suggestColourRoles(current.palette || [])}));setEditing(true);} },
             { label: t("discovery.bio.rerunDiscovery"), onClick: () => go("discovery") },
             { label: live.reviewPending ? t("discovery.bio.inReviewShort") : t("discovery.bio.requestHumanReview"), disabled: !live.bio || reviewBusy || live.reviewPending || hasUnappliedSourceChanges, onClick: requestReview },
             { label: t("discovery.bio.addSources"), disabled: !live.brandId, onClick: () => setTab("sources") },
           ]} />
         </div>
       </div>
+
+      {live.bio?.payload && <FoundationStrip key={live.brandId} brandId={live.brandId} payload={live.bio.payload} disabled={editing || saving} onSave={async visual=>{
+        const payload={...live.bio.payload,visual};
+        if(uiFixtureEnabled){saveFixtureFoundation(payload);return;}
+        const res=await apiFetch(`/api/bios/${live.brandId}`,{method:'PATCH',body:JSON.stringify({payload})});
+        const json=await res.json();if(!res.ok)throw Error(json.error || 'Foundation save failed');
+        await live.refresh();
+      }}/>}
 
       {/* Live cert chip — pulls real DB state, polls every 5s */}
       {live.brandId && (
@@ -1600,19 +1616,19 @@ function BioViewer({ go, bioScore = 91 }) {
           display:"flex", alignItems:"center", justifyContent:"space-between", gap: 12,
         }}>
           <div style={{display:"flex", alignItems:"center", gap: 10}}>
-            {live.cert && (
+            {live.cert && foundation.certifiable && (
               <span className="cert-seal" title="Certified" aria-hidden="true">
                 <Icon name="check" size={10} stroke={2} />
               </span>
             )}
             <span style={{
               width: 8, height: 8, borderRadius:"50%",
-              background: live.cert ? "var(--status-success)" : "var(--status-warning)",
+              background: live.cert && foundation.certifiable ? "var(--status-success)" : "var(--status-warning)",
               animation: live.cert ? "none" : "pulse 1.4s ease-in-out infinite",
             }} />
             <div>
               <div style={{fontSize: 13.5, color:"var(--c-ink)", fontWeight: 500}}>
-                {live.cert ? (
+                {live.cert && foundation.certifiable ? (
                   <>{t("discovery.results.certifiedBy")} <span style={{color:"var(--green-600)"}}>{live.cert.byName}</span> · {formatCertDate(live.cert.at)}</>
                 ) : live.reviewPending && live.bio ? (
                   <>{t("discovery.bio.reviewingThis")}</>
@@ -1852,6 +1868,7 @@ function BioSectionHead({ label, source, conf }) {
 }
 
 function BioVisual({ bio, patch, editing, brandId }) {
+  const brandFonts=useBrandFonts(bio.type || [],brandId);
   const [loadedFonts, setLoadedFonts] = useDState({});
   const [fontFailures, setFontFailures] = useDState({});
   useDEffect(() => {
@@ -1905,6 +1922,7 @@ function BioVisual({ bio, patch, editing, brandId }) {
               <div style={{padding:"10px 12px"}}>
                 {editing
                   ? <div style={{display:"flex", flexDirection:"column", gap:6}}>
+                      <select aria-label="Colour role" value={c.role || ""} onChange={e=>patch("palette",bio.palette.map((item,j)=>j===i?{...item,role:e.target.value,roleStatus:"confirmed"}:item.role===e.target.value&&["primary","ink","surface"].includes(e.target.value)?{...item,role:"accent"}:item))}><option value="">Unclassified</option>{["primary","ink","surface","accent"].map(role=><option key={role}>{role}</option>)}</select>
                       <EditInput value={c.name} onChange={(v) => updPal(i, { name: v })} placeholder={t("discovery.visual.namePlaceholder")} />
                       <div style={{display:"flex", gap:6}}>
                         <EditInput value={c.wcag} onChange={(v) => updPal(i, { wcag: v })} placeholder={t("discovery.visual.wcagPlaceholder")} mono />
@@ -1936,7 +1954,8 @@ function BioVisual({ bio, patch, editing, brandId }) {
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
           {bio.type.map((tf, i) => {
             const serif = /sectra|serif|display/i.test(tf.family) && tf.kind === "Body";
-            const ff = loadedFonts[tf.sourceId]
+            const brandFamily=brandFonts[tf.sourceId || tf.family]?.family;
+            const ff = brandFamily ? `"${brandFamily}"` : loadedFonts[tf.sourceId]
               ? `'${loadedFonts[tf.sourceId]}', var(--font-sans)`
               : serif ? "Georgia, 'Times New Roman', serif" : "var(--font-sans)";
             return (
@@ -1949,8 +1968,8 @@ function BioVisual({ bio, patch, editing, brandId }) {
                     ? <button className="btn btn--link" style={{fontSize:11, color:"var(--pink-500)"}} onClick={() => patch("type", bio.type.filter((_, j) => j !== i))}>{t("discovery.common.remove")}</button>
                     : <span className="pill" style={{height:18, padding:"0 8px", fontSize:9.5}}>{tf.license}</span>}
                 </div>
-                <div style={{fontFamily:ff, fontSize:52, lineHeight:1, color:"var(--c-ink)", fontWeight:600, letterSpacing:"-0.02em"}}>{typeHero}</div>
-                <div style={{fontFamily:ff, fontSize:15, color:"var(--c-dim)", marginTop:8, lineHeight:1.4}}>{typeSample}</div>
+                <div className="brand-font-specimen" style={{"--brand-specimen-font":ff, fontFamily:ff, fontSize:52, lineHeight:1, color:"var(--c-ink)", fontWeight:600, letterSpacing:"-0.02em"}}>{typeHero}</div>
+                <div className="brand-font-specimen" style={{"--brand-specimen-font":ff, fontFamily:ff, fontSize:15, color:"var(--c-dim)", marginTop:8, lineHeight:1.4}}>{typeSample}</div>
                 {tf.sourceId && (
                   <div aria-live="polite" style={{fontSize:10.5, marginTop:8, color:loadedFonts[tf.sourceId] ? "var(--green-600)" : fontFailures[tf.sourceId] ? "var(--pink-500)" : "var(--c-faint)"}}>
                     {loadedFonts[tf.sourceId] ? t("discovery.visualIntake.fontReady") : fontFailures[tf.sourceId] ? t("discovery.visualIntake.fontError") : t("discovery.visualIntake.fontLoading")}

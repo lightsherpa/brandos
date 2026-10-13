@@ -21,7 +21,8 @@ export function classifyVisualSources(rows = []) {
   const fonts = eligible
     .filter((row) => FONT_UPLOAD_EXTS.has(String(row.signals?.ext || "").toLowerCase()))
     .filter((row) => row.signals?.asset_kind === "font" && row.signals?.font_family);
-  return { references, fonts };
+  const logos = eligible.filter(row => row.signals?.asset_role === "logo" && ["svg","png"].includes(row.signals?.ext));
+  return { references, fonts, logos };
 }
 
 async function signedEvidenceUrl(rawRef, ttlSeconds) {
@@ -33,7 +34,7 @@ async function signedEvidenceUrl(rawRef, ttlSeconds) {
 
 export async function loadVisualAssets(brandId, { ttlSeconds = 60 * 60, sourceIds = null } = {}) {
   const exactIds = Array.isArray(sourceIds) ? [...new Set(sourceIds.filter(Boolean))] : null;
-  if (exactIds && exactIds.length === 0) return { references:[], fonts:[] };
+  if (exactIds && exactIds.length === 0) return { references:[], fonts:[], logos:[] };
   let query = supabaseAdmin
     .from("bio_sources")
     .select("id, src, signals, raw_ref, bucket, created_at")
@@ -52,13 +53,15 @@ export async function loadVisualAssets(brandId, { ttlSeconds = 60 * 60, sourceId
     url: await signedEvidenceUrl(row.raw_ref, ttlSeconds),
     signals: row.signals,
   });
-  const [references, fonts] = await Promise.all([
+  const [references, fonts, logos] = await Promise.all([
     Promise.all((exactIds ? classified.references : classified.references.slice(0, 6)).map(sign)),
     Promise.all(classified.fonts.map(sign)),
+    Promise.all(classified.logos.map(sign)),
   ]);
   return {
     references: references.filter((item) => item.url),
     fonts: fonts.filter((item) => item.url),
+    logos: logos.filter((item) => item.url),
   };
 }
 
@@ -101,7 +104,35 @@ export function pinCertifiedReferences(loaded = [], certified = []) {
 
 export function certifiedVisualSourceIds(visual = {}) {
   return new Set([
+    visual?.logo?.sourceId,
+    ...Object.values(visual?.logo?.variants || {}).map(logo => logo?.sourceId),
     ...(Array.isArray(visual?.references) ? visual.references.map((reference) => reference?.sourceId) : []),
     ...(Array.isArray(visual?.type) ? visual.type.map((font) => font?.sourceId) : []),
   ].filter(Boolean));
+}
+
+// Runtime projection only. Signed URLs must never be persisted in a BIO.
+// The pipeline's Layer 1 reader expects logo.url / dark_url; source IDs remain
+// the durable certification identity and stay present in this projection.
+export async function resolveFoundationForUse(brandId, visual = {}) {
+  const ids = [...new Set([
+    visual.logo?.sourceId,
+    ...Object.values(visual.logo?.variants || {}).map(item=>item?.sourceId),
+    ...(visual.type || []).map(font=>font?.sourceId),
+  ].filter(Boolean))];
+  const assets=ids.length ? await loadVisualAssets(brandId,{sourceIds:ids}) : {logos:[],fonts:[]};
+  const logoUrls=new Map(assets.logos.map(item=>[item.id,item.url]));
+  const fontUrls=new Map(assets.fonts.map(item=>[item.id,item.url]));
+  const variants=Object.fromEntries(Object.entries(visual.logo?.variants || {}).map(([key,item])=>[key,{...item,url:item.sourceId?logoUrls.get(item.sourceId)||null:item.url||null}]));
+  const logo=visual.logo ? {
+    ...visual.logo,
+    ...(Object.keys(variants).length?{variants}:{}),
+    url:variants.dark?.url || variants.light?.url || (visual.logo.sourceId?logoUrls.get(visual.logo.sourceId)||null:visual.logo.url||null),
+    dark_url:variants.dark?.url || null,
+    light_url:variants.light?.url || null,
+  } : null;
+  const type=(visual.type || []).map(font=>({...font,...(font.sourceId?{url:fontUrls.get(font.sourceId)||null}:{})}));
+  const unresolved=[...ids].filter(id=>!logoUrls.has(id)&&!fontUrls.has(id));
+  if(unresolved.length){const error=new Error('A certified foundation upload cannot be resolved');error.code='FOUNDATION_INCOMPLETE';error.status=409;error.missing=unresolved.map(id=>`source:${id}`);throw error;}
+  return {...visual,logo,type};
 }

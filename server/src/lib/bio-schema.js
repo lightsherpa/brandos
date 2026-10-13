@@ -50,7 +50,10 @@ export const BIO_FIELDS = [
   { path: ["positioning", "pointsOfDifference"], kind: "objlist", slice: "positioning", scored: false },
   { path: ["positioning", "pointsOfParity"], kind: "list", slice: "positioning", scored: false },
   { path: ["positioning", "researchGaps"], kind: "list", slice: "positioning", scored: false },
-  // visual — rendered and sliced, but NOT scored (matches historical scoring).
+  // Visual foundation has a separate mandatory certification gate.
+  { path: ["visual", "logo"], kind:"object", slice:"palette", scored:false },
+  { path: ["visual", "typeScale"], kind:"object", slice:"type", scored:false },
+  // Remaining visual evidence retains the historical confidence formula.
   { path: ["visual", "palette"],       kind: "objlist", slice: "palette",     scored: false },
   { path: ["visual", "type"],          kind: "objlist", slice: "type",        scored: false },
   { path: ["visual", "imagery"],       kind: "list",    slice: "palette",     scored: false },
@@ -69,7 +72,7 @@ export const SCORED_PATHS = BIO_FIELDS.filter((f) => f.scored).map((f) => f.path
 
 const isObj = (v) => v != null && typeof v === "object" && !Array.isArray(v);
 const stable = (v) => JSON.stringify(v ?? null);
-const defaultFor = (kind) => (kind === "scalar" ? "" : []);
+const defaultFor = (kind) => (kind === "scalar" ? "" : kind === "object" ? null : []);
 
 function sectionSkeleton(section) {
   const skel = {};
@@ -220,6 +223,7 @@ const LOW_CONF = 70;
 const isFilled = (v) => (Array.isArray(v) ? v.length > 0 : v != null && String(v).trim() !== "");
 
 function renderValue(kind, v) {
+  if (kind === "object") return JSON.stringify(v);
   if (kind === "objlist") {
     return v.map((o) => {
       if (o == null || typeof o !== "object") return String(o ?? "");
