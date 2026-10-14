@@ -31,3 +31,10 @@ export function taskMetricsLabel(metrics, t) {
  const cost=metrics?.cost?.total_usd;
  return `${t ? t('vds.finished') : 'Finished'}${elapsed} · ${Number.isFinite(cost)?`$${cost.toFixed(3)}`:t ? t('vds.costUnavailable') : 'cost unavailable'}`;
 }
+export async function loadSavedTasks(fetcher, brandId, preferredId) {
+ const response=await fetcher(`/api/tasks?brandId=${encodeURIComponent(brandId)}`);
+ const body=await response.json();
+ if(!response.ok) throw new Error(body.error||`Could not recover saved tasks (${response.status}).`);
+ const tasks=[...(body.tasks||[])].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).map(task=>({...task,status:task.status==='running'?'running':outputStatus(task.status)}));
+ return {tasks,selectedId:tasks.some(task=>task.id===preferredId)?preferredId:tasks[0]?.id||null};
+}

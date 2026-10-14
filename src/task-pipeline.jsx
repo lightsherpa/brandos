@@ -1,5 +1,5 @@
 import { useLocale } from "./lib/i18n.js";
-import { taskMetricsLabel } from "./lib/task-output.js";
+import { taskMetricsLabel, loadSavedTasks, statusLabel } from "./lib/task-output.js";
 import React from "react";
 import { apiFetch } from "./lib/supabase-browser.js";
 
@@ -155,33 +155,54 @@ export function TaskPipelineView({ go }) {
   const [heroes, setHeroes] = useState(false);
   const [task, setTask] = useState(null);
   const [taskId, setTaskId] = useState(null);
+  const [savedTasks, setSavedTasks] = useState([]);
+  const selectionRevision = useRef(0);
+  const currentBrand = useRef(brandId);
+  currentBrand.current = brandId;
   const [error, setError] = useState(null);
   const [startedAt, setStartedAt] = useState(null);
   const [now, setNow] = useState(Date.now());
 
-  useEffect(() => { setTask(null); setTaskId(null); setStartedAt(null); if (!brandId) return; const saved = localStorage.getItem(storageKey(brandId)); if (saved) setTaskId(saved); }, [brandId]);
+  useEffect(() => {
+    let cancelled = false;
+    const revision = ++selectionRevision.current;
+    setTask(null); setTaskId(null); setStartedAt(null); setSavedTasks([]); setError(null);
+    if (!brandId) return undefined;
+    loadSavedTasks(apiFetch, brandId, localStorage.getItem(storageKey(brandId))).then(result => {
+      if (cancelled || currentBrand.current !== brandId) return;
+      setSavedTasks(result.tasks);
+      if (selectionRevision.current !== revision) return;
+      setTaskId(result.selectedId);
+      if (result.selectedId) localStorage.setItem(storageKey(brandId), result.selectedId);
+    }).catch(error => { if (!cancelled && currentBrand.current === brandId) setError(error.message); });
+    return () => { cancelled = true; };
+  }, [brandId]);
   useEffect(() => {
     if (!taskId) return undefined;
     let stop = false; let timer;
     const poll = async () => {
       const res = await apiFetch(`/api/tasks/${taskId}`);
-      if (stop) return;
+      if (stop || currentBrand.current !== brandId) return;
       if (res.status === 404) { localStorage.removeItem(storageKey(brandId)); setTaskId(null); setTask(null); return; }
       const j = await res.json();
+      if (stop || currentBrand.current !== brandId) return;
       if (!res.ok) { setError(j.error || "Could not load saved task"); return; }
       setTask(j); setType(j.type);
-      if (!startedAt) setStartedAt(Date.parse(j.created_at));
+      setStartedAt(Date.parse(j.created_at));
       if (j.status === "running") timer = setTimeout(poll, 1500);
     };
-    poll();
+    poll().catch(error => { if (!stop && currentBrand.current === brandId) setError(error.message); });
     return () => { stop = true; clearTimeout(timer); };
   }, [taskId, brandId]);
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
 
   const run = async () => {
+    selectionRevision.current += 1;
+    const requestedBrand = brandId;
     setError(null); setTask(null);
     const res = await apiFetch("/api/tasks", { method: "POST", body: JSON.stringify({ brandId, type, brief, heroes }) });
     const j = await res.json();
+    if (currentBrand.current !== requestedBrand) return;
     if (!res.ok) return setError(res.status === 402 ? `Not enough credits (this task needs ${j.credits_required ?? "?"}, balance ${j.balance ?? "?"}). Nothing was charged.` : (j.error || "Could not start the task"));
     localStorage.setItem(storageKey(brandId), j.id);
     setStartedAt(Date.now()); setTaskId(j.id);
@@ -212,6 +233,12 @@ export function TaskPipelineView({ go }) {
       {error && <div style={{ color: "#b91c1c", fontSize: 13 }}>{error}</div>}
     </section>
 
+    {savedTasks.length > 0 && <section style={{...css.card,padding:14,marginTop:20}} aria-label={t("vds.savedTasks")}>
+      <h2 style={{margin:"0 0 10px",fontSize:18}}>{t("vds.savedTasks")}</h2>
+      <div style={{display:"grid",gap:8}}>{savedTasks.map(saved => <button key={saved.id} style={{...css.secondary,textAlign:"left",background:saved.id===taskId?"var(--c-bg, #f5f5f4)":"transparent"}} onClick={() => {if (saved.id === taskId) return; selectionRevision.current += 1; setTask(null);setStartedAt(null);setTaskId(saved.id);localStorage.setItem(storageKey(brandId),saved.id);}}>
+        {saved.brief || TYPES[saved.type]?.label || saved.id} · {saved.status === "running" ? t("vds.running") : statusLabel(saved.status,t)}
+      </button>)}</div>
+    </section>}
     {task && <section style={{ marginTop: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
         <h2 style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 24, margin: 0 }}>{TYPES[task.type]?.label}</h2>

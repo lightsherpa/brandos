@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { outputStatus, statusLabel, expandOutput, newestRuns, taskSnapshot, requestHumanCraft, coalesceTaskCards, taskMetricsLabel } from './task-output.js';
+import { outputStatus, statusLabel, expandOutput, newestRuns, taskSnapshot, requestHumanCraft, coalesceTaskCards, taskMetricsLabel, loadSavedTasks } from './task-output.js';
 test('machine readiness and missing checks never imply human approval', () => {
  for (const status of ['ready','done','completed','flagged',undefined]) assert.equal(outputStatus(status),'needs_review');
  assert.equal(outputStatus('approved'),'approved'); assert.equal(statusLabel('failed'),'Failed');
@@ -30,4 +30,15 @@ test('presentation helpers resolve locale keys without changing truthful status'
  const t=(key,values)=>values ? `${key}:${values.seconds}` : key;
  assert.equal(statusLabel('ready',t),'vds.status.needs_review');
  assert.equal(taskMetricsLabel({total_ms:1000,cost:null},t),'vds.finishedvds.elapsed:1 · vds.costUnavailable');
+});
+test('new browser restores latest persisted task without local storage',async()=>{
+ const calls=[]; const result=await loadSavedTasks(async path=>{calls.push(path);return {ok:true,json:async()=>({tasks:[{id:'older',created_at:'2020-01-01',status:'ready'},{id:'latest',created_at:'2021-01-01',status:'ready'}]})};},'brand',null);
+ assert.deepEqual(calls,['/api/tasks?brandId=brand']);assert.equal(result.selectedId,'latest');assert.equal(result.tasks[0].status,'needs_review');
+});
+test('saved board restores valid previous selection and rejects deleted or cross-brand IDs',async()=>{
+ const fetcher=async()=>({ok:true,json:async()=>({tasks:[{id:'a',created_at:'2021-01-01'},{id:'b',created_at:'2020-01-01'}]})});
+ assert.equal((await loadSavedTasks(fetcher,'brand','b')).selectedId,'b');assert.equal((await loadSavedTasks(fetcher,'brand','foreign')).selectedId,'a');
+});
+test('saved task list errors remain visible instead of an empty success',async()=>{
+ await assert.rejects(loadSavedTasks(async()=>({ok:false,status:503,json:async()=>({error:'Recovery unavailable'})}),'brand'),/Recovery unavailable/);
 });
