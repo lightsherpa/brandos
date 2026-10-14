@@ -2,6 +2,7 @@
 // Email: MJML (format-preview templater) with Brand Core tokens + logo (S5).
 // Social: live HTML/CSS composite: raw image + overlay line in the brand
 // display font + logo + accent bar (S4-lite; PNG export is post-freeze).
+import { embedExportAssets } from "./stable-export.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -23,7 +24,7 @@ export function emailTokens(layer1) {
   };
 }
 
-export async function renderEmail({ email, layer1, heroUrl = null, language = "en" }) {
+export async function renderEmail({ email, layer1, heroUrl = null, language = "en", embedAssets = embedExportAssets }) {
   const tokens = emailTokens(layer1);
   const ctx = {
     language, tokens, email, brand_name: layer1.brand.name,
@@ -36,7 +37,10 @@ export async function renderEmail({ email, layer1, heroUrl = null, language = "e
     const out = await mjml2html(src, { validationLevel: "soft", minify: false });
     html = out.html; errors = out.errors || [];
   } catch (e) { errors = [e.message]; }
-  return { html, mjmlErrors: errors, tokens };
+  const transport_html = html;
+  const transport = { html_bytes: Buffer.byteLength(html, "utf8"), delivery_ready: false, requires_asset_hosting: /<img[^>]+src=["\']https?:/i.test(html), font_mode: "fallback_stack", purpose: "email_transport_draft" };
+  const exported = layer1.logo?.sourceId || layer1.font_assets?.length ? await embedAssets(html, { layer1, imageUrl: heroUrl }) : { html, stable: false, assets: [] };
+  return { ...exported, transport_html, transport, mjmlErrors: errors, tokens };
 }
 
 const escHtml = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -56,4 +60,9 @@ html,body{margin:0;background:transparent}
 </style></head><body><div class="post" data-width="${w}" data-height="${h}">
 <img class="img" src="${escHtml(imageUrl)}" alt="${escHtml(post.image_brief?.subject || "")}">
 ${line ? `<div class="line">${escHtml(line)}</div>` : ""}${logo}<div class="bar"></div></div></body></html>`;
+}
+
+export async function renderStableSocial(args) {
+ const html = renderSocialComposite(args);
+ return args.layer1.logo?.sourceId || args.layer1.font_assets?.length ? embedExportAssets(html, { layer1: args.layer1, imageUrl: args.imageUrl }) : { html, stable: false, assets: [] };
 }

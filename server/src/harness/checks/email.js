@@ -23,7 +23,7 @@ export function checkEmailHtml({ html, mjmlErrors = [], tokens }) {
   const ctas = (String(html).match(/class="cta-primary"/g) || []).length;
   return [
     result("MJML", mjmlErrors.length === 0 && !!html, mjmlErrors.length ? `MJML errors: ${mjmlErrors.length}` : "MJML compiled with 0 errors", "hard", "none"),
-    htmlSizeCheck(html, EMAIL_LIMITS.htmlBytes),
+    { ...htmlSizeCheck(html, EMAIL_LIMITS.htmlBytes), reason: `Email transport: ${htmlSizeCheck(html, EMAIL_LIMITS.htmlBytes).reason}` },
     altCheck(html),
     linksCheck(html),
     result("ONE_PRIMARY_CTA", ctas === 1, `${ctas} primary CTA(s)`, "hard", "none"),
