@@ -19,3 +19,14 @@ for(const [status,label] of [['failed','Failed'],['approved','Approved']])test(`
 test('failed specialist state stays failed without an output status',()=>{
  const html=renderToStaticMarkup(React.createElement(OutputShelfCard,{node:{id:'failed',state:'failed',title:'Failed output'},copy}));assert.match(html,/<small>Failed<\/small>/);
 });
+test('persisted qa_passed is displayed as Needs review, never Approved',()=>{
+ const html=renderToStaticMarkup(React.createElement(OutputShelfCard,{node:{id:'auto',status:'qa_passed'},copy}));assert.match(html,/<small>Needs review<\/small>/);assert.doesNotMatch(html,/Approved/);
+});
+test('legacy task QA approval without human workflow metadata never renders Approved',async()=>{
+ const {expandOutput}=await import('./task-output.js');
+ const persisted={id:'legacy-task',kind:'task',status:'approved',body:{task_id:'t',type:'email_sequence',items:[{status:'ready'}]}};
+ const [card]=expandOutput(persisted);
+ const html=renderToStaticMarkup(React.createElement(OutputShelfCard,{node:card,copy}));assert.match(html,/<small>Needs review<\/small>/);assert.doesNotMatch(html,/Approved/);
+ const [reviewed]=expandOutput({...persisted,workflow_status:'internally_approved',internal_reviewed_by:'human',internal_reviewed_at:'time'});
+ assert.match(renderToStaticMarkup(React.createElement(OutputShelfCard,{node:reviewed,copy})),/<small>Approved<\/small>/);
+});

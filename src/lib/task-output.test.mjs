@@ -42,3 +42,10 @@ test('saved board restores valid previous selection and rejects deleted or cross
 test('saved task list errors remain visible instead of an empty success',async()=>{
  await assert.rejects(loadSavedTasks(async()=>({ok:false,status:503,json:async()=>({error:'Recovery unavailable'})}),'brand'),/Recovery unavailable/);
 });
+test('task cards require a recorded human workflow decision to show Approved',()=>{
+ const output={id:'o',kind:'task',status:'approved',body:{task_id:'t',type:'email_sequence',items:[{index:0,status:'ready',html:'email'}]}};
+ assert.equal(expandOutput(output)[0].status,'needs_review');
+ const human={...output,workflow_status:'internally_approved',internal_reviewed_by:'reviewer',internal_reviewed_at:'time'};
+ assert.equal(expandOutput(human)[0].status,'approved');
+ assert.equal(expandOutput({...output,status:'qa_passed'})[0].status,'needs_review');
+});
