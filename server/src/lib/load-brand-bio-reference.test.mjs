@@ -1,0 +1,14 @@
+import {test,mock} from 'node:test';import assert from 'node:assert/strict';
+let rows=[],latest;
+const db={from(table){const q={select(){return q;},eq(){return q;},or(){return q;},order(){return q;},limit(){return q;},async maybeSingle(){return {data:table==='brands'?{id:'brand',workspace_id:'ws'}:latest};},then(resolve){return Promise.resolve({data:rows}).then(resolve);}};return q;}};
+mock.module(new URL('./supabase.js',import.meta.url).href,{namedExports:{supabaseAdmin:db}});
+mock.module(new URL('./foundation-assets.js',import.meta.url).href,{namedExports:{loadLogoRights:async()=>[],validateFoundationAssets:async()=>null}});
+mock.module(new URL('./visual-assets.js',import.meta.url).href,{namedExports:{resolveFoundationForUse:async(_b,v)=>v}});
+mock.module(new URL('./brand-foundation.js',import.meta.url).href,{namedExports:{foundationError:()=>null,foundationStatus:()=>({})}});
+mock.module(new URL('./brand-source-integrity.js',import.meta.url).href,{namedExports:{bioIntegrityError:()=>null}});
+mock.module(new URL('./score-bio.js',import.meta.url).href,{namedExports:{scoreBio:()=>100,scoreBioBreakdown:()=>({rawScore:100})}});
+const {loadBrandBio}=await import('./load-brand-bio.js');
+const row=(version,patch={})=>({id:`v${version}`,version,payload:{},score:100,certified:true,...patch});
+test('latest pending new references block production instead of silently selecting v2',async()=>{rows=[row(2)];latest={version:3,payload:{reference_intake:{}}};await assert.rejects(loadBrandBio({workspaceId:'ws',brandId:'brand',requireCertified:true}),e=>e.code==='BIO_NOT_CERTIFIED');});
+test('owner-only self certification of new references cannot release generation',async()=>{rows=[row(3,{certified:false,self_certified:true,payload:{reference_intake:{}}}),row(2)];latest={version:3,payload:{reference_intake:{}}};await assert.rejects(loadBrandBio({workspaceId:'ws',brandId:'brand',requireCertified:true}),e=>e.code==='BIO_NOT_CERTIFIED');});
+test('exact old version rerun keeps old provenance; CD certified new version releases v3',async()=>{rows=[row(3,{payload:{reference_intake:{}}}),row(2)];latest={version:3,payload:{reference_intake:{}}};assert.equal((await loadBrandBio({workspaceId:'ws',brandId:'brand',requireCertified:true,bioVersion:2})).bio.version,2);assert.equal((await loadBrandBio({workspaceId:'ws',brandId:'brand',requireCertified:true})).bio.version,3);});
