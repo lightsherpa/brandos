@@ -1,5 +1,5 @@
 -- Atomic owner rights intake; source history and old BIOs are retained.
-create table public.bio_reference_intakes (
+create table if not exists public.bio_reference_intakes (
  request_id uuid primary key,
  brand_id uuid not null references public.brands(id),
  bio_id uuid not null references public.bios(id),
@@ -13,7 +13,7 @@ alter table public.bio_reference_intakes enable row level security;
 revoke all on public.bio_reference_intakes from public,anon,authenticated,service_role;
 grant select,insert on public.bio_reference_intakes to service_role;
 
-create function public.confirm_brand_references(p_brand_id uuid,p_user_id uuid,p_expected_version integer,p_request_id uuid,p_source_ids uuid[],p_rights jsonb)
+create or replace function public.confirm_brand_references(p_brand_id uuid,p_user_id uuid,p_expected_version integer,p_request_id uuid,p_source_ids uuid[],p_rights jsonb)
 returns public.bios language plpgsql security definer set search_path=public,pg_temp as $$
 declare
  v_prev public.bios%rowtype; v_new public.bios%rowtype; v_prior public.bio_reference_intakes%rowtype;
@@ -94,7 +94,7 @@ revoke all on function public.reconcile_bio_review(uuid,jsonb,text) from public,
 grant execute on function public.reconcile_bio_review(uuid,jsonb,text) to service_role;
 
 -- Cover explicit requests as well as automatic reconcilers, under the same row lock.
-create function public.guard_reference_review() returns trigger language plpgsql set search_path=public,pg_temp as $$
+create or replace function public.guard_reference_review() returns trigger language plpgsql set search_path=public,pg_temp as $$
 declare v_bio public.bios%rowtype;
 begin
  select * into strict v_bio from bios where id=new.bio_id for update;
@@ -105,4 +105,5 @@ begin
  return new;
 end;
 $$;
+drop trigger if exists reference_review_gate on public.steward_jobs;
 create trigger reference_review_gate before insert on public.steward_jobs for each row execute function public.guard_reference_review();

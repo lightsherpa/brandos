@@ -361,4 +361,26 @@ select has_function_privilege('authenticated','public.confirm_brand_references(u
 select has_table_privilege('service_role','public.bio_reference_intakes','update'); -- false
 ```
 
+Quinn replay repair: tables/indexes use IF NOT EXISTS, functions use CREATE OR REPLACE, and the reference trigger is dropped IF EXISTS before recreation. npm run test:migration-replay applies the three VDS migrations twice while retaining data and checking grants/constraints.
+
 Regression checks: scripts/reference-intake-db.test.mjs uses only an isolated disposable PostgreSQL container. supabase/tests/reference_intake.sql is transactional and rolled back. No production seeds or database writes are part of this push.
+
+
+## 18. `20261014050000_output_qa_passed.sql` (fix/vds-canvas-library)
+
+Separates automated task QA from explicit human approval. Extends the output status constraint with qa_passed and corrects prior task/task_rerun machine approvals while preserving recorded internal/client human review decisions. Safe before the merge for schema compatibility: the constraint retains all old states and the backfill affects task QA approvals without independent human review metadata. Deploy this schema before code that writes qa_passed. **File only; no production application performed.** Run the verify query first and skip if a row comes back. The migration also supports safe replay, including its data repair; it contains no inner transaction boundaries, so the migration and tracking row commit together.
+
+Approved deployment reference only:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261014050000_output_qa_passed.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261014050000', 'output_qa_passed') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select pg_get_constraintdef(oid) from pg_constraint where conrelid = 'public.outputs'::regclass and conname = 'outputs_status_check'; -- includes qa_passed
+select count(*) from public.outputs where kind in ('task','task_rerun') and status = 'approved' and internal_reviewed_by is null and client_reviewed_by is null; -- zero
+```
+
+Regression: npm run test:output-status-db applies the migration twice in a disposable PostgreSQL container and proves machine approvals change while independently recorded human approvals remain. It never targets a shared database.
