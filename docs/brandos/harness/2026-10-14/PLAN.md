@@ -35,3 +35,7 @@ Oscar confirmed the actual user must upload the new photos through the product U
 ## Crash recovery
 
 Codex restarted mid-work. Uncommitted A/B/C files survived in their isolated worktrees; original specialists resumed without resets. C final pre-crash test log confirmed 717/717 pass. C committed 32b717e. D dispatched after C freed its slot. Local API/Vite stopped with crash and will be restarted after gate checks; no DB reset.
+
+## Authorized additional S-D repair
+
+Oscar explicitly authorized one extra focused repair round after the two-round escalation. Same specialist and branch retain ownership. Scope: Agency Office shelf mapping of needs_review/failed/approved, behavioral regression tests, browser verification on actual saved Cake Me outputs; merge only after PASS. No new paid calls, rights, uploads or certification required.
