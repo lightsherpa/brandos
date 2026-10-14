@@ -25,3 +25,9 @@ test('latest persisted task item supersedes original retaining its task type and
  const cards=coalesceTaskCards([rerun,original]); assert.equal(cards.length,2);assert.equal(cards[0].outputId,'new');assert.equal(cards[0].kind,'social_post');assert.equal(cards[0].html,'new');assert.equal(cards[0].status,'needs_review');
 });
 test('legacy metrics have an honest unavailable cost',()=>{assert.equal(taskMetricsLabel({total_ms:1200,cost:null}),'Finished in 1s · cost unavailable');assert.equal(taskMetricsLabel({}), 'Finished · cost unavailable');});
+
+test('presentation helpers resolve locale keys without changing truthful status',()=>{
+ const t=(key,values)=>values ? `${key}:${values.seconds}` : key;
+ assert.equal(statusLabel('ready',t),'vds.status.needs_review');
+ assert.equal(taskMetricsLabel({total_ms:1000,cost:null},t),'vds.finishedvds.elapsed:1 · vds.costUnavailable');
+});

@@ -1,3 +1,4 @@
+import { useLocale } from "./lib/i18n.js";
 import { taskMetricsLabel } from "./lib/task-output.js";
 import React from "react";
 import { apiFetch } from "./lib/supabase-browser.js";
@@ -147,6 +148,7 @@ function ItemCard({ type, item, taskId, onItem }) {
 }
 
 export function TaskPipelineView({ go }) {
+  const {t} = useLocale();
   const brandId = window.useCurrentBrandId ? window.useCurrentBrandId() : null;
   const [type, setType] = useState("social_post");
   const [brief, setBrief] = useState("");
@@ -196,7 +198,7 @@ export function TaskPipelineView({ go }) {
   return <div style={css.page}>
     <style>{"@keyframes tpPulse{0%,100%{opacity:1}50%{opacity:.55}}"}</style>
     <h1 style={css.h1}>Tasks</h1>
-    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>Generate, check and review deliverables against your Brand Core. Human approval is still required.</p>
+    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>{t("vds.taskIntro")}</p>
     {!brandId && <p>Select a brand first.</p>}
     <section style={{ ...css.card, padding: 16, display: "grid", gap: 12, marginTop: 16 }}>
       <div style={{ display: "flex", gap: 8 }}>
@@ -213,10 +215,10 @@ export function TaskPipelineView({ go }) {
     {task && <section style={{ marginTop: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
         <h2 style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 24, margin: 0 }}>{TYPES[task.type]?.label}</h2>
-        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics) : task.status === "failed" ? task.error : ""}</span>
+        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t) : task.status === "failed" ? task.error : ""}</span>
       </div>
       <Stepper stage={task.stage} status={task.status} />
-      {!running && <p style={css.dim}>{task.status === "failed" ? "Generation failed" : "Generation finished · needs human review"} · <button style={css.secondary} onClick={() => go("library")}>Open saved items in Library</button></p>}
+      {!running && <p style={css.dim}>{task.status === "failed" ? t("vds.generationFailed") : t("vds.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("vds.openLibrary")}</button></p>}
       {(task.notices || []).map((n, i) => <div key={i} style={{ fontSize: 12, color: "#b45309", marginBottom: 4 }}>● {n}</div>)}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginTop: 12 }}>
         {Array.from({ length: Math.max(count, task.items.length) }, (_, i) => task.items[i]).map((item, i) =>
