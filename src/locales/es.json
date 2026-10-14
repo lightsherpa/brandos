@@ -1669,5 +1669,29 @@
       "strategic": "Qué hacer y qué evitar"
     },
     "sourceFailure": "No se han podido leer las fuentes. No se ha generado ningún Brand Core. Añade una fuente pública accesible o sube materiales de la marca."
+  },
+  "vds": {
+    "status": {
+      "needs_review": "Pendiente de revisión",
+      "approved": "Aprobado",
+      "failed": "Error"
+    },
+    "finished": "Finalizado",
+    "elapsed": " en {seconds}s",
+    "costUnavailable": "coste no disponible",
+    "generationComplete": "Generación completada · pendiente de revisión",
+    "savedBriefGuidance": "Abre un brief guardado para usar Canvas.",
+    "openBriefs": "Abrir Briefs",
+    "generationFailed": "La generación ha fallado",
+    "needsHumanReview": "Generación terminada · pendiente de revisión humana",
+    "openLibrary": "Abrir elementos guardados en la Biblioteca",
+    "taskIntro": "Genera, comprueba y revisa entregables con tu Brand Core. La aprobación humana sigue siendo necesaria.",
+    "checks": "comprobaciones",
+    "passed": "Correcto",
+    "savedDeliverable": "Entregable guardado",
+    "previewItem": "Vista previa {index}",
+    "downloadPng": "Descargar PNG",
+    "savedTasks": "Tareas guardadas",
+    "running": "En curso"
   }
 }
