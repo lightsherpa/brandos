@@ -323,3 +323,21 @@ select pg_get_constraintdef(oid) from pg_constraint where conname = 'discovery_r
 ```
 
 Regression checks: `supabase/tests/discovery_review_gate.sql` (transactional, rolled back).
+
+## 16. `20261013040000_certifier_durable_state.sql` (feat/certifier-s2-durable)
+
+Persists S2 version budgets, individual provider reservations, briefs, human confirmation audit events and question drafts. RLS is on with no client grants. Service-only RPCs acquire a fenced row lease, atomically reserve spend using `spent + estimate <= cap`, settle measured usage and commit a brief before releasing the lease. A crashed worker's unmeasured reservation stays spent; expiry releases only the busy lease. Safe before the merge with `CERTIFIER_V2_S2` off. **File only; not applied to shared databases.** Version `20261013030000` is reserved by PR #18's discovery gate and is not reused here.
+
+Approved deployment reference only:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013040000_certifier_durable_state.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013040000', 'certifier_durable_state') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select relrowsecurity from pg_class where oid = 'public.certifier_budgets'::regclass;
+select has_table_privilege('authenticated','public.certifier_briefs','select'); -- false
+select has_function_privilege('authenticated','public.certifier_acquire_run(uuid,uuid,uuid,integer,uuid)','execute'); -- false
+```

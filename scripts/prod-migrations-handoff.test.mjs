@@ -77,5 +77,6 @@ test("the production handoff lists every dev migration missing from main, in ord
     "20261013010000_append_bio_version_expected.sql",
     "20261013020000_cert_messages.sql",
     "20261013030000_discovery_review_gate.sql",
+    "20261013040000_certifier_durable_state.sql",
   ]);
 });
