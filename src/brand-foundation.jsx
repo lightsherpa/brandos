@@ -17,6 +17,7 @@ export const logoVariantForBackground = (background) => (background === "light" 
 
 async function sourceUrl(brandId,item) {
   if(!item)return null;
+  if(item.pendingRights && item.previewUrl)return item.previewUrl;
   if(uiFixtureEnabled)return item.previewUrl || item.url || null;
   if(!item.sourceId)return item.url || null;
   const res=await apiFetch(`/api/bios/${brandId}/sources/${item.sourceId}/url`);
@@ -47,7 +48,9 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRight
   const [busy,setBusy]=React.useState(false);
   const [error,setError]=React.useState('');
   const [rights,setRights]=React.useState(false);
-  const [referenceRole,setReferenceRole]=React.useState('inspiration');
+  const [referenceRights,setReferenceRights]=React.useState({authority:false,ownsOrLicensed:false,generationAllowed:false});
+  const [referenceRequest,setReferenceRequest]=React.useState(null);
+  const [referenceVersion,setReferenceVersion]=React.useState(null);
   const [images,setImages]=React.useState({});
   React.useEffect(()=>{setDraft(visual);setEditing(false);setError('');},[brandId,JSON.stringify(visual)]);
   const displayed=editing?draft:visual;
@@ -62,7 +65,7 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRight
     Promise.all(items.map(async([key,item])=>{try{return [key,await sourceUrl(brandId,item)];}catch{return [key,null];}})).then(entries=>{if(alive)setImages(Object.fromEntries(entries));});
     return ()=>{alive=false;};
   },[brandId,JSON.stringify(displayed.logo),JSON.stringify(displayed.references)]);
-  const edit=()=>{setDraft({...visual,palette:suggestColourRoles(visual.palette || [])});setEditing(true);setError('');};
+  const edit=async()=>{setDraft(visual);setReferenceRights({authority:false,ownsOrLicensed:false,generationAllowed:false});setReferenceRequest(crypto.randomUUID());setError('');try{if(!uiFixtureEnabled){const res=await apiFetch(`/api/bios/${brandId}`);const json=await res.json();if(!res.ok)throw Error(json.error||'Could not read Brand Core');setReferenceVersion(json.bio?.version ?? json.version); }setEditing(true);}catch(e){setError(e.message);}};
   const upload=async(file,metadata)=>{
     setBusy(true);setError('');
     try{
@@ -74,7 +77,7 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRight
         const form=new FormData();form.append('file',withUploadType(file));form.append('bucket','visual');
         for(const [key,value] of Object.entries(metadata))form.append(key,String(value));
         const res=await apiFetch(`/api/bios/${brandId}/sources/upload`,{method:'POST',body:form,headers:{}});
-        const json=await res.json();if(!res.ok)throw Error(json.error || 'Upload failed');source=json.source;
+        const json=await res.json();if(!res.ok)throw Error(json.error || 'Upload failed');source=json.source;previewUrl=json.url || json.signedUrl;
       }
       setDraft(current=>{
         if(metadata.fontFamily){
@@ -85,11 +88,28 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRight
           const entry={sourceId:source.id,source:file.name,conf:100,...(previewUrl?{previewUrl}:{})};
           return {...current,logo:{...entry,variants:{...current.logo?.variants,[metadata.logoVariant]:entry}}};
         }
-        return {...current,references:[...(current.references || []),{sourceId:source.id,name:file.name,role:metadata.assetRole,...(previewUrl?{previewUrl}:{})}]};
+        return {...current,references:[...(current.references || []),{sourceId:source.id,name:file.name,role:metadata.assetRole,pendingRights:true,...(previewUrl?{previewUrl}:{})}]};
       });
     }catch(e){setError(e.message || String(e));}finally{setBusy(false);}
   };
-  const save=async()=>{setBusy(true);setError('');try{await onSave({...draft,typeScale:{...DEFAULT_TYPE_SCALE,...draft.typeScale}});setEditing(false);}catch(e){setError(e.message || String(e));}finally{setBusy(false);}};
+  const newReferences=(draft.references || []).filter(ref=>ref.pendingRights);
+  const save=async()=>{setBusy(true);setError('');try{
+    const clean={...draft,references:visual.references || [],typeScale:{...DEFAULT_TYPE_SCALE,...draft.typeScale}};
+    if(newReferences.length&&!Object.values(referenceRights).every(Boolean))throw Error('Confirm all three reference rights statements');
+    const before={...visual,references:visual.references || [],typeScale:{...DEFAULT_TYPE_SCALE,...visual.typeScale}};
+    let expectedVersion=referenceVersion;
+    if(!newReferences.length || JSON.stringify(clean)!==JSON.stringify(before)){
+      await onSave(clean);
+      if(newReferences.length&&!uiFixtureEnabled){const current=await apiFetch(`/api/bios/${brandId}`);const json=await current.json();if(!current.ok)throw Error('Could not read saved version');expectedVersion=json.bio?.version ?? json.version;setReferenceVersion(expectedVersion);}
+    }
+    if(newReferences.length){
+      if(uiFixtureEnabled)throw Error('Reference confirmation requires a real uploaded source');
+      const res=await apiFetch(`/api/bios/${brandId}/references/confirm`,{method:'POST',body:JSON.stringify({expectedVersion,requestId:referenceRequest,sourceIds:newReferences.map(ref=>ref.sourceId),rights:referenceRights})});
+      const json=await res.json();if(!res.ok)throw Error(json.error||'Could not confirm references');
+      await onRightsConfirmed?.();
+    }
+    setEditing(false);
+  }catch(e){setDraft(draft);setEditing(true);setError(e.message || String(e));}finally{setBusy(false);}};
   const missing=<span className="foundation-missing">Missing</span>;
   return <section className="foundation-strip" aria-label="Brand Core foundation">
     <div className="foundation-heading"><div><span className="eyebrow">Brand Core · Foundation</span><p>{status.certifiable?'Foundation ready for certification':status.logoStatus==='needs_rights'&&status.missing.length===1?'Confirm logo rights to enable certification':'Add logo, primary colour and display font to enable certification'}</p></div><button className="btn btn--ghost btn--sm" disabled={disabled||busy} onClick={editing?()=>setEditing(false):edit}>{editing?'Cancel':'Edit foundation'}</button></div>
@@ -97,13 +117,13 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRight
       <article className="foundation-card"><h3>Logo</h3><div className="foundation-logos">{['light','dark'].map(variant=><div key={variant} className={`foundation-logo foundation-logo--${variant}`}><span>{variant === 'light'?'On light background':'On dark background'}</span>{images[variant]?<img alt={`${logoVariantForBackground(variant)} brand logo on ${variant} background`} src={images[variant]} onError={()=>setImages(state=>({...state,[variant]:null}))}/>:<>{missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload logo for {variant} background</button></>}</div>)}</div>{visual.logo?.conf<60&&<small>Site icon found · upload the brand logo</small>}{status.logoStatus==='needs_rights'&&!editing&&<LogoRightsPrompt brandId={brandId} sourceIds={status.needsRights} disabled={disabled} onConfirmed={onRightsConfirmed}/>}</article>
       <article className="foundation-card"><h3>Colour roles</h3><div className="foundation-swatches">{['primary','ink','surface'].map(role=>{const colour=(displayed.palette || []).find(c=>c.role===role);return <div key={role}><span className="foundation-swatch" style={colour?{background:colour.hex}:undefined}/><strong>{role}</strong>{colour?<code>{colour.hex}</code>:<>{missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload / set colour</button></>}</div>;})}</div></article>
       <article className="foundation-card"><h3>Typography</h3>{font&&fontState?.status==='loaded'?<><div className="foundation-specimen" style={{"--brand-specimen-font":`"${fontState.family}"`,fontSize:Math.min(displayed.typeScale?.h1 || 48,56)}}>Aa · Brand in focus</div><small>{font.family} · Display</small></>:<>{missing}<div className="foundation-specimen" style={{"--brand-specimen-font":'FoundationFallbackInstrument',fontSize:48}}>Aa · Headline</div><small className="foundation-fallback" role="status">Instrument Sans · flagged fallback</small><p>{font?(fontState?.status==='failed'?'Brand font could not load':'Loading brand font…'):'No display font selected'}</p><button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload / choose font</button></>}<div className="foundation-body-font">Body: {(displayed.type || []).find(f=>/^(Body|Both)$/i.test(f.kind))?.family || <><span className="foundation-missing">Missing</span><button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload / choose body font</button></>}</div></article>
-      <article className="foundation-card"><h3>Reference images</h3><div className="foundation-references">{(displayed.references || []).filter(ref=>ref.role!=='avoid').slice(0,3).map(ref=>{const index=displayed.references.indexOf(ref);return images[`ref-${index}`]?<img key={ref.sourceId || index} alt={ref.name || 'Brand reference'} src={images[`ref-${index}`]} onError={()=>setImages(state=>({...state,[`ref-${index}`]:null}))}/>:<span key={index}>{missing}</span>;})}</div>{!(displayed.references || []).some(ref=>ref.role!=='avoid')&&missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload reference</button></article>
+      <article className="foundation-card"><h3>Reference images</h3><div className="foundation-references">{(displayed.references || []).filter(ref=>ref.role!=='avoid'&&ref.status!=='superseded').slice(0,3).map(ref=>{const index=displayed.references.indexOf(ref);return images[`ref-${index}`]?<img key={ref.sourceId || index} alt={ref.name || 'Brand reference'} src={images[`ref-${index}`]} onError={()=>setImages(state=>({...state,[`ref-${index}`]:null}))}/>:<span key={index}>{missing}</span>;})}</div>{!(displayed.references || []).some(ref=>ref.role!=='avoid'&&ref.status!=='superseded')&&missing}<button className="btn btn--link" disabled={disabled||busy} onClick={edit}>Upload reference</button></article>
     </div>
     {editing&&<div className="foundation-editor">
-      <fieldset disabled={busy}><legend>Logo &amp; references</legend><label><input type="checkbox" checked={rights} onChange={e=>setRights(e.target.checked)}/> I confirm the brand has rights to use these images</label><div className="foundation-upload-row">{['light','dark'].map(variant=><label key={variant}>Logo for {variant} background ({logoVariantForBackground(variant)} logo)<input aria-label={`Upload logo for ${variant} background`} type="file" accept=".png,image/png" disabled={!rights} onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(file&&isSvgFile(file))return setError(SVG_LOGO_MESSAGE);if(file)await upload(file,{assetRole:'logo',logoVariant:logoVariantForBackground(variant),rightsConfirmed:true});}}/></label>)}</div><label>Reference role<select value={referenceRole} onChange={e=>setReferenceRole(e.target.value)}>{['canonical','inspiration'].map(role=><option key={role}>{role}</option>)}</select></label><label>Upload reference<input aria-label="Upload reference" type="file" accept=".png,.jpg,.jpeg,.webp" disabled={!rights} onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(file)await upload(file,{assetRole:referenceRole,rightsConfirmed:true});}}/></label></fieldset>
+      <fieldset disabled={busy}><legend>Logo &amp; references</legend><label><input type="checkbox" checked={rights} onChange={e=>setRights(e.target.checked)}/> I confirm the brand has rights to use these images</label><div className="foundation-upload-row">{['light','dark'].map(variant=><label key={variant}>Logo for {variant} background ({logoVariantForBackground(variant)} logo)<input aria-label={`Upload logo for ${variant} background`} type="file" accept=".png,image/png" disabled={!rights} onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(file&&isSvgFile(file))return setError(SVG_LOGO_MESSAGE);if(file)await upload(file,{assetRole:'logo',logoVariant:logoVariantForBackground(variant),rightsConfirmed:true});}}/></label>)}</div><label>Upload new product references<input aria-label="Upload reference" type="file" accept=".png,.jpg,.jpeg,.webp" onChange={async e=>{const file=e.target.files?.[0];e.target.value='';if(file)await upload(file,{assetRole:'canonical',rightsConfirmed:false,referenceIntake:true});}}/></label><p>New uploads await rights confirmation. Existing references remain in version history.</p>{newReferences.length>0&&<div role="group" aria-label="Confirm product reference rights"><p>{newReferences.map(ref=>ref.name).join(', ')} · pending rights · canonical product references</p>{[['authority','I am authorised to confirm rights for this brand'],['ownsOrLicensed','The brand owns or holds a licence for these new photos'],['generationAllowed','The licence permits using these photos to generate brand assets']].map(([key,label])=><label key={key}><input type="checkbox" checked={referenceRights[key]} onChange={e=>setReferenceRights(current=>({...current,[key]:e.target.checked}))}/>{label}</label>)}</div>}</fieldset>
       <fieldset disabled={busy}><legend>Colour roles</legend>{COLOUR_ROLES.map(role=>{const colour=(draft.palette || []).find(c=>c.role===role);return <label key={role}>{role}<input aria-label={`${role} colour`} type="color" value={/^#[\da-f]{6}$/i.test(colour?.hex || '')?colour.hex:'#888888'} onChange={e=>setDraft(current=>({...current,palette:[...(current.palette||[]).filter(c=>c.role!==role),{hex:e.target.value,name:role,role,roleStatus:'confirmed'}]}))}/><input aria-label={`${role} hex`} placeholder="#rrggbb" value={colour?.hex || ''} onChange={e=>setDraft(current=>({...current,palette:[...(current.palette||[]).filter(c=>c.role!==role),{hex:e.target.value,name:role,role,roleStatus:'confirmed'}]}))}/>{!colour&&<><span>Missing</span><button type="button" className="btn btn--link" onClick={()=>setDraft(current=>({...current,palette:[...(current.palette||[]),{hex:'#888888',name:role,role,roleStatus:'confirmed'}]}))}>Set colour</button></>}</label>;})}</fieldset>
       <BrandFontControls visual={draft} onChange={setDraft} onUpload={upload} disabled={busy}/>
-      <button className="btn btn--primary" disabled={busy} onClick={save}>{busy?'Saving…':'Save foundation'}</button><p>Saving creates a new Brand Core version for review.</p>
+      <button className="btn btn--primary" disabled={busy||(newReferences.length>0&&!Object.values(referenceRights).every(Boolean))} onClick={save}>{busy?'Saving…':'Save foundation'}</button><p>Saving creates a new Brand Core version. The owner must attest that exact version before Creative Director review.</p>
     </div>}
     {error&&<p role="alert" className="foundation-error">{error}</p>}
   </section>;

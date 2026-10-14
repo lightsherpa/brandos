@@ -20,7 +20,21 @@ import { loadBioForRun } from "../lib/load-brand-bio.js";
 import { certifiedVisualSourceIds } from "../lib/visual-assets.js";
 import { prepareClientBioEditPayload } from "../lib/bio-evidence.js";
 
+import { validateReferenceConfirmation } from "../lib/reference-intake.js";
 const app = new Hono();
+
+// Uploads remain untrusted until the owner deliberately confirms this batch.
+app.post("/:brandId/references/confirm", requireAuth, requireHumanActor, async c => {
+ const auth=c.get("auth"), brandId=c.req.param("brandId");
+ const {data:brand,error:brandError}=await supabaseAdmin.from("brands").select("id,workspace_id").eq("id",brandId).maybeSingle();
+ if(brandError)return c.json({error:"Brand lookup unavailable"},503);
+ if(!brand || !isWorkspaceOwner(auth,brand.workspace_id))return c.json({code:"OWNER_REQUIRED",error:"Only the workspace owner can confirm reference rights"},403);
+ const body=await c.req.json().catch(()=>({}));
+ const invalid=validateReferenceConfirmation(body);if(invalid)return c.json(invalid,400);
+ const {data,error}=await supabaseAdmin.rpc("confirm_brand_references",{p_brand_id:brandId,p_user_id:auth.userId,p_expected_version:body.expectedVersion,p_request_id:body.requestId,p_source_ids:body.sourceIds,p_rights:body.rights});
+ if(error){const code=error.message?.includes("STALE_BIO_VERSION")?"STALE_BIO_VERSION":error.message?.includes("REQUEST_REUSED")?"REFERENCE_REQUEST_REUSED":error.message?.includes("REFERENCE")?"REFERENCE_INVALID":"REFERENCE_CONFIRMATION_FAILED";return c.json({code,error:"Could not confirm references; reload the current Brand Core and retry"},error.code==='40001'?409:code==='REFERENCE_CONFIRMATION_FAILED'?503:400);}
+ return c.json({bio:data,reviewQueued:false,requiresOwnerAttestation:true});
+});
 
 /* POST /api/bios/:brandId/sources
    Body: { sources: [{ kind, bucket, src, signals? }, ...] }
@@ -116,20 +130,21 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   if (FONT_UPLOAD_EXTS.has(ext) && bucket !== "visual") {
     return c.json({ error: "Font assets belong in Visual references", code: "FONT_BUCKET" }, 400);
   }
+  const pendingReference = bucket === "visual" && String(form.get("referenceIntake")) === "true" && ["png","jpg","jpeg","webp"].includes(ext);
   let visualMetadata = {};
   if (bucket === "visual") {
     const metadata = validateVisualAssetMetadata({
       ext,
       assetRole: form.get("assetRole") || "inspiration",
       logoVariant: form.get("logoVariant") || "light",
-      rightsConfirmed: String(form.get("rightsConfirmed") || "") === "true",
+      rightsConfirmed: pendingReference || String(form.get("rightsConfirmed") || "") === "true",
       fontFamily: form.get("fontFamily"),
       fontUsage: form.get("fontUsage"),
       licenseType: form.get("licenseType"),
       licenseReference: form.get("licenseReference"),
     });
     if (!metadata.ok) return c.json({ error: metadata.message, code: metadata.code }, 400);
-    visualMetadata = metadata.metadata;
+    visualMetadata = pendingReference ? {...metadata.metadata,asset_role:"canonical",rights_confirmed:false,reference_intake_pending:true} : metadata.metadata;
   }
   const safeName = filename.replace(/[^a-z0-9._-]+/gi, "_").slice(0, 80);
   const objectPath = `${workspaceId}/${brandId}/${crypto.randomUUID()}-${safeName}`;
@@ -181,7 +196,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
         upload_id: uploadRow?.id,
         ext, purpose,
         ...visualMetadata,
-        ...(bucket === "visual" ? { rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() } : {}),
+        ...(bucket === "visual" && visualMetadata.rights_confirmed === true ? { rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() } : {}),
       },
       raw_ref: objectPath,
     })
@@ -215,6 +230,9 @@ app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
     .maybeSingle();
   if (!source) return c.json({ deleted:true });
   if (source.kind !== "file_upload") return c.json({ error:"Only uploaded sources can be removed here" }, 409);
+  const {data:versions,error:historyError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandId);
+  if(historyError)return c.json({code:"SOURCE_HISTORY_UNAVAILABLE",error:"Could not verify historical source usage"},503);
+  if((versions || []).some(row=>certifiedVisualSourceIds(row.payload?.visual).has(sourceId)))return c.json({code:"HISTORICAL_SOURCE",error:"This source is retained in Brand Core version history and cannot be removed"},409);
   let activeBio = null;
   try {
     activeBio = (await loadBioForRun({ workspaceId, brandId })).bio;
@@ -301,17 +319,22 @@ app.patch("/:brandId", requireAuth, async (c) => {
 
   const body = await c.req.json().catch(() => ({}));
   if (!body.payload || typeof body.payload !== "object") return c.json({ error: "payload required" }, 400);
-  const { data: previousBio } = await supabaseAdmin
+  const { data: previousBio, error: previousError } = await supabaseAdmin
     .from("bios")
-    .select("payload")
+    .select("payload,version")
     .eq("brand_id", brandId)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
+  if(previousError)return c.json({code:"BIO_UNAVAILABLE",error:"Could not read the current Brand Core"},503);
+  if (JSON.stringify(body.payload.visual?.references || []) !== JSON.stringify(previousBio?.payload?.visual?.references || [])) return c.json({code:"REFERENCE_CONFIRMATION_REQUIRED",error:"Use the owner reference confirmation flow to change product references"},409);
   const logoUnchanged = JSON.stringify(body.payload.visual?.logo ?? null) === JSON.stringify(previousBio?.payload?.visual?.logo ?? null);
   const foundationAssetError = await validateFoundationAssets(brandId, body.payload.visual || {}, previousBio?.payload?.visual || {}, { allowUnconfirmedLogos: logoUnchanged });
   if (foundationAssetError) return c.json({error:foundationAssetError,code:"FOUNDATION_ASSET"},400);
   const cleanPayload = prepareClientBioEditPayload(body.payload, previousBio?.payload || {});
+  // Rights lineage survives every later edit; clients cannot remove the CD gate.
+  delete cleanPayload.reference_intake;
+  if(previousBio?.payload?.reference_intake) cleanPayload.reference_intake=previousBio.payload.reference_intake;
 
   const { data: newRow, error } = await supabaseAdmin
     .rpc("append_bio_version", {
@@ -320,8 +343,9 @@ app.patch("/:brandId", requireAuth, async (c) => {
       p_score: scoreBio(cleanPayload, { logoRights: await loadLogoRights(brandId, cleanPayload).catch(() => []) }),
       p_created_by: userId,
       p_discovery_id: null,
+      p_expected_version: previousBio?.version,
     });
-  if (error) return c.json({ error: error.message }, 500);
+  if (error) return c.json({ error: error.code === "40001" ? "Brand Core changed; reload before saving" : error.message }, error.code === "40001" ? 409 : 500);
 
   if (JSON.stringify(previousBio?.payload?.visual) !== JSON.stringify(cleanPayload.visual)) await writeAuthorizationAudit(c,{permission:"brand.update",action:"brand.foundation.edit",targetType:"bio",targetId:newRow.id,workspaceId,priorState:previousBio?.payload?.visual || null,newState:cleanPayload.visual});
 
@@ -505,15 +529,15 @@ app.post("/:brandId/request-review", requireAuth, async (c) => {
   if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
 
   const { data: bio } = await supabaseAdmin
-    .from("bios").select("id, version").eq("brand_id", brandId)
+    .from("bios").select("id, version, payload, self_certified").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
   if (!bio) return c.json({ error: "No Brand Core to review yet" }, 400);
 
-  // Idempotency: reuse an existing open job for this BIO.
+  if(bio.payload?.reference_intake && !bio.self_certified)return c.json({code:"OWNER_ATTESTATION_REQUIRED",error:"The owner must attest this exact version before review"},409);
+  // Idempotency: reuse any prior job for this exact BIO.
   const { data: existing } = await supabaseAdmin
     .from("steward_jobs").select("id, status")
     .eq("bio_id", bio.id)
-    .in("status", ["queued", "in_review", "pending_lead_review"])
     .limit(1).maybeSingle();
   if (existing) return c.json({ ok: true, jobId: existing.id, status: existing.status, reused: true });
 
