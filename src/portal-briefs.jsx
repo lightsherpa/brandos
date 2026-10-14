@@ -1,4 +1,6 @@
 import React from "react";
+import { BriefWorkspaceSurface } from "./brief-workspace-surface.jsx";
+import { agencyOfficeEnabled } from "./lib/agency-office-flag.js";
 import { useLocale, t as tt } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_BRIEFS, FIXTURE_BRANDS, FIXTURE_BRAND_ID } from "./lib/ui-fixture.js";
@@ -2008,7 +2010,7 @@ function BriefRunCanvas({ context, onClear, go }) {
         if (visualId) {
           const platform = group.platforms?.[0] || "generic";
           setNodes((prev) => prev.map((n) => n.id === "spec-" + visualId
-            ? { ...n, state: "running", sub: t("briefs.run.subRenderingImages") } : n));
+            ? { ...n, state: "running", ...(agencyOfficeEnabled ? { inputFrom: "spec-" + agent.id } : {}), sub: t("briefs.run.subRenderingImages") } : n));
           const items = done.output.deliverables;
           for (let i = 0; i < items.length; i++) {
             const cardId = `spec-${agent.id}-d${i}`;
@@ -2075,7 +2077,9 @@ function BriefRunCanvas({ context, onClear, go }) {
         running={running}
         onFormats={window.formatPreviewEnabled && briefId ? () => go("formats/" + briefId) : null}
       />
-      <InteractiveCanvas
+      <BriefWorkspaceSurface
+        LegacyCanvas={InteractiveCanvas}
+        officeScope={context.brandId}
         nodeData={nodes}
         edges={edges}
         renderNode={renderNode}
@@ -3115,7 +3119,9 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         running={false}
         onFormats={window.formatPreviewEnabled ? () => go("formats/" + briefId) : null}
       />
-      <InteractiveCanvas
+      <BriefWorkspaceSurface
+        LegacyCanvas={InteractiveCanvas}
+        officeScope={state.brief.brand_id}
         nodeData={nodes}
         edges={edges}
         renderNode={renderNode}
