@@ -341,3 +341,24 @@ select relrowsecurity from pg_class where oid = 'public.certifier_budgets'::regc
 select has_table_privilege('authenticated','public.certifier_briefs','select'); -- false
 select has_function_privilege('authenticated','public.certifier_acquire_run(uuid,uuid,uuid,integer,uuid)','execute'); -- false
 ```
+
+
+## 17. `20261014000000_reference_intake.sql` (fix/vds-reference-intake)
+
+Adds service-only atomic owner rights confirmation and an immutable audit row for each request. References are appended in a new Brand Core version, prior references are superseded and retained. Row locks and request IDs prevent duplicate appends; new-reference review requires exact owner attestation and cannot duplicate terminal jobs. Safe before the merge for schema compatibility: existing callers do not invoke the new intake RPC; automatic review gains an additional gate only for new reference_intake payloads. **File only; production application has not been authorized or performed.** Run the verify query first and skip if a row comes back. Never use these deployment examples for this local rehearsal.
+
+Approved deployment reference only:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261014000000_reference_intake.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261014000000', 'reference_intake') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select relrowsecurity from pg_class where oid = 'public.bio_reference_intakes'::regclass; -- true
+select has_function_privilege('authenticated','public.confirm_brand_references(uuid,uuid,integer,uuid,uuid[],jsonb)','execute'); -- false
+select has_table_privilege('service_role','public.bio_reference_intakes','update'); -- false
+```
+
+Regression checks: scripts/reference-intake-db.test.mjs uses only an isolated disposable PostgreSQL container. supabase/tests/reference_intake.sql is transactional and rolled back. No production seeds or database writes are part of this push.
