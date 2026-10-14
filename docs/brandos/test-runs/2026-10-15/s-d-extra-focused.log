@@ -1,0 +1,35 @@
+✔ QA specialists sit in review rather than their production department (0.37125ms)
+✔ output shelf does not duplicate a batch or expose unfinished streaming text (0.548042ms)
+✔ failure remains visible alongside already completed outputs (0.077916ms)
+✔ a specialist remains in the crew when its node becomes a mood board (0.055459ms)
+✔ machine-finished work remains pending human review (0.3435ms)
+✔ shelf needs_review remains pending review (1.636958ms)
+✔ shelf pending remains pending review (0.399625ms)
+✔ shelf ready remains pending review (0.087541ms)
+✔ shelf done remains pending review (0.078458ms)
+✔ shelf undefined remains pending review (0.080709ms)
+✔ shelf shows explicit failed (0.08875ms)
+✔ shelf shows explicit approved (0.095334ms)
+✔ failed specialist state stays failed without an output status (0.087292ms)
+✔ machine readiness and missing checks never imply human approval (0.425459ms)
+✔ task envelope expands one HTML/check card per item without losing parent ID (0.597208ms)
+✔ rerun item retains actual output ID for export (0.070833ms)
+✔ newest run chosen deterministically (0.321292ms)
+✔ persisted snapshot unwrapped for board (0.065333ms)
+✔ craft rejections surface and do not request credits (0.224125ms)
+✔ craft refreshes authoritative credit balance only after success (0.08725ms)
+✔ serialized database JSON task body still yields actual HTML (0.062542ms)
+✔ latest persisted task item supersedes original retaining its task type and export source (0.152666ms)
+✔ legacy metrics have an honest unavailable cost (0.168167ms)
+✔ presentation helpers resolve locale keys without changing truthful status (0.063833ms)
+✔ new browser restores latest persisted task without local storage (13.946917ms)
+✔ saved board restores valid previous selection and rejects deleted or cross-brand IDs (0.088542ms)
+✔ saved task list errors remain visible instead of an empty success (0.068917ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 80.573834

@@ -1,0 +1,79 @@
+[supabase] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing — DB reads will fail.
+✔ tool guard: only the image step may call image models (2.558084ms)
+✔ budget caps spend and call counts; semaphore caps image concurrency at 3 (74.610459ms)
+✔ contracts reject image briefs without the no-text negative (1.590375ms)
+✔ social limits: caption 2200, first line 125, ≤5 hashtags (4.817458ms)
+✔ email limits: subject ≤50, preheader 40–100, body ≤200 words, https CTA (2.381958ms)
+✔ Beat 4: Cake Me don't-list words are caught (accent-folded, plural, word boundary) (2.118417ms)
+✔ html gates: links https, alt, 80KB, contrast (0.548291ms)
+✔ OCR gate: tokens ≥2 chars at confidence ≥60 fail; errors fail closed (0.516417ms)
+✔ context allow-lists block teammate drafts and trim Layer 1 (1.836958ms)
+✔ Layer 1: explicit primary role wins; foundation gaps are reported (0.270833ms)
+✔ image prompt carries refs, palette roles and the no-text rule (0.241542ms)
+✔ Beat 5: saved rules reach the writer prompt and the banned check (0.9805ms)
+✔ email renders MJML → HTML with logo, primary hex and <80KB (52.481708ms)
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[task-pipeline] social_post ready in 18.0s, $0.23 (5 calls)
+✔ social task: 3 posts, 1 image each with refs, streamed, ready (18038.464583ms)
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[task-pipeline] social_post ready in 0.6s, $0.25 (7 calls)
+✔ social task: banned word in the brief is flagged, copy fail gets 1 targeted revision with before→after (634.205916ms)
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[api-usage] write failed: Expected 3 parts in JWT; got 1
+[task-pipeline] social_post flagged in 0.4s, $0.31 (7 calls)
+[task-pipeline] email_sequence ready in 0.3s, $0.02 (2 calls)
+✔ OCR fail regenerates once on the fallback model, then flags (406.231084ms)
+✔ Beat 5 re-run regenerates only that item's copy and reuses the image (21.14975ms)
+✔ email task: 3 HTML emails rendered, every one <80KB (271.733334ms)
+✔ S1: legacy role-less visual uploads count as inspiration; refs capped at 3, canonical first (0.997792ms)
+✔ backfill script requires --only and defaults to dry-run (0.317333ms)
+✔ don't-list variants: gender, number and light derivations (es/en) (0.205458ms)
+✔ Iris's tagline is flagged (3.901875ms)
+✔ short stems never over-match (stem ≥5 chars, whole words only) (0.090292ms)
+[supabase] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing — DB reads will fail.
+✔ schema repair is bounded and preserves negative reviewer judgment (37.147417ms)
+✔ second invalid verdict fails closed, no third attempt (0.311541ms)
+✔ duplicate items/checks and unknown checks are rejected rather than accepted (3.6545ms)
+✔ valid verdict needs only one call (0.274375ms)
+✔ provider failure fails closed without a schema-repair retry (0.175083ms)
+✔ repair obeys the existing call budget and cannot synthesize a pass (0.196292ms)
+✔ credits: placeholder prices live in one constant (0.539625ms)
+✔ credits: insufficient preflight → not ok, nothing written, no model work (1.036125ms)
+✔ credits: reserve fails → 402, run marked failed, no work (11.507ms)
+✔ credits: happy path reserves before work, attributes usage, finalizes with ledger kind (0.439375ms)
+✔ credits: work error releases the reservation (1.126458ms)
+✔ credits: image attempts write api_usage attributed to the run (5.506042ms)
+✔ rules: lookup error fails closed (throws 503) (0.19975ms)
+✔ flag: TASKS_ENABLED off → /api/tasks 404 except /enabled (6.92975ms)
+✔ roles: Save as rule needs Owner/Editor (brand.manage); Contributor/Viewer → no (0.120375ms)
+✔ re-runs: capped at 2 per item server-side, one in flight at a time (0.111584ms)
+✔ re-runs: two concurrent requests → one 409, one reservation, cap holds (58.712875ms)
+✔ re-runs: failure before settle rolls back state and count (0.429084ms)
+✔ settle: toOutput throwing releases the reservation (0.125625ms)
+✔ settle: failed release is logged at error and the run marked release_failed (0.137167ms)
+✔ images: recordUsage throwing after spend still returns the image (run charges, no refund) (0.26275ms)
+✔ legacy snapshots recover honest metadata and latest chronological rerun (700.5405ms)
+✔ authorization uses DB brand scope and disallows cross-brand rerun injection (13.141459ms)
+✔ new metadata preserves metrics/provenance and cannot override tenant identity (21.692416ms)
+(node:99636) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99636) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+(node:99636) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+✔ empty server cache GET recovers saved HTML and needs-review status (7.325458ms)
+✔ task listing includes completed persisted jobs after restart (0.501917ms)
+✔ cache hit still checks authorization (1.215292ms)
+✔ DB failure yields 503 rather than misleading restart 404 or leaked details (0.320833ms)
+ℹ tests 51
+ℹ suites 0
+ℹ pass 51
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 67260.183042

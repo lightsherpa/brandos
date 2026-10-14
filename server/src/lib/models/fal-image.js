@@ -1,3 +1,4 @@
+import { bridgeReferences } from "../reference-bridge.js";
 // ─────────────────────────────────────────────────────────────────────
 // fal.ai — image generation adapter.
 //
@@ -205,7 +206,9 @@ export async function* generate({ route, prompt, size, aspect = null, referenceI
   const cfg = FAL_ROUTES[route];
   if (!cfg)  { yield { type: "error", message: `Unknown fal route: ${route}` }; return; }
 
-  const refs = normalizeReferenceUrls({ referenceImageUrl, referenceImageUrls });
+  let refs = normalizeReferenceUrls({ referenceImageUrl, referenceImageUrls });
+  if (refs.length && !cfg.referenceEndpoint) { yield { type: "error", message: "Image route does not support references; generation refused" }; return; }
+  try { refs = await bridgeReferences(refs); } catch { yield { type: "error", message: "Reference bridge failed; generation refused" }; return; }
   const resolved = resolveImageRequest({ route, referenceImageUrls: refs });
   const useReference = resolved.usesReference;
   const endpoint = resolved.endpoint;
@@ -225,12 +228,12 @@ export async function* generate({ route, prompt, size, aspect = null, referenceI
   });
   if (!submitRes.ok) {
     const text = await submitRes.text().catch(() => "");
-    yield { type: "error", message: `fal submit HTTP ${submitRes.status}: ${text.slice(0, 300)}` };
+    yield { type: "error", message: `fal submit HTTP ${submitRes.status}` };
     return;
   }
   const submitted = await submitRes.json();
   if (!submitted.status_url || !submitted.response_url) {
-    yield { type: "error", message: `fal submit returned unexpected shape: ${JSON.stringify(submitted).slice(0, 200)}` };
+    yield { type: "error", message: "fal submit returned unexpected shape" };
     return;
   }
 
@@ -284,7 +287,7 @@ export async function* generate({ route, prompt, size, aspect = null, referenceI
       };
       return;
     } else if (status.status === "FAILED") {
-      yield { type: "error", message: `fal job failed: ${JSON.stringify(status).slice(0, 300)}` };
+      yield { type: "error", message: "fal job failed" };
       return;
     }
   }

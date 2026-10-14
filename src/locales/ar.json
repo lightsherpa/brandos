@@ -1754,5 +1754,29 @@
       "strategic": "ما يجب فعله وتجنبه"
     },
     "sourceFailure": "تعذّرت قراءة المصادر. لم يتم إنشاء Brand Core. أضف مصدراً عاماً يمكن قراءته أو ارفع مواد العلامة."
+  },
+  "vds": {
+    "status": {
+      "needs_review": "يحتاج إلى مراجعة",
+      "approved": "معتمد",
+      "failed": "فشل"
+    },
+    "finished": "اكتمل",
+    "elapsed": " خلال {seconds} ثانية",
+    "costUnavailable": "التكلفة غير متاحة",
+    "generationComplete": "اكتمل الإنشاء · يحتاج إلى مراجعة",
+    "savedBriefGuidance": "افتح موجزاً محفوظاً لاستخدام Canvas.",
+    "openBriefs": "فتح الموجزات",
+    "generationFailed": "فشل الإنشاء",
+    "needsHumanReview": "اكتمل الإنشاء · يحتاج إلى مراجعة بشرية",
+    "openLibrary": "فتح العناصر المحفوظة في المكتبة",
+    "taskIntro": "أنشئ المخرجات وافحصها وراجعها وفق Brand Core. لا تزال الموافقة البشرية مطلوبة.",
+    "checks": "فحوصات",
+    "passed": "اجتاز",
+    "savedDeliverable": "مخرج محفوظ",
+    "previewItem": "معاينة {index}",
+    "downloadPng": "تنزيل PNG",
+    "savedTasks": "المهام المحفوظة",
+    "running": "قيد التنفيذ"
   }
 }

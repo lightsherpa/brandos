@@ -1,3 +1,4 @@
+import { outputStatus } from "./task-output.js";
 // Presentation adapter only: no orchestration, provider calls, or persistence.
 export const OFFICE_ROOMS = [
   { id: "strategy", departments: ["Strategy", "Research & Ops"], color: "#769783" },
@@ -27,6 +28,6 @@ export function officeModel(nodes = [], agents = []) {
     active: crew.filter(agent => agent.state === "running"),
     finished: crew.filter(agent => ["done", "flagged"].includes(agent.state)).length,
     failed: crew.some(agent => agent.state === "failed"),
-    flagged: crew.some(agent => agent.state === "flagged") || outputs.some(node => node.status === "flagged"),
+    flagged: crew.some(agent => agent.state === "flagged") || outputs.some(node => outputStatus(node.status) !== "approved"),
   };
 }

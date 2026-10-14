@@ -1,5 +1,5 @@
 -- A failed confidence gate is a resumable state, bound to an exact BIO version.
-create table public.bio_review_gates (
+create table if not exists public.bio_review_gates (
  bio_id uuid primary key references public.bios(id) on delete cascade,
  brand_id uuid not null references public.brands(id) on delete cascade,
  status text not null check (status in ('gated','queued')),
@@ -13,10 +13,10 @@ alter table public.bio_review_gates enable row level security;
 revoke all on public.bio_review_gates from public,anon,authenticated;
 grant all on public.bio_review_gates to service_role;
 
-alter table public.discovery_runs drop constraint discovery_runs_status_check;
+alter table public.discovery_runs drop constraint if exists discovery_runs_status_check;
 alter table public.discovery_runs add constraint discovery_runs_status_check
  check (status in ('queued','running','completed','failed','gated'));
-alter table public.discovery_runs drop constraint discovery_runs_stage_check;
+alter table public.discovery_runs drop constraint if exists discovery_runs_stage_check;
 alter table public.discovery_runs add constraint discovery_runs_stage_check
  check (stage in ('queued','scrape','visual','read','research','synthesize','save','done','review_gate'));
 

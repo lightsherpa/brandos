@@ -1,3 +1,5 @@
+import { useLocale } from "./lib/i18n.js";
+import { taskMetricsLabel, loadSavedTasks, statusLabel } from "./lib/task-output.js";
 import React from "react";
 import { apiFetch } from "./lib/supabase-browser.js";
 
@@ -12,7 +14,7 @@ const TYPES = {
   email_sequence: { label: "Email sequence", hint: "3 branded HTML emails", writer: "a13 Email Sequence", skills: "a14 Subject Lines, a12 Conversion Copy", reviewer: "a18 Voice QA" },
 };
 const STATUS_DOT = { queued: "#a8a29e", writing: "#a16207", imaging: "#a16207", checking: "#a16207", fixing: "#b45309", ready: "#15803d", flagged: "#b91c1c" };
-const STATUS_WORD = { queued: "Queued", writing: "Writing", imaging: "Designing", checking: "Checking", fixing: "Fixing", ready: "Ready", flagged: "Needs review" };
+const STATUS_WORD = { queued: "Queued", writing: "Writing", imaging: "Designing", checking: "Checking", fixing: "Fixing", ready: "Needs review", flagged: "Needs review", approved: "Approved", needs_review: "Needs review", failed: "Failed" };
 const storageKey = (brandId) => `brandos.task.${brandId}`;
 const RULE_CHECKS = new Set(["BANNED", "BRIEF_BANNED", "voice_on_brand", "no_unsupported_claim"]);
 
@@ -34,11 +36,11 @@ function Stepper({ stage, status }) {
   return (
     <ol style={{ display: "flex", gap: 6, listStyle: "none", padding: 0, margin: "16px 0", flexWrap: "wrap" }}>
       {STAGES.map((s, i) => {
-        const done = i < at || (i === at && (status === "ready" || status === "flagged"));
+        const done = i < at || (i === at && (status === "ready" || status === "flagged" || status === "approved"));
         const live = i === at && !done;
         return <li key={s} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: done || live ? "#1c1917" : "#a8a29e" }}>
           <span style={{ width: 8, height: 8, borderRadius: 999, background: done ? "#15803d" : live ? "#a16207" : "#d6d3d1" }} />
-          {s === "Ready" && status === "flagged" ? "Needs review" : s === "Imaging" ? "Designing" : s}{i < STAGES.length - 1 && <span style={{ color: "#d6d3d1", marginLeft: 6 }}>—</span>}
+          {s === "Ready" && status !== "approved" ? "Needs review" : s === "Imaging" ? "Designing" : s}{i < STAGES.length - 1 && <span style={{ color: "#d6d3d1", marginLeft: 6 }}>—</span>}
         </li>;
       })}
     </ol>
@@ -146,44 +148,67 @@ function ItemCard({ type, item, taskId, onItem }) {
 }
 
 export function TaskPipelineView({ go }) {
+  const {t} = useLocale();
   const brandId = window.useCurrentBrandId ? window.useCurrentBrandId() : null;
   const [type, setType] = useState("social_post");
   const [brief, setBrief] = useState("");
   const [heroes, setHeroes] = useState(false);
   const [task, setTask] = useState(null);
   const [taskId, setTaskId] = useState(null);
+  const [savedTasks, setSavedTasks] = useState([]);
+  const selectionRevision = useRef(0);
+  const currentBrand = useRef(brandId);
+  currentBrand.current = brandId;
   const [error, setError] = useState(null);
   const [startedAt, setStartedAt] = useState(null);
   const [now, setNow] = useState(Date.now());
 
-  useEffect(() => { if (!brandId) return; const saved = localStorage.getItem(storageKey(brandId)); if (saved) setTaskId(saved); }, [brandId]);
+  useEffect(() => {
+    let cancelled = false;
+    const revision = ++selectionRevision.current;
+    setTask(null); setTaskId(null); setStartedAt(null); setSavedTasks([]); setError(null);
+    if (!brandId) return undefined;
+    loadSavedTasks(apiFetch, brandId, localStorage.getItem(storageKey(brandId))).then(result => {
+      if (cancelled || currentBrand.current !== brandId) return;
+      setSavedTasks(result.tasks);
+      if (selectionRevision.current !== revision) return;
+      setTaskId(result.selectedId);
+      if (result.selectedId) localStorage.setItem(storageKey(brandId), result.selectedId);
+    }).catch(error => { if (!cancelled && currentBrand.current === brandId) setError(error.message); });
+    return () => { cancelled = true; };
+  }, [brandId]);
   useEffect(() => {
     if (!taskId) return undefined;
     let stop = false; let timer;
     const poll = async () => {
       const res = await apiFetch(`/api/tasks/${taskId}`);
-      if (stop) return;
+      if (stop || currentBrand.current !== brandId) return;
       if (res.status === 404) { localStorage.removeItem(storageKey(brandId)); setTaskId(null); setTask(null); return; }
       const j = await res.json();
+      if (stop || currentBrand.current !== brandId) return;
+      if (!res.ok) { setError(j.error || "Could not load saved task"); return; }
       setTask(j); setType(j.type);
-      if (!startedAt) setStartedAt(Date.parse(j.created_at));
+      setStartedAt(Date.parse(j.created_at));
       if (j.status === "running") timer = setTimeout(poll, 1500);
     };
-    poll();
+    poll().catch(error => { if (!stop && currentBrand.current === brandId) setError(error.message); });
     return () => { stop = true; clearTimeout(timer); };
-  }, [taskId]);
+  }, [taskId, brandId]);
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
 
   const run = async () => {
+    selectionRevision.current += 1;
+    const requestedBrand = brandId;
     setError(null); setTask(null);
     const res = await apiFetch("/api/tasks", { method: "POST", body: JSON.stringify({ brandId, type, brief, heroes }) });
     const j = await res.json();
+    if (currentBrand.current !== requestedBrand) return;
     if (!res.ok) return setError(res.status === 402 ? `Not enough credits (this task needs ${j.credits_required ?? "?"}, balance ${j.balance ?? "?"}). Nothing was charged.` : (j.error || "Could not start the task"));
     localStorage.setItem(storageKey(brandId), j.id);
     setStartedAt(Date.now()); setTaskId(j.id);
     setTask({ id: j.id, type, status: "running", stage: j.stage, eta_s: j.eta_s, items: [], notices: [] });
   };
-  const onItem = (item) => setTask((t) => ({ ...t, items: t.items.map((it) => (it.index === item.index ? item : it)) }));
+  const onItem = (item, metrics) => setTask((t) => ({ ...t, result: metrics ? {...t.result, metrics} : t.result, items: t.items.map((it) => (it.index === item.index ? item : it)) }));
 
   const running = task?.status === "running";
   const elapsed = startedAt ? Math.round((now - startedAt) / 1000) : 0;
@@ -194,7 +219,7 @@ export function TaskPipelineView({ go }) {
   return <div style={css.page}>
     <style>{"@keyframes tpPulse{0%,100%{opacity:1}50%{opacity:.55}}"}</style>
     <h1 style={css.h1}>Tasks</h1>
-    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>One brief, one finished deliverable. Written, designed and checked against your Brand Core.</p>
+    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>{t("vds.taskIntro")}</p>
     {!brandId && <p>Select a brand first.</p>}
     <section style={{ ...css.card, padding: 16, display: "grid", gap: 12, marginTop: 16 }}>
       <div style={{ display: "flex", gap: 8 }}>
@@ -208,12 +233,19 @@ export function TaskPipelineView({ go }) {
       {error && <div style={{ color: "#b91c1c", fontSize: 13 }}>{error}</div>}
     </section>
 
+    {savedTasks.length > 0 && <section style={{...css.card,padding:14,marginTop:20}} aria-label={t("vds.savedTasks")}>
+      <h2 style={{margin:"0 0 10px",fontSize:18}}>{t("vds.savedTasks")}</h2>
+      <div style={{display:"grid",gap:8}}>{savedTasks.map(saved => <button key={saved.id} style={{...css.secondary,textAlign:"left",background:saved.id===taskId?"var(--c-bg, #f5f5f4)":"transparent"}} onClick={() => {if (saved.id === taskId) return; selectionRevision.current += 1; setTask(null);setStartedAt(null);setTaskId(saved.id);localStorage.setItem(storageKey(brandId),saved.id);}}>
+        {saved.brief || TYPES[saved.type]?.label || saved.id} · {saved.status === "running" ? t("vds.running") : statusLabel(saved.status,t)}
+      </button>)}</div>
+    </section>}
     {task && <section style={{ marginTop: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
         <h2 style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 24, margin: 0 }}>{TYPES[task.type]?.label}</h2>
-        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? `Finished in ${(metrics.total_ms / 1000).toFixed(0)}s · $${metrics.cost.total_usd.toFixed(3)}` : task.status === "failed" ? task.error : ""}</span>
+        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t) : task.status === "failed" ? task.error : ""}</span>
       </div>
       <Stepper stage={task.stage} status={task.status} />
+      {!running && <p style={css.dim}>{task.status === "approved" ? statusLabel("approved", t) : task.status === "failed" ? t("vds.generationFailed") : t("vds.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("vds.openLibrary")}</button></p>}
       {(task.notices || []).map((n, i) => <div key={i} style={{ fontSize: 12, color: "#b45309", marginBottom: 4 }}>● {n}</div>)}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginTop: 12 }}>
         {Array.from({ length: Math.max(count, task.items.length) }, (_, i) => task.items[i]).map((item, i) =>
