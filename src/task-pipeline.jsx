@@ -36,7 +36,7 @@ function Stepper({ stage, status }) {
   return (
     <ol style={{ display: "flex", gap: 6, listStyle: "none", padding: 0, margin: "16px 0", flexWrap: "wrap" }}>
       {STAGES.map((s, i) => {
-        const done = i < at || (i === at && (status === "ready" || status === "flagged"));
+        const done = i < at || (i === at && (status === "ready" || status === "flagged" || status === "approved"));
         const live = i === at && !done;
         return <li key={s} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: done || live ? "#1c1917" : "#a8a29e" }}>
           <span style={{ width: 8, height: 8, borderRadius: 999, background: done ? "#15803d" : live ? "#a16207" : "#d6d3d1" }} />
@@ -245,7 +245,7 @@ export function TaskPipelineView({ go }) {
         <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t) : task.status === "failed" ? task.error : ""}</span>
       </div>
       <Stepper stage={task.stage} status={task.status} />
-      {!running && <p style={css.dim}>{task.status === "failed" ? t("vds.generationFailed") : t("vds.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("vds.openLibrary")}</button></p>}
+      {!running && <p style={css.dim}>{task.status === "approved" ? statusLabel("approved", t) : task.status === "failed" ? t("vds.generationFailed") : t("vds.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("vds.openLibrary")}</button></p>}
       {(task.notices || []).map((n, i) => <div key={i} style={{ fontSize: 12, color: "#b45309", marginBottom: 4 }}>● {n}</div>)}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginTop: 12 }}>
         {Array.from({ length: Math.max(count, task.items.length) }, (_, i) => task.items[i]).map((item, i) =>

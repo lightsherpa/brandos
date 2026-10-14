@@ -3,12 +3,15 @@ export function outputStatus(status) { return status === 'approved' ? 'approved'
 export function statusLabel(status, t) { return t ? t('vds.status.' + outputStatus(status)) : {approved:'Approved',failed:'Failed',needs_review:'Needs review'}[outputStatus(status)]; }
 export function newestRuns(runs=[]) { return [...runs].sort((a,b)=>Date.parse(b.ended_at||b.started_at||b.created_at||0)-Date.parse(a.ended_at||a.started_at||a.created_at||0)||String(b.id).localeCompare(String(a.id))); }
 export function taskSnapshot(body) { return body?.snapshot || body; }
+export function hasHumanOutputApproval(output) {
+ return output.status === 'approved' && ((['internally_approved','client_review','client_approved'].includes(output.workflow_status) && output.internal_reviewed_by && output.internal_reviewed_at) || (output.workflow_status === 'client_approved' && output.client_reviewed_by && output.client_reviewed_at));
+}
 export function expandOutput(output) {
  let body=output.body||{}; if(typeof body==='string'){try{body=JSON.parse(body);}catch{}}
  const task=output.kind==='task'||body.kind==='task'||output.kind==='task_rerun';
  if(!task) return [{...output,outputId:output.id,status:outputStatus(output.status),text:body.edited_text||body.text||(typeof body==='string'?body:''),assetUrl:body.asset_url||null,edited:!!body.edited_text}];
  const items=Array.isArray(body.items)?body.items:body.item?[{...body.item,index:body.index}]:body.snapshot?.items||[];
- return items.map((item,i)=>({...output,id:`${output.id}:${item.index??i}`,outputId:output.id,itemIndex:item.index??i,taskId:body.task_id||body.snapshot?.id,taskType:body.type||body.snapshot?.type,kind:body.type||body.snapshot?.type||'task',status:outputStatus(item.status),text:item.copy?.caption||item.copy?.subject||'',html:item.html,checks:[...(item.checks||[]),...(item.review||[])],export:item.export,assetUrl:null,edited:false}));
+ return items.map((item,i)=>({...output,id:`${output.id}:${item.index??i}`,outputId:output.id,itemIndex:item.index??i,taskId:body.task_id||body.snapshot?.id,taskType:body.type||body.snapshot?.type,kind:body.type||body.snapshot?.type||'task',status:hasHumanOutputApproval(output)?'approved':outputStatus(item.status === 'approved' ? 'ready' : item.status),text:item.copy?.caption||item.copy?.subject||'',html:item.html,checks:[...(item.checks||[]),...(item.review||[])],export:item.export,assetUrl:null,edited:false}));
 }
 export async function requestHumanCraft(fetcher, body, onCredits=()=>{}) {
  if(body.outputId==null||body.slot==null) throw new Error('This deliverable is not saved yet.');
