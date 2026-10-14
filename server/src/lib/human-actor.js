@@ -1,8 +1,7 @@
-// Only the authentication middleware's verified caller context is authoritative.
-// Request bodies never supply the actor for a certification decision.
+// Certification authority comes only from the authenticated caller context.
 export function assertHumanActor(auth) {
   const type = auth?.actor?.type || auth?.actorType || auth?.actor_type || 'human';
-  if (!auth?.userId || type !== 'human' || ['agent', 'service_role'].includes(auth?.role)) {
-    throw Object.assign(new Error('Only a human Creative Director can certify.'), { status: 403, code: 'HUMAN_ACTOR_REQUIRED' });
+  if (!auth?.userId || type !== 'human' || ['agent', 'service', 'service_role', 'delegation'].includes(auth?.role) || auth?.delegationToken || auth?.delegation) {
+    throw Object.assign(new Error('Agents cannot certify'), { status: 403, code: 'AGENT_CANNOT_CERTIFY' });
   }
 }

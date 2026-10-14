@@ -1,3 +1,5 @@
+import { createCertifierRoutes } from "./certifier.js";
+import { requireHumanActor } from "../middleware/human-actor.js";
 import { assertHumanActor } from "../lib/human-actor.js";
 import { buildClaimLedger, certifierS1Enabled } from "../lib/claim-ledger.js";
 import { validateClaimReview } from "../lib/claim-review.js";
@@ -201,7 +203,7 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
    Cancel:
      { status: "cancelled" }
 */
-app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
+app.patch("/jobs/:id", requireHumanActor, requireAuth, requireHumanActor, requireSteward, async (c) => {
   try { assertHumanActor(c.get("auth")); }
   catch (err) { return c.json({ error: err.message, code: err.code }, err.status); }
   const steward = c.get("steward");
@@ -455,7 +457,7 @@ app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
    (loadBioForRun now fails), already-running jobs finish (they pinned
    bio_version), completed outputs keep their chip, briefing stays up
    (self-cert is untouched). */
-app.post("/decertify", requireAuth, async (c) => {
+app.post("/decertify", requireHumanActor, requireAuth, requireHumanActor, async (c) => {
   const auth = c.get("auth");
   const steward = await getCallerSteward(auth.userId);
   const isLead = (steward?.roles || []).includes("lead_steward");
@@ -546,5 +548,7 @@ async function notifyCertified(brandId) {
     brandId,
   });
 }
+
+app.route("/certifier", createCertifierRoutes(requireSteward));
 
 export default app;

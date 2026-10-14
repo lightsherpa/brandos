@@ -1,3 +1,4 @@
+import { requireHumanActor } from "../middleware/human-actor.js";
 import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 // discovery-session.js — M3 draft lane.
 //
@@ -129,7 +130,7 @@ app.post("/session/:brandId/prepare-review", requireAuth, async c=>{
 
 /* Compatibility endpoint: same v2 contract, validator and atomic receipt as
    /bios/:brandId/self-certify. It never silently promotes an unreviewed draft. */
-app.post("/session/:brandId/attest", requireAuth, async c=>{
+app.post("/session/:brandId/attest", requireHumanActor, requireAuth, requireHumanActor, async c=>{
  const {workspaceId,userId}=c.get("auth"),brandId=c.req.param("brandId");
  if(!(await ownedBrand(brandId,workspaceId)))return c.json({error:"Brand not in workspace"},403);
  if(!isWorkspaceOwner(c.get("auth"),workspaceId))return c.json({error:"Only the workspace Owner can confirm the Brand Core",code:"OWNER_REQUIRED"},403);
