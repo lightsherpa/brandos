@@ -1,0 +1,587 @@
+{
+  "DECOR-01-storage-planter-base": {
+    "src": "/agency-office/generated/decor/DECOR-01-storage-planter-base.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      53,
+      280,
+      1396,
+      882
+    ]
+  },
+  "DECOR-02-frame-square": {
+    "src": "/agency-office/generated/decor/DECOR-02-frame-square.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      171,
+      194,
+      1083,
+      1065
+    ]
+  },
+  "DECOR-03-abstract-art": {
+    "src": "/agency-office/generated/decor/DECOR-03-abstract-art.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      0,
+      0,
+      1254,
+      1254
+    ]
+  },
+  "DECOR-04-sofa": {
+    "src": "/agency-office/generated/decor/DECOR-04-sofa.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      102,
+      255,
+      1347,
+      849
+    ]
+  },
+  "DECOR-05-coffee-table": {
+    "src": "/agency-office/generated/decor/DECOR-05-coffee-table.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      136,
+      462,
+      1118,
+      854
+    ]
+  },
+  "DECOR-06-floor-plant": {
+    "src": "/agency-office/generated/decor/DECOR-06-floor-plant.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      120,
+      94,
+      938,
+      1453
+    ]
+  },
+  "DECOR-09-shelf-plant": {
+    "src": "/agency-office/generated/decor/DECOR-09-shelf-plant.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      121,
+      247,
+      931,
+      1214
+    ]
+  },
+  "DECOR-10-oak-bookshelf": {
+    "src": "/agency-office/generated/decor/DECOR-10-oak-bookshelf.png",
+    "size": [
+      887,
+      1774
+    ],
+    "bounds": [
+      197,
+      131,
+      690,
+      1639
+    ]
+  },
+  "DECOR-11-storage-cabinet": {
+    "src": "/agency-office/generated/decor/DECOR-11-storage-cabinet.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "bounds": [
+      86,
+      233,
+      1450,
+      806
+    ]
+  },
+  "DECOR-12-rug": {
+    "src": "/agency-office/generated/decor/DECOR-12-rug.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      42,
+      309,
+      1407,
+      814
+    ]
+  },
+  "DECOR-13-mug": {
+    "src": "/agency-office/generated/decor/DECOR-13-mug.png",
+    "size": [
+      1278,
+      1230
+    ],
+    "bounds": [
+      437,
+      426,
+      933,
+      892
+    ]
+  },
+  "DECOR-14-coffee-machine": {
+    "src": "/agency-office/generated/decor/DECOR-14-coffee-machine.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      295,
+      268,
+      960,
+      1015
+    ]
+  },
+  "DECOR-15-notebook": {
+    "src": "/agency-office/generated/decor/DECOR-15-notebook.png",
+    "size": [
+      1774,
+      887
+    ],
+    "bounds": [
+      363,
+      225,
+      1410,
+      717
+    ]
+  },
+  "DECOR-16-concept-pinboard": {
+    "src": "/agency-office/generated/decor/DECOR-16-concept-pinboard.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "bounds": [
+      57,
+      70,
+      1479,
+      952
+    ]
+  },
+  "DECOR-17-column-cactus": {
+    "src": "/agency-office/generated/decor/DECOR-17-column-cactus.png",
+    "size": [
+      887,
+      1774
+    ],
+    "bounds": [
+      132,
+      121,
+      756,
+      1663
+    ]
+  },
+  "DECOR-18-barrel-cactus": {
+    "src": "/agency-office/generated/decor/DECOR-18-barrel-cactus.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      159,
+      230,
+      867,
+      1396
+    ]
+  },
+  "DECOR-19-prickly-pear": {
+    "src": "/agency-office/generated/decor/DECOR-19-prickly-pear.png",
+    "size": [
+      1086,
+      1448
+    ],
+    "bounds": [
+      152,
+      152,
+      984,
+      1346
+    ]
+  },
+  "DECOR-20-snake-plant": {
+    "src": "/agency-office/generated/decor/DECOR-20-snake-plant.png",
+    "size": [
+      887,
+      1774
+    ],
+    "bounds": [
+      78,
+      119,
+      809,
+      1662
+    ]
+  },
+  "DECOR-21-lounge-armchair": {
+    "src": "/agency-office/generated/decor/DECOR-21-lounge-armchair.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      113,
+      178,
+      1142,
+      1077
+    ]
+  },
+  "ENV-01-empty-studio": {
+    "src": "/agency-office/generated/environment/ENV-01-empty-studio.png",
+    "size": [
+      1619,
+      971
+    ],
+    "bounds": [
+      0,
+      0,
+      1619,
+      971
+    ]
+  },
+  "ENV-02-glass-partition-horizontal": {
+    "src": "/agency-office/generated/environment/ENV-02-glass-partition-horizontal.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      90,
+      449,
+      935,
+      993
+    ]
+  },
+  "ENV-03-glass-doorway-horizontal": {
+    "src": "/agency-office/generated/environment/ENV-03-glass-doorway-horizontal.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      163,
+      111,
+      861,
+      1429
+    ]
+  },
+  "ENV-04-window-horizontal": {
+    "src": "/agency-office/generated/environment/ENV-04-window-horizontal.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      145,
+      133,
+      878,
+      1439
+    ]
+  },
+  "ENV-05-oak-floor-tile": {
+    "src": "/agency-office/generated/environment/ENV-05-oak-floor-tile.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      0,
+      0,
+      1254,
+      1254
+    ]
+  },
+  "ENV-06-cream-wall-horizontal": {
+    "src": "/agency-office/generated/environment/ENV-06-cream-wall-horizontal.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      51,
+      517,
+      973,
+      1013
+    ]
+  },
+  "ENV-07-cream-wall-side": {
+    "src": "/agency-office/generated/environment/ENV-07-cream-wall-side.png",
+    "size": [
+      724,
+      2172
+    ],
+    "bounds": [
+      194,
+      120,
+      531,
+      2091
+    ]
+  },
+  "ENV-08-glass-partition-side": {
+    "src": "/agency-office/generated/environment/ENV-08-glass-partition-side.png",
+    "size": [
+      724,
+      2172
+    ],
+    "bounds": [
+      232,
+      106,
+      495,
+      2064
+    ]
+  },
+  "WORK-01-desk-oak-back": {
+    "src": "/agency-office/generated/workstations/WORK-01-desk-oak-back.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      116,
+      258,
+      1332,
+      862
+    ]
+  },
+  "WORK-01-desk-oak-right": {
+    "src": "/agency-office/generated/workstations/WORK-01-desk-oak-right.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      458,
+      161,
+      990,
+      926
+    ]
+  },
+  "WORK-01-desk-oak": {
+    "src": "/agency-office/generated/workstations/WORK-01-desk-oak.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      116,
+      259,
+      1332,
+      864
+    ]
+  },
+  "WORK-02-chair-orange-back": {
+    "src": "/agency-office/generated/workstations/WORK-02-chair-orange-back.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      78,
+      106,
+      947,
+      1427
+    ]
+  },
+  "WORK-02-chair-orange-front": {
+    "src": "/agency-office/generated/workstations/WORK-02-chair-orange-front.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      74,
+      96,
+      951,
+      1455
+    ]
+  },
+  "WORK-02-chair-orange-right": {
+    "src": "/agency-office/generated/workstations/WORK-02-chair-orange-right.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      114,
+      56,
+      964,
+      1471
+    ]
+  },
+  "WORK-03-laptop-back": {
+    "src": "/agency-office/generated/workstations/WORK-03-laptop-back.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      59,
+      320,
+      1196,
+      1037
+    ]
+  },
+  "WORK-03-laptop-open": {
+    "src": "/agency-office/generated/workstations/WORK-03-laptop-open.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      86,
+      192,
+      1168,
+      1103
+    ]
+  },
+  "WORK-03-laptop-right": {
+    "src": "/agency-office/generated/workstations/WORK-03-laptop-right.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bounds": [
+      158,
+      102,
+      1139,
+      1147
+    ]
+  },
+  "WORK-04-monitor": {
+    "src": "/agency-office/generated/workstations/WORK-04-monitor.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      62,
+      394,
+      963,
+      1173
+    ]
+  },
+  "WORK-05-keyboard": {
+    "src": "/agency-office/generated/workstations/WORK-05-keyboard.png",
+    "size": [
+      1774,
+      887
+    ],
+    "bounds": [
+      70,
+      216,
+      1704,
+      693
+    ]
+  },
+  "WORK-06-mouse": {
+    "src": "/agency-office/generated/workstations/WORK-06-mouse.png",
+    "size": [
+      1286,
+      1223
+    ],
+    "bounds": [
+      284,
+      251,
+      1003,
+      974
+    ]
+  },
+  "WORK-07-pen-tablet": {
+    "src": "/agency-office/generated/workstations/WORK-07-pen-tablet.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "bounds": [
+      169,
+      265,
+      1368,
+      767
+    ]
+  },
+  "WORK-08-desk-cream": {
+    "src": "/agency-office/generated/workstations/WORK-08-desk-cream.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      101,
+      285,
+      1348,
+      850
+    ]
+  },
+  "WORK-09-chair-charcoal-front": {
+    "src": "/agency-office/generated/workstations/WORK-09-chair-charcoal-front.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      145,
+      212,
+      880,
+      1424
+    ]
+  },
+  "WORK-10-meeting-table": {
+    "src": "/agency-office/generated/workstations/WORK-10-meeting-table.png",
+    "size": [
+      1402,
+      1122
+    ],
+    "bounds": [
+      39,
+      329,
+      1362,
+      889
+    ]
+  },
+  "WORK-11-review-counter": {
+    "src": "/agency-office/generated/workstations/WORK-11-review-counter.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "bounds": [
+      74,
+      306,
+      1374,
+      834
+    ]
+  },
+  "WORK-12-task-lamp": {
+    "src": "/agency-office/generated/workstations/WORK-12-task-lamp.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "bounds": [
+      140,
+      174,
+      911,
+      1421
+    ]
+  }
+}
