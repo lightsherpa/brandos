@@ -123,6 +123,7 @@ export async function resolveFoundationForUse(brandId, visual = {}) {
   const assets=ids.length ? await loadVisualAssets(brandId,{sourceIds:ids}) : {logos:[],fonts:[]};
   const logoUrls=new Map(assets.logos.map(item=>[item.id,item.url]));
   const fontUrls=new Map(assets.fonts.map(item=>[item.id,item.url]));
+  const fontMetadata=new Map(assets.fonts.map(item=>[item.id,item.signals]));
   const variants=Object.fromEntries(Object.entries(visual.logo?.variants || {}).map(([key,item])=>[key,{...item,url:item.sourceId?logoUrls.get(item.sourceId)||null:item.url||null}]));
   const logo=visual.logo ? {
     ...visual.logo,
@@ -131,7 +132,10 @@ export async function resolveFoundationForUse(brandId, visual = {}) {
     dark_url:variants.dark?.url || null,
     light_url:variants.light?.url || null,
   } : null;
-  const type=(visual.type || []).map(font=>({...font,...(font.sourceId?{url:fontUrls.get(font.sourceId)||null}:{})}));
+  const type=(visual.type || []).map(font=>{
+    const signals=fontMetadata.get(font.sourceId);
+    return {...font,...(font.sourceId?{url:fontUrls.get(font.sourceId)||null}:{}),...(signals?{license:signals.license_type||null,suggest:signals.license_reference||null,rights_confirmed:signals.rights_confirmed===true}:{})};
+  });
   const unresolved=[...ids].filter(id=>!logoUrls.has(id)&&!fontUrls.has(id));
   if(unresolved.length){const error=new Error('A certified foundation upload cannot be resolved');error.code='FOUNDATION_INCOMPLETE';error.status=409;error.missing=unresolved.map(id=>`source:${id}`);throw error;}
   return {...visual,logo,type};
