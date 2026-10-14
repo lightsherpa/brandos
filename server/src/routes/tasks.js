@@ -5,6 +5,7 @@
 //   POST /api/tasks/:id/rules               { index, kind, value, reason, checkId } "Save as rule"
 //   POST /api/tasks/:id/items/:index/rerun  copy-only re-run of one flagged item (Beat 5)
 // Jobs run server-side, so the user can leave the page and come back.
+import { recoverTasks } from "../harness/task-recovery.js";
 import { Hono } from "hono";
 import crypto from "node:crypto";
 import { requireAuth } from "../middleware/auth.js";
@@ -31,7 +32,7 @@ app.use("*", async (c, next) => {
   if (!tasksEnabled()) return c.json({ error: "Tasks are not enabled", code: "TASKS_DISABLED" }, 404);
   return next();
 });
-const jobs = new Map();           // in-process store; survives navigation, not a server restart
+const jobs = new Map(); // live progress cache; completed outputs recover after restart
 const MAX_JOBS = 200;
 
 function remember(job) {
@@ -74,6 +75,7 @@ app.post("/", requireAuth, async (c) => {
     id, type, brandId, workspaceId: scoped.brand.workspace_id, brief: brief.trim(), heroes: !!heroes,
     status: "running", stage: "Planning", eta_s: eta, run_id: run.runId, credits, created_at: new Date().toISOString(), created_by: scoped.auth.userId || null,
     brand_core: { version: ctx.bio?.version ?? null, foundation_missing: ctx.layer1.foundation_missing, references: ctx.layer1.references.length, rules: ctx.layer1.rules.length },
+    provenance: ctx.provenance || { bioId: ctx.bio?.id ?? null, bioVersion: ctx.bio?.version ?? null },
     items: [], notices: [], result: null, error: null,
   };
   remember(job);
@@ -85,7 +87,7 @@ app.post("/", requireAuth, async (c) => {
   settle({ workspaceId, brandId, userId: job.created_by, run,
     work: () => runTask({ type, brief: job.brief, layer1: ctx.layer1, count, heroes, skillsPayloads: ctx.skillsPayloads, onEvent }),
     toOutput: (res) => taskOutput(job, res) })
-    .then((res) => { job.result = { spec: res.spec, metrics: res.metrics }; job.items = res.items; job.status = res.status; job.stage = "Ready"; job.finished_at = new Date().toISOString(); })
+    .then((res) => { job.result = { spec: res.spec, metrics: res.metrics }; job.items = res.items; job.status = res.status; job.stage = res.status === "ready" ? "Ready" : "Flagged"; job.finished_at = new Date().toISOString(); })
     .catch((e) => { job.status = "failed"; job.error = e.message; job.finished_at = new Date().toISOString(); console.error(`[task-pipeline] ${id} failed: ${e.message}`); });
   return c.json({ id, eta_s: eta, stage: job.stage }, 202);
 });
@@ -93,7 +95,13 @@ app.post("/", requireAuth, async (c) => {
 app.get("/", requireAuth, async (c) => {
   const brandId = c.req.query("brandId");
   const auth = c.get("auth");
-  const list = [...jobs.values()].filter((j) => (!brandId || j.brandId === brandId) && hasPermission(auth, "brief.run", j.workspaceId)).slice(-20).reverse();
+  if (brandId) { const scoped = await scopeBrand(c, brandId); if (scoped.error) return scoped.error; }
+  let persisted;
+  try { persisted = await recoverTasks(supabaseAdmin, ws => hasPermission(auth, "brief.run", ws), brandId); }
+  catch (e) { return c.json({ error: e.message, code: e.code }, e.status || 503); }
+  const combined = new Map(persisted.map(j => [j.id, j]));
+  for (const job of jobs.values()) if ((!brandId || job.brandId === brandId) && hasPermission(auth, "brief.run", job.workspaceId)) combined.set(job.id, job);
+  const list = [...combined.values()].sort((a,b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0,20);
   return c.json({ tasks: list.map((j) => ({ id: j.id, type: j.type, status: j.status, stage: j.stage, created_at: j.created_at, brief: j.brief.slice(0, 120) })) });
 });
 
@@ -101,18 +109,20 @@ export function taskOutput(job, res) {
   const ready = res.status === "ready";
   return {
     kind: "task", status: ready ? "approved" : "needs_review", ledger_kind: ready ? "run" : "run_flagged",
-    body: JSON.stringify({ task_id: job.id, type: job.type, spec: res.spec, items: res.items }),
+    body: JSON.stringify({ task_id: job.id, type: job.type, spec: res.spec, items: res.items,
+      snapshot: { brief: job.brief, heroes: job.heroes, created_at: job.created_at, finished_at: new Date().toISOString(), created_by: job.created_by,
+        credits: job.credits, brand_core: job.brand_core, generation_brand_core: res.brand_core ?? null, provenance: job.provenance, notices: job.notices, metrics: res.metrics } }),
     asset_url: res.items?.find((it) => it?.asset_url)?.asset_url || null,
     qa_passed: ready, qa_evidence: { items: (res.items || []).map((it) => ({ index: it?.index, status: it?.status, checks: it?.checks })) },
     rationale: ready ? null : "One or more items need review",
   };
 }
 
-export function rerunOutput(job, index, res) {
+export function rerunOutput(job, index, res, provenance = null) {
   const ready = res.item?.status === "ready";
   return {
     kind: "task_rerun", status: ready ? "approved" : "needs_review", ledger_kind: ready ? "run" : "run_flagged",
-    body: JSON.stringify({ task_id: job.id, index, item: res.item }), asset_url: res.item?.asset_url || null,
+    body: JSON.stringify({ task_id: job.id, index, item: res.item, metrics: res.metrics, provenance, finished_at: new Date().toISOString() }), asset_url: res.item?.asset_url || null,
     qa_passed: ready, qa_evidence: { index, checks: res.item?.checks }, rationale: ready ? null : "Re-run still needs review",
   };
 }
@@ -126,20 +136,28 @@ export function rerunGate(job, index) {
   return { ok: true, used };
 }
 
-function getJob(c) {
-  const job = jobs.get(c.req.param("id"));
-  if (!job) return { error: c.json({ error: "Task not found (it may have expired after a server restart)" }, 404) };
+async function getJob(c) {
+  const id = c.req.param("id");
+  let job = jobs.get(id);
+  if (!job) {
+    try {
+      const recovered = await recoverTasks(supabaseAdmin, ws => hasPermission(c.get("auth"), "brief.run", ws));
+      job = jobs.get(id) || recovered.find(j => j.id === id);
+      if (job) remember(job);
+    } catch (e) { return { error: c.json({ error: e.message, code: e.code }, e.status || 503) }; }
+  }
+  if (!job) return { error: c.json({ error: "Task not found" }, 404) };
   if (!hasPermission(c.get("auth"), "brief.run", job.workspaceId)) return { error: c.json({ error: "Forbidden" }, 403) };
   return { job };
 }
 
-app.get("/:id", requireAuth, (c) => {
-  const { job, error } = getJob(c);
+app.get("/:id", requireAuth, async (c) => {
+  const { job, error } = await getJob(c);
   return error || c.json(snapshot(job));
 });
 
 app.post("/:id/rules", requireAuth, async (c) => {
-  const { job, error } = getJob(c);
+  const { job, error } = await getJob(c);
   if (error) return error;
   if (!canSaveRule(c.get("auth"), job.workspaceId)) return c.json({ error: "Only Owners and Editors can save brand rules", code: "PERMISSION_REQUIRED", permission: RULE_PERMISSION }, 403);
   const body = await c.req.json().catch(() => ({}));
@@ -151,7 +169,7 @@ app.post("/:id/rules", requireAuth, async (c) => {
 });
 
 app.post("/:id/items/:index/rerun", requireAuth, async (c) => {
-  const { job, error } = getJob(c);
+  const { job, error } = await getJob(c);
   if (error) return error;
   const body = await c.req.json().catch(() => ({}));
   const r = await executeRerun({ job, index: Number(c.req.param("index")), body, userId: c.get("auth").userId });
@@ -181,7 +199,7 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
     const credits = taskCredits({ type: job.type, rerun: true });
     const pre = await deps.preflight({ workspaceId: job.workspaceId, credits });
     if (!pre.ok) { rollback(); return { credit: pre.check }; }
-    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, copyOnly: true });
+    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, copyOnly: true, bioVersion: job.provenance?.bioVersion ?? job.brand_core?.version });
     run = await deps.openRun({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, brief: job.brief, bioVersion: ctx.bio?.version, credits, kind: "rerun", parentTaskId: job.id, itemIndex: index });
   } catch (e) {
     rollback();
@@ -191,9 +209,11 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
     const ruleIds = Array.isArray(body.ruleIds) ? body.ruleIds : (job.saved_rules || []).map((r) => r.id);
     const res = await deps.settle({ workspaceId: job.workspaceId, brandId: job.brandId, userId, run,
       work: () => deps.rerunItem({ type: job.type, brief: job.brief, layer1: ctx.layer1, spec: job.result.spec, item, heroes: job.heroes, ruleIds, skillsPayloads: ctx.skillsPayloads }),
-      toOutput: (r) => rerunOutput(job, index, r) });
+      toOutput: (r) => rerunOutput(job, index, r, ctx.provenance || {bioId:ctx.bio?.id ?? null,bioVersion:ctx.bio?.version ?? null}) });
     job.items[index] = res.item;
     job.status = job.items.every((it) => it.status === "ready") ? "ready" : "flagged";
+    job.stage = job.status === "ready" ? "Ready" : "Flagged";
+    job.finished_at = new Date().toISOString();
     job.reruns = [...(job.reruns || []), { index, run_id: run.runId, ...res.metrics }];
     return { status: 200, body: { item: res.item, metrics: res.metrics, run_id: run.runId, reruns_left: MAX_RERUNS_PER_ITEM - job.rerun_counts[index] } };
   } catch (e) {

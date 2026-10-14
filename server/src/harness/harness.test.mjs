@@ -143,7 +143,7 @@ function stubComplete({ captions, verdict }) {
   };
   fn.calls = calls; return fn;
 }
-const passAll = (task) => () => ({ items: [0, 1, 2].map((index) => ({ index, checks: TASKS[task].reviewerChecks.map((id) => ({ id, pass: true, reason: "ok", target: "copy" })) })) });
+const passAll = (task) => (messages) => ({ items: JSON.parse(messages[0].content[0].text.split("ITEMS:\n")[1]).map((_, index) => ({ index, checks: TASKS[task].reviewerChecks.map((id) => ({ id, pass: true, reason: "ok", target: "copy" })) })) });
 const gen = async function* ({ route, aspect, referenceImageUrls }) { yield { type: "done", asset_url: `https://img.test/${route.split("/").pop()}-${Math.random()}.png`, width: 1088, height: 1360, model: route, cost_usd: 0.07, uses_reference: referenceImageUrls?.length > 0, reference_count: referenceImageUrls?.length || 0 }; };
 
 test("social task: 3 posts, 1 image each with refs, streamed, ready", async () => {
@@ -196,9 +196,9 @@ test("Beat 5 re-run regenerates only that item's copy and reuses the image", asy
 });
 
 test("email task: 3 HTML emails rendered, every one <80KB", async () => {
-  const complete = async function* ({ spec }) {
+  const complete = async function* ({ spec, messages }) {
     const step = spec.payload.name;
-    const body = step === "task.review" ? passAll("email_sequence")() : { task: "email_sequence", language: "es", smp: "s", emails: [0, 3, 7].map((d, i) => ({ day_offset: d, purpose: `p${i}`, subject: `Asunto ${i}`, preheader: "Un adelanto de lo que encontrarás dentro de este email.", headline: `Titular ${i}`, body_blocks: ["Hola, esto es un email."], cta: { label: "Ver", url: "https://cakeme.es" } })) };
+    const body = step === "task.review" ? passAll("email_sequence")(messages) : { task: "email_sequence", language: "es", smp: "s", emails: [0, 3, 7].map((d, i) => ({ day_offset: d, purpose: `p${i}`, subject: `Asunto ${i}`, preheader: "Un adelanto de lo que encontrarás dentro de este email.", headline: `Titular ${i}`, body_blocks: ["Hola, esto es un email."], cta: { label: "Ver", url: "https://cakeme.es" } })) };
     yield { type: "token", text: JSON.stringify(body) }; yield { type: "done", usage: { cost_usd: 0.01 } };
   };
   const out = await runTask({ type: "email_sequence", brief: "Secuencia de bienvenida", layer1: layer1(), deps: { complete, gen } });

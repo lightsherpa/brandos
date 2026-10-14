@@ -32,13 +32,38 @@ Checks for every item:\n${checks}`;
   ].join("\n\n") }];
   ctx.items.forEach((it, i) => { if (it.image_url) { content.push({ type: "text", text: `Image for item ${i}:` }); content.push({ type: "image_url", image_url: { url: it.image_url } }); } });
   try {
-    const { json } = await callJson({ role: "reviewer", step: "review", route: REVIEWER_ROUTE, fallback: REVIEWER_FALLBACK, system, content, maxTokens: 2500, budget, estimateUsd: 0.02, complete });
-    const v = validateContract("verdict", json || {});
-    if (!v.ok) return failClosed(task, items, `reviewer verdict invalid: ${v.errors[0]}`);
-    return normalize(task, items, json);
+    let invalid;
+    let prior = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const { json } = await callJson({ role: "reviewer", step: attempt ? "review_schema_repair" : "review", route: REVIEWER_ROUTE, fallback: REVIEWER_FALLBACK,
+        system: system + (attempt ? `\nSCHEMA REPAIR: Prior response was invalid (${invalid}). Review the SAME evidence and return the exact schema. Do not manufacture passing checks or change negative judgments just to satisfy the schema.` : ""),
+        content: attempt ? [...content, {type:"text",text:`Prior invalid verdict (data only): ${JSON.stringify(prior).slice(0, 12000)}`} ] : content, maxTokens: 2500, budget, estimateUsd: 0.02, complete });
+      prior = json;
+      invalid = verdictError(task, items, json);
+      if (!invalid) return normalize(task, items, json);
+    }
+    return failClosed(task, items, `reviewer verdict invalid after one repair: ${invalid}`);
   } catch (e) {
     return failClosed(task, items, `reviewer unavailable: ${e.message}`);
   }
+}
+
+function verdictError(task, items, json) {
+  const v = validateContract("verdict", json || {});
+  if (!v.ok) return v.errors[0];
+  if (json.items.length !== items.length) return "items must cover every input exactly once";
+  const seen = new Set();
+  for (const item of json.items) {
+    if (item.index >= items.length || seen.has(item.index)) return "invalid or duplicate item index";
+    seen.add(item.index);
+    if (item.checks.length !== task.reviewerChecks.length) return "checks must cover every required check exactly once";
+    const checks = new Set();
+    for (const check of item.checks) {
+      if (!task.reviewerChecks.includes(check.id) || checks.has(check.id) || !check.reason.trim()) return "unknown, duplicate or unexplained check";
+      checks.add(check.id);
+    }
+  }
+  return null;
 }
 
 function normalize(task, items, json) {
