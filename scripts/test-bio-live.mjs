@@ -8,7 +8,7 @@ const owner=JSON.parse(await readFile('.bio-local/owner.json','utf8'));
 const sb=createClient(status.API_URL,status.SERVICE_ROLE_KEY);
 const {data:login,error}=await createClient(status.API_URL,status.ANON_KEY).auth.signInWithPassword({email:owner.email,password:'Bio-release-test-2026!'});if(error)throw error;
 const api=(route,body)=>fetch(`http://127.0.0.1:8792${route}`,{method:'POST',headers:{Authorization:`Bearer ${login.session.access_token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
-await mkdir('output/bio-vds',{recursive:true});
+await mkdir('output/bio-discovery',{recursive:true});
 const results=[];
 for(const {name,url,slug} of [{name:'Geoking · live release test',url:'https://geoking.com',slug:'geoking'},{name:'Cake-me · live release test',url:'https://thecake-me.com',slug:'cake-me'}]){
  let {data:brand}=await sb.from('brands').select('id').eq('workspace_id',owner.workspaceId).eq('name',name).order('created_at',{ascending:false}).limit(1).maybeSingle();
@@ -30,7 +30,7 @@ for(const {name,url,slug} of [{name:'Geoking · live release test',url:'https://
  const {data:sources}=await sb.from('bio_sources').select('id,kind,src,signals').eq('brand_id',brand.id);
  const {data:usage}=await sb.from('api_usage_events').select('feature,provider,resolved_model,status,latency_ms,input_tokens,output_tokens,reported_cost_usd,cost_source').eq('workflow_id',run.discoveryId);
  const result={name,url,brandId:brand.id,discoveryId:run.discoveryId,eventId:run.eventId,elapsedSeconds:Math.round((Date.now()-started)/1000),saved:!!bio,bio,sources,usage};
- await writeFile(`output/bio-vds/${slug}-live.json`,JSON.stringify(result,null,2));results.push({slug,brandId:brand.id,discoveryId:run.discoveryId,saved:!!bio,elapsedSeconds:result.elapsedSeconds});
- await writeFile('output/bio-vds/live-results.json',JSON.stringify(results,null,2));console.log(`${slug}: ${bio?'BIO persisted':'no BIO before test timeout'} (${result.elapsedSeconds}s)`);
+ await writeFile(`output/bio-discovery/${slug}-live.json`,JSON.stringify(result,null,2));results.push({slug,brandId:brand.id,discoveryId:run.discoveryId,saved:!!bio,elapsedSeconds:result.elapsedSeconds});
+ await writeFile('output/bio-discovery/live-results.json',JSON.stringify(results,null,2));console.log(`${slug}: ${bio?'BIO persisted':'no BIO before test timeout'} (${result.elapsedSeconds}s)`);
 
 }

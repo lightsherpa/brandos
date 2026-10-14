@@ -1670,7 +1670,7 @@
     },
     "sourceFailure": "Source retrieval failed. No Brand Core was generated. Add a readable public source or upload brand materials."
   },
-  "vds": {
+  "taskOutput": {
     "status": {
       "needs_review": "Needs review",
       "approved": "Approved",

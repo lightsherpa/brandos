@@ -5,7 +5,7 @@ import { fixture, context } from './test-helpers.js';
 import { serializeContext, contextFromRecords, buildCertifierContext, tokenUpperBound } from './context.js';
 import { SYSTEM_PROMPT, fillSystemPrompt } from './prompt.js';
 test('system prompt is verbatim and fills only the four placeholders', () => {
- const doc = readFileSync(new URL('../../../../docs/brandos/handoffs/2026-10-13-certifier-vds/SYSTEM-PROMPT.md', import.meta.url),'utf8');
+ const doc = readFileSync(new URL('../../../../docs/brandos/handoffs/2026-10-13-certifier/SYSTEM-PROMPT.md', import.meta.url),'utf8');
  assert.equal(SYSTEM_PROMPT,doc.split('```text\n')[1].split('```')[0].trimEnd());
  const filled=fillSystemPrompt({client_locale:'es',cd_locale:'en',mode:'single_claim',claim_id:'visual.logo'});
  assert.ok(!filled.includes('{{'));assert.ok(filled.includes('claim visual.logo only'));

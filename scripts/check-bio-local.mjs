@@ -7,5 +7,5 @@ for(const script of ['scripts/test-cert-flow.mjs','scripts/test-discovery-flow.m
  const result=spawnSync(process.execPath,[script],{env,stdio:'inherit'});
  if(result.status!==0)process.exit(result.status||1);
 }
-const result=spawnSync('docker',['exec','-i','supabase_db_caastoros-bio-vds','psql','-U','postgres','-v','ON_ERROR_STOP=1'],{input:execFileSync('cat',['scripts/check-bio-attestation-transaction.sql']),stdio:['pipe','inherit','inherit']});
+const result=spawnSync('docker',['exec','-i','supabase_db_brandos-bio-discovery','psql','-U','postgres','-v','ON_ERROR_STOP=1'],{input:execFileSync('cat',['scripts/check-bio-attestation-transaction.sql']),stdio:['pipe','inherit','inherit']});
 process.exit(result.status||0);

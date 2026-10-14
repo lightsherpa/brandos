@@ -219,7 +219,7 @@ export function TaskPipelineView({ go }) {
   return <div style={css.page}>
     <style>{"@keyframes tpPulse{0%,100%{opacity:1}50%{opacity:.55}}"}</style>
     <h1 style={css.h1}>Tasks</h1>
-    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>{t("vds.taskIntro")}</p>
+    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>{t("taskOutput.taskIntro")}</p>
     {!brandId && <p>Select a brand first.</p>}
     <section style={{ ...css.card, padding: 16, display: "grid", gap: 12, marginTop: 16 }}>
       <div style={{ display: "flex", gap: 8 }}>
@@ -233,10 +233,10 @@ export function TaskPipelineView({ go }) {
       {error && <div style={{ color: "#b91c1c", fontSize: 13 }}>{error}</div>}
     </section>
 
-    {savedTasks.length > 0 && <section style={{...css.card,padding:14,marginTop:20}} aria-label={t("vds.savedTasks")}>
-      <h2 style={{margin:"0 0 10px",fontSize:18}}>{t("vds.savedTasks")}</h2>
+    {savedTasks.length > 0 && <section style={{...css.card,padding:14,marginTop:20}} aria-label={t("taskOutput.savedTasks")}>
+      <h2 style={{margin:"0 0 10px",fontSize:18}}>{t("taskOutput.savedTasks")}</h2>
       <div style={{display:"grid",gap:8}}>{savedTasks.map(saved => <button key={saved.id} style={{...css.secondary,textAlign:"left",background:saved.id===taskId?"var(--c-bg, #f5f5f4)":"transparent"}} onClick={() => {if (saved.id === taskId) return; selectionRevision.current += 1; setTask(null);setStartedAt(null);setTaskId(saved.id);localStorage.setItem(storageKey(brandId),saved.id);}}>
-        {saved.brief || TYPES[saved.type]?.label || saved.id} · {saved.status === "running" ? t("vds.running") : statusLabel(saved.status,t)}
+        {saved.brief || TYPES[saved.type]?.label || saved.id} · {saved.status === "running" ? t("taskOutput.running") : statusLabel(saved.status,t)}
       </button>)}</div>
     </section>}
     {task && <section style={{ marginTop: 24 }}>
@@ -245,7 +245,7 @@ export function TaskPipelineView({ go }) {
         <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t) : task.status === "failed" ? task.error : ""}</span>
       </div>
       <Stepper stage={task.stage} status={task.status} />
-      {!running && <p style={css.dim}>{task.status === "approved" ? statusLabel("approved", t) : task.status === "failed" ? t("vds.generationFailed") : t("vds.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("vds.openLibrary")}</button></p>}
+      {!running && <p style={css.dim}>{task.status === "approved" ? statusLabel("approved", t) : task.status === "failed" ? t("taskOutput.generationFailed") : t("taskOutput.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("taskOutput.openLibrary")}</button></p>}
       {(task.notices || []).map((n, i) => <div key={i} style={{ fontSize: 12, color: "#b45309", marginBottom: 4 }}>● {n}</div>)}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginTop: 12 }}>
         {Array.from({ length: Math.max(count, task.items.length) }, (_, i) => task.items[i]).map((item, i) =>

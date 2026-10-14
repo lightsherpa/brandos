@@ -11,7 +11,7 @@ Oscar approved geoking.com and thecake-me.com only, with a combined $5 ceiling. 
 
 Cake-me model usage: Gemini 3.8 Flash vision $0.002796; Haiku 5.5 evidence reader $0.0042042; Sonnet 5.5 synthesis $0.119586. The combined ledger contains $1.6265862 in reported charges plus conservative, unsettled retrieval reservations. This is below the authorized cap, **not an invoice total**: Firecrawl did not return per-call prices. No additional paid retry was made. The local API was restarted without paid-provider credentials afterward.
 
-Raw provider results, usage records and source ledgers are preserved in ignored `output/bio-vds/{cake-me,geoking}-live.json`. Original Cake-me v1 remains intact. `cake-me-refined.json` records the separate zero-provider-cost v2 candidate. Public replay records exclude IDs, credentials and signed screenshot URLs.
+Raw provider results, usage records and source ledgers are preserved in ignored `output/bio-discovery/{cake-me,geoking}-live.json`. Original Cake-me v1 remains intact. `cake-me-refined.json` records the separate zero-provider-cost v2 candidate. Public replay records exclude IDs, credentials and signed screenshot URLs.
 
 ## Coverage and quality
 
@@ -43,7 +43,7 @@ Website screenshots and rights-confirmed uploaded images can produce imagery obs
 - Local Brand Book: `http://127.0.0.1:5185/#/brand-book/replay/cake-me`
 - Failure replay: `http://127.0.0.1:5185/#/brand-book/replay/geoking`
 - Portable replay: `http://127.0.0.1:5185/demo/bio/replay.html` (also opens as a standalone file)
-- Browser screenshots: ignored `output/bio-vds/brand-book-cake-{desktop,mobile,es-mobile,ar-mobile}.png`.
+- Browser screenshots: ignored `output/bio-discovery/brand-book-cake-{desktop,mobile,es-mobile,ar-mobile}.png`.
 
 Final browser checks used actual 390px and 1440px viewports (document width matched the viewport without horizontal overflow). English, Spanish and Arabic Brand Book navigation/status labels were inspected; Arabic uses RTL. The stored BIO content remains in its original generated language. Mobile fixes reduce header crowding, wrap provenance/pills, stack fields, and render long jobs-to-be-done/voice phrases as readable lists. No missing confidence is presented as a stray percentage. Earlier intake checks are separately recorded in `2026-10-10-discovery-intake-checks.md`.
 

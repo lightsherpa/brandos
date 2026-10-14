@@ -16,7 +16,7 @@ try{
  console.log('PASS progress failure: actual stage preserved, terminal code sanitized, unauthenticated read blocked.');
  // Import historical test outcomes explicitly: these ran before progress migration.
  for(const slug of ['geoking','cake-me']){
-  const result=JSON.parse(await readFile(`output/bio-vds/${slug}-live.json`,'utf8'));
+  const result=JSON.parse(await readFile(`output/bio-discovery/${slug}-live.json`,'utf8'));
   await recordDiscoveryStage({discoveryId:result.discoveryId,brandId:result.brandId,workspaceId:owner.workspaceId,stage:result.saved?'done':'scrape',status:result.saved?'completed':'failed',bioId:result.bio?.id||null,errorCode:result.saved?null:'SOURCE_UNREADABLE'});
  }
 }finally{await sb.from('brands').delete().eq('id',brand.id);}

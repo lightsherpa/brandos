@@ -51,6 +51,6 @@ test('live and saved views use the guarded surface; dev prototype stays intact',
   assert.match(source, /officeScope=\{context\.brandId\}/);
   assert.match(source, /officeScope=\{state\.brief\.brand_id\}/);
   assert.match(source, /if \(prototype\) return <PlexCanvasPrototype go=\{go\} \/>;/);
-  assert.match(source, /vds\.savedBriefGuidance/);
+  assert.match(source, /taskOutput\.savedBriefGuidance/);
   assert.doesNotMatch(source, /OfficePreview/);
 });

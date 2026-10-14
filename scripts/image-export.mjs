@@ -1,4 +1,4 @@
-// Usage: PLAYWRIGHT_MODULE_PATH=/absolute/module node scripts/vds-image-export.mjs input.html output.png [width height]
+// Usage: PLAYWRIGHT_MODULE_PATH=/absolute/module node scripts/image-export.mjs input.html output.png [width height]
 import fs from 'node:fs/promises';
 import { exportSocialPng } from '../server/src/harness/stable-export.js';
 const [input,output,w='1080',h='1350']=process.argv.slice(2);

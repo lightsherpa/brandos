@@ -3,7 +3,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
-const name=`vds-output-qa-test-${process.pid}`;
+const name=`output-qa-test-${process.pid}`;
 function command(args,input){return new Promise((resolve,reject)=>{const p=spawn('docker',args);let out='',err='';p.stdout.on('data',b=>out+=b);p.stderr.on('data',b=>err+=b);p.on('error',reject);p.on('close',code=>code?reject(Error(err)):resolve(out.trim()));p.stdin.end(input);});}
 const sql=text=>command(['exec','-i',name,'psql','-h','127.0.0.1','-U','postgres','-X','-qAt','-v','ON_ERROR_STOP=1'],text);
 test('qa_passed migration preserves real human decisions and changes only automatic task approval',async()=>{
