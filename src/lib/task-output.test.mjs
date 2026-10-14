@@ -28,8 +28,8 @@ test('legacy metrics have an honest unavailable cost',()=>{assert.equal(taskMetr
 
 test('presentation helpers resolve locale keys without changing truthful status',()=>{
  const t=(key,values)=>values ? `${key}:${values.seconds}` : key;
- assert.equal(statusLabel('ready',t),'vds.status.needs_review');
- assert.equal(taskMetricsLabel({total_ms:1000,cost:null},t),'vds.finishedvds.elapsed:1 · vds.costUnavailable');
+ assert.equal(statusLabel('ready',t),'taskOutput.status.needs_review');
+ assert.equal(taskMetricsLabel({total_ms:1000,cost:null},t),'taskOutput.finishedtaskOutput.elapsed:1 · taskOutput.costUnavailable');
 });
 test('new browser restores latest persisted task without local storage',async()=>{
  const calls=[]; const result=await loadSavedTasks(async path=>{calls.push(path);return {ok:true,json:async()=>({tasks:[{id:'older',created_at:'2020-01-01',status:'ready'},{id:'latest',created_at:'2021-01-01',status:'ready'}]})};},'brand',null);

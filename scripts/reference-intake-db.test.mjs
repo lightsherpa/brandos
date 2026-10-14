@@ -1,8 +1,8 @@
 // Disposable isolated Postgres only; never accepts a project DB URL.
 import {test} from 'node:test';import assert from 'node:assert/strict';import {spawn} from 'node:child_process';import {readFileSync} from 'node:fs';import {randomUUID} from 'node:crypto';
 const container=process.env.REFERENCE_TEST_CONTAINER;
-if(!/^vds-reference-pg-test(?:-[\w-]+)?$/.test(container||''))throw Error('Use REFERENCE_TEST_CONTAINER=vds-reference-pg-test (disposable only)');
-const database=`vds_reference_${process.pid}`;
+if(!/^reference-intake-pg-test(?:-[\w-]+)?$/.test(container||''))throw Error('Use REFERENCE_TEST_CONTAINER=reference-intake-pg-test (disposable only)');
+const database=`reference_intake_${process.pid}`;
 function sql(input,db=database){return new Promise((resolve,reject)=>{const p=spawn('docker',['exec','-i',container,'psql','-h','/var/run/postgresql','-U','postgres','-d',db,'-X','-qAt','-v','ON_ERROR_STOP=1']);let out='',err='';p.stdout.on('data',b=>out+=b);p.stderr.on('data',b=>err+=b);p.on('error',reject);p.on('close',c=>c?reject(Error(err)):resolve(out.trim()));p.stdin.end(input);});}
 const ws=randomUUID(),owner=randomUUID(),other=randomUUID();
 test.before(async()=>{

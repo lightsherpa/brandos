@@ -1,6 +1,6 @@
 // Human approval is an explicit persisted decision, never inferred from QA.
 export function outputStatus(status) { return status === 'approved' ? 'approved' : ['failed','error'].includes(status) ? 'failed' : 'needs_review'; }
-export function statusLabel(status, t) { return t ? t('vds.status.' + outputStatus(status)) : {approved:'Approved',failed:'Failed',needs_review:'Needs review'}[outputStatus(status)]; }
+export function statusLabel(status, t) { return t ? t('taskOutput.status.' + outputStatus(status)) : {approved:'Approved',failed:'Failed',needs_review:'Needs review'}[outputStatus(status)]; }
 export function newestRuns(runs=[]) { return [...runs].sort((a,b)=>Date.parse(b.ended_at||b.started_at||b.created_at||0)-Date.parse(a.ended_at||a.started_at||a.created_at||0)||String(b.id).localeCompare(String(a.id))); }
 export function taskSnapshot(body) { return body?.snapshot || body; }
 export function hasHumanOutputApproval(output) {
@@ -30,9 +30,9 @@ export function coalesceTaskCards(outputs=[]) {
  return expanded.filter(card=>{if(!card.taskId)return true;const key=`${card.taskId}:${card.itemIndex}`;if(seen.has(key))return false;seen.add(key);return true;}).map(card=>card.taskId?{...card,taskType:types.get(card.taskId)||card.taskType,kind:types.get(card.taskId)||card.kind}:card);
 }
 export function taskMetricsLabel(metrics, t) {
- const elapsed=Number.isFinite(metrics?.total_ms)?(t ? t('vds.elapsed', {seconds:(metrics.total_ms/1000).toFixed(0)}) : ` in ${(metrics.total_ms/1000).toFixed(0)}s`):'';
+ const elapsed=Number.isFinite(metrics?.total_ms)?(t ? t('taskOutput.elapsed', {seconds:(metrics.total_ms/1000).toFixed(0)}) : ` in ${(metrics.total_ms/1000).toFixed(0)}s`):'';
  const cost=metrics?.cost?.total_usd;
- return `${t ? t('vds.finished') : 'Finished'}${elapsed} · ${Number.isFinite(cost)?`$${cost.toFixed(3)}`:t ? t('vds.costUnavailable') : 'cost unavailable'}`;
+ return `${t ? t('taskOutput.finished') : 'Finished'}${elapsed} · ${Number.isFinite(cost)?`$${cost.toFixed(3)}`:t ? t('taskOutput.costUnavailable') : 'cost unavailable'}`;
 }
 export async function loadSavedTasks(fetcher, brandId, preferredId) {
  const response=await fetcher(`/api/tasks?brandId=${encodeURIComponent(brandId)}`);

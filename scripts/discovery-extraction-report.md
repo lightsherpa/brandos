@@ -15,12 +15,12 @@ The production V2 compiler already replaces model visual fields with determinist
 Tests were written against the saved real markup/CSS first: the baseline reproduced favicon.ico selection and missing colour-selector evidence. Additional regressions cover neutral-only computed fallback, unique colour roles, image dimensions/MIME, failed-candidate fallback and production persistence.
 
 - `npm run test:units`: **605/605 pass** (2.17 s).
-- `node --experimental-test-module-mocks --test server/src/lib/vds-discovery-extraction.test.mjs server/src/lib/vds-discovery-production.test.mjs`: **7/7 pass** (0.10 s). The orchestrator must register these new files in shared package.json if they are to run in the default suite.
+- `node --experimental-test-module-mocks --test server/src/lib/discovery-extraction.test.mjs server/src/lib/discovery-production.test.mjs`: **7/7 pass** (0.10 s). The orchestrator must register these new files in shared package.json if they are to run in the default suite.
 - `npm run build`: **PASS**; existing large-chunk warning.
 - `git diff --check`: **PASS**.
 - Public deterministic rerun: **$0 paid provider spend**, under 1 s; exact duration/time in `server/src/lib/fixtures/discovery/lamasbonita-rerun.json`.
 
-Reproduce the read-only live extraction with `node scripts/vds-discovery-extraction.mjs [path/to/existing-discovery-result.json]`. The optional recorded BIO supplies existing claim confidence for the score; there is no synthesis or DB write. Markup/CSS origins and hashes are in `server/src/lib/fixtures/discovery/manifest.json`.
+Reproduce the read-only live extraction with `node scripts/discovery-extraction.mjs [path/to/existing-discovery-result.json]`. The optional recorded BIO supplies existing claim confidence for the score; there is no synthesis or DB write. Markup/CSS origins and hashes are in `server/src/lib/fixtures/discovery/manifest.json`.
 
 ## Honest gate and limitations
 

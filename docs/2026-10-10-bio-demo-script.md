@@ -29,7 +29,7 @@ Final measured runs: 2.33s, 2.08s, 2.14s. Paid cost: $0. These are **synthetic p
 
 `public/demo/bio/replay.html` embeds the actual read-only renderer output, all three stored outcomes and a local Plex font. It requires no login, API, provider or external assets. Open it directly as a file if the local stack is unavailable. Cake-me shows an unreviewed saved candidate; Geoking shows a retrieval failure. The page's selector changes embedded records without fetching anything.
 
-Regenerate with `node scripts/build-bio-replay.mjs`. The live/CSS follow-up fixtures in `output/bio-vds` stay ignored. `test-bio-demo.mjs` exports the original live Cake-me candidate; after a visual refinement use `refresh-bio-test-visuals.mjs` to append an unreviewed candidate and regenerate the portable replay. That refresh is a local write, not a provider run. Never overwrite an original provider result or certify a real brand automatically.
+Regenerate with `node scripts/build-bio-replay.mjs`. The live/CSS follow-up fixtures in `output/bio-discovery` stay ignored. `test-bio-demo.mjs` exports the original live Cake-me candidate; after a visual refinement use `refresh-bio-test-visuals.mjs` to append an unreviewed candidate and regenerate the portable replay. That refresh is a local write, not a provider run. Never overwrite an original provider result or certify a real brand automatically.
 
 ## Remaining freeze checks
 

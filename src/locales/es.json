@@ -1670,7 +1670,7 @@
     },
     "sourceFailure": "No se han podido leer las fuentes. No se ha generado ningún Brand Core. Añade una fuente pública accesible o sube materiales de la marca."
   },
-  "vds": {
+  "taskOutput": {
     "status": {
       "needs_review": "Pendiente de revisión",
       "approved": "Aprobado",

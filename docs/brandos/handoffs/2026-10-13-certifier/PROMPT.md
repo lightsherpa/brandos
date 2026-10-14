@@ -1,4 +1,4 @@
-# Codex — build the Certifier support agent (VDS slice S2)
+# Codex — build the Certifier support agent (Certifier feature S2)
 Repo: CaastorOS. Branch `feat/certifier-agent` off latest `origin/dev` (includes task-pipeline, foundation, PR 11, PR 13). **No DB seeds, no migrations applied to shared DBs.** Small commits; run `npm run test:units`; push the branch when green.
 
 Read first: SYSTEM-PROMPT.md, MODEL.md, CONTEXT-ALLOWLIST.md, TOOLS.json, TOOL-CONTRACT.md, OUTPUT.schema.json, VALIDATOR.md, TESTS.md (this folder).
@@ -26,7 +26,7 @@ Slices: **S1** evidence beside the claim · **S2** this agent · **S3** CD↔cli
 | Steward API mount | `server/src/index.js:69` `/api/steward` |
 | Models / fallback / budget / credits | `server/src/lib/models/router.js`, `fallback.js`, `token-budget.js`, `anthropic.js`; `server/src/lib/credits.js` |
 
-## Steps (S2, VDS-minimal)
+## Steps (S2, initial Certifier scope)
 1. `server/src/lib/certifier/context.js` — `buildCertifierContext({workspaceId, brandId, bioId})` per CONTEXT-ALLOWLIST (escape source text; mark first_party/derived_from_model).
 2. `certifier/prompt.js` — exports the verbatim SYSTEM-PROMPT text + fill.
 3. `certifier/tools.js` — 5 tools from TOOLS.json, bound to run scope, select-only.
@@ -41,7 +41,7 @@ Slices: **S1** evidence beside the claim · **S2** this agent · **S3** CD↔cli
 9. Tests per TESTS.md with mocked model (`*.test.mjs` next to files) + lint test: no `.update(`/`.insert(`/`.delete(` in `lib/certifier/` except drafts helper.
 10. Note: existing `buildStewardCopilot().certificationRecommendation` emits approve/return verdicts — keep it OUT of the agent context; flag to Kai whether to hide it in the Certify view.
 
-## Later (not VDS)
+## Later (outside initial Certifier scope)
 S3 chat + email bridge + send endpoint; per-claim confirm UI "Confirm all"; eval on live keys; caching tuning; multi-language QA; re-score of rubric.
 
 Report back: commits, test count, any path that differed from this table.

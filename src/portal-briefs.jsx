@@ -1491,7 +1491,7 @@ function CanvasHeader({ title, tension, sharpenedBrief, refusals = [], deptBreak
   const { t } = useLocale();
   const [expanded, setExpanded] = useBrState(false);
   const stateColor = completed ? "var(--green-600)" : running ? "var(--yellow-700)" : "var(--neutral-500)";
-  const stateLabel = completed ? t("vds.generationComplete") : running ? t("briefs.canvas.running") : t("briefs.canvas.crewAssembled");
+  const stateLabel = completed ? t("taskOutput.generationComplete") : running ? t("briefs.canvas.running") : t("briefs.canvas.crewAssembled");
   return (
     <div style={{
       padding:"14px 36px 12px", borderBottom:"1px solid var(--c-line)",
@@ -2167,7 +2167,7 @@ function BriefRunCanvas({ context, onClear, go }) {
           briefId={briefId}
           brandId={context.brandId}
           onRerun={({done, text}) => {
-            setNodes(prev => prev.map(n => n.specId === openId ? {...n, outputText:text, done, assetUrl:done?.output?.asset_url || null, state:"flagged", status:"needs_review", sub:t("vds.status.needs_review")} : n));
+            setNodes(prev => prev.map(n => n.specId === openId ? {...n, outputText:text, done, assetUrl:done?.output?.asset_url || null, state:"flagged", status:"needs_review", sub:t("taskOutput.status.needs_review")} : n));
             setEditedText(prev => ({...prev, [openId]:text}));
           }}
           outputId={opened.done?.outputId || null}
@@ -2342,7 +2342,7 @@ function DeliverableDrawer({ node, onClose, onSendToHuman }) {
           </div>
         </div>
       )}
-      {node.html && <><iframe title={t("vds.savedDeliverable")} srcDoc={node.html} sandbox="" style={{width:"100%",height:560,border:0}} /><ul>{(node.checks || []).map((check,i)=><li key={i}>{check.pass ? t("vds.passed") : t("vds.status.needs_review")}: {check.id} — {check.reason}</li>)}</ul></>}
+      {node.html && <><iframe title={t("taskOutput.savedDeliverable")} srcDoc={node.html} sandbox="" style={{width:"100%",height:560,border:0}} /><ul>{(node.checks || []).map((check,i)=><li key={i}>{check.pass ? t("taskOutput.passed") : t("taskOutput.status.needs_review")}: {check.id} — {check.reason}</li>)}</ul></>}
       {node.assetUrl && <img src={node.assetUrl} alt="" style={{ width: "100%", borderRadius: 10, marginBottom: 16, display: "block" }} />}
       <div style={{ fontSize: 14, lineHeight: 1.65, color: "var(--c-ink)", whiteSpace: "pre-wrap" }}>{node.body}</div>
     </Drawer>
@@ -2865,7 +2865,7 @@ function CanvasView({ go, prototype = false }) {
   if (ctx && Array.isArray(ctx.specialistIds) && ctx.specialistIds.length > 0 && ctx.brandId) {
     return <BriefRunCanvas context={ctx} onClear={clearCtx} go={go} />;
   }
-  return <div style={{padding:40}}>{t("vds.savedBriefGuidance")} <button onClick={() => go("briefs")}>{t("vds.openBriefs")}</button></div>;
+  return <div style={{padding:40}}>{t("taskOutput.savedBriefGuidance")} <button onClick={() => go("briefs")}>{t("taskOutput.openBriefs")}</button></div>;
 }
 
 /* ── BriefViewCanvas — loads an existing brief's runs/outputs from DB
@@ -4035,7 +4035,7 @@ function LibraryAssetCard({ o, onSelect }) {
   const agent  = window.CI_AGENTS?.find((a) => a.id === o.run.specialist_id);
   const dotCls = "lib-status-dot" + (passed ? "" : " lib-status-dot--flag");
 
-  if (o.html) return <button className="lib-sheet" onClick={onSelect}><strong>{o.text || `${o.kind} ${o.itemIndex + 1}`}</strong><div>{statusLabel(o.status, t)} · {o.checks.length} {t("vds.checks")}</div><iframe title={t("vds.previewItem", {index:o.itemIndex + 1})} srcDoc={o.html} sandbox="" style={{width:"100%",height:250,border:0,pointerEvents:"none"}} /></button>;
+  if (o.html) return <button className="lib-sheet" onClick={onSelect}><strong>{o.text || `${o.kind} ${o.itemIndex + 1}`}</strong><div>{statusLabel(o.status, t)} · {o.checks.length} {t("taskOutput.checks")}</div><iframe title={t("taskOutput.previewItem", {index:o.itemIndex + 1})} srcDoc={o.html} sandbox="" style={{width:"100%",height:250,border:0,pointerEvents:"none"}} /></button>;
 
   /* Image asset — thumbnail, or a styled placeholder w/ visual direction */
   if (o.kind === "image") {
@@ -4161,7 +4161,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
           padding: isImage && o.assetUrl ? "16px 18px" : "20px 22px",
           ...(isImage && o.assetUrl ? { display:"flex", flexDirection:"column" } : null),
         }}>
-          {o.html ? <><iframe title={t("vds.savedDeliverable")} srcDoc={o.html} sandbox="" style={{width:"100%",height:580,border:0}} /><ul>{o.checks.map((check,i)=><li key={i}>{check.pass ? t("vds.passed") : t("vds.status.needs_review")}: {check.id} — {check.reason}</li>)}</ul></> : isImage && o.assetUrl ? (
+          {o.html ? <><iframe title={t("taskOutput.savedDeliverable")} srcDoc={o.html} sandbox="" style={{width:"100%",height:580,border:0}} /><ul>{o.checks.map((check,i)=><li key={i}>{check.pass ? t("taskOutput.passed") : t("taskOutput.status.needs_review")}: {check.id} — {check.reason}</li>)}</ul></> : isImage && o.assetUrl ? (
             /* Frameless lightbox — full image fits, centered, on the dim backdrop */
             <div style={{flex:1, minHeight:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
               <img src={o.assetUrl} alt={o.kind} style={{display:"block", maxWidth:"100%", maxHeight:"62vh", width:"auto", height:"auto", margin:"0 auto", objectFit:"contain", borderRadius:8}} />
@@ -4211,7 +4211,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
           <button className="btn btn--ghost btn--sm" onClick={copyPrompt}>
             <Icon name="files" size={13} /> {t("briefs.library.copyPrompt")}
           </button>
-          {o.kind === "social_post" && o.export?.stable && <button className="btn btn--ghost btn--sm" onClick={downloadPng}>{t("vds.downloadPng")}</button>}
+          {o.kind === "social_post" && o.export?.stable && <button className="btn btn--ghost btn--sm" onClick={downloadPng}>{t("taskOutput.downloadPng")}</button>}
           <button className="btn btn--ghost btn--sm" onClick={download}>
             <Icon name="download" size={13} /> {t("briefs.notepad.download")}
           </button>

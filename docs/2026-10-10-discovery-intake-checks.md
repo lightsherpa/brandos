@@ -10,4 +10,4 @@ Checked in the isolated release stack at http://127.0.0.1:5185/#/discovery/new. 
 - First-visit guide can be dismissed and reopened. No intake questionnaire was introduced.
 - EN/ES/AR Discovery copy is present. Newly ported RC visual rights/licensing strings were retained.
 
-Screenshots and disposable upload fixtures live in ignored output/bio-vds. Layout checks do not invoke paid providers.
+Screenshots and disposable upload fixtures live in ignored output/bio-discovery. Layout checks do not invoke paid providers.
