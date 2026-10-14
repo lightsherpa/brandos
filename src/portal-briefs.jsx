@@ -1,3 +1,4 @@
+import { outputStatus, statusLabel, expandOutput, coalesceTaskCards, newestRuns, requestHumanCraft } from "./lib/task-output.js";
 import React from "react";
 import { BriefWorkspaceSurface } from "./brief-workspace-surface.jsx";
 import { agencyOfficeEnabled } from "./lib/agency-office-flag.js";
@@ -541,7 +542,7 @@ function BriefDetail({ id, go }) {
       {/* Deck tabs — Overview/Recommendation open as floating windows; Delivery opens the board */}
       <div style={{display:"flex", gap: 2, borderBottom:"1px solid var(--c-line)", marginBottom: 26}}>
         {TABS.map(([k, l]) => (
-          <button key={k} onClick={() => k === "delivery" ? go("board/" + brief.id) : setWin(w => w === k ? null : k)} style={{
+          <button key={k} onClick={() => k === "delivery" ? go("briefs") : setWin(w => w === k ? null : k)} style={{
             border:"none", background:"transparent", cursor:"pointer", padding:"10px 16px",
             fontFamily:"var(--font-sans)", fontSize: 14, fontWeight: win === k ? 600 : 500,
             color: win === k ? "var(--c-ink)" : "var(--c-faint)",
@@ -558,7 +559,7 @@ function BriefDetail({ id, go }) {
           <p style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 28, letterSpacing:"-0.005em", lineHeight: 1.25, margin: 0, color:"#1a1f36", fontWeight: 500, maxWidth: 820}}>"{brief.smp}"</p>
         </div>
         <div style={{display:"flex", gap:12, flexWrap:"wrap", alignItems:"center"}}>
-          <button className="btn btn--primary" onClick={() => go("board/" + brief.id)}><Icon name="canvas" size={14} /> {t("briefs.detail.openBoard")}</button>
+          <button className="btn btn--primary" onClick={() => go("briefs")}><Icon name="canvas" size={14} /> {t("briefs.detail.openBoard")}</button>
           <button className="btn btn--ghost btn--sm" onClick={() => setWin("overview")}>{t("briefs.detail.tabOverview")}</button>
           <button className="btn btn--ghost btn--sm" onClick={() => setWin("recommendation")}>{t("briefs.detail.tabRecommendation")}</button>
           <span style={{fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-faint)", letterSpacing:"0.06em"}}>{t("briefs.detail.outputsCount", { count: outputs.length })} · {t("briefs.detail.departmentsCount", { count: depts })} · {brief.credits} cr</span>
@@ -1490,7 +1491,7 @@ function CanvasHeader({ title, tension, sharpenedBrief, refusals = [], deptBreak
   const { t } = useLocale();
   const [expanded, setExpanded] = useBrState(false);
   const stateColor = completed ? "var(--green-600)" : running ? "var(--yellow-700)" : "var(--neutral-500)";
-  const stateLabel = completed ? t("briefs.canvas.runComplete") : running ? t("briefs.canvas.running") : t("briefs.canvas.crewAssembled");
+  const stateLabel = completed ? t("vds.generationComplete") : running ? t("briefs.canvas.running") : t("briefs.canvas.crewAssembled");
   return (
     <div style={{
       padding:"14px 36px 12px", borderBottom:"1px solid var(--c-line)",
@@ -1703,7 +1704,7 @@ function BriefRunCanvas({ context, onClear, go }) {
     }
 
     if (node.kind === "deliverable") {
-      const flagged = node.status === "flagged";
+      const flagged = outputStatus(node.status) !== "approved";
       const stateColor = flagged ? "var(--pink-500)" : "var(--green-500)";
       return (
         <div className="cv-node" style={{
@@ -1954,10 +1955,10 @@ function BriefRunCanvas({ context, onClear, go }) {
         setNodes((prev) => prev.map((n) => n.id === "spec-" + agent.id
           ? { ...n, state: "failed", sub: local_err.slice(0, 60) } : n));
         setErr(`${agent.name}: ${local_err}`);
-        break;
+        continue;
       }
 
-      const passed = qa?.passed !== false;
+      const passed = false; // Automated QA never certifies a deliverable.
 
       const assetUrl = done?.output?.asset_url || null;
       setNodes((prev) => prev.map((n) => n.id === "spec-" + agent.id
@@ -2056,10 +2057,9 @@ function BriefRunCanvas({ context, onClear, go }) {
   })();
 
   const sendToHuman = async (cardNode, notes) => {
-    if (cardNode.sourceOutputId != null && cardNode.slot != null) {
-      try { await apiFetch("/api/craft", { method: "POST", body: JSON.stringify({ outputId: cardNode.sourceOutputId, slot: cardNode.slot, notes }) }); } catch (e) {}
-    }
-    try { if (window.CI_CREDITS) window.CI_CREDITS.balance = Math.max(0, (window.CI_CREDITS.balance || 0) - HUMAN_POLISH_CR); } catch (e) {}
+    await requestHumanCraft(apiFetch, { outputId: cardNode.sourceOutputId, slot: cardNode.slot, notes }, (credits) => {
+      if (window.CI_CREDITS) Object.assign(window.CI_CREDITS, credits);
+    });
     setNodes((prev) => prev.map((n) => n.id === cardNode.id ? { ...n, humanCraft: true, polishNotes: notes } : n));
     setOpenDeliverable((d) => (d && d.id === cardNode.id ? { ...d, humanCraft: true, polishNotes: notes } : d));
   };
@@ -2166,10 +2166,9 @@ function BriefRunCanvas({ context, onClear, go }) {
           context={context}
           briefId={briefId}
           brandId={context.brandId}
-          onRerun={() => {
-            /* The re-run created a new run row on the same brief. We
-               don't auto-replace the canvas node — the user can refresh
-               or open the brief in view mode to see the new version. */
+          onRerun={({done, text}) => {
+            setNodes(prev => prev.map(n => n.specId === openId ? {...n, outputText:text, done, assetUrl:done?.output?.asset_url || null, state:"flagged", status:"needs_review", sub:t("vds.status.needs_review")} : n));
+            setEditedText(prev => ({...prev, [openId]:text}));
           }}
           outputId={opened.done?.outputId || null}
           baselineText={opened.outputText || ""}
@@ -2266,7 +2265,9 @@ const HUMAN_POLISH_CR = 40;   /* credits to contract a human to polish one deliv
 function DeliverableDrawer({ node, onClose, onSendToHuman }) {
   const { t } = useLocale();
   const [copied, setCopied] = useBrState(false);
-  const flagged = node.status === "flagged";
+  const flagged = outputStatus(node.status) !== "approved";
+  const [craftError, setCraftError] = useBrState(null);
+  const [craftBusy, setCraftBusy] = useBrState(false);
   const stateColor = flagged ? "var(--pink-500)" : "var(--green-500)";
   const inCraft = !!node.humanCraft;
   const [polishMode, setPolishMode] = useBrState(false);
@@ -2275,6 +2276,7 @@ function DeliverableDrawer({ node, onClose, onSendToHuman }) {
     try { await navigator.clipboard.writeText(node.body || ""); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch (e) {}
   };
   const exportOne = () => {
+    if (node.html) { const url = URL.createObjectURL(new Blob([node.html], {type:"text/html"})); const a = document.createElement("a"); a.href=url; a.download="deliverable.html"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); return; }
     const data = JSON.stringify({ title: node.title, body: node.body, platform: node.platform, status: node.status, by: node.specialistName }, null, 2);
     const url = URL.createObjectURL(new Blob([data], { type: "application/json" }));
     const a = document.createElement("a");
@@ -2297,7 +2299,7 @@ function DeliverableDrawer({ node, onClose, onSendToHuman }) {
         ) : polishMode ? (
           <>
             <button className="btn btn--ghost" onClick={() => setPolishMode(false)}>{t("briefs.deliverable.cancel")}</button>
-            <button className="btn btn--primary btn--sm" onClick={() => { onSendToHuman && onSendToHuman(node, polishNotes.trim()); setPolishMode(false); }}>
+            <button className="btn btn--primary btn--sm" disabled={craftBusy} onClick={async () => { setCraftBusy(true); setCraftError(null); try { await onSendToHuman(node, polishNotes.trim()); setPolishMode(false); } catch(e) { setCraftError(e.message); } finally { setCraftBusy(false); } }}>
               {t("briefs.deliverable.confirmSend", { cr: HUMAN_POLISH_CR })}
             </button>
           </>
@@ -2311,6 +2313,7 @@ function DeliverableDrawer({ node, onClose, onSendToHuman }) {
         )
       }
     >
+      {craftError && <p role="alert" style={{color:"var(--pink-500)"}}>{craftError}</p>}
       {inCraft && (
         <div style={{ marginBottom: 14, padding:"10px 12px", borderRadius: 10, background:"var(--purple-50, rgba(124,92,255,0.10))", border:"1px solid var(--purple-200, rgba(124,92,255,0.3))", fontSize: 12.5, color:"var(--c-ink)" }}>
           {t("briefs.deliverable.craftBanner")}
@@ -2339,6 +2342,7 @@ function DeliverableDrawer({ node, onClose, onSendToHuman }) {
           </div>
         </div>
       )}
+      {node.html && <><iframe title={t("vds.savedDeliverable")} srcDoc={node.html} sandbox="" style={{width:"100%",height:560,border:0}} /><ul>{(node.checks || []).map((check,i)=><li key={i}>{check.pass ? t("vds.passed") : t("vds.status.needs_review")}: {check.id} — {check.reason}</li>)}</ul></>}
       {node.assetUrl && <img src={node.assetUrl} alt="" style={{ width: "100%", borderRadius: 10, marginBottom: 16, display: "block" }} />}
       <div style={{ fontSize: 14, lineHeight: 1.65, color: "var(--c-ink)", whiteSpace: "pre-wrap" }}>{node.body}</div>
     </Drawer>
@@ -2696,7 +2700,7 @@ function buildDeliverableCluster(specNode, deliverables, laneTop, outputId) {
       body: d.body || "",
       assetUrl: d.assetUrl || null,
       platform: d.platform || "generic",
-      status: d.status || (d.qa?.passed === false ? "flagged" : "approved"),
+      status: outputStatus(d.status),
       qa: d.qa || null,
       sourceOutputId: outputId || null,
       slot: i,
@@ -2861,7 +2865,7 @@ function CanvasView({ go, prototype = false }) {
   if (ctx && Array.isArray(ctx.specialistIds) && ctx.specialistIds.length > 0 && ctx.brandId) {
     return <BriefRunCanvas context={ctx} onClear={clearCtx} go={go} />;
   }
-  return <PlexCanvasPrototype go={go} />;
+  return <div style={{padding:40}}>{t("vds.savedBriefGuidance")} <button onClick={() => go("briefs")}>{t("vds.openBriefs")}</button></div>;
 }
 
 /* ── BriefViewCanvas — loads an existing brief's runs/outputs from DB
@@ -2874,6 +2878,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
   const [openDeliverable, setOpenDeliverable] = useBrState(null);   /* clicked deliverable card → drawer */
   const [openBrief, setOpenBrief] = useBrState(false);   /* clicked Brief node → brief drawer */
   const [editedText, setEditedText] = useBrState({});
+  const [reloadKey, setReloadKey] = useBrState(0);
 
   useBrEffect(() => {
     if (uiFixtureEnabled) {
@@ -2906,8 +2911,8 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         if (bErr || !brief) { setState({ loading: false, brief: null, runs: [], cert: null, error: bErr?.message || t("briefs.view.notFound") }); return; }
 
         const { data: runs } = await supabase
-          .from("runs").select("id, specialist_id, bio_version, status, outputs ( id, kind, body, status, rationale )")
-          .eq("brief_id", briefId).order("started_at", { ascending: true });
+          .from("runs").select("id, specialist_id, bio_version, started_at, ended_at, status, outputs ( id, kind, body, status, rationale )")
+          .eq("brief_id", briefId).order("started_at", { ascending: false });
 
         const { data: bio } = await supabase
           .from("bios").select("certified_by, certified_at, version")
@@ -2924,7 +2929,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         setState({ loading: false, brief: null, runs: [], cert: null, error: e?.message || String(e) });
       }
     })();
-  }, [briefId]);
+  }, [briefId, reloadKey]);
 
   if (state.loading) {
     return <div style={{padding: 60, textAlign:"center", color:"var(--c-faint)"}}>{t("briefs.view.loading")}</div>;
@@ -2942,7 +2947,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
      per-slot image specialist runs once per card), so build ONE node per
      specialist (no duplicate React keys) and collect all its outputs. */
   const bySpec = new Map();
-  for (const r of state.runs) {
+  for (const r of newestRuns(state.runs)) {
     const id = r.specialist_id;
     if (!bySpec.has(id)) bySpec.set(id, { id, agent: window.CI_AGENTS.find((a) => a.id === id), runs: [], outputs: [], firstRun: r });
     const e = bySpec.get(id);
@@ -2953,8 +2958,10 @@ function BriefViewCanvas({ briefId, onClear, go }) {
     const primary = e.outputs[0] || null;
     const body = primary?.body || {};
     const text = body.edited_text || body.text || (typeof primary?.body === "string" ? primary.body : "");
-    const passed = e.outputs.length === 0 || e.outputs.every((o) => o.status !== "flagged");
-    return { ...e, output: primary, passed, text };
+    const taskItems = coalesceTaskCards(e.outputs).filter(card => card.taskId);
+    const status = e.firstRun.status === "failed" ? "failed" : taskItems.length ? (taskItems.some(card => card.status === "failed") ? "failed" : taskItems.every(card => card.status === "approved") ? "approved" : "needs_review") : outputStatus(primary?.status);
+    const passed = status === "approved";
+    return { ...e, output: primary, passed, status, text };
   });
 
   /* Saved image asset_urls across the brief, in order — paired one per card. */
@@ -2970,10 +2977,10 @@ function BriefViewCanvas({ briefId, onClear, go }) {
       x: 760, y: 40 + i * rowH, w: 340, kind: "specialist",
       eyebrow: s.agent ? `${s.agent.code} · ${s.agent.dept}` : s.id,
       title: s.agent?.name || s.id,
-      sub: imgCount > 1 ? `${t("briefs.view.imagesCount", { count: imgCount })} · ${t("briefs.status.approved")}`
-           : `${s.passed ? t("briefs.status.approved") : t("briefs.status.flagged")}${s.output?.kind ? " · " + s.output.kind : ""}`,
+      sub: `${statusLabel(s.status, t)}${s.output?.kind ? " · " + s.output.kind : ""}`,
+      status: s.status,
       cr: s.agent?.cr || 0,
-      state: s.passed ? "done" : "flagged",
+      state: s.status === "failed" ? "failed" : s.passed ? "done" : "flagged",
       outputText: s.text, assetUrl, tokenCount: 1000, qa: null,
       done: { brand: { bioVersion: s.firstRun.bio_version }, output: assetUrl ? { asset_url: assetUrl } : null },
     };
@@ -2985,7 +2992,15 @@ function BriefViewCanvas({ briefId, onClear, go }) {
   specs.forEach((s) => {
     const dOut = s.outputs.find((o) => o.body?.kind === "deliverables" && Array.isArray(o.body.deliverables));
     const specNode = specNodes.find((n) => n.id === "spec-" + s.id);
-    if (!dOut || !specNode) return;
+    if (!specNode) return;
+    const taskCards = coalesceTaskCards(s.outputs).filter(card => card.html);
+    if (taskCards.length) {
+      const {cardNodes: cards} = buildDeliverableCluster(specNode, taskCards.map(card => ({title:card.text || `${card.kind} ${card.itemIndex + 1}`,body:card.text,status:card.status,html:card.html,checks:card.checks})), specNode.y, taskCards[0].outputId);
+      cards.forEach((card,index) => Object.assign(card,{html:taskCards[index].html,checks:taskCards[index].checks,sourceOutputId:taskCards[index].outputId,slot:taskCards[index].itemIndex}));
+      cardNodes.push(...cards); cards.forEach(c => cardEdges.push({from:specNode.id,to:c.id,fromSide:"right",toSide:"left"}));
+      return;
+    }
+    if (!dOut) return;
     const items = dOut.body.deliverables.map((d) => {
       const craft = d.craft || null;
       const delivered = craft && craft.status === "delivered" ? craft.delivered : null;
@@ -3022,7 +3037,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
 
   const renderNode = (node) => {
     if (node.kind === "deliverable") {
-      const flagged = node.status === "flagged";
+      const flagged = outputStatus(node.status) !== "approved";
       const sc = flagged ? "var(--pink-500)" : "var(--green-500)";
       return (
         <div className="cv-node card" style={{ background:"var(--c-card)", overflow:"hidden", width:"100%", height: node.h || 172, boxSizing:"border-box", display:"flex", flexDirection:"column", cursor:"pointer" }}>
@@ -3099,10 +3114,9 @@ function BriefViewCanvas({ briefId, onClear, go }) {
   const totalCr = specs.reduce((sum, s) => sum + (s.agent?.cr || 0), 0);
 
   const sendToHuman = async (cardNode, notes) => {
-    if (cardNode.sourceOutputId != null && cardNode.slot != null) {
-      try { await apiFetch("/api/craft", { method: "POST", body: JSON.stringify({ outputId: cardNode.sourceOutputId, slot: cardNode.slot, notes }) }); } catch (e) {}
-    }
-    try { if (window.CI_CREDITS) window.CI_CREDITS.balance = Math.max(0, (window.CI_CREDITS.balance || 0) - HUMAN_POLISH_CR); } catch (e) {}
+    await requestHumanCraft(apiFetch, { outputId: cardNode.sourceOutputId, slot: cardNode.slot, notes }, (credits) => {
+      if (window.CI_CREDITS) Object.assign(window.CI_CREDITS, credits);
+    });
     setOpenDeliverable((d) => (d && d.id === cardNode.id ? { ...d, humanCraft: true, polishNotes: notes } : d));
   };
 
@@ -3115,7 +3129,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         refusals={state.brief.payload?.refusals || []}
         deptBreakdown={viewDeptBreakdown}
         totalCr={totalCr}
-        completed={!anyFlagged}
+        completed={specs.length > 0 && specs.every(s => s.firstRun.status !== "running")}
         running={false}
         onFormats={window.formatPreviewEnabled ? () => go("formats/" + briefId) : null}
       />
@@ -3166,10 +3180,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
           }}
           briefId={state.brief.id}
           brandId={state.brief.brand_id}
-          onRerun={() => {
-            /* New run lands in DB — the parent's useEffect refetches on
-               openId close. For now, the user can close + reopen. */
-          }}
+          onRerun={() => { setEditedText({}); setReloadKey(value => value + 1); }}
           outputId={opened.output?.id || null}
           baselineText={opened.text || ""}
           editedText={editedText[openId] ?? opened.text ?? ""}
@@ -3726,27 +3737,17 @@ function Library({ go }) {
   const items = React.useMemo(() => {
     const list = [];
     for (const b of briefs) {
-      for (const r of (b.runs || [])) {
+      for (const r of newestRuns(b.runs)) {
         for (const o of (r.outputs || [])) {
-          const body = o.body || {};
-          const text = body.edited_text || body.text || (typeof o.body === "string" ? o.body : "");
-          const assetUrl = body.asset_url || null;
-          list.push({
-            id: o.id,
-            kind: o.kind || "output",
-            status: o.status,
-            rationale: o.rationale,
-            text,
-            assetUrl,
-            edited: !!body.edited_text,                 /* surfaced as a chip in the UI */
+          list.push({ ...o,
             brief: { id: b.id, request: b.payload?.request || b.title, title: b.payload?.title || b.title, mode: b.mode, created_at: b.created_at, payload: b.payload || {} },
             run: { id: r.id, specialist_id: r.specialist_id, bio_version: r.bio_version, completion_tokens: r.completion_tokens, ended_at: r.ended_at },
           });
         }
       }
     }
-    return list
-      .filter((i) => !deletedIds.has(i.id))
+    return coalesceTaskCards(list)
+      .filter((i) => !deletedIds.has(i.outputId))
       .sort((a, b) => new Date(b.run.ended_at || 0) - new Date(a.run.ended_at || 0));
   }, [briefs, deletedIds]);
 
@@ -3793,16 +3794,16 @@ function Library({ go }) {
 
   /* ── delete: optimistic remove + authed DELETE, with toast + rollback ── */
   const deleteOutput = async (o) => {
-    setDeletedIds((s) => new Set(s).add(o.id));   /* optimistic */
+    setDeletedIds((s) => new Set(s).add(o.outputId || o.id));   /* optimistic */
     setSelectedOutput(null);
     try {
-      const res = await apiFetch(`/api/outputs/${o.id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/outputs/${o.outputId || o.id}`, { method: "DELETE" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data.error || t("briefs.library.deleteFailed"));
       flash(t("briefs.library.deleted"));
       reload();   /* reconcile with the server */
     } catch (e) {
-      setDeletedIds((s) => { const n = new Set(s); n.delete(o.id); return n; });   /* rollback */
+      setDeletedIds((s) => { const n = new Set(s); n.delete(o.outputId || o.id); return n; });   /* rollback */
       flash(e.message || t("briefs.library.couldNotDelete"));
     }
   };
@@ -4034,6 +4035,8 @@ function LibraryAssetCard({ o, onSelect }) {
   const agent  = window.CI_AGENTS?.find((a) => a.id === o.run.specialist_id);
   const dotCls = "lib-status-dot" + (passed ? "" : " lib-status-dot--flag");
 
+  if (o.html) return <button className="lib-sheet" onClick={onSelect}><strong>{o.text || `${o.kind} ${o.itemIndex + 1}`}</strong><div>{statusLabel(o.status, t)} · {o.checks.length} {t("vds.checks")}</div><iframe title={t("vds.previewItem", {index:o.itemIndex + 1})} srcDoc={o.html} sandbox="" style={{width:"100%",height:250,border:0,pointerEvents:"none"}} /></button>;
+
   /* Image asset — thumbnail, or a styled placeholder w/ visual direction */
   if (o.kind === "image") {
     return (
@@ -4108,8 +4111,11 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
     catch { flash(t("briefs.library.couldNotCopy")); }
   };
 
+  const saveBlob = (blob, name) => { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  const downloadPng = async () => { try { const res = await apiFetch(`/api/task-exports/${o.outputId}/items/${o.itemIndex}/png`); if (!res.ok) { const data = await res.json().catch(() => ({})); throw new Error(data.error || "PNG export unavailable"); } saveBlob(await res.blob(), `${safeName(briefTitle(o.brief))}-${o.itemIndex + 1}.png`); } catch(e) { flash(e.message); } };
   const download = () => {
     const base = `${safeName(briefTitle(o.brief))}-${o.kind}`;
+    if (o.html) { saveBlob(new Blob([o.html], {type:"text/html"}), base + `-${o.itemIndex + 1}.html`); return; }
     if (isImage && o.assetUrl) {
       const a = document.createElement("a");
       a.href = o.assetUrl; a.download = base; a.target = "_blank"; a.rel = "noreferrer";
@@ -4136,7 +4142,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
               <span className={"lib-status-dot" + (passed ? "" : " lib-status-dot--flag")} />
               <span>{o.kind}</span>
               <span style={{color:"var(--c-faint)"}}>·</span>
-              <span style={{color: passed ? "var(--green-600)" : "var(--pink-500)"}}>{passed ? t("briefs.status.approved") : t("briefs.status.flagged")}</span>
+              <span style={{color: passed ? "var(--green-600)" : "var(--pink-500)"}}>{statusLabel(o.status, t)}</span>
               {o.edited && <span style={{color:"var(--yellow-700)"}}>{t("briefs.library.editedSuffix")}</span>}
             </div>
             <h2 style={{margin:0, fontFamily:"var(--font-serif)", fontStyle:"italic", fontWeight:400, fontSize:24, lineHeight:1.2, color:"var(--c-ink)"}}>
@@ -4155,7 +4161,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
           padding: isImage && o.assetUrl ? "16px 18px" : "20px 22px",
           ...(isImage && o.assetUrl ? { display:"flex", flexDirection:"column" } : null),
         }}>
-          {isImage && o.assetUrl ? (
+          {o.html ? <><iframe title={t("vds.savedDeliverable")} srcDoc={o.html} sandbox="" style={{width:"100%",height:580,border:0}} /><ul>{o.checks.map((check,i)=><li key={i}>{check.pass ? t("vds.passed") : t("vds.status.needs_review")}: {check.id} — {check.reason}</li>)}</ul></> : isImage && o.assetUrl ? (
             /* Frameless lightbox — full image fits, centered, on the dim backdrop */
             <div style={{flex:1, minHeight:0, display:"flex", alignItems:"center", justifyContent:"center"}}>
               <img src={o.assetUrl} alt={o.kind} style={{display:"block", maxWidth:"100%", maxHeight:"62vh", width:"auto", height:"auto", margin:"0 auto", objectFit:"contain", borderRadius:8}} />
@@ -4189,7 +4195,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
           }}>
             <span>
               {t("briefs.try.composedBy")} <span style={{color:"var(--c-ink)"}}>{specialistName(o.run.specialist_id)}</span> · Brand Core v{o.run.bio_version}
-              {cert
+              {cert && cert.version === o.run.bio_version
                 ? <> · {t("briefs.notepad.certifiedBy")} <span style={{color:"var(--green-600)"}}>{cert.byName}</span></>
                 : <> · <span style={{color:"var(--yellow-700)"}}>{t("briefs.try.uncertified")}</span></>}
             </span>
@@ -4205,6 +4211,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
           <button className="btn btn--ghost btn--sm" onClick={copyPrompt}>
             <Icon name="files" size={13} /> {t("briefs.library.copyPrompt")}
           </button>
+          {o.kind === "social_post" && o.export?.stable && <button className="btn btn--ghost btn--sm" onClick={downloadPng}>{t("vds.downloadPng")}</button>}
           <button className="btn btn--ghost btn--sm" onClick={download}>
             <Icon name="download" size={13} /> {t("briefs.notepad.download")}
           </button>
