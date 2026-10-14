@@ -1669,5 +1669,29 @@
       "strategic": "Do & don’t"
     },
     "sourceFailure": "Source retrieval failed. No Brand Core was generated. Add a readable public source or upload brand materials."
+  },
+  "vds": {
+    "status": {
+      "needs_review": "Needs review",
+      "approved": "Approved",
+      "failed": "Failed"
+    },
+    "finished": "Finished",
+    "elapsed": " in {seconds}s",
+    "costUnavailable": "cost unavailable",
+    "generationComplete": "Generation complete · needs review",
+    "savedBriefGuidance": "Open a saved brief to use Canvas.",
+    "openBriefs": "Open Briefs",
+    "generationFailed": "Generation failed",
+    "needsHumanReview": "Generation finished · needs human review",
+    "openLibrary": "Open saved items in Library",
+    "taskIntro": "Generate, check and review deliverables against your Brand Core. Human approval is still required.",
+    "checks": "checks",
+    "passed": "Passed",
+    "savedDeliverable": "Saved deliverable",
+    "previewItem": "Preview {index}",
+    "downloadPng": "Download PNG",
+    "savedTasks": "Saved tasks",
+    "running": "Running"
   }
 }

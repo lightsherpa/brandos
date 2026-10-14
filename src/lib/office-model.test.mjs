@@ -38,3 +38,8 @@ test("a specialist remains in the crew when its node becomes a mood board", () =
   assert.equal(model.finished, 1);
   assert.equal(model.outputs.length, 1);
 });
+
+test("machine-finished work remains pending human review", () => {
+  const model=officeModel([{id:"spec",kind:"specialist",state:"done",outputText:"Saved",status:"needs_review"}]);
+  assert.equal(model.finished,1); assert.equal(model.flagged,true);
+});

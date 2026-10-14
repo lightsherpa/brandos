@@ -1,0 +1,352 @@
+{
+  "scope": "existing v2 engineering only; no NEW photos, rights, attestation or certification submitted",
+  "elapsedSeconds": 92.884,
+  "id": "22f62d16-e33f-4ecc-bf4a-f019ce8b82e6",
+  "status": "ready",
+  "stage": "Ready",
+  "error": null,
+  "provenance": {
+    "bioId": "b8c98aff-35ee-4d0e-a777-42d2d6cabfd7",
+    "bioVersion": 2,
+    "sourceIds": [
+      "57452734-2e7f-4e28-b030-61a098743c73",
+      "de0cbc49-2c82-4379-9993-0176db76294d",
+      "192ed447-6a9b-4394-8910-8e39c5819ae5"
+    ]
+  },
+  "brand_core": {
+    "version": 2,
+    "foundation_missing": [],
+    "references": 3,
+    "rules": 0
+  },
+  "result": {
+    "spec": {
+      "task": "social_post",
+      "language": "en",
+      "smp": "Cake-me's artisanal cheesecakes turn everyday moments into memorable, shareable celebrations of happiness.",
+      "posts": [
+        {
+          "angle": "Everyday moment turned into a celebration: invite friends to explore the cheesecakes online",
+          "overlay_line": "Hello, happy moment. 💛",
+          "caption": "Ordinary day? Not for long! 💛 Meet our cheesecakes.\n\nLook at that golden-brown top and that creamy, dreamy texture. We bake artisanal cheesecakes because we believe the best moments deserve something to share. A Tuesday, a catch-up with your people, a just-because: you pick the moment, we bring the happy. 🌟\n\nWe're not just a dessert shop. We're creators of happiness, and we'd love you to be part of it.\n\nCome and have a look around at thecake-me.com 🩷 Tag the person you'd share your first slice with!",
+          "hashtags": [
+            "#CakeMe",
+            "#Cheesecake",
+            "#ArtisanalCheesecake",
+            "#ShareTheHappy",
+            "#CheesecakeLovers"
+          ],
+          "cta": "Explore thecake-me.com",
+          "claims": [
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me transforms everyday moments into memorable, shareable celebrations of happiness",
+            "Cake-me sees itself as a creator of happiness, not just a dessert shop",
+            "The cheesecakes are baked, with a golden-brown look and creamy texture shown in the approved product photos",
+            "More can be explored at https://thecake-me.com"
+          ],
+          "image_brief": {
+            "subject": "The actual baked cheesecakes from the approved product photos, shown as they are with no added toppings, flavors or products. Close-up of the golden-brown baked surface and creamy texture, with kraft paper packaging softly present nearby.",
+            "composition": "Minimalist, product-focused, slightly overhead close-up. The cheesecake fills most of the frame, with clean negative space in the upper third for later typesetting. Close and inviting, not distant.",
+            "light": "Natural, soft overhead daylight with gentle shadows. Warm, inviting golden-brown tones.",
+            "palette_roles": [
+              "primary",
+              "accent",
+              "surface",
+              "ink"
+            ],
+            "ref_ids": [
+              "ref1"
+            ],
+            "negative": "no text, no letters, no logo, no signage, no labels, no packaging print, no invented products or toppings",
+            "aspect": "4:5"
+          }
+        }
+      ]
+    },
+    "metrics": {
+      "total_ms": 90265,
+      "stage_ms": {
+        "Planning": 0,
+        "Writing": 3,
+        "Imaging": 11576,
+        "Checking": 80294,
+        "Ready": 90265
+      },
+      "cost": {
+        "total_usd": 0.0943,
+        "calls": 4,
+        "by_step": {
+          "writing": 0.0175,
+          "imaging": 0.07,
+          "ocr": 0.0012,
+          "review": 0.0055
+        },
+        "limits": {
+          "maxUsd": 0.6,
+          "maxImageCalls": 7,
+          "maxTextCalls": 12,
+          "imageConcurrency": 3
+        }
+      },
+      "ledger": [
+        {
+          "at": "2026-10-14T14:37:36.807Z",
+          "kind": "text",
+          "step": "writing",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": 0.01755,
+          "ms": 11570,
+          "tokens_in": 1500,
+          "tokens_out": 1455,
+          "fallback_from": null,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T14:38:25.194Z",
+          "kind": "image",
+          "step": "imaging",
+          "slot": 0,
+          "model": "vendor/fal/gpt-image-2.5-edit",
+          "cost_usd": 0.07,
+          "ms": 48385,
+          "fallback_from": null,
+          "uses_reference": true,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T14:38:43.677Z",
+          "kind": "text",
+          "step": "ocr",
+          "model": "google/gemini-3.8-flash",
+          "cost_usd": 0.001224,
+          "ms": 18482,
+          "tokens_in": 1162,
+          "tokens_out": 94,
+          "fallback_from": null,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T14:38:55.496Z",
+          "kind": "text",
+          "step": "review",
+          "model": "google/gemini-3.8-flash",
+          "cost_usd": 0.00549975,
+          "ms": 9969,
+          "tokens_in": 2163,
+          "tokens_out": 1034,
+          "fallback_from": null,
+          "error": null
+        }
+      ],
+      "models": [
+        "claude-sonnet-5-5",
+        "vendor/fal/gpt-image-2.5-edit",
+        "google/gemini-3.8-flash"
+      ]
+    }
+  },
+  "items": [
+    {
+      "index": 0,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "export": {
+        "stable": true,
+        "assets": [
+          {
+            "role": "logo",
+            "sourceId": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+            "type": "image/png",
+            "bytes": 24392,
+            "sha256": "ceb3b8d764eddde2ff316f2460357efaeea8855edf09db5037db275983d53552"
+          },
+          {
+            "role": "generated_image",
+            "sourceId": null,
+            "type": "image/png",
+            "bytes": 2105720,
+            "sha256": "63ae811c36bbacf9aa8803445de0e11aaf713de5a8b251bdbb2b5ca580aae768"
+          },
+          {
+            "role": "font",
+            "sourceId": "8eadeac8-fad5-433c-a955-39ac2b0b45c4",
+            "type": "font/ttf",
+            "bytes": 360440,
+            "sha256": "177ff6c0f14e5550a3c624247cd1189611d4eb65d000b14944c63d967958abbb",
+            "family": "Fraunces",
+            "license": "open_source",
+            "license_reference": "SIL OFL 1.1 (Google Fonts) — stand-in for Meaty Nineties",
+            "rights_confirmed": true
+          }
+        ],
+        "formats": [
+          "html",
+          "png"
+        ]
+      },
+      "html_bytes": null,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_CAPTION",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Caption 507/2200 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_FIRST_LINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "First line 52/125 chars",
+          "target": "copy"
+        },
+        {
+          "id": "HASHTAGS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "5/5 hashtags",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA present",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "ASPECT",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Dimensions not reported; skipped",
+          "target": "image"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "image_matches_brief",
+          "pass": true,
+          "reason": "Depicts baked cheesecake with golden-brown surface and paper wrap as specified.",
+          "target": "none"
+        },
+        {
+          "id": "image_matches_palette_refs",
+          "pass": true,
+          "reason": "Matches primary yellow background with warm golden-brown tones and soft natural overhead lighting.",
+          "target": "none"
+        },
+        {
+          "id": "caption_matches_image",
+          "pass": true,
+          "reason": "Caption describes the golden-brown baked cheesecake shown directly in the image.",
+          "target": "none"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Tone is playful, warm, enthusiastic, and incorporates brand core messaging seamlessly.",
+          "target": "none"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Contains no invented ingredients, pricing, delivery promises, or unverified claims.",
+          "target": "none"
+        },
+        {
+          "id": "cta_present",
+          "pass": true,
+          "reason": "Clear calls to action directing users to explore thecake-me.com and tag a friend.",
+          "target": "none"
+        }
+      ],
+      "rule_applied": null,
+      "before": null,
+      "copy": {
+        "angle": "Everyday moment turned into a celebration: invite friends to explore the cheesecakes online",
+        "overlay_line": "Hello, happy moment. 💛",
+        "caption": "Ordinary day? Not for long! 💛 Meet our cheesecakes.\n\nLook at that golden-brown top and that creamy, dreamy texture. We bake artisanal cheesecakes because we believe the best moments deserve something to share. A Tuesday, a catch-up with your people, a just-because: you pick the moment, we bring the happy. 🌟\n\nWe're not just a dessert shop. We're creators of happiness, and we'd love you to be part of it.\n\nCome and have a look around at thecake-me.com 🩷 Tag the person you'd share your first slice with!",
+        "hashtags": [
+          "#CakeMe",
+          "#Cheesecake",
+          "#ArtisanalCheesecake",
+          "#ShareTheHappy",
+          "#CheesecakeLovers"
+        ],
+        "cta": "Explore thecake-me.com",
+        "claims": [
+          "Cake-me sells artisanal cheesecakes",
+          "Cake-me transforms everyday moments into memorable, shareable celebrations of happiness",
+          "Cake-me sees itself as a creator of happiness, not just a dessert shop",
+          "The cheesecakes are baked, with a golden-brown look and creamy texture shown in the approved product photos",
+          "More can be explored at https://thecake-me.com"
+        ],
+        "image_brief": {
+          "subject": "The actual baked cheesecakes from the approved product photos, shown as they are with no added toppings, flavors or products. Close-up of the golden-brown baked surface and creamy texture, with kraft paper packaging softly present nearby.",
+          "composition": "Minimalist, product-focused, slightly overhead close-up. The cheesecake fills most of the frame, with clean negative space in the upper third for later typesetting. Close and inviting, not distant.",
+          "light": "Natural, soft overhead daylight with gentle shadows. Warm, inviting golden-brown tones.",
+          "palette_roles": [
+            "primary",
+            "accent",
+            "surface",
+            "ink"
+          ],
+          "ref_ids": [
+            "ref1"
+          ],
+          "negative": "no text, no letters, no logo, no signage, no labels, no packaging print, no invented products or toppings",
+          "aspect": "4:5"
+        }
+      },
+      "htmlBytes": 3322031,
+      "image": {
+        "model": "vendor/fal/gpt-image-2.5-edit",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": true,
+        "reference_count": 3,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 66869,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "ms": 48385,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      }
+    }
+  ]
+}

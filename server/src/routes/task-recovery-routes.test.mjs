@@ -1,0 +1,14 @@
+import {test,mock} from 'node:test';
+import assert from 'node:assert/strict';
+process.env.TASKS_ENABLED='1';
+let denied=false,dbFailure=false;
+const rows=[{id:'o',kind:'task',run_id:'r',created_at:'2026-10-14T10:00:00Z',body:JSON.stringify({task_id:'completed',type:'email_sequence',spec:{emails:[{}]},items:[{index:0,status:'flagged',html:'saved HTML'}]}),brief:{brand_id:'b',payload:{request:'Stored brief'},brand:{workspace_id:'w'}}}];
+mock.module(new URL('../middleware/auth.js',import.meta.url).href,{namedExports:{requireAuth:async(c,next)=>{c.set('auth',{userId:'owner'});return next();}}});
+mock.module(new URL('../lib/permissions.js',import.meta.url).href,{namedExports:{hasPermission:()=>!denied}});
+mock.module(new URL('../lib/supabase.js',import.meta.url).href,{namedExports:{supabaseAdmin:{from(){const q={select(){return q;},in(){return q;},eq(){return q;},order(){return q;},range(){return q;},then(resolve){resolve({data:rows,error:dbFailure?{message:'private DB error'}:null});}};return q;}}}});
+const {default:app}=await import('./tasks.js');
+test('empty server cache GET recovers saved HTML and needs-review status',async()=>{const r=await app.request('/completed');assert.equal(r.status,200);const body=await r.json();assert.equal(body.items[0].html,'saved HTML');assert.equal(body.stage,'Flagged');assert.equal(body.recovered,true);assert.equal(body.workspaceId,undefined);});
+test('task listing includes completed persisted jobs after restart',async()=>{const r=await app.request('/');assert.equal(r.status,200);assert.equal((await r.json()).tasks[0].id,'completed');});
+test('cache hit still checks authorization',async()=>{denied=true;assert.equal((await app.request('/completed')).status,403);assert.deepEqual((await (await app.request('/')).json()).tasks,[]);denied=false;});
+test('DB failure yields 503 rather than misleading restart 404 or leaked details',async()=>{dbFailure=true;const r=await app.request('/uncached');assert.equal(r.status,503);assert.deepEqual(await r.json(),{error:'Task recovery unavailable',code:'TASK_RECOVERY_UNAVAILABLE'});dbFailure=false;});
+test('automatic QA successes persist qa_passed, never human approval',async()=>{const {taskOutput,rerunOutput}=await import('./tasks.js');const job={id:'job',type:'email_sequence',notices:[],items:[]};const ready={status:'ready',items:[{status:'ready'}],spec:{}};assert.equal(taskOutput(job,ready).status,'qa_passed');assert.equal(taskOutput(job,ready).qa_passed,true);assert.equal(rerunOutput(job,0,{item:{status:'ready'}}).status,'qa_passed');assert.equal(rerunOutput(job,0,{item:{status:'ready'}}).qa_passed,true);});

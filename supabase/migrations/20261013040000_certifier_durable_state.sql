@@ -1,6 +1,6 @@
 -- S2 durable state. 20261013030000 is reserved by PR #18's discovery gate.
 -- File only: never apply to shared databases as part of this handoff.
-create table public.certifier_budgets (
+create table if not exists public.certifier_budgets (
   brand_id uuid not null references public.brands(id) on delete cascade,
   bio_version integer not null check (bio_version > 0),
   workspace_id uuid not null references public.workspaces(id),
@@ -12,7 +12,7 @@ create table public.certifier_budgets (
   primary key (brand_id, bio_version),
   check ((active_run_id is null) = (active_until is null))
 );
-create table public.certifier_budget_reservations (
+create table if not exists public.certifier_budget_reservations (
   call_id uuid primary key,
   brand_id uuid not null,
   bio_version integer not null,
@@ -23,7 +23,7 @@ create table public.certifier_budget_reservations (
   settled_at timestamptz,
   foreign key (brand_id, bio_version) references public.certifier_budgets on delete cascade
 );
-create table public.certifier_briefs (
+create table if not exists public.certifier_briefs (
   id uuid primary key,
   workspace_id uuid not null references public.workspaces(id),
   brand_id uuid not null references public.brands(id) on delete cascade,
@@ -38,8 +38,8 @@ create table public.certifier_briefs (
   created_at timestamptz not null default now(),
   check (status <> 'completed' or brief is not null)
 );
-create index certifier_briefs_latest on public.certifier_briefs(brand_id, version, created_at desc) where status = 'completed';
-create table public.certifier_claim_confirmations (
+create index if not exists certifier_briefs_latest on public.certifier_briefs(brand_id, version, created_at desc) where status = 'completed';
+create table if not exists public.certifier_claim_confirmations (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces(id),
   brand_id uuid not null references public.brands(id) on delete cascade,
@@ -50,7 +50,7 @@ create table public.certifier_claim_confirmations (
   created_at timestamptz not null default now(),
   unique (brand_id, bio_version, claim_id)
 );
-create table public.certifier_question_drafts (
+create table if not exists public.certifier_question_drafts (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces(id),
   brand_id uuid not null references public.brands(id) on delete cascade,
@@ -70,8 +70,10 @@ alter table public.certifier_budget_reservations enable row level security;
 alter table public.certifier_briefs enable row level security;
 alter table public.certifier_claim_confirmations enable row level security;
 alter table public.certifier_question_drafts enable row level security;
+-- Remove inherited default ALL grants, then restore only the intended API grants.
+-- This also repairs append-only audit privileges when this migration is replayed.
 revoke all on public.certifier_budgets, public.certifier_budget_reservations, public.certifier_briefs,
-  public.certifier_claim_confirmations, public.certifier_question_drafts from public, anon, authenticated;
+  public.certifier_claim_confirmations, public.certifier_question_drafts from public, anon, authenticated, service_role;
 grant select on public.certifier_budgets, public.certifier_budget_reservations, public.certifier_briefs to service_role;
 -- Human confirmations are append-only audit events; no updates/deletes granted.
 grant select, insert on public.certifier_claim_confirmations, public.certifier_question_drafts to service_role;
@@ -80,7 +82,7 @@ grant select, insert on public.certifier_claim_confirmations, public.certifier_q
 -- alone do not survive separate pooled PostgREST RPC requests). Every mutation
 -- is fenced by run_id. On worker death a 3-minute lease expires, while all
 -- unmeasured reservations REMAIN spent. No budget is reset on acquisition.
-create function public.certifier_acquire_run(p_workspace_id uuid, p_brand_id uuid, p_bio_id uuid, p_bio_version integer, p_run_id uuid)
+create or replace function public.certifier_acquire_run(p_workspace_id uuid, p_brand_id uuid, p_bio_id uuid, p_bio_version integer, p_run_id uuid)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare b certifier_budgets;
 begin
@@ -98,7 +100,7 @@ begin
   return jsonb_build_object('spent', b.spent, 'cap', b.cap);
 end $$;
 
-create function public.certifier_reserve_budget(p_brand_id uuid, p_bio_version integer, p_run_id uuid, p_call_id uuid, p_est numeric)
+create or replace function public.certifier_reserve_budget(p_brand_id uuid, p_bio_version integer, p_run_id uuid, p_call_id uuid, p_est numeric)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare b certifier_budgets; existing certifier_budget_reservations;
 begin
@@ -120,7 +122,7 @@ begin
   return jsonb_build_object('spent',b.spent);
 end $$;
 
-create function public.certifier_settle_budget(p_brand_id uuid, p_bio_version integer, p_run_id uuid, p_call_id uuid, p_actual numeric)
+create or replace function public.certifier_settle_budget(p_brand_id uuid, p_bio_version integer, p_run_id uuid, p_call_id uuid, p_actual numeric)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare b certifier_budgets; r certifier_budget_reservations;
 begin
@@ -140,14 +142,14 @@ begin
   return jsonb_build_object('spent',b.spent);
 end $$;
 
-create function public.certifier_release_run(p_brand_id uuid, p_bio_version integer, p_run_id uuid)
+create or replace function public.certifier_release_run(p_brand_id uuid, p_bio_version integer, p_run_id uuid)
 returns boolean language sql security definer set search_path = public as $$
   with released as (update certifier_budgets set active_run_id = null, active_until = null
     where brand_id = p_brand_id and bio_version = p_bio_version and active_run_id = p_run_id returning 1)
   select exists(select 1 from released);
 $$;
 
-create function public.certifier_record_run(p_workspace_id uuid, p_brand_id uuid, p_bio_id uuid, p_bio_version integer, p_run_id uuid,
+create or replace function public.certifier_record_run(p_workspace_id uuid, p_brand_id uuid, p_bio_id uuid, p_bio_version integer, p_run_id uuid,
   p_brief jsonb, p_cost numeric, p_model text, p_log jsonb, p_error text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
