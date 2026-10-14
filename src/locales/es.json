@@ -1563,6 +1563,15 @@
       "preserved": "No se muestra contenido del Brand Core ni acciones de certificación hasta resolver la identidad de la marca y sus fuentes.",
       "retry": "Volver a comprobar",
       "sourcesFor": "Fuentes para {name}. Otra marca necesita su propio registro."
+    },
+    "reviewGate": {
+      "waiting": "Pendiente: {reasons}",
+      "score": "Confianza: {score}/{minScore}. La revisión del director creativo se solicitará automáticamente cuando se cumplan estas comprobaciones.",
+      "LOGO_RIGHTS_UNCONFIRMED": "confirmar los derechos del logo",
+      "LOGO_REQUIRED": "añadir un logo aprobado",
+      "PRIMARY_COLOUR_REQUIRED": "elegir un color principal",
+      "DISPLAY_FONT_REQUIRED": "añadir una fuente de títulos con licencia",
+      "BELOW_MIN_SCORE": "elevar la confianza a {minScore}"
     }
   },
   "floater": {

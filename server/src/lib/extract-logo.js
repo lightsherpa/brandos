@@ -19,6 +19,22 @@ export function safeLogoSvg(svg = '') {
 }
 export function extractLogo(html = '', baseUrl = '') {
   if (typeof html !== 'string') return null;
+  for (const region of html.matchAll(/<(header|nav)\b[^>]*>([\s\S]*?)<\/\1>/gi)) {
+    for (const match of region[2].matchAll(/<img\b[^>]*>|<svg\b[^>]*>[\s\S]*?<\/svg>/gi)) {
+      const a = attrs(match[0].split('>')[0]);
+      const prefix=region[2].slice(0,match.index);
+      const parent=prefix.match(/<(?:a|div|span)\b[^>]*>\s*$/i)?.[0] || '';
+      const anchor=[...prefix.matchAll(/<a\b[^>]*>/gi)].at(-1);
+      let homeLink=false;
+      if(anchor && !/<\/a>/i.test(prefix.slice(anchor.index))){
+        try{const href=new URL(attrs(anchor[0]).href,baseUrl),base=new URL(baseUrl);homeLink=href.origin===base.origin && href.pathname==='/';}catch{}
+      }
+      a.src=a.src||a['data-src']||a['data-lazy-src'];
+      if (!homeLink && !/logo/i.test([a.src, a.alt, a.class, a.id, a['aria-label'],parent].join(' '))) continue;
+      if (/^<svg/i.test(match[0]) && safeLogoSvg(match[0])) return { url:`data:image/svg+xml,${encodeURIComponent(match[0])}`, source:'header SVG', conf:90 };
+      const found = a.src && publicLogo(a.src, baseUrl, 'header image', 90); if (found) return found;
+    }
+  }
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
     try {
       const walk = value => {
@@ -34,22 +50,19 @@ export function extractLogo(html = '', baseUrl = '') {
       const found = walk(JSON.parse(match[1])); if (found) return found;
     } catch { /* malformed site metadata */ }
   }
-  for (const region of html.matchAll(/<(header|nav)\b[^>]*>([\s\S]*?)<\/\1>/gi)) {
-    for (const match of region[2].matchAll(/<img\b[^>]*>|<svg\b[^>]*>[\s\S]*?<\/svg>/gi)) {
-      const a = attrs(match[0].split('>')[0]);
-      if (!/logo/i.test([a.src, a.alt, a.class, a.id, a['aria-label']].join(' '))) continue;
-      if (/^<svg/i.test(match[0]) && safeLogoSvg(match[0])) return { url:`data:image/svg+xml,${encodeURIComponent(match[0])}`, source:'header SVG', conf:90 };
-      const found = a.src && publicLogo(a.src, baseUrl, 'header image', 90); if (found) return found;
-    }
-  }
-  for (const match of html.matchAll(/<link\b[^>]*>/gi)) {
-    const a = attrs(match[0]);
-    if (!/(?:^|\s)(?:icon|apple-touch-icon)(?:\s|$)/i.test(a.rel || '')) continue;
-    const found = a.href && publicLogo(a.href, baseUrl, 'site icon', 50); if (found) return found;
-  }
   for (const match of html.matchAll(/<meta\b[^>]*>/gi)) {
     const a = attrs(match[0]);
     if (a.property === 'og:image') { const found = publicLogo(a.content, baseUrl, 'og:image', 50); if (found) return found; }
+  }
+  const icons = [...html.matchAll(/<link\b[^>]*>/gi)].map(m => attrs(m[0]));
+  for (const a of icons.filter(a => /(?:^|\s)apple-touch-icon(?:-precomposed)?(?:\s|$)/i.test(a.rel || ''))) {
+    const found = a.href && publicLogo(a.href, baseUrl, 'apple-touch-icon', 50); if (found) return found;
+  }
+  for (const a of icons.filter(a => /(?:^|\s)icon(?:\s|$)/i.test(a.rel || ''))) {
+    // Unknown-size favicons cannot establish a usable brand mark.
+    const sizes = [...String(a.sizes || '').matchAll(/(\d+)x(\d+)/g)];
+    if (!sizes.some(m => Number(m[1]) >= 64 && Number(m[2]) >= 64)) continue;
+    const found = a.href && publicLogo(a.href, baseUrl, 'site icon', 50); if (found) return found;
   }
   return null;
 }

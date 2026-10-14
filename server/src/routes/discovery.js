@@ -137,7 +137,9 @@ app.get("/:discoveryId/status",requireAuth,async c=>{
  const {data:run,error}=await supabaseAdmin.from("discovery_runs").select("id,brand_id,workspace_id,stage,status,error_code,bio_id,created_at,updated_at").eq("id",c.req.param("discoveryId")).maybeSingle();
  if(error)return c.json({error:"Progress temporarily unavailable"},503);
  if(!run||!hasPermission(c.get("auth"),"bio.read",run.workspace_id))return c.json({error:"Discovery not available"},404);
- return c.json({run});
+ const {data:reviewGate,error:gateError}=run.bio_id?await supabaseAdmin.from('bio_review_gates').select('status,score,min_score,reasons,job_id').eq('bio_id',run.bio_id).maybeSingle():{data:null};
+ if(gateError)return c.json({error:'Review status temporarily unavailable'},503);
+ return c.json({run:{...run,reviewGate}});
 });
 
 export default app;

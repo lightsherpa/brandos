@@ -1648,6 +1648,15 @@
       "preserved": "لن يُعرض محتوى Brand Core أو إجراءات التصديق حتى يتم التحقق من هوية العلامة ومصادرها.",
       "retry": "تحقق مجددًا",
       "sourcesFor": "مصادر {name}. تحتاج العلامة الأخرى إلى سجل خاص بها."
+    },
+    "reviewGate": {
+      "waiting": "بانتظار: {reasons}",
+      "score": "الثقة: {score}/{minScore}. ستُطلب مراجعة المدير الإبداعي تلقائياً عند اجتياز هذه الفحوصات.",
+      "LOGO_RIGHTS_UNCONFIRMED": "تأكيد حقوق استخدام الشعار",
+      "LOGO_REQUIRED": "إضافة شعار معتمد",
+      "PRIMARY_COLOUR_REQUIRED": "اختيار لون أساسي",
+      "DISPLAY_FONT_REQUIRED": "إضافة خط عناوين مرخص",
+      "BELOW_MIN_SCORE": "رفع الثقة إلى {minScore}"
     }
   },
   "floater": {

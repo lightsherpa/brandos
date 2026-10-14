@@ -94,3 +94,14 @@ test('competitive BIO renders safely and round trips evidence; unreviewed draft 
  assert.equal(discoFieldStatus({value:positioning.competitors}).kind,'review');
  assert.equal(discoFieldStatus({value:positioning.competitors,mark:'accurate'}).kind,'accurate');
 });
+
+test('gated review shows actionable waiting reasons and score until checks pass',async t=>{
+ const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom'});t.after(()=>vite.close());
+ const {ReviewGateNotice}=await vite.ssrLoadModule('/src/discovery-review-gate.jsx');
+ const gate={status:'gated',score:79,min_score:80,reasons:[{code:'LOGO_RIGHTS_UNCONFIRMED'}]};
+ const markup=renderToStaticMarkup(React.createElement(ReviewGateNotice,{gate}));
+ assert.match(markup,/Waiting on: confirm logo rights/);assert.match(markup,/79\/80/);assert.match(markup,/automatically/);assert.match(markup,/role="status"/);
+ assert.equal(renderToStaticMarkup(React.createElement(ReviewGateNotice,{gate:{...gate,status:'queued'}})),'');
+ const source=await readFile(discoveryUrl,'utf8');assert.equal((source.match(/<ReviewGateNotice gate=\{live\.bio\?\.reviewGate\}/g)||[]).length,2);
+ assert.match(source,/runFinished=\["completed","gated"\]/);
+});
