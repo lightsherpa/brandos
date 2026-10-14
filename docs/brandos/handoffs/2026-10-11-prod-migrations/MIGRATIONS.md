@@ -345,6 +345,8 @@ select has_function_privilege('authenticated','public.certifier_acquire_run(uuid
 
 ## 17. `20261014000000_reference_intake.sql` (fix/vds-reference-intake)
 
+`20261014000000_reference_intake.sql` redefines `public.reconcile_bio_review`; do not re-run `20261013030000_discovery_review_gate.sql` (030000) on its own after this migration.
+
 Adds service-only atomic owner rights confirmation and an immutable audit row for each request. References are appended in a new Brand Core version, prior references are superseded and retained. Row locks and request IDs prevent duplicate appends; new-reference review requires exact owner attestation and cannot duplicate terminal jobs. Safe before the merge for schema compatibility: existing callers do not invoke the new intake RPC; automatic review gains an additional gate only for new reference_intake payloads. **File only; production application has not been authorized or performed.** Run the verify query first and skip if a row comes back. Never use these deployment examples for this local rehearsal.
 
 Approved deployment reference only:
