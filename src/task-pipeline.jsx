@@ -1,3 +1,4 @@
+import { taskMetricsLabel } from "./lib/task-output.js";
 import React from "react";
 import { apiFetch } from "./lib/supabase-browser.js";
 
@@ -12,7 +13,7 @@ const TYPES = {
   email_sequence: { label: "Email sequence", hint: "3 branded HTML emails", writer: "a13 Email Sequence", skills: "a14 Subject Lines, a12 Conversion Copy", reviewer: "a18 Voice QA" },
 };
 const STATUS_DOT = { queued: "#a8a29e", writing: "#a16207", imaging: "#a16207", checking: "#a16207", fixing: "#b45309", ready: "#15803d", flagged: "#b91c1c" };
-const STATUS_WORD = { queued: "Queued", writing: "Writing", imaging: "Designing", checking: "Checking", fixing: "Fixing", ready: "Ready", flagged: "Needs review" };
+const STATUS_WORD = { queued: "Queued", writing: "Writing", imaging: "Designing", checking: "Checking", fixing: "Fixing", ready: "Needs review", flagged: "Needs review", approved: "Approved", needs_review: "Needs review", failed: "Failed" };
 const storageKey = (brandId) => `brandos.task.${brandId}`;
 const RULE_CHECKS = new Set(["BANNED", "BRIEF_BANNED", "voice_on_brand", "no_unsupported_claim"]);
 
@@ -38,7 +39,7 @@ function Stepper({ stage, status }) {
         const live = i === at && !done;
         return <li key={s} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: done || live ? "#1c1917" : "#a8a29e" }}>
           <span style={{ width: 8, height: 8, borderRadius: 999, background: done ? "#15803d" : live ? "#a16207" : "#d6d3d1" }} />
-          {s === "Ready" && status === "flagged" ? "Needs review" : s === "Imaging" ? "Designing" : s}{i < STAGES.length - 1 && <span style={{ color: "#d6d3d1", marginLeft: 6 }}>—</span>}
+          {s === "Ready" && status !== "approved" ? "Needs review" : s === "Imaging" ? "Designing" : s}{i < STAGES.length - 1 && <span style={{ color: "#d6d3d1", marginLeft: 6 }}>—</span>}
         </li>;
       })}
     </ol>
@@ -156,7 +157,7 @@ export function TaskPipelineView({ go }) {
   const [startedAt, setStartedAt] = useState(null);
   const [now, setNow] = useState(Date.now());
 
-  useEffect(() => { if (!brandId) return; const saved = localStorage.getItem(storageKey(brandId)); if (saved) setTaskId(saved); }, [brandId]);
+  useEffect(() => { setTask(null); setTaskId(null); setStartedAt(null); if (!brandId) return; const saved = localStorage.getItem(storageKey(brandId)); if (saved) setTaskId(saved); }, [brandId]);
   useEffect(() => {
     if (!taskId) return undefined;
     let stop = false; let timer;
@@ -165,13 +166,14 @@ export function TaskPipelineView({ go }) {
       if (stop) return;
       if (res.status === 404) { localStorage.removeItem(storageKey(brandId)); setTaskId(null); setTask(null); return; }
       const j = await res.json();
+      if (!res.ok) { setError(j.error || "Could not load saved task"); return; }
       setTask(j); setType(j.type);
       if (!startedAt) setStartedAt(Date.parse(j.created_at));
       if (j.status === "running") timer = setTimeout(poll, 1500);
     };
     poll();
     return () => { stop = true; clearTimeout(timer); };
-  }, [taskId]);
+  }, [taskId, brandId]);
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
 
   const run = async () => {
@@ -183,7 +185,7 @@ export function TaskPipelineView({ go }) {
     setStartedAt(Date.now()); setTaskId(j.id);
     setTask({ id: j.id, type, status: "running", stage: j.stage, eta_s: j.eta_s, items: [], notices: [] });
   };
-  const onItem = (item) => setTask((t) => ({ ...t, items: t.items.map((it) => (it.index === item.index ? item : it)) }));
+  const onItem = (item, metrics) => setTask((t) => ({ ...t, result: metrics ? {...t.result, metrics} : t.result, items: t.items.map((it) => (it.index === item.index ? item : it)) }));
 
   const running = task?.status === "running";
   const elapsed = startedAt ? Math.round((now - startedAt) / 1000) : 0;
@@ -194,7 +196,7 @@ export function TaskPipelineView({ go }) {
   return <div style={css.page}>
     <style>{"@keyframes tpPulse{0%,100%{opacity:1}50%{opacity:.55}}"}</style>
     <h1 style={css.h1}>Tasks</h1>
-    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>One brief, one finished deliverable. Written, designed and checked against your Brand Core.</p>
+    <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>Generate, check and review deliverables against your Brand Core. Human approval is still required.</p>
     {!brandId && <p>Select a brand first.</p>}
     <section style={{ ...css.card, padding: 16, display: "grid", gap: 12, marginTop: 16 }}>
       <div style={{ display: "flex", gap: 8 }}>
@@ -211,9 +213,10 @@ export function TaskPipelineView({ go }) {
     {task && <section style={{ marginTop: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
         <h2 style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 24, margin: 0 }}>{TYPES[task.type]?.label}</h2>
-        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? `Finished in ${(metrics.total_ms / 1000).toFixed(0)}s · $${metrics.cost.total_usd.toFixed(3)}` : task.status === "failed" ? task.error : ""}</span>
+        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics) : task.status === "failed" ? task.error : ""}</span>
       </div>
       <Stepper stage={task.stage} status={task.status} />
+      {!running && <p style={css.dim}>{task.status === "failed" ? "Generation failed" : "Generation finished · needs human review"} · <button style={css.secondary} onClick={() => go("library")}>Open saved items in Library</button></p>}
       {(task.notices || []).map((n, i) => <div key={i} style={{ fontSize: 12, color: "#b45309", marginBottom: 4 }}>● {n}</div>)}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginTop: 12 }}>
         {Array.from({ length: Math.max(count, task.items.length) }, (_, i) => task.items[i]).map((item, i) =>
