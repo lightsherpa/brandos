@@ -24,7 +24,7 @@ export function emailTokens(layer1) {
   };
 }
 
-export async function renderEmail({ email, layer1, heroUrl = null, language = "en" }) {
+export async function renderEmail({ email, layer1, heroUrl = null, language = "en", embedAssets = embedExportAssets }) {
   const tokens = emailTokens(layer1);
   const ctx = {
     language, tokens, email, brand_name: layer1.brand.name,
@@ -37,8 +37,10 @@ export async function renderEmail({ email, layer1, heroUrl = null, language = "e
     const out = await mjml2html(src, { validationLevel: "soft", minify: false });
     html = out.html; errors = out.errors || [];
   } catch (e) { errors = [e.message]; }
-  const exported = layer1.logo?.sourceId || layer1.font_assets?.length ? await embedExportAssets(html, { layer1, imageUrl: heroUrl }) : { html, stable: false, assets: [] };
-  return { ...exported, mjmlErrors: errors, tokens };
+  const transport_html = html;
+  const transport = { html_bytes: Buffer.byteLength(html, "utf8"), delivery_ready: false, requires_asset_hosting: /<img[^>]+src=["\']https?:/i.test(html), font_mode: "fallback_stack", purpose: "email_transport_draft" };
+  const exported = layer1.logo?.sourceId || layer1.font_assets?.length ? await embedAssets(html, { layer1, imageUrl: heroUrl }) : { html, stable: false, assets: [] };
+  return { ...exported, transport_html, transport, mjmlErrors: errors, tokens };
 }
 
 const escHtml = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));

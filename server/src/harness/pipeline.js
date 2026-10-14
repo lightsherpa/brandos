@@ -133,20 +133,23 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
 }
 
 /** Code checks + render for one item (shared by runTask and rerunItem). */
-export async function checkAndRender({ type, task, it, layer1, language, briefCheck }) {
+export async function checkAndRender({ type, task, it, layer1, language, briefCheck, renderEmailFn = renderEmail }) {
   const pre = briefCheck ? [briefCheck] : [];
   if (type === "social_post") {
     it.checks = [...pre, ...checkSocialCopy(it.copy, { banned: layer1.voice.forbidden }), ...checkSocialImage(it.image, { aspect: task.aspect })];
     if (it.image?.asset_url) {
-      try { const r = await renderStableSocial({ post: it.copy, imageUrl: it.image.asset_url, layer1, aspect: task.aspect }); it.html = r.html; it.export = { stable: r.stable, assets: r.assets, formats: r.stable ? ["html", "png"] : ["html"] }; }
+      try { const r = await renderStableSocial({ post: it.copy, imageUrl: it.image.asset_url, layer1, aspect: task.aspect }); it.html = r.html; it.export = { kind: "standalone_html", stable: r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), assets: r.assets, formats: r.stable ? ["html", "png"] : ["html"] }; }
       catch { it.checks.push(result("EXPORT_ASSETS", false, "Stable export assets unavailable", "hard", "none")); it.html = null; }
     }
   } else {
-    let r; try { r = await renderEmail({ email: it.copy, layer1, heroUrl: it.image?.asset_url || null, language }); } catch { r = { html: "", mjmlErrors: ["Stable export assets unavailable"], tokens: {} }; }
-    it.export = { stable: !!r.stable, assets: r.assets || [], formats: ["html"] };
+    let r; try { r = await renderEmailFn({ email: it.copy, layer1, heroUrl: it.image?.asset_url || null, language }); } catch { r = { html: "", mjmlErrors: ["Stable export assets unavailable"], tokens: {} }; }
+    it.export = { kind: "standalone_html", stable: !!r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), transport_html_bytes: r.transport?.html_bytes || null, delivery_ready: false, assets: r.assets || [], formats: ["html"] };
     it.html = r.html;
+    it.transport_html = r.transport_html || null;
+    it.transport = r.transport || null;
     it.html_bytes = Buffer.byteLength(r.html || "", "utf8");
-    it.checks = [...pre, ...checkEmailCopy(it.copy, { banned: layer1.voice.forbidden }), ...checkEmailHtml({ html: r.html, mjmlErrors: r.mjmlErrors, tokens: r.tokens })];
+    it.checks = [...pre, ...checkEmailCopy(it.copy, { banned: layer1.voice.forbidden }), ...checkEmailHtml({ html: r.transport_html || r.html, mjmlErrors: r.mjmlErrors, tokens: r.tokens })];
+    if (r.stable) it.checks.push(result("STANDALONE_EXPORT", !!r.html && Buffer.byteLength(r.html, "utf8") <= 20 * 1024 * 1024, "Standalone HTML embeds licensed font and visual assets; separate from email transport size", "hard", "none"));
     if (task.heroes) it.checks.push(it.image?.asset_url ? result("OCR_NOTEXT", it.image.ocr?.pass === true, it.image.ocr?.reason || "OCR not run", "hard", "image") : result("IMAGE", false, it.image?.error || "No hero image", "hard", "image"));
   }
   return it;
@@ -186,6 +189,7 @@ export function publicItem(it) {
   return {
     index: it.index, status: it.status, stage: it.stage, needs_review: !!it.needs_review, revisions: it.revisions,
     export: it.export || null,
+    transport_html: it.transport_html || null, transport: it.transport || null,
     copy: it.copy || null, html: it.html || null, html_bytes: it.html_bytes || null,
     image: it.image ? { asset_url: it.image.asset_url || null, model: it.image.model || null, fallback_from: it.image.fallback_from || null, width: it.image.width, height: it.image.height, uses_reference: it.image.uses_reference, reference_count: it.image.reference_count, ocr: it.image.ocr || null, ms: it.image.ms, attempts: (it.image.attempts || []).map(({ route, model, ms, error, ocr }) => ({ route, model, ms, error, ocr_pass: ocr?.pass ?? null })), error: it.image.error || null } : null,
     checks: it.checks, review: it.review,
