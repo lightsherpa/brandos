@@ -203,7 +203,7 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
    Cancel:
      { status: "cancelled" }
 */
-app.patch("/jobs/:id", requireAuth, requireSteward, async (c) => {
+app.patch("/jobs/:id", requireHumanActor, requireAuth, requireHumanActor, requireSteward, async (c) => {
   try { assertHumanActor(c.get("auth")); }
   catch (err) { return c.json({ error: err.message, code: err.code }, err.status); }
   const steward = c.get("steward");

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Hono } from 'hono';
 import { requireAuth } from '../middleware/auth.js';
 import { supabaseAdmin } from '../lib/supabase.js';
-import { assertHumanActor } from '../lib/human-actor.js';
+import { requireHumanActor } from '../middleware/human-actor.js';
 import { buildCertifierContext } from '../lib/certifier/context.js';
 import { certifierEnabled, runCertifier } from '../lib/certifier/run.js';
 import { saveQuestionDraft } from '../lib/certifier/drafts.js';
@@ -12,7 +12,7 @@ import { latestCertifierBrief, recordCertifierRun, reserveCertifier, refundCerti
 export function createCertifierRoutes(requireSteward) {
   const app = new Hono();
   app.use('*', (c, next) => certifierEnabled() ? next() : c.json({ error: 'Not found', code: 'FLAG_OFF' }, 404));
-  app.use('*', assertHumanActor, requireAuth, assertHumanActor, requireSteward);
+  app.use('*', requireHumanActor, requireAuth, requireHumanActor, requireSteward);
   // Same review assignment boundary as jobs/:id, plus the brand's actual
   // workspace. A platform CD may review an assigned client workspace.
   async function loadScope(c) {
@@ -73,7 +73,7 @@ export function createCertifierRoutes(requireSteward) {
     }
     return c.json({ brief, stale: String(saved.version) !== await latestVersion(scope), run_id: saved.id });
   });
-  app.post('/:bioId/claims/:claimId/confirm', assertHumanActor, async c => {
+  app.post('/:bioId/claims/:claimId/confirm', requireHumanActor, async c => {
     const scope = await loadScope(c);
     if (await latestVersion(scope) !== scope.version) return c.json({ error: 'Brand Core version changed', code: 'CERTIFIER_STALE' }, 409);
     const saved = await latestCertifierBrief(scope); const id = c.req.param('claimId');

@@ -34,6 +34,6 @@ test('SELECT-only lint; only drafts helper writes, and never sends or notifies',
  for(const file of readdirSync(new URL('./',import.meta.url)).filter(f=>f.endsWith('.js')&&!f.includes('test-helpers'))){
  const src=readFileSync(new URL(file,import.meta.url),'utf8');
  if(file!=='drafts.js')assert.doesNotMatch(src,/\.(update|insert|delete|upsert)\s*\(/,file);
- else {assert.match(src,/from\('certifier_question_drafts'\)/);assert.doesNotMatch(src,/notify\s*\(|fetch\s*\(|sendMessage\s*\(/);}
+ else {assert.doesNotMatch(src,/supabase|\.from\(/);assert.doesNotMatch(src,/notify\s*\(|fetch\s*\(|sendMessage\s*\(/);}
  }
 });

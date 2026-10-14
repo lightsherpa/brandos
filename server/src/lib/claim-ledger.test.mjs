@@ -103,7 +103,7 @@ test('API validation rejects unresolved, stale, invented claims and unreviewed p
 });
 test('assertHumanActor accepts verified users and rejects agent or service actors', () => {
   assert.doesNotThrow(()=>assertHumanActor({userId:'human'}));
-  for(const auth of [null,{userId:'agent',actor:{type:'agent'}},{userId:'agent',actor_type:'agent'},{userId:'service',role:'service_role'}]) assert.throws(()=>assertHumanActor(auth),e=>e.code==='HUMAN_ACTOR_REQUIRED');
+  for(const auth of [null,{userId:'agent',actor:{type:'agent'}},{userId:'agent',actor_type:'agent'},{userId:'service',role:'service_role'}]) assert.throws(()=>assertHumanActor(auth),e=>e.code==='AGENT_CANNOT_CERTIFY');
 });
 
 test('database source ordering does not make an unchanged review stale', () => {

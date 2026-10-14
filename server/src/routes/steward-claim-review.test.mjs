@@ -73,7 +73,7 @@ test('Lead certification, fix patch and SoD retain the existing submission path'
 });
 test('agents cannot certify or lead-approve even with a steward role and human body label',async()=>{
   reset();auth.actor={type:'agent'};
-  for(const body of [{reviewerScores:scores,claimReview:review(),actor:'human'},{leadApprove:true}]){const res=await req(body);assert.equal(res.status,403);assert.equal((await res.json()).code,'HUMAN_ACTOR_REQUIRED');}
+  for(const body of [{reviewerScores:scores,claimReview:review(),actor:'human'},{leadApprove:true}]){const res=await req(body);assert.equal(res.status,403);assert.equal((await res.json()).code,'AGENT_CANNOT_CERTIFY');}
   assert.equal(writes.length,0);
 });
 test('flag off allows the legacy human review path',async()=>{

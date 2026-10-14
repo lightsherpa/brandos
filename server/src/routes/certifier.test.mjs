@@ -13,7 +13,7 @@ mock.module(new URL('lib/notify.js',root).href,{namedExports:{notify:async()=>{}
 mock.module(new URL('lib/certifier/context.js',root).href,{namedExports:{buildCertifierContext:async()=>ctx}});
 mock.module(new URL('lib/certifier/run.js',root).href,{namedExports:{certifierEnabled:()=>process.env.CERTIFIER_V2_S2==='true',runCertifier:async(c,opts)=>{modelCalls++;assert.equal(c.workspaceId,'ws');return{runId:opts.runId,brief:enrich(recordedOutput(c,'nomad-roasters'),c),log:[],costUsd:0.001,model:'anthropic/claude-sonnet-5-5'};}}});
 mock.module(new URL('lib/certifier-store.js',root).href,{namedExports:{latestCertifierBrief:async()=>saved,recordCertifierRun:async(c,r)=>{writes.push(['certifier_briefs',r]);},reserveCertifier:async()=> 'reservation',refundCertifier:async()=>{},confirmCertifierClaim:async args=>{writes.push(['certifier_claim_confirmations',args]);return{id:'confirmed'};}}});
-const{default:stewardApp}=await import('./steward.js');const{default:biosApp}=await import('./bios.js');
+const{default:stewardApp}=await import('./steward.js');const{default:biosApp}=await import('./bios.js');const{default:sessionApp}=await import('./discovery-session.js');
 const request=(app,path,method='GET',body,token)=>app.request(path,{method,headers:{'content-type':'application/json',...(token?{authorization:`Bearer ${token}`}:{})},...(body&&method!=='GET'?{body:JSON.stringify(body)}:{})});
 function reset(){process.env.CERTIFIER_V2_S2='true';const f=fixture('nomad-roasters');ctx={...context(f),runId:'run'};brand=f.brand;bio=f.bio;latestVersion=1;
  auth={userId:'cd-user',scope:'platform',actorType:'human'};steward={id:'cd',active:true,roles:['steward']};jobs=[{id:'job',assigned_to:'cd'}];writes=[];modelCalls=0;
@@ -26,13 +26,13 @@ test('S2 flag off returns 404 across all new routes with zero DB mutations/model
 });
 test('agent actor receives 403 on ALL three certification paths and per-claim confirmation; no row changes',async()=>{
  reset();auth.actorType='agent';
- for(const[app,path,method]of[[biosApp,'/brand/self-certify','POST'],[stewardApp,'/jobs/job','PATCH'],[stewardApp,'/decertify','POST'],[stewardApp,'/certifier/bio/claims/visual.logo/confirm','POST']]){
+ for(const[app,path,method]of[[biosApp,'/brand/self-certify','POST'],[biosApp,'/brand/accept-changes','POST'],[sessionApp,'/session/brand/attest','POST'],[stewardApp,'/jobs/job','PATCH'],[stewardApp,'/decertify','POST'],[stewardApp,'/certifier/bio/claims/visual.logo/confirm','POST']]){
  const res=await request(app,path,method,{});assert.equal(res.status,403,path);assert.equal((await res.json()).code,'AGENT_CANNOT_CERTIFY');}
  assert.equal(writes.length,0);assert.equal(modelCalls,0);
 });
 test('delegation and service bearer tokens receive the same 403 at every certify endpoint',async()=>{
  reset();const service='head.'+Buffer.from(JSON.stringify({role:'service_role'})).toString('base64url')+'.sig';
- for(const token of ['a'.repeat(43),service])for(const[app,path,method]of[[biosApp,'/brand/self-certify','POST'],[stewardApp,'/jobs/job','PATCH'],[stewardApp,'/decertify','POST'],[stewardApp,'/certifier/bio/claims/visual.logo/confirm','POST']])assert.equal((await request(app,path,method,{},token)).status,403);
+ for(const token of ['a'.repeat(43),service])for(const[app,path,method]of[[biosApp,'/brand/self-certify','POST'],[biosApp,'/brand/accept-changes','POST'],[sessionApp,'/session/brand/attest','POST'],[stewardApp,'/jobs/job','PATCH'],[stewardApp,'/decertify','POST'],[stewardApp,'/certifier/bio/claims/visual.logo/confirm','POST']])assert.equal((await request(app,path,method,{},token)).status,403);
  assert.equal(writes.length,0);
 });
 test('full brief route requires exact mode and review assignment; writes only host run record',async()=>{

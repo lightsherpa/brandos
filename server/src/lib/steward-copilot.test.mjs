@@ -66,7 +66,7 @@ test("buildStewardCaseFile recommends return_changes when high-impact gaps remai
   const caseFile = buildStewardCaseFile({ job, bio, brand, previousBio });
 
   assert.equal(caseFile.readiness.level, "usable-for-briefing");
-  assert.equal(caseFile.certificationRecommendation.decision, "return_changes");
+  assert.equal(Object.hasOwn(caseFile, "certificationRecommendation"), false);
   assert.ok(caseFile.risks.some((risk) => risk.field === "voice.forbidden"));
 });
 

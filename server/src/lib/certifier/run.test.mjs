@@ -65,3 +65,45 @@ test('the final question matches the exact draft saved earlier in the tool loop'
  const result=await runCertifier(ctx,{stream,saveDraft:async args=>{saved.push(structuredClone(args));return 'draft-'+saved.length;}});
  const returned=result.brief.question_groups.flatMap(g=>g.questions).find(q=>q.claim_ids.includes(original.claim_ids[0]));assert.equal(returned.text,saved[0].question.text);assert.equal(returned.draft_id,'draft-1');
 });
+
+
+test('repeated brief POST work and redrafts share the version budget; next version has a fresh cap', async () => {
+ enable(); const ctx = context(fixture('nomad-roasters')); ctx.bioId = 'cumulative-budget-test';
+ let calls = 0;
+ const stream = async function*(p) { calls++; yield {type:'done',usage:{model:'claude-sonnet-5-5',prompt_tokens:100,completion_tokens:p.maxTokens},content:[{type:'tool_use',id:'submit',name:'submit_brief',input:recordedOutput(ctx,'nomad-roasters')}]}; };
+ let total = 0; let capped = false;
+ for (let i=0; i<20; i++) {
+   try { const r=await runCertifier(ctx,{stream,saveDraft}); total+=r.costUsd; }
+   catch(e) { assert.equal(e.code,'CERTIFIER_COST_CAP'); capped=true; break; }
+ }
+ assert.ok(capped); assert.ok(total<=0.30); const before=calls;
+ await assert.rejects(runCertifier(ctx,{stream,saveDraft}),e=>e.code==='CERTIFIER_COST_CAP');
+ assert.equal(calls,before);
+ // Redrafts may use remaining room, but inherit all earlier brief spending.
+ let redraftCapped=false;
+ for(let i=0;i<20;i++) {
+   try { const r=await runCertifier(ctx,{mode:'single_claim',claimId:'visual.logo',stream,saveDraft}); total+=r.costUsd; }
+   catch(e) { assert.equal(e.code,'CERTIFIER_COST_CAP'); redraftCapped=true; break; }
+ }
+ assert.ok(redraftCapped); assert.ok(total<=0.30);
+ await runCertifier({...ctx,version:'2'},{stream,saveDraft}); assert.ok(calls>before);
+});
+
+test('concurrent calls cannot get independent version budgets', async () => {
+ enable(); const ctx=context(fixture('nomad-roasters')); ctx.bioId='concurrent-budget-test';
+ let release; const waiting=new Promise(resolve=>{release=resolve;}); let entered;
+ const ready=new Promise(resolve=>{entered=resolve;});
+ const stream=async function*(p){entered();await waiting;yield* modelMock(recordedOutput(ctx,'nomad-roasters'))(p);};
+ const first=runCertifier(ctx,{stream,saveDraft}); await ready;
+ await assert.rejects(runCertifier(ctx,{stream,saveDraft}),e=>e.code==='CERTIFIER_BUSY' && e.status===409);
+ release();await first;
+});
+
+test('provider failure without usage keeps its reservation in the version budget', async () => {
+ enable(); const ctx=context(fixture('nomad-roasters'));ctx.bioId='failed-budget-test';let calls=0;
+ const stream=async function*(){calls++;yield{type:'error',message:'provider failed'};};
+ const errors=[];
+ for(let i=0;i<20;i++) {try{await runCertifier(ctx,{stream,saveDraft});}catch(e){errors.push(e);if(e.code==='CERTIFIER_COST_CAP')break;}}
+ assert.ok(errors[0].certifierRun.costUsd>0);assert.equal(errors.at(-1).code,'CERTIFIER_COST_CAP');
+ const before=calls;await assert.rejects(runCertifier(ctx,{stream,saveDraft}),e=>e.code==='CERTIFIER_COST_CAP');assert.equal(calls,before);
+});

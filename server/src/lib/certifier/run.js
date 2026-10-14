@@ -12,6 +12,9 @@ const PRIMARY = 'anthropic/claude-sonnet-5-5';
 const FALLBACK = 'anthropic/claude-sonnet-4-6';
 export const certifierEnabled = () => String(process.env.CERTIFIER_V2_S2 || '').toLowerCase() === 'true';
 const provider = createCompletionStreamer(p => streamToolCompletion({ ...p, model: p.route.split('/').pop() }));
+// A brief and all redrafts share one budget for the exact Brand Core version.
+const budgets = new Map();
+const active = new Map();
 const hash = args => cryptoHash('sha256', JSON.stringify(args));
 
 export async function runCertifier(context, { mode = 'full', claimId, cd_locale = 'en', stream = provider,
@@ -19,14 +22,22 @@ export async function runCertifier(context, { mode = 'full', claimId, cd_locale 
   if (!certifierEnabled()) throw Object.assign(new Error('Certifier disabled'), { status: 404, code: 'FLAG_OFF' });
   if (!['full', 'single_claim'].includes(mode) || mode === 'single_claim' && !context.ledger.has(claimId)) throw Object.assign(new Error('Unknown claim or mode'), { status: 400 });
   const ctx = { ...context, runId, ledger: mode === 'single_claim' ? new Map([[claimId, context.ledger.get(claimId)]]) : context.ledger };
-  const tools = bindTools(ctx, { saveDraft }); const budget = new CertifierBudget(); const log = []; let model = PRIMARY;
+  const budgetKey = JSON.stringify([context.workspaceId, context.brandId, context.bioId, String(context.version)]);
+  if (active.get(budgetKey)) throw Object.assign(new Error('Brief generation already running'), { code: 'CERTIFIER_BUSY', status: 409 });
+  const budget = budgets.get(budgetKey) || new CertifierBudget();
+  budgets.set(budgetKey, budget);
+  // Reject before any provider work, including repeated POSTs and redrafts.
+  budget.allowance(0, 16);
+  active.set(budgetKey, true);
+  const startingCost = budget.spent;
+  const tools = bindTools(ctx, { saveDraft }); const log = []; let model = PRIMARY;
   const controller = new AbortController();
   const abort = () => controller.abort(callerSignal.reason);
   if (callerSignal?.aborted) abort(); else callerSignal?.addEventListener('abort', abort, { once: true });
   const timer = setTimeout(() => controller.abort(new Error('Certifier total timeout')), timeoutMs ?? (mode === 'full' ? 90000 : 30000));
   const messages = [{ role: 'user', content: [{ type: 'text', text: serializeContext(ctx, { claimId: mode === 'single_claim' ? claimId : undefined }), cache_control: { type: 'ephemeral' } }] }];
   const system = [{ type: 'text', text: fillSystemPrompt({ ...ctx, cd_locale, mode, claim_id: claimId }), cache_control: { type: 'ephemeral' } }];
-  let providerCalls = 0;
+  let providerCalls = 0; let inFlightCost = 0;
   async function callModel(initialMessages) {
     const conversation = structuredClone(initialMessages);
     for (let turn = 0; turn < 9; turn++) {
@@ -35,6 +46,7 @@ export async function runCertifier(context, { mode = 'full', claimId, cd_locale 
       const tokens = tokenUpperBound({ system, messages: conversation, tools: TOOL_DEFINITIONS }) + 512;
       if (tokens > 60000) throw Object.assign(new Error('Certifier input budget exceeded'), { code: 'CERTIFIER_INPUT_BUDGET' });
       const maxTokens = budget.allowance(tokens, mode === 'full' ? 8000 : 2000, model === PRIMARY);
+      inFlightCost = tokens * (model === PRIMARY ? 6.25 : 3.75) / 1e6 + maxTokens * 15 / 1e6;
       providerCalls++;
       let final; let usage;
       for await (const event of stream({ spec: { payload: { modelRouting: { primary: model, fallback: model === PRIMARY ? FALLBACK : undefined } } },
@@ -50,6 +62,7 @@ export async function runCertifier(context, { mode = 'full', claimId, cd_locale 
       if (!usage || !Number.isFinite(usage.prompt_tokens) || !Number.isFinite(usage.completion_tokens) || measured == null) throw new Error('Model usage unavailable');
       const failedInputReserve = usage?.fallback_from ? tokens * 2.5 / 1e6 : 0;
       budget.charge(measured + failedInputReserve);
+      inFlightCost = 0;
       const calls = (final.content || []).filter(block => block.type === 'tool_use');
       const results = []; let submitted;
       for (const call of calls) {
@@ -69,7 +82,7 @@ export async function runCertifier(context, { mode = 'full', claimId, cd_locale 
   }
   try {
     const result = await runWithRepair(callModel, { ...ctx, messages, costSoFar: () => budget.spent });
-    const brief = enrich(result.out, ctx, { ...result, costUsd: budget.spent, model, mode, claimId, previousBrief });
+    const brief = enrich(result.out, ctx, { ...result, costUsd: budget.spent - startingCost, model, mode, claimId, previousBrief });
     for (const group of brief.question_groups) for (const question of group.questions) {
       if (mode === 'single_claim' && !question.claim_ids.includes(claimId) || question.draft_id) continue;
       const { question_id, draft_id, ...args } = question;
@@ -83,8 +96,10 @@ export async function runCertifier(context, { mode = 'full', claimId, cd_locale 
       question.draft_id = saved.draft_id;
     }
     if (!checkFinalSchema(brief)) throw new Error('Saved brief failed schema');
-    return { brief, runId, log, costUsd: budget.spent, model };
+    return { brief, runId, log, costUsd: budget.spent - startingCost, model };
   } catch (error) {
-    error.certifierRun = { runId, log, costUsd: budget.spent, model }; throw error;
-  } finally { clearTimeout(timer); callerSignal?.removeEventListener('abort', abort); controller.abort(); }
+    // Provider errors/abort without usage cannot create a fresh spending allowance.
+    if (inFlightCost) budget.charge(Math.min(inFlightCost, budget.cap - budget.spent));
+    error.certifierRun = { runId, log, costUsd: budget.spent - startingCost, model }; throw error;
+  } finally { active.set(budgetKey, false); clearTimeout(timer); callerSignal?.removeEventListener('abort', abort); controller.abort(); }
 }
