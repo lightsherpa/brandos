@@ -1,0 +1,636 @@
+{
+  "data": {
+    "brand": {
+      "id": "33f68208-4c2a-45de-8d9e-f6833afc7380",
+      "name": "La Más Bonita",
+      "url": "https://www.lamasbonita.es",
+      "workspace_id": "8989b70a-8b6d-4519-8c21-0de3c6ff0442"
+    },
+    "bio": {
+      "id": "163cbd40-594e-456e-8e90-c9b8c7879247",
+      "brand_id": "33f68208-4c2a-45de-8d9e-f6833afc7380",
+      "version": 1,
+      "payload": {
+        "goals": {
+          "q2": null,
+          "q3": null,
+          "northStar": ""
+        },
+        "voice": {
+          "rhythm": "Short, punchy lines and direct imperatives, such as 'Entra y reserva', 'Entra y elige la tuya' and '¡Te vas a enamorar!'.",
+          "register": "Warm, playful and sensory; short, food-led copy that talks directly to the reader.",
+          "forbidden": [],
+          "signatures": [
+            "Sensory, onomatopoeic openers such as 'Ummm, aquí huele a croissants recién horneados'",
+            "Direct, inviting calls to action such as 'Entra y…', 'Mira lo que tenemos para ti' and 'Pide la tuya'",
+            "Affectionate, enthusiastic exclamations such as '¡Te vas a enamorar!'"
+          ]
+        },
+        "visual": {
+          "logo": {
+            "url": "https://www.lamasbonita.es/assets/images/favicon.ico",
+            "conf": 50,
+            "source": "og:image"
+          },
+          "type": [
+            {
+              "kind": "Body",
+              "family": "DinR",
+              "usageStatus": "computed"
+            },
+            {
+              "kind": "Body",
+              "family": "DinM",
+              "usageStatus": "computed"
+            },
+            {
+              "kind": "Display",
+              "family": "DinC",
+              "selector": "h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6",
+              "usageStatus": "declared-not-computed",
+              "sourceProperty": "font-family"
+            }
+          ],
+          "avoid": [
+            "Dark, high-contrast, moody lighting",
+            "Cold, sterile, ultra-modern industrial finishes",
+            "Staged, sterile corporate photography"
+          ],
+          "imagery": [
+            "Bright, welcoming cafe interiors with natural light",
+            "Rustic wooden furniture and exposed brick textures",
+            "Pastel turquoise woodwork framing open glass views",
+            "Straight-on, eye-level architectural wide shots",
+            "Authentic glimpses of bakery prep areas"
+          ],
+          "palette": [
+            {
+              "hex": "#262628",
+              "name": "charcoal",
+              "role": "surface",
+              "roleStatus": "inferred"
+            }
+          ],
+          "references": [],
+          "contrastPairs": []
+        },
+        "missing": [
+          {
+            "why": "no founding year or city stated in the sources",
+            "field": "identity.founded"
+          },
+          {
+            "why": "no brand-stated vocabulary rules or word lists; any list would be invented",
+            "field": "voice.forbidden"
+          },
+          {
+            "why": "no mission, vision or long-term goal surfaced",
+            "field": "goals.northStar"
+          },
+          {
+            "why": "no roadmap or near-term priorities surfaced",
+            "field": "goals.q2"
+          },
+          {
+            "why": "no roadmap or later priorities surfaced",
+            "field": "goals.q3"
+          },
+          {
+            "why": "no aspirational or future-state statements found in the sources",
+            "field": "aspirations.direction"
+          }
+        ],
+        "audience": {
+          "jtbd": [
+            "Help me find a warm, good-looking place for breakfast or brunch in Valencia and book a table.",
+            "Help me get a freshly made cake or breakfast box to share, give as a gift or serve at an occasion.",
+            "Help me find a characterful, Mediterranean place to stay in a Valencia neighbourhood."
+          ],
+          "primary": "People in or visiting Valencia who want breakfast, brunch, pastries and cakes, either dining in at Patacona or Ruzafa or ordering boxes and cakes online. This is inferred from the offer; the sources do not name an audience.",
+          "tertiary": "Gift-givers and hosts who order cakes or breakfast, brunch and lunch trays to share or to surprise someone.",
+          "secondary": "Travellers looking for short-stay apartments in the Cabañal neighbourhood."
+        },
+        "identity": {
+          "founded": null,
+          "pillars": [
+            "Fresh-baked",
+            "Neighbourhood roots",
+            "Mediterranean warmth",
+            "Shareable and giftable"
+          ],
+          "category": "Hospitality group: restaurants and cafés, bakery and pastry, gift and breakfast boxes, tourist apartments (Valencia, Spain)",
+          "positioning": "A Valencia hospitality brand that combines bakery-led cafés and restaurants (Patacona, Ruzafa, Salvatierra, Chiringuito), a Ruzafa pastry workshop with online cake and breakfast-box sales, and four boutique tourist apartments in Cabañal."
+        },
+        "refusals": [
+          "Do not use dark, moody, high-contrast lighting in imagery; keep it bright, natural and welcoming.",
+          "Do not present the brand as a cold, sterile, industrial or corporate hospitality operator.",
+          "Do not use staged corporate stock photography; show real café interiors and bakery prep.",
+          "Do not describe the cakes as mass-produced or imported; they are made daily in the brand's own Ruzafa workshop.",
+          "Do not claim awards, reviews, rankings or superiority over named competitors; none are supported in the sources.",
+          "Do not write stiff or formal copy; keep short, warm, sensory lines that invite the reader in."
+        ],
+        "research": {
+          "query": "Hospitality group in Valencia, Spain: restaurants and cafés (Patacona, Ruzafa, Salvatierra, Chiringuito), a pastry workshop with cake sales, online breakfast an alternatives competitors Inferred, not stated: people in or visiting Valencia who want breakfast, brunch, pastries, or shareable and gift food boxes, and travelers seeking short-stay ap Spain English",
+          "market": {
+            "city": "",
+            "country": "ES",
+            "language": "en",
+            "countryName": "Spain",
+            "languageName": "English"
+          },
+          "status": "evidence_gathered",
+          "sources": [
+            {
+              "url": "https://inbetweentravels.com/brunch-spots-in-valencia/",
+              "title": "Best Brunch Spots in Valencia 2026: 10 Local Favorites (With ...",
+              "checkedAt": "2026-10-14T12:56:26.731Z"
+            },
+            {
+              "url": "https://thetejanaabroad.com/best-brunch-in-valencia/",
+              "title": "10 Of The Best Places For Brunch In Valencia - The Tejana Abroad",
+              "checkedAt": "2026-10-14T12:56:26.731Z"
+            },
+            {
+              "url": "https://www.tripadvisor.com/Restaurants-g187529-zfp10606-Valencia_Province_of_Valencia_Valencian_Community.html",
+              "title": "THE BEST Brunch in Valencia (UPDATED 2026) - Tripadvisor",
+              "checkedAt": "2026-10-14T12:56:26.731Z"
+            }
+          ],
+          "limitations": []
+        },
+        "strategic": {
+          "notList": [
+            "Not a cold, sterile or ultra-modern industrial venue",
+            "Not a staged, corporate-feeling hospitality brand",
+            "Not a generic mass-produced bakery, since the brand stresses daily workshop production"
+          ],
+          "watchouts": [
+            "Many formats (restaurants, shop, boxes, apartments) and separate domains for the shop and the apartments risk diluting the single La Más Bonita brand experience.",
+            "Competes in Ruzafa and Patacona, the busiest brunch neighbourhoods, against well-reviewed independent cafés.",
+            "The sub-brand label 'LMB' sits next to the full name 'La Más Bonita', so naming consistency needs to be managed."
+          ]
+        },
+        "confidence": {
+          "visual.type": {
+            "conf": 70,
+            "source": "computed styles (DinR, DinM); DinC declared in CSS"
+          },
+          "visual.avoid": {
+            "conf": 35,
+            "source": "tool-generated visual guidance; unverified as brand statement"
+          },
+          "voice.rhythm": {
+            "conf": 55,
+            "source": "homepage hero and banner copy"
+          },
+          "audience.jtbd": {
+            "conf": 50,
+            "source": "inferred from homepage offers"
+          },
+          "visual.imagery": {
+            "conf": 45,
+            "source": "screenshot-based model observations; not a certified style guide"
+          },
+          "visual.palette": {
+            "conf": 40,
+            "source": "computed styles: only charcoal #262628 detected, role inferred"
+          },
+          "voice.register": {
+            "conf": 60,
+            "source": "homepage copy; reader observation (inferred)"
+          },
+          "audience.primary": {
+            "conf": 55,
+            "source": "inferred from homepage offers; no stated audience"
+          },
+          "identity.pillars": {
+            "conf": 55,
+            "source": "inferred from homepage copy (croissants recién horneados, obrador del barrio, esencia mediterránea, compartir y regalar)"
+          },
+          "voice.signatures": {
+            "conf": 55,
+            "source": "homepage hero and banner copy"
+          },
+          "audience.tertiary": {
+            "conf": 50,
+            "source": "homepage Desayunos LMB copy ('ideales para compartir, sorprender y regalar') and tartas ordering"
+          },
+          "identity.category": {
+            "conf": 85,
+            "source": "homepage: restaurants, tartas, desayunos, apartamentos"
+          },
+          "strategic.notList": {
+            "conf": 35,
+            "source": "inferred from visual avoid guidance and workshop claim; not explicitly stated"
+          },
+          "audience.secondary": {
+            "conf": 60,
+            "source": "homepage apartments section"
+          },
+          "strategic.watchouts": {
+            "conf": 45,
+            "source": "inferred from homepage structure (separate domains, LMB sub-brands) and competitive context"
+          },
+          "identity.positioning": {
+            "conf": 85,
+            "source": "homepage nav, hero and banner sections"
+          },
+          "positioning.competitors": {
+            "conf": 55,
+            "source": "competitive research: travel blogs; claims are publisher claims, not independent proof"
+          },
+          "positioning.researchGaps": {
+            "conf": 80,
+            "source": "analyst assessment of supplied sources"
+          },
+          "positioning.pointsOfParity": {
+            "conf": 50,
+            "source": "homepage plus competitive research"
+          },
+          "positioning.frameOfReference": {
+            "conf": 50,
+            "source": "competitive research (inbetweentravels, thetejanaabroad, Tripadvisor)"
+          },
+          "positioning.pointsOfDifference": {
+            "conf": 50,
+            "source": "homepage claims compared with supplied competitor sources"
+          }
+        },
+        "aspirations": {
+          "direction": "",
+          "notYetTrue": [],
+          "references": []
+        },
+        "positioning": {
+          "competitors": [
+            {
+              "url": "https://pasteleriadulcedeleche.com/",
+              "name": "Dulce de Leche",
+              "type": "direct",
+              "source": "https://thetejanaabroad.com/best-brunch-in-valencia/ ; https://inbetweentravels.com/brunch-spots-in-valencia/",
+              "difference": "It is a pastry-shop format. The supplied sources do not show it combining restaurants, online breakfast boxes and apartments the way La Más Bonita does.",
+              "sourceDate": "2026-10-14",
+              "positioning": "Popular pastry shop and café with several locations in Valencia, including Ruzafa. It is also known for juices and milkshakes (batidos).",
+              "reasonToChoose": "A well-known sweet-treat stop with several locations. One guide calls it famous and a popular café."
+            },
+            {
+              "url": "",
+              "name": "Bluebell Coffee",
+              "type": "direct",
+              "source": "https://inbetweentravels.com/brunch-spots-in-valencia/",
+              "difference": "It is positioned on coffee and casual walk-in brunch. The sources show no cake, gift-box or accommodation offer.",
+              "sourceDate": "2026-07-07",
+              "positioning": "Specialty-coffee café in Russafa serving brunch dishes such as avocado toast and breakfast bowls, with a terrace.",
+              "reasonToChoose": "Specialty coffee, a relaxed atmosphere and a terrace. The guide gives brunch dishes at roughly €8–14 per person, with no reservations taken."
+            },
+            {
+              "url": "",
+              "name": "Blackbird Coffee",
+              "type": "direct",
+              "source": "https://thetejanaabroad.com/best-brunch-in-valencia/",
+              "difference": "It is a small single-site café. The sources do not show a pastry workshop with online orders.",
+              "sourceDate": "2026-10-14",
+              "positioning": "Small Ruzafa café popular with expats and locals, with bar ordering, fresh pastries and sandwiches.",
+              "reasonToChoose": "Highly rated coffee and sandwiches in a casual setting, according to one blogger."
+            },
+            {
+              "url": "",
+              "name": "Bastard Coffee and Kitchen",
+              "type": "direct",
+              "source": "https://thetejanaabroad.com/best-brunch-in-valencia/",
+              "difference": "It is menu-breadth-led dining. The sources show no cake or box ordering or apartments.",
+              "sourceDate": "2026-10-14",
+              "positioning": "Busy Ruzafa café with a wide menu, a brunch combo (coffee, juice, eggs benedict, dessert) and later lunch service.",
+              "reasonToChoose": "A busy venue with a broad menu and a set brunch combo."
+            },
+            {
+              "url": "",
+              "name": "Boa Beach",
+              "type": "direct",
+              "source": "https://inbetweentravels.com/brunch-spots-in-valencia/",
+              "difference": "It is a beach-casual, health-leaning menu. The sources do not show a bakery-led offer. The guide includes a note that may indicate a temporary closure, but the text is truncated, so its current status is unverified.",
+              "sourceDate": "2026-07-07",
+              "positioning": "Beachfront brunch spot on Patacona beach with smoothie bowls, salads and protein-led options.",
+              "reasonToChoose": "Brunch with a sea view and a relaxed beachy vibe, in the same Patacona area as a La Más Bonita restaurant."
+            },
+            {
+              "url": "",
+              "name": "Federal Cafe",
+              "type": "indirect",
+              "source": "https://thetejanaabroad.com/best-brunch-in-valencia/",
+              "difference": "It is a work-friendly café in a different neighbourhood. The sources show no pastry or gifting proposition.",
+              "sourceDate": "2026-10-14",
+              "positioning": "Australian-owned café in Ciutat Vella with a customisable menu, several coffee options and a student and laptop crowd.",
+              "reasonToChoose": "Flexible menu and a work-friendly, communal setting."
+            }
+          ],
+          "researchGaps": [
+            "Customer reviews, ratings and price points for La Más Bonita venues, to compare with competitors",
+            "The Salvatierra and Chiringuito pages and the el-palmeral and noticias pages were not captured",
+            "The current status of Boa Beach is unclear because the source text is truncated",
+            "No independent evidence on how customers choose between La Más Bonita and these alternatives",
+            "Competitor sources are travel blogs and a directory, not the competitors' own sites, apart from one Dulce de Leche link that was not read",
+            "Competitors for cake delivery, breakfast-box gifting and Cabañal short-stay apartments were not researched",
+            "Brunch Corner (Ciutat Vella) appears in a guide but its content was truncated, so it is not profiled",
+            "Instagram could not be read: https://www.instagram.com/lamasbonitavlc/"
+          ],
+          "pointsOfParity": [
+            "Table-service brunch and breakfast in Ruzafa and Patacona, the neighbourhoods travel guides highlight for brunch",
+            "Fresh pastries and baked goods, which competitors such as Blackbird and Dulce de Leche also offer",
+            "Online reservation, which Tripadvisor lists as a standard filter in the category"
+          ],
+          "frameOfReference": "Brunch, café and pastry options in Valencia (notably Ruzafa and the Patacona beach area), as presented in travel guides and Tripadvisor listings.",
+          "pointsOfDifference": [
+            {
+              "claim": "Cakes are made daily in the brand's own Ruzafa workshop and can be ordered online.",
+              "proof": "The homepage states that all tartas are made daily with first-quality ingredients in the brand's workshop in the Ruzafa neighbourhood, with an online 'Encarga la tuya' order link.",
+              "source": "https://www.lamasbonita.es/",
+              "rationale": "This ties the restaurants to a visible production base and a take-home product. It is a publisher claim; the supplied competitor sources do not show comparable online cake ordering, but they are not exhaustive."
+            },
+            {
+              "claim": "One brand covers dine-in, shareable breakfast, brunch and lunch boxes for gifting, cakes and boutique apartments.",
+              "proof": "The homepage presents four restaurants, Desayunos LMB boxes and trays for sharing and gifting, Tartas LMB, and Apartamentos LMB with four apartments in two rehabilitated Cabañal houses.",
+              "source": "https://www.lamasbonita.es/",
+              "rationale": "The competitor sources describe single-format cafés. The combination of formats could widen the brand's reach, but it is unproven as a customer preference."
+            }
+          ]
+        },
+        "sourceIdentity": {
+          "brandId": "33f68208-4c2a-45de-8d9e-f6833afc7380",
+          "brandName": "La Más Bonita",
+          "primaryUrl": "https://www.lamasbonita.es",
+          "discoveryId": "4a05b961-4662-4d11-8b84-f182663ae861"
+        },
+        "visualEvidence": {
+          "sources": [
+            {
+              "url": "https://www.lamasbonita.es",
+              "note": "",
+              "status": "partial",
+              "styles": {
+                "type": [
+                  {
+                    "kind": "Body",
+                    "family": "DinR",
+                    "usageStatus": "computed"
+                  },
+                  {
+                    "kind": "Body",
+                    "family": "DinM",
+                    "usageStatus": "computed"
+                  },
+                  {
+                    "kind": "Display",
+                    "family": "DinC",
+                    "selector": "h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6",
+                    "usageStatus": "declared-not-computed",
+                    "sourceProperty": "font-family"
+                  }
+                ],
+                "method": "computed-styles-and-css",
+                "palette": [
+                  {
+                    "hex": "#262628",
+                    "name": "charcoal",
+                    "role": "surface",
+                    "roleStatus": "inferred"
+                  }
+                ],
+                "computed": true,
+                "stylesheets": [
+                  "https://www.lamasbonita.es/assets/vendor/bootstrap-5.2.3/dist/css/bootstrap.min.css",
+                  "https://www.lamasbonita.es/assets/css/main.css"
+                ],
+                "contrastPairs": [],
+                "unreadableStylesheets": []
+              },
+              "visual": {
+                "logo": {
+                  "url": "https://www.lamasbonita.es/assets/images/favicon.ico",
+                  "conf": 50,
+                  "source": "og:image"
+                },
+                "type": [
+                  {
+                    "kind": "Body",
+                    "family": "DinR",
+                    "usageStatus": "computed"
+                  },
+                  {
+                    "kind": "Body",
+                    "family": "DinM",
+                    "usageStatus": "computed"
+                  },
+                  {
+                    "kind": "Display",
+                    "family": "DinC",
+                    "selector": "h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6",
+                    "usageStatus": "declared-not-computed",
+                    "sourceProperty": "font-family"
+                  }
+                ],
+                "avoid": [
+                  "Dark, high-contrast, moody lighting",
+                  "Cold, sterile, ultra-modern industrial finishes",
+                  "Staged, sterile corporate photography"
+                ],
+                "imagery": [
+                  "Bright, welcoming cafe interiors with natural light",
+                  "Rustic wooden furniture and exposed brick textures",
+                  "Pastel turquoise woodwork framing open glass views",
+                  "Straight-on, eye-level architectural wide shots",
+                  "Authentic glimpses of bakery prep areas"
+                ],
+                "palette": [
+                  {
+                    "hex": "#262628",
+                    "name": "charcoal",
+                    "role": "surface",
+                    "roleStatus": "inferred"
+                  }
+                ],
+                "contrastPairs": []
+              },
+              "purpose": "current",
+              "checkedAt": "2026-10-14T12:55:00.190Z",
+              "limitations": [],
+              "screenshotUrl": "https://storage.googleapis.com/firecrawl-scrape-media/screenshot-28140a8a-791f-4204-a7a9-9658a50317a7.png?GoogleAccessId=scrape-bucket-accessor%40firecrawl.iam.gserviceaccount.com&Expires=1792587304&Signature=MqK3xgImcdx6uw5d9FKCh7UJDobQbHCNMh8vWq85QGwbUg0UFV0ipyMSnxkk7GfrttMLtSpL4%2F%2F%2B1MVcOzAW4RHis8z1hQxERGAzTM8TnAxX0gA0var6Cc8AlfuFy8Em1eP8Ys%2FFqULD7tDGmiZ3qOff35BPQyoBbkVZZLskYLrSex%2FvDBlxvUUxhnbKpDvtfzu%2Bs2K7oeg2lvsxmznJf%2FQfOA8tzAlfCqCws0CKe2V6%2BKWjCSkGHwu4Ho7OEOJcpCJ9TP5GH0WZZVQhTrN%2BEDXiYsrYaKm%2FdqDxj7RTKcBwdI2A7ne10MvcPeM%2FtzQtJnLNXWMqrWJGWGLNMwOQjw%3D%3D"
+            }
+          ],
+          "limitations": [
+            "Palette and typography use computed styles where available; fallback declarations are unverified. Palette roles are inferred and require review.",
+            "Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.",
+            "PDF text is read, but embedded PDF images are not rendered or inspected."
+          ]
+        },
+        "discoverySources": {
+          "instagram": [
+            {
+              "url": "https://www.instagram.com/lamasbonitavlc/",
+              "kind": "instagram",
+              "reason": "Instagram profile blocked or unreadable",
+              "status": "unreadable",
+              "purpose": "current",
+              "checkedAt": "2026-10-14T12:55:00.027Z"
+            }
+          ],
+          "references": [],
+          "unreadable": [
+            "Instagram could not be read: https://www.instagram.com/lamasbonitavlc/"
+          ]
+        },
+        "discoveryWorkflow": {
+          "route": "production-v1",
+          "vision": "google/gemini-3.8-flash",
+          "synthesis": "anthropic/claude-sonnet-5.5",
+          "extraction": "anthropic/claude-haiku-5.5",
+          "limitations": [
+            "Palette and typography use computed styles where available; fallback declarations are unverified. Palette roles are inferred and require review.",
+            "Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.",
+            "PDF text is read, but embedded PDF images are not rendered or inspected."
+          ]
+        }
+      },
+      "score": 70,
+      "certified": false,
+      "certified_by": null,
+      "certified_at": null,
+      "cert_kind": null,
+      "steward_notes": null,
+      "self_certified": false,
+      "self_certified_at": null,
+      "discovery_id": "4a05b961-4662-4d11-8b84-f182663ae861",
+      "created_at": "2026-10-14T12:56:26.744828+00:00",
+      "created_by": null,
+      "cert_valid_until": null,
+      "client_acceptance_required": false,
+      "client_accepted_at": null,
+      "client_accepted_by": null,
+      "reviewGate": {
+        "status": "gated",
+        "score": 70,
+        "min_score": 80,
+        "reasons": [
+          {
+            "code": "LOGO_REQUIRED",
+            "message": "add an approved logo"
+          },
+          {
+            "code": "PRIMARY_COLOUR_REQUIRED",
+            "message": "choose a primary colour"
+          },
+          {
+            "code": "DISPLAY_FONT_REQUIRED",
+            "message": "add a licensed display font"
+          },
+          {
+            "code": "BELOW_MIN_SCORE",
+            "message": "raise confidence to 80"
+          }
+        ],
+        "job_id": null,
+        "updated_at": "2026-10-14T12:56:26.782053+00:00"
+      },
+      "certifiable": false,
+      "missing": [
+        "visual.logo",
+        "visual.palette.primary",
+        "visual.type.display"
+      ],
+      "logo": false,
+      "logoStatus": "missing",
+      "needsRights": [],
+      "primary": false,
+      "display": false,
+      "logoRights": []
+    },
+    "reviewPending": false,
+    "focusCount": 14,
+    "review": null,
+    "diff": []
+  },
+  "usage": [
+    {
+      "feature": "discovery.queue",
+      "provider": "inngest",
+      "resolved_model": null,
+      "status": "succeeded",
+      "latency_ms": 11,
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.scrape",
+      "provider": "firecrawl",
+      "resolved_model": null,
+      "status": "succeeded",
+      "latency_ms": 18134,
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.scrape",
+      "provider": "firecrawl",
+      "resolved_model": null,
+      "status": "succeeded",
+      "latency_ms": 2540,
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.scrape",
+      "provider": "firecrawl",
+      "resolved_model": null,
+      "status": "succeeded",
+      "latency_ms": 2185,
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.instagram",
+      "provider": "firecrawl",
+      "resolved_model": null,
+      "status": "failed",
+      "latency_ms": 134,
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.scrape",
+      "provider": "firecrawl",
+      "resolved_model": null,
+      "status": "succeeded",
+      "latency_ms": 4963,
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.vision",
+      "provider": "openrouter",
+      "resolved_model": "google/gemini-3.8-flash",
+      "status": "succeeded",
+      "latency_ms": 10839,
+      "reported_cost_usd": 0.0033435,
+      "cost_source": "provider_reported"
+    },
+    {
+      "feature": "discovery.reader",
+      "provider": "openrouter",
+      "resolved_model": "anthropic/claude-haiku-5.5",
+      "status": "succeeded",
+      "latency_ms": 18955,
+      "reported_cost_usd": 0.0026674,
+      "cost_source": "provider_reported"
+    },
+    {
+      "feature": "discovery.synthesis",
+      "provider": "openrouter",
+      "resolved_model": "anthropic/claude-sonnet-5.5",
+      "status": "succeeded",
+      "latency_ms": 44883,
+      "reported_cost_usd": 0.097082,
+      "cost_source": "provider_reported"
+    }
+  ],
+  "jobs": []
+}

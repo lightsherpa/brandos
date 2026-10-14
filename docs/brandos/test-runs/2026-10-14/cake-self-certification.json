@@ -1,0 +1,10 @@
+{
+  "httpStatus": 200,
+  "ok": true,
+  "self_certified": true,
+  "version": 2,
+  "score": 96,
+  "attestationId": "23ba85e1-4052-4882-89bb-8f4334b6f2b4",
+  "attestedAt": "2026-10-14T12:55:44.185731+00:00",
+  "reviewQueued": true
+}

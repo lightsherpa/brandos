@@ -1,4 +1,5 @@
 import { requireHumanActor } from "../middleware/human-actor.js";
+import {reconcileDiscoveryReview} from '../lib/discovery-review.js';
 import {bioIntegrityError} from "../lib/brand-source-integrity.js";
 // discovery-session.js — M3 draft lane.
 //
@@ -120,12 +121,17 @@ app.post("/session/:brandId/prepare-review", requireAuth, async c=>{
  if(bioError)return c.json({error:"Could not load the current Brand Core"},500);
  if(!latest)return c.json({error:"Generate the Brand Core from sources first",code:"NO_BIO"},400);
  const draft=normalizeBio(session.draft_payload||{});
- if(sameJson(normalizeBio(latest.payload),draft))return c.json({bio:{...latest,logoRights:await loadLogoRights(brandId,latest.payload).catch(()=>[])}});
+ if(sameJson(normalizeBio(latest.payload),draft)){
+  const logoRights=await loadLogoRights(brandId,latest.payload);
+  const reviewGate=await reconcileDiscoveryReview({brandId,bioId:latest.id,payload:latest.payload,logoRights,kind:"drift_check"});
+  return c.json({bio:{...latest,logoRights,reviewGate}});
+ }
  const payload=prepareClientBioEditPayload(draft,latest.payload||{});
- const logoRights=await loadLogoRights(brandId,payload).catch(()=>[]);
+ const logoRights=await loadLogoRights(brandId,payload);
  const {data:appended,error}=await supabaseAdmin.rpc("append_bio_version",{p_brand_id:brandId,p_payload:payload,p_score:scoreBio(payload,{logoRights}),p_created_by:userId,p_discovery_id:null});
  if(error||!appended)return c.json({error:"Could not save the review candidate"},500);
- return c.json({bio:{id:appended.id,version:appended.version,payload,self_certified:false,logoRights}});
+ const reviewGate=await reconcileDiscoveryReview({brandId,bioId:appended.id,payload,logoRights,kind:"drift_check"});
+ return c.json({bio:{id:appended.id,version:appended.version,payload,self_certified:false,logoRights,reviewGate}});
 });
 
 /* Compatibility endpoint: same v2 contract, validator and atomic receipt as

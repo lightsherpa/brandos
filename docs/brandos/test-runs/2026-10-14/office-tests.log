@@ -1,0 +1,43 @@
+
+> caastoros@0.1.0 test:office
+> node --test src/lib/office-model.test.mjs src/brand-scope-flow.test.mjs src/pixel-office/layouts.test.mjs src/lib/studio-state.test.mjs src/lib/agency-avatars.test.mjs src/lib/generated-office-layout.test.mjs src/lib/office-surfaces.test.mjs src/lib/office-customization.test.mjs src/brief-workspace-surface.test.mjs
+
+✔ brief sharpening and handoff pin the selected brand (17.062875ms)
+✔ canvas creation paths carry the pinned context brand (9.911667ms)
+✔ AGENCY_OFFICE off renders the unchanged live-run legacy canvas (3.249625ms)
+✔ AGENCY_OFFICE off renders the unchanged saved-brief legacy canvas (0.5055ms)
+✔ default flag is off without a build-time definition (0.868583ms)
+✔ live and saved views use the guarded surface; dev prototype stays intact (4.151542ms)
+✔ review specialists get distinct identities before department fallback (0.427708ms)
+✔ identities follow roles and stay stable when peers are reordered (0.350667ms)
+✔ all mapped characters have shipped assets including Brandolph and fallback (0.226458ms)
+✔ the generated office uses the supplied shell and unchanged modular sources (48.928ms)
+✔ all placed furniture refers to known assets and fits inside the office (0.118625ms)
+✔ handoffs enter side rooms through their doorways and return to the destination (0.385291ms)
+✔ moving a workstation carries its laptop and chair, preserving relative positions (3.7505ms)
+✔ added surface props fit their support and disappear when the parent is removed (1.207667ms)
+✔ browser storage isolates projects and recovers corrupt data (1.75025ms)
+✔ stock accessory placement survives saving and reloading (1.378292ms)
+✔ QA specialists sit in review rather than their production department (0.553667ms)
+✔ output shelf does not duplicate a batch or expose unfinished streaming text (0.428ms)
+✔ failure remains visible alongside already completed outputs (0.064792ms)
+✔ a specialist remains in the crew when its node becomes a mood board (0.055875ms)
+✔ all accessory contact points stay on supported surfaces, away from front panels (2.462625ms)
+✔ accessories move and scale with the parent instead of remaining at global coordinates (0.121208ms)
+✔ changing desk finish recalculates the attachment height for the new source geometry (0.063ms)
+✔ every animation tick selects a complete sprite cell (2.609333ms)
+✔ existing saved state and streaming tokens do not replay assignments (0.449708ms)
+✔ copy-to-design handoff requires an explicit source; failure is not delivery (0.313708ms)
+✔ classic provides unblocked working seats for a full crew (6.36925ms)
+✔ studio provides unblocked working seats for a full crew (0.865083ms)
+✔ headquarters provides unblocked working seats for a full crew (1.392833ms)
+✔ floor recoloring preserves walls and furniture positions (0.661292ms)
+✔ saved offices recover safely from corrupted or oversized nested layouts (0.819959ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.69275

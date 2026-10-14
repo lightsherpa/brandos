@@ -1,3 +1,4 @@
+import {COMPUTED_STYLE_SCRIPT,computedStyleSamples} from './discovery-computed-styles.js';
 import {discoverLogo} from "./discovered-logo.js";
 import {resolveVisualStyles} from './discovery-styles.js';
 
@@ -8,9 +9,9 @@ export async function collectDiscoveryVisuals({url,references=[],scrape,readImag
   for (const target of targets) {
     const entry={...target,checkedAt:new Date().toISOString(),status:'unreadable',visual:{palette:[],type:[],imagery:[],avoid:[]},limitations:[]};
     try {
-      const page=await scrape(target.url,{formats:['rawHtml','screenshot'],onlyMainContent:false,telemetry});
+      const page=await scrape(target.url,{formats:['rawHtml','screenshot'],onlyMainContent:false,actions:[{type:'executeJavascript',script:COMPUTED_STYLE_SCRIPT}],telemetry});
       entry.visual.logo=await discoverLogo(page.rawHtml||"",target.url);
-      const styles=await resolveVisualStyles({html:page.rawHtml||'',url:target.url,...(readStyles?{read:readStyles}:{})});
+      const styles=await resolveVisualStyles({html:page.rawHtml||'',url:target.url,computedSamples:computedStyleSamples(page),...(readStyles?{read:readStyles}:{})});
       entry.visual.palette=styles.palette;entry.visual.type=styles.type;entry.visual.contrastPairs=styles.contrastPairs;entry.styles=styles;
       if(styles.unreadableStylesheets.length)entry.limitations.push('Some linked stylesheets could not be read.');
       entry.status=page.rawHtml?'partial':'unreadable';
@@ -33,5 +34,5 @@ export async function collectDiscoveryVisuals({url,references=[],scrape,readImag
     const observed=await readImagery({referenceImages:refs,telemetry});
     sources.push({url:null,purpose,kind:'uploaded_images',status:observed.imagery?.length?'partial':'unreadable',checkedAt:new Date().toISOString(),sourceIds:refs.map(r=>r.id),visual:{palette:[],type:[],imagery:observed.imagery||[],avoid:observed.avoid||[]},references:refs.map(({id,name,role})=>({sourceId:id,name,role})),limitations:observed.limitations||[]});
   }
-  return {sources,limitations:['Palette and typography are source declarations, not verified computed styles. Palette roles are inferred and require review.','Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.','PDF text is read, but embedded PDF images are not rendered or inspected.']};
+  return {sources,limitations:['Palette and typography use computed styles where available; fallback declarations are unverified. Palette roles are inferred and require review.','Screenshots and uploaded images provide model observations; these are not a certified photographic style guide.','PDF text is read, but embedded PDF images are not rendered or inspected.']};
 }

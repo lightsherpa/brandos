@@ -1648,6 +1648,15 @@
       "preserved": "لن يُعرض محتوى Brand Core أو إجراءات التصديق حتى يتم التحقق من هوية العلامة ومصادرها.",
       "retry": "تحقق مجددًا",
       "sourcesFor": "مصادر {name}. تحتاج العلامة الأخرى إلى سجل خاص بها."
+    },
+    "reviewGate": {
+      "waiting": "بانتظار: {reasons}",
+      "score": "الثقة: {score}/{minScore}. ستُطلب مراجعة المدير الإبداعي تلقائياً عند اجتياز هذه الفحوصات.",
+      "LOGO_RIGHTS_UNCONFIRMED": "تأكيد حقوق استخدام الشعار",
+      "LOGO_REQUIRED": "إضافة شعار معتمد",
+      "PRIMARY_COLOUR_REQUIRED": "اختيار لون أساسي",
+      "DISPLAY_FONT_REQUIRED": "إضافة خط عناوين مرخص",
+      "BELOW_MIN_SCORE": "رفع الثقة إلى {minScore}"
     }
   },
   "floater": {
@@ -1745,5 +1754,29 @@
       "strategic": "ما يجب فعله وتجنبه"
     },
     "sourceFailure": "تعذّرت قراءة المصادر. لم يتم إنشاء Brand Core. أضف مصدراً عاماً يمكن قراءته أو ارفع مواد العلامة."
+  },
+  "vds": {
+    "status": {
+      "needs_review": "يحتاج إلى مراجعة",
+      "approved": "معتمد",
+      "failed": "فشل"
+    },
+    "finished": "اكتمل",
+    "elapsed": " خلال {seconds} ثانية",
+    "costUnavailable": "التكلفة غير متاحة",
+    "generationComplete": "اكتمل الإنشاء · يحتاج إلى مراجعة",
+    "savedBriefGuidance": "افتح موجزاً محفوظاً لاستخدام Canvas.",
+    "openBriefs": "فتح الموجزات",
+    "generationFailed": "فشل الإنشاء",
+    "needsHumanReview": "اكتمل الإنشاء · يحتاج إلى مراجعة بشرية",
+    "openLibrary": "فتح العناصر المحفوظة في المكتبة",
+    "taskIntro": "أنشئ المخرجات وافحصها وراجعها وفق Brand Core. لا تزال الموافقة البشرية مطلوبة.",
+    "checks": "فحوصات",
+    "passed": "اجتاز",
+    "savedDeliverable": "مخرج محفوظ",
+    "previewItem": "معاينة {index}",
+    "downloadPng": "تنزيل PNG",
+    "savedTasks": "المهام المحفوظة",
+    "running": "قيد التنفيذ"
   }
 }

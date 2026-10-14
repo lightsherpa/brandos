@@ -1,0 +1,276 @@
+[
+  {
+    "role": "owner",
+    "meStatus": 200,
+    "listStatus": 200,
+    "tasks": [
+      {
+        "id": "3ee503ec-b637-4976-888f-fc3ea2fe2582",
+        "type": "social_post",
+        "httpStatus": 200,
+        "status": "ready",
+        "stage": "Ready",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "ready",
+            "htmlBytes": 574749
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 100233,
+          "cost": {
+            "total_usd": 0.1129
+          },
+          "recovered": true
+        }
+      },
+      {
+        "id": "ef1db6fe-7453-43c1-9cd3-2110ac5de5d6",
+        "type": "email_sequence",
+        "httpStatus": 200,
+        "status": "ready",
+        "stage": "Ready",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "ready",
+            "htmlBytes": 12400
+          },
+          {
+            "index": 1,
+            "status": "ready",
+            "htmlBytes": 12455
+          },
+          {
+            "index": 2,
+            "status": "ready",
+            "htmlBytes": 12326
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 27976,
+          "cost": {
+            "total_usd": 0.0296
+          },
+          "recovered": true
+        }
+      },
+      {
+        "id": "2266dfe5-827d-4be0-936c-fe25f54b1f3e",
+        "type": "social_post",
+        "httpStatus": 200,
+        "status": "flagged",
+        "stage": "Flagged",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "flagged",
+            "htmlBytes": 1652
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 93523,
+          "cost": {
+            "total_usd": 0.0748
+          },
+          "recovered": true
+        }
+      }
+    ],
+    "elapsedSeconds": 0.337,
+    "costUsd": 0
+  },
+  {
+    "role": "client",
+    "meStatus": 200,
+    "listStatus": 200,
+    "tasks": [
+      {
+        "id": "3ee503ec-b637-4976-888f-fc3ea2fe2582",
+        "type": "social_post",
+        "httpStatus": 200,
+        "status": "ready",
+        "stage": "Ready",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "ready",
+            "htmlBytes": 574749
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 100233,
+          "cost": {
+            "total_usd": 0.1129
+          },
+          "recovered": true
+        }
+      },
+      {
+        "id": "ef1db6fe-7453-43c1-9cd3-2110ac5de5d6",
+        "type": "email_sequence",
+        "httpStatus": 200,
+        "status": "ready",
+        "stage": "Ready",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "ready",
+            "htmlBytes": 12400
+          },
+          {
+            "index": 1,
+            "status": "ready",
+            "htmlBytes": 12455
+          },
+          {
+            "index": 2,
+            "status": "ready",
+            "htmlBytes": 12326
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 27976,
+          "cost": {
+            "total_usd": 0.0296
+          },
+          "recovered": true
+        }
+      },
+      {
+        "id": "2266dfe5-827d-4be0-936c-fe25f54b1f3e",
+        "type": "social_post",
+        "httpStatus": 200,
+        "status": "flagged",
+        "stage": "Flagged",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "flagged",
+            "htmlBytes": 1652
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 93523,
+          "cost": {
+            "total_usd": 0.0748
+          },
+          "recovered": true
+        }
+      }
+    ],
+    "elapsedSeconds": 0.159,
+    "costUsd": 0
+  },
+  {
+    "role": "client",
+    "route": "/api/admin/specs",
+    "httpStatus": 403
+  },
+  {
+    "role": "client",
+    "route": "/api/team/overview",
+    "httpStatus": 403
+  },
+  {
+    "role": "cd",
+    "meStatus": 200,
+    "listStatus": 200,
+    "tasks": [
+      {
+        "id": "3ee503ec-b637-4976-888f-fc3ea2fe2582",
+        "type": "social_post",
+        "httpStatus": 200,
+        "status": "ready",
+        "stage": "Ready",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "ready",
+            "htmlBytes": 574749
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 100233,
+          "cost": {
+            "total_usd": 0.1129
+          },
+          "recovered": true
+        }
+      },
+      {
+        "id": "ef1db6fe-7453-43c1-9cd3-2110ac5de5d6",
+        "type": "email_sequence",
+        "httpStatus": 200,
+        "status": "ready",
+        "stage": "Ready",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "ready",
+            "htmlBytes": 12400
+          },
+          {
+            "index": 1,
+            "status": "ready",
+            "htmlBytes": 12455
+          },
+          {
+            "index": 2,
+            "status": "ready",
+            "htmlBytes": 12326
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 27976,
+          "cost": {
+            "total_usd": 0.0296
+          },
+          "recovered": true
+        }
+      },
+      {
+        "id": "2266dfe5-827d-4be0-936c-fe25f54b1f3e",
+        "type": "social_post",
+        "httpStatus": 200,
+        "status": "flagged",
+        "stage": "Flagged",
+        "recovered": true,
+        "items": [
+          {
+            "index": 0,
+            "status": "flagged",
+            "htmlBytes": 1652
+          }
+        ],
+        "version": 2,
+        "metrics": {
+          "total_ms": 93523,
+          "cost": {
+            "total_usd": 0.0748
+          },
+          "recovered": true
+        }
+      }
+    ],
+    "elapsedSeconds": 0.177,
+    "costUsd": 0
+  }
+]

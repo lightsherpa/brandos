@@ -1,0 +1,41 @@
+{
+  "scope": "offline saved old-v2 copy; no model or new image",
+  "items": [
+    {
+      "index": 0,
+      "checks_pass": true,
+      "failures": [],
+      "standalone_bytes": 525110,
+      "transport_bytes": 11898,
+      "delivery_ready": false,
+      "requires_asset_hosting": true
+    },
+    {
+      "index": 1,
+      "checks_pass": true,
+      "failures": [],
+      "standalone_bytes": 525114,
+      "transport_bytes": 11902,
+      "delivery_ready": false,
+      "requires_asset_hosting": true
+    },
+    {
+      "index": 2,
+      "checks_pass": true,
+      "failures": [],
+      "standalone_bytes": 525087,
+      "transport_bytes": 11875,
+      "delivery_ready": false,
+      "requires_asset_hosting": true
+    }
+  ],
+  "assets": {
+    "loaded_images": true,
+    "font_faces": [
+      {
+        "family": "Fraunces",
+        "status": "loaded"
+      }
+    ]
+  }
+}

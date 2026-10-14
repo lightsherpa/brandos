@@ -63,7 +63,7 @@ export async function requireSteward(c, next) {
 }
 
 async function claimMessages(brandId, jobId) {
-  if (String(process.env.CERTIFIER_V2_S3 || '').toLowerCase() !== 'true') return [];
+  if (!['1', 'true'].includes(String(process.env.CERTIFIER_V2_S3 || '').toLowerCase())) return [];
   const { data, error } = await supabaseAdmin.from('cert_messages')
     .select('id, bio_version, claim_ids, author_role, reply_to, body, source_id, sent_at')
     .eq('brand_id', brandId).eq('job_id', jobId).order('created_at', { ascending: true });

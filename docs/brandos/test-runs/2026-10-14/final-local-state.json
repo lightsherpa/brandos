@@ -1,0 +1,210 @@
+{
+  "usage": [
+    {
+      "feature": "task.review",
+      "status": "succeeded",
+      "reported_cost_usd": 0.00743925,
+      "cost_source": "provider_reported"
+    },
+    {
+      "feature": "task.writing",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "task.review",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "task.review",
+      "status": "failed",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "task.ocr",
+      "status": "succeeded",
+      "reported_cost_usd": 0.001035,
+      "cost_source": "provider_reported"
+    },
+    {
+      "feature": "task.image",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "task.writing",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "qa.voice",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "qa.voice",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "specialist.run",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "qa.voice",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "qa.voice",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "specialist.run",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "specialist.run",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "rate_card_estimate"
+    },
+    {
+      "feature": "specialist.image",
+      "status": "failed",
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.synthesis",
+      "status": "succeeded",
+      "reported_cost_usd": 0.097082,
+      "cost_source": "provider_reported"
+    },
+    {
+      "feature": "discovery.reader",
+      "status": "succeeded",
+      "reported_cost_usd": 0.0026674,
+      "cost_source": "provider_reported"
+    },
+    {
+      "feature": "discovery.vision",
+      "status": "succeeded",
+      "reported_cost_usd": 0.0033435,
+      "cost_source": "provider_reported"
+    },
+    {
+      "feature": "discovery.scrape",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.instagram",
+      "status": "failed",
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.scrape",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.scrape",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.scrape",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    },
+    {
+      "feature": "discovery.queue",
+      "status": "succeeded",
+      "reported_cost_usd": null,
+      "cost_source": "unpriced"
+    }
+  ],
+  "ledger": [
+    {
+      "credits": -5000,
+      "kind": "grant",
+      "idempotency_key": "vds-local-grant"
+    },
+    {
+      "credits": 6,
+      "kind": "run_reserved",
+      "idempotency_key": "run:b90a569e-b3b4-4f42-bdce-520a4aba8e6b:credits"
+    },
+    {
+      "credits": -6,
+      "kind": "run_refund",
+      "idempotency_key": "run:b90a569e-b3b4-4f42-bdce-520a4aba8e6b:credits:refund"
+    },
+    {
+      "credits": 12,
+      "kind": "run_flagged",
+      "idempotency_key": "run:c1e4031b-ad52-4143-9604-ce01d66f4804:credits"
+    },
+    {
+      "credits": 12,
+      "kind": "run_flagged",
+      "idempotency_key": "task:2e247186-4ab3-40b2-b983-69589f79b7ac:credits"
+    },
+    {
+      "credits": 6,
+      "kind": "run",
+      "idempotency_key": "task:8db66b73-bae1-4803-b931-a597d2098a2d:credits"
+    }
+  ],
+  "runs": [
+    {
+      "id": "b90a569e-b3b4-4f42-bdce-520a4aba8e6b",
+      "brief_id": "d699a151-e7a2-4ec9-ac36-6d0a07d99a6f",
+      "specialist_id": "a41",
+      "status": "failed",
+      "cost_usd": null
+    },
+    {
+      "id": "c1e4031b-ad52-4143-9604-ce01d66f4804",
+      "brief_id": "f584840d-8ece-43a4-bbcc-ad459d8a2668",
+      "specialist_id": "a13",
+      "status": "completed",
+      "cost_usd": 0.0722
+    },
+    {
+      "id": "2e247186-4ab3-40b2-b983-69589f79b7ac",
+      "brief_id": "7e371003-57d5-476f-b138-79ad4e202280",
+      "specialist_id": "a16",
+      "status": "completed",
+      "cost_usd": 0.0748
+    },
+    {
+      "id": "8db66b73-bae1-4803-b931-a597d2098a2d",
+      "brief_id": "fe0b44a3-3fe4-486f-a693-e7fc6f7280a6",
+      "specialist_id": "a13",
+      "status": "completed",
+      "cost_usd": 0.0296
+    }
+  ]
+}

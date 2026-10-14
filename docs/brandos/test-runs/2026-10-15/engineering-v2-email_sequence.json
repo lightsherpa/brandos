@@ -1,0 +1,863 @@
+{
+  "scope": "existing v2 engineering only; no NEW photos, rights, attestation or certification submitted",
+  "elapsedSeconds": 28.998,
+  "id": "3b165294-7d9a-49fa-85fb-7d37a9238f11",
+  "status": "flagged",
+  "stage": "Flagged",
+  "error": null,
+  "provenance": {
+    "bioId": "b8c98aff-35ee-4d0e-a777-42d2d6cabfd7",
+    "bioVersion": 2,
+    "sourceIds": [
+      "57452734-2e7f-4e28-b030-61a098743c73",
+      "de0cbc49-2c82-4379-9993-0176db76294d",
+      "192ed447-6a9b-4394-8910-8e39c5819ae5"
+    ]
+  },
+  "brand_core": {
+    "version": 2,
+    "foundation_missing": [],
+    "references": 3,
+    "rules": 0
+  },
+  "result": {
+    "spec": {
+      "task": "email_sequence",
+      "language": "en",
+      "smp": "Cake-me's artisanal cheesecakes turn everyday moments into memorable, shareable celebrations of happiness.",
+      "emails": [
+        {
+          "day_offset": 0,
+          "purpose": "welcome: introduce the brand and its spirit",
+          "subject": "Hey you, welcome to Cake-me 💛",
+          "preheader": "Artisanal cheesecakes made to turn ordinary days into little celebrations.",
+          "headline": "Welcome! We're so happy you're here 🌟",
+          "body_blocks": [
+            "Hi, friend! We're Cake-me, and we make artisanal cheesecakes.",
+            "But honestly? We're not just a dessert shop. We create happiness. Every cheesecake is made to turn an everyday moment into something memorable and shareable.",
+            "You're part of the Cake-me crew now, so we'll share our favorite discoveries with you. Want to take a peek around while you're here? 🩷"
+          ],
+          "cta": {
+            "label": "Peek at our cheesecakes",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me's cheesecakes turn everyday moments into memorable, shareable celebrations of happiness"
+          ]
+        },
+        {
+          "day_offset": 2,
+          "purpose": "value: help readers explore the cheesecakes on the site",
+          "subject": "Ready to find your cheesecake? 🌟",
+          "preheader": "See what's on our site and find the one that fits your next moment.",
+          "headline": "Let's find your perfect cheesecake",
+          "body_blocks": [
+            "Here's the fun part: picking! Our cheesecakes are artisanal, and each one is made for sharing.",
+            "So think about your next moment. A cozy night in? A get-together with your favorite people? A Tuesday that needs a little sparkle? There's a cheesecake for it.",
+            "Hop over to our site and see the whole lineup for yourself. We can't wait to hear which one catches your eye! 💛"
+          ],
+          "cta": {
+            "label": "Browse the cheesecakes",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me's cheesecakes are artisanal",
+            "Cake-me's cheesecakes are made for sharing",
+            "The cheesecake lineup can be browsed on thecake-me.com"
+          ]
+        },
+        {
+          "day_offset": 5,
+          "purpose": "convert: invite readers to browse and choose",
+          "subject": "Your next little celebration 🩷",
+          "preheader": "Birthday, Tuesday, or just because: pick a cheesecake to share with your people.",
+          "headline": "Make your next moment a celebration",
+          "body_blocks": [
+            "You don't need a big occasion to celebrate. Sometimes a really good cheesecake and the right people is all it takes.",
+            "That's what we're all about at Cake-me: turning everyday moments into happy, memorable ones.",
+            "So go on, treat yourself! Browse our artisanal cheesecakes and pick the one that makes you smile. We're cheering you on 🌟"
+          ],
+          "cta": {
+            "label": "Pick your cheesecake",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me turns everyday moments into memorable celebrations",
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me describes itself as a creator of happiness"
+          ]
+        }
+      ]
+    },
+    "metrics": {
+      "total_ms": 26816,
+      "stage_ms": {
+        "Planning": 0,
+        "Writing": 0,
+        "Imaging": 14120,
+        "Checking": 14180,
+        "Fixing": 26816,
+        "Ready": 26816
+      },
+      "cost": {
+        "total_usd": 0.028,
+        "calls": 2,
+        "by_step": {
+          "writing": 0.0222,
+          "review": 0.0058
+        },
+        "limits": {
+          "maxUsd": 0.5,
+          "maxImageCalls": 7,
+          "maxTextCalls": 10,
+          "imageConcurrency": 3
+        }
+      },
+      "ledger": [
+        {
+          "at": "2026-10-14T14:39:12.063Z",
+          "kind": "text",
+          "step": "writing",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": 0.022158,
+          "ms": 14118,
+          "tokens_in": 1684,
+          "tokens_out": 1879,
+          "fallback_from": null,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T14:39:24.760Z",
+          "kind": "text",
+          "step": "review",
+          "model": "google/gemini-3.8-flash",
+          "cost_usd": 0.005844,
+          "ms": 12636,
+          "tokens_in": 1232,
+          "tokens_out": 1312,
+          "fallback_from": null,
+          "error": null
+        }
+      ],
+      "models": [
+        "claude-sonnet-5-5",
+        "google/gemini-3.8-flash"
+      ]
+    }
+  },
+  "items": [
+    {
+      "index": 0,
+      "status": "flagged",
+      "stage": "Flagged",
+      "needs_review": true,
+      "revisions": 1,
+      "export": {
+        "stable": true,
+        "assets": [
+          {
+            "role": "logo",
+            "sourceId": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+            "type": "image/png",
+            "bytes": 24392,
+            "sha256": "ceb3b8d764eddde2ff316f2460357efaeea8855edf09db5037db275983d53552"
+          },
+          {
+            "role": "font",
+            "sourceId": "8eadeac8-fad5-433c-a955-39ac2b0b45c4",
+            "type": "font/ttf",
+            "bytes": 360440,
+            "sha256": "177ff6c0f14e5550a3c624247cd1189611d4eb65d000b14944c63d967958abbb",
+            "family": "Fraunces",
+            "license": "open_source",
+            "license_reference": "SIL OFL 1.1 (Google Fonts) — stand-in for Meaty Nineties",
+            "rights_confirmed": true
+          }
+        ],
+        "formats": [
+          "html"
+        ]
+      },
+      "html_bytes": 525115,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 30/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 74 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 38/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 59/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Peek at our cheesecakes\" → https://thecake-me.com",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": false,
+          "severity": "hard",
+          "reason": "512.8 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 525115
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Welcomes subscriber, introduces brand spirit, and links to approved URL properly.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Friendly, enthusiastic, warm tone; speaks like a friend with no forbidden terms.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Serves as clear introductory welcome email establishing brand identity.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "Invites reader to peek at cheesecakes via approved website URL.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Uses only verified claims around artisanal cheesecakes and happiness.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject offers warm welcome while preheader details brand mission without repetition.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": {
+        "copy": {
+          "day_offset": 0,
+          "purpose": "welcome: introduce the brand and its spirit",
+          "subject": "Hey you, welcome to Cake-me 💛",
+          "preheader": "Artisanal cheesecakes made to turn ordinary days into little celebrations.",
+          "headline": "Welcome! We're so happy you're here 🌟",
+          "body_blocks": [
+            "Hi, friend! We're Cake-me, and we make artisanal cheesecakes.",
+            "But honestly? We're not just a dessert shop. We create happiness. Every cheesecake is made to turn an everyday moment into something memorable and shareable.",
+            "You're part of the Cake-me crew now, so we'll share our favorite discoveries with you. Want to take a peek around while you're here? 🩷"
+          ],
+          "cta": {
+            "label": "Peek at our cheesecakes",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me's cheesecakes turn everyday moments into memorable, shareable celebrations of happiness"
+          ]
+        },
+        "image_url": null,
+        "failed": [
+          {
+            "id": "HTML_SIZE",
+            "pass": false,
+            "severity": "hard",
+            "reason": "512.8 KB (limit 80 KB)",
+            "target": "none",
+            "bytes": 525115
+          }
+        ]
+      },
+      "copy": {
+        "day_offset": 0,
+        "purpose": "welcome: introduce the brand and its spirit",
+        "subject": "Hey you, welcome to Cake-me 💛",
+        "preheader": "Artisanal cheesecakes made to turn ordinary days into little celebrations.",
+        "headline": "Welcome! We're so happy you're here 🌟",
+        "body_blocks": [
+          "Hi, friend! We're Cake-me, and we make artisanal cheesecakes.",
+          "But honestly? We're not just a dessert shop. We create happiness. Every cheesecake is made to turn an everyday moment into something memorable and shareable.",
+          "You're part of the Cake-me crew now, so we'll share our favorite discoveries with you. Want to take a peek around while you're here? 🩷"
+        ],
+        "cta": {
+          "label": "Peek at our cheesecakes",
+          "url": "https://thecake-me.com"
+        },
+        "claims": [
+          "Cake-me sells artisanal cheesecakes",
+          "Cake-me's cheesecakes turn everyday moments into memorable, shareable celebrations of happiness"
+        ]
+      },
+      "htmlBytes": 525106,
+      "image": null
+    },
+    {
+      "index": 1,
+      "status": "flagged",
+      "stage": "Flagged",
+      "needs_review": true,
+      "revisions": 1,
+      "export": {
+        "stable": true,
+        "assets": [
+          {
+            "role": "logo",
+            "sourceId": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+            "type": "image/png",
+            "bytes": 24392,
+            "sha256": "ceb3b8d764eddde2ff316f2460357efaeea8855edf09db5037db275983d53552"
+          },
+          {
+            "role": "font",
+            "sourceId": "8eadeac8-fad5-433c-a955-39ac2b0b45c4",
+            "type": "font/ttf",
+            "bytes": 360440,
+            "sha256": "177ff6c0f14e5550a3c624247cd1189611d4eb65d000b14944c63d967958abbb",
+            "family": "Fraunces",
+            "license": "open_source",
+            "license_reference": "SIL OFL 1.1 (Google Fonts) — stand-in for Meaty Nineties",
+            "rights_confirmed": true
+          }
+        ],
+        "formats": [
+          "html"
+        ]
+      },
+      "html_bytes": 525119,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 33/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 67 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 34/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 67/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Browse the cheesecakes\" → https://thecake-me.com",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": false,
+          "severity": "hard",
+          "reason": "512.8 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 525119
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Helps readers explore cheesecakes without inventing flavors, pricing, or unapproved claims.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Enthusiastic and informal voice aligned with brand discovery guidelines.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Logically progresses from welcome to browsing and exploring cheesecakes for occasions.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "CTA clearly directs user to browse the cheesecake lineup on the site.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Mentions artisanal cheesecakes and sharing without inventing specific products.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject poses playful question while preheader suggests matching cakes to moments.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": {
+        "copy": {
+          "day_offset": 2,
+          "purpose": "value: help readers explore the cheesecakes on the site",
+          "subject": "Ready to find your cheesecake? 🌟",
+          "preheader": "See what's on our site and find the one that fits your next moment.",
+          "headline": "Let's find your perfect cheesecake",
+          "body_blocks": [
+            "Here's the fun part: picking! Our cheesecakes are artisanal, and each one is made for sharing.",
+            "So think about your next moment. A cozy night in? A get-together with your favorite people? A Tuesday that needs a little sparkle? There's a cheesecake for it.",
+            "Hop over to our site and see the whole lineup for yourself. We can't wait to hear which one catches your eye! 💛"
+          ],
+          "cta": {
+            "label": "Browse the cheesecakes",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me's cheesecakes are artisanal",
+            "Cake-me's cheesecakes are made for sharing",
+            "The cheesecake lineup can be browsed on thecake-me.com"
+          ]
+        },
+        "image_url": null,
+        "failed": [
+          {
+            "id": "HTML_SIZE",
+            "pass": false,
+            "severity": "hard",
+            "reason": "512.8 KB (limit 80 KB)",
+            "target": "none",
+            "bytes": 525119
+          }
+        ]
+      },
+      "copy": {
+        "day_offset": 2,
+        "purpose": "value: help readers explore the cheesecakes on the site",
+        "subject": "Ready to find your cheesecake? 🌟",
+        "preheader": "See what's on our site and find the one that fits your next moment.",
+        "headline": "Let's find your perfect cheesecake",
+        "body_blocks": [
+          "Here's the fun part: picking! Our cheesecakes are artisanal, and each one is made for sharing.",
+          "So think about your next moment. A cozy night in? A get-together with your favorite people? A Tuesday that needs a little sparkle? There's a cheesecake for it.",
+          "Hop over to our site and see the whole lineup for yourself. We can't wait to hear which one catches your eye! 💛"
+        ],
+        "cta": {
+          "label": "Browse the cheesecakes",
+          "url": "https://thecake-me.com"
+        },
+        "claims": [
+          "Cake-me's cheesecakes are artisanal",
+          "Cake-me's cheesecakes are made for sharing",
+          "The cheesecake lineup can be browsed on thecake-me.com"
+        ]
+      },
+      "htmlBytes": 525112,
+      "image": null
+    },
+    {
+      "index": 2,
+      "status": "flagged",
+      "stage": "Flagged",
+      "needs_review": true,
+      "revisions": 1,
+      "export": {
+        "stable": true,
+        "assets": [
+          {
+            "role": "logo",
+            "sourceId": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+            "type": "image/png",
+            "bytes": 24392,
+            "sha256": "ceb3b8d764eddde2ff316f2460357efaeea8855edf09db5037db275983d53552"
+          },
+          {
+            "role": "font",
+            "sourceId": "8eadeac8-fad5-433c-a955-39ac2b0b45c4",
+            "type": "font/ttf",
+            "bytes": 360440,
+            "sha256": "177ff6c0f14e5550a3c624247cd1189611d4eb65d000b14944c63d967958abbb",
+            "family": "Fraunces",
+            "license": "open_source",
+            "license_reference": "SIL OFL 1.1 (Google Fonts) — stand-in for Meaty Nineties",
+            "rights_confirmed": true
+          }
+        ],
+        "formats": [
+          "html"
+        ]
+      },
+      "html_bytes": 525092,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 31/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 80 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 35/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 57/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Pick your cheesecake\" → https://thecake-me.com",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": false,
+          "severity": "hard",
+          "reason": "512.8 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 525092
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Encourages readers to treat themselves and pick a cheesecake on the website.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Playful, warm, supportive tone without aggressive promotional language.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Natural sequence progression moving from exploration to selection and conversion.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "Action-oriented CTA invites choosing a cheesecake via the approved URL.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Adheres strictly to core claims regarding everyday celebrations and artisanal cheesecakes.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject introduces celebration theme while preheader elaborates on everyday occasions.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": {
+        "copy": {
+          "day_offset": 5,
+          "purpose": "convert: invite readers to browse and choose",
+          "subject": "Your next little celebration 🩷",
+          "preheader": "Birthday, Tuesday, or just because: pick a cheesecake to share with your people.",
+          "headline": "Make your next moment a celebration",
+          "body_blocks": [
+            "You don't need a big occasion to celebrate. Sometimes a really good cheesecake and the right people is all it takes.",
+            "That's what we're all about at Cake-me: turning everyday moments into happy, memorable ones.",
+            "So go on, treat yourself! Browse our artisanal cheesecakes and pick the one that makes you smile. We're cheering you on 🌟"
+          ],
+          "cta": {
+            "label": "Pick your cheesecake",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me turns everyday moments into memorable celebrations",
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me describes itself as a creator of happiness"
+          ]
+        },
+        "image_url": null,
+        "failed": [
+          {
+            "id": "HTML_SIZE",
+            "pass": false,
+            "severity": "hard",
+            "reason": "512.8 KB (limit 80 KB)",
+            "target": "none",
+            "bytes": 525092
+          }
+        ]
+      },
+      "copy": {
+        "day_offset": 5,
+        "purpose": "convert: invite readers to browse and choose",
+        "subject": "Your next little celebration 🩷",
+        "preheader": "Birthday, Tuesday, or just because: pick a cheesecake to share with your people.",
+        "headline": "Make your next moment a celebration",
+        "body_blocks": [
+          "You don't need a big occasion to celebrate. Sometimes a really good cheesecake and the right people is all it takes.",
+          "That's what we're all about at Cake-me: turning everyday moments into happy, memorable ones.",
+          "So go on, treat yourself! Browse our artisanal cheesecakes and pick the one that makes you smile. We're cheering you on 🌟"
+        ],
+        "cta": {
+          "label": "Pick your cheesecake",
+          "url": "https://thecake-me.com"
+        },
+        "claims": [
+          "Cake-me turns everyday moments into memorable celebrations",
+          "Cake-me sells artisanal cheesecakes",
+          "Cake-me describes itself as a creator of happiness"
+        ]
+      },
+      "htmlBytes": 525085,
+      "image": null
+    }
+  ]
+}

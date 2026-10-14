@@ -98,7 +98,7 @@ test("flag: TASKS_ENABLED off → /api/tasks 404 except /enabled", async () => {
   const r = await app.request("/", { method: "POST", body: "{}" });
   assert.equal(r.status, 404); assert.equal((await r.json()).code, "TASKS_DISABLED");
   assert.deepEqual(await (await app.request("/enabled")).json(), { enabled: false });
-  process.env.TASKS_ENABLED = "true";
+  process.env.TASKS_ENABLED = "1";
   assert.deepEqual(await (await app.request("/enabled")).json(), { enabled: true });
   assert.equal((await app.request("/x")).status, 401);   // gate open → auth applies
   delete process.env.TASKS_ENABLED;

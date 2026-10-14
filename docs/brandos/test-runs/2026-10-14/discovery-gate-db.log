@@ -1,0 +1,88 @@
+BEGIN
+CREATE EXTENSION
+SET
+ no_plan
+---------
+(0 rows)
+
+INSERT 0 1
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+               is
+--------------------------------
+ ok 1 - failed gate is recorded
+(1 row)
+
+                is
+----------------------------------
+ ok 2 - gate records capped score
+(1 row)
+
+             is
+----------------------------
+ ok 3 - gate records reason
+(1 row)
+
+                    is
+------------------------------------------
+ ok 4 - run does not silently finish done
+(1 row)
+
+                  is
+---------------------------------------
+ ok 5 - gated run does not queue a job
+(1 row)
+
+                     is
+--------------------------------------------
+ ok 6 - first passing trigger creates a job
+(1 row)
+
+                is
+----------------------------------
+ ok 7 - passing gate releases run
+(1 row)
+
+                   is
+-----------------------------------------
+ ok 8 - stored score follows live rights
+(1 row)
+
+                    is
+------------------------------------------
+ ok 9 - edit/self-cert trigger reuses job
+(1 row)
+
+UPDATE 1
+                       is
+-------------------------------------------------
+ ok 10 - terminal job still prevents a duplicate
+(1 row)
+
+                         is
+-----------------------------------------------------
+ ok 11 - only one job exists after repeated triggers
+(1 row)
+
+                         is
+-----------------------------------------------------
+ ok 12 - a different BIO version gets its own review
+(1 row)
+
+                      ok
+-----------------------------------------------
+ ok 13 - browser cannot forge a passing report
+(1 row)
+
+                 ok
+------------------------------------
+ ok 14 - browser cannot alter gates
+(1 row)
+
+ finish
+--------
+ 1..14
+(1 row)
+
+ROLLBACK

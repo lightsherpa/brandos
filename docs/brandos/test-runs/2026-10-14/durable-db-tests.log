@@ -1,0 +1,21 @@
+
+> caastoros@0.1.0 test:certifier-db
+> node --test scripts/certifier-durable-db.test.mjs
+
+[supabase] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing — DB reads will fail.
+✔ Postgres restart client keeps spent dollars and rejects spending past $0.30 (520.690375ms)
+✔ two simultaneous Postgres connections cannot exceed the cap (245.741709ms)
+✔ different instances get a single DB-owned lease and 409 CERTIFIER_BUSY (174.425708ms)
+✔ worker crash lease expires without resetting its outstanding reserve and fences the old worker (420.463833ms)
+✔ RPC retries are idempotent, known usage refunds only its unused reservation (373.0735ms)
+✔ full brief and single-claim redraft work across fresh runner modules and DB clients (715.491125ms)
+✔ human confirmations persist with actor, claim, version, timestamp and unique audit identity (172.263708ms)
+✔ RLS/client grants and function execution enforce service-only access; audit rows cannot be rewritten (993.53575ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3822.332417

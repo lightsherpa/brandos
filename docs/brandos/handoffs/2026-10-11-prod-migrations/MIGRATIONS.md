@@ -306,3 +306,81 @@ docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supab
 docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 -c "insert into supabase_migrations.schema_migrations(version,name) values ('20261013020000','cert_messages')"
 docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supabase/tests/cert_messages_rls.sql
 ```
+
+## 15. `20261013030000_discovery_review_gate.sql` (fix/discovery-quality)
+
+Persists a confidence gate for each Brand Core version, including score and actionable waiting reasons. The service-only `reconcile_bio_review` RPC locks the BIO row, records a gated Discovery state, and queues the first review when checks pass. All prior jobs (including completed jobs) count, so concurrent rights confirmation, edits and self-certification cannot duplicate an automatic review for a version. Safe before the merge. Existing callers do not use this additive table/RPC until the application deploy. Run the verify query first and skip if a row comes back.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013030000_discovery_review_gate.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013030000', 'discovery_review_gate') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select to_regclass('public.bio_review_gates'), has_function_privilege('authenticated','public.reconcile_bio_review(uuid,jsonb,text)','execute'); -- table, false
+select pg_get_constraintdef(oid) from pg_constraint where conname = 'discovery_runs_status_check'; -- includes gated
+```
+
+Regression checks: `supabase/tests/discovery_review_gate.sql` (transactional, rolled back).
+
+## 16. `20261013040000_certifier_durable_state.sql` (feat/certifier-s2-durable)
+
+Persists S2 version budgets, individual provider reservations, briefs, human confirmation audit events and question drafts. RLS is on with no client grants. Service-only RPCs acquire a fenced row lease, atomically reserve spend using `spent + estimate <= cap`, settle measured usage and commit a brief before releasing the lease. A crashed worker's unmeasured reservation stays spent; expiry releases only the busy lease. Safe before the merge with `CERTIFIER_V2_S2` off. **File only; not applied to shared databases.** Version `20261013030000` is reserved by PR #18's discovery gate and is not reused here.
+
+Approved deployment reference only:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261013040000_certifier_durable_state.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261013040000', 'certifier_durable_state') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select relrowsecurity from pg_class where oid = 'public.certifier_budgets'::regclass;
+select has_table_privilege('authenticated','public.certifier_briefs','select'); -- false
+select has_function_privilege('authenticated','public.certifier_acquire_run(uuid,uuid,uuid,integer,uuid)','execute'); -- false
+```
+
+
+## 17. `20261014000000_reference_intake.sql` (fix/vds-reference-intake)
+
+Adds service-only atomic owner rights confirmation and an immutable audit row for each request. References are appended in a new Brand Core version, prior references are superseded and retained. Row locks and request IDs prevent duplicate appends; new-reference review requires exact owner attestation and cannot duplicate terminal jobs. Safe before the merge for schema compatibility: existing callers do not invoke the new intake RPC; automatic review gains an additional gate only for new reference_intake payloads. **File only; production application has not been authorized or performed.** Run the verify query first and skip if a row comes back. Never use these deployment examples for this local rehearsal.
+
+Approved deployment reference only:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261014000000_reference_intake.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261014000000', 'reference_intake') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select relrowsecurity from pg_class where oid = 'public.bio_reference_intakes'::regclass; -- true
+select has_function_privilege('authenticated','public.confirm_brand_references(uuid,uuid,integer,uuid,uuid[],jsonb)','execute'); -- false
+select has_table_privilege('service_role','public.bio_reference_intakes','update'); -- false
+```
+
+Quinn replay repair: tables/indexes use IF NOT EXISTS, functions use CREATE OR REPLACE, and the reference trigger is dropped IF EXISTS before recreation. npm run test:migration-replay applies the three VDS migrations twice while retaining data and checking grants/constraints.
+
+Regression checks: scripts/reference-intake-db.test.mjs uses only an isolated disposable PostgreSQL container. supabase/tests/reference_intake.sql is transactional and rolled back. No production seeds or database writes are part of this push.
+
+
+## 18. `20261014050000_output_qa_passed.sql` (fix/vds-canvas-library)
+
+Separates automated task QA from explicit human approval. Extends the output status constraint with qa_passed and corrects prior task/task_rerun machine approvals while preserving recorded internal/client human review decisions. Safe before the merge for schema compatibility: the constraint retains all old states and the backfill affects task QA approvals without independent human review metadata. Deploy this schema before code that writes qa_passed. **File only; no production application performed.** Run the verify query first and skip if a row comes back. The migration also supports safe replay, including its data repair; it contains no inner transaction boundaries, so the migration and tracking row commit together.
+
+Approved deployment reference only:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261014050000_output_qa_passed.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261014050000', 'output_qa_passed') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select pg_get_constraintdef(oid) from pg_constraint where conrelid = 'public.outputs'::regclass and conname = 'outputs_status_check'; -- includes qa_passed
+select count(*) from public.outputs where kind in ('task','task_rerun') and status = 'approved' and internal_reviewed_by is null and client_reviewed_by is null; -- zero
+```
+
+Regression: npm run test:output-status-db applies the migration twice in a disposable PostgreSQL container and proves machine approvals change while independently recorded human approvals remain. It never targets a shared database.

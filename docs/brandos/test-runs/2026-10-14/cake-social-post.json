@@ -1,0 +1,13 @@
+{
+  "httpStatus": 200,
+  "elapsedSeconds": 2.807,
+  "failure": {
+    "event": "error",
+    "data": {
+      "message": "fal result HTTP 422"
+    }
+  },
+  "stored": null,
+  "outputs": null,
+  "usage": null
+}

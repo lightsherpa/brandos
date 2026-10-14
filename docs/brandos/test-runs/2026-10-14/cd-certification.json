@@ -1,0 +1,14 @@
+{
+  "claimsReviewed": 31,
+  "result": {
+    "ok": true,
+    "status": "completed",
+    "decision": "approve",
+    "composite": 100,
+    "band": "approve",
+    "gateFailures": [],
+    "needsCalibration": false,
+    "certifiedVersion": 2,
+    "needsLeadApproval": false
+  }
+}

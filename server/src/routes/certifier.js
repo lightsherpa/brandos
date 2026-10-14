@@ -49,8 +49,16 @@ export function createCertifierRoutes(requireSteward) {
     let result;
     try {
       result = await runCertifier(ctx, { runId, mode, claimId, previousBrief: previous?.brief, saveDraft: saveQuestionDraft,
-        signal: c.req.raw.signal, cd_locale: c.get('auth').locale || 'en' });
-      await recordCertifierRun(ctx, result);
+        signal: c.req.raw.signal, cd_locale: c.get('auth').locale || 'en',
+        persistRun: completed => recordCertifierRun(ctx, completed),
+        // Re-read under the acquired DB lease so another full run/redraft
+        // cannot make this request's parent brief stale while it waits.
+        loadPreviousBrief: mode === 'single_claim' ? async () => {
+          const latest = await latestCertifierBrief(scope);
+          if (!latest || String(latest.version) !== scope.version) throw Object.assign(new Error('Generate a full brief for this version first'), { status: 409 });
+          ctx.previousCreatedAt = latest.created_at;
+          return latest.brief;
+        } : undefined });
     } catch (error) {
       // Do not replace the original error if audit/refund also fails; log the
       // reconciliation key without credentials or model arguments.

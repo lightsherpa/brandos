@@ -1,0 +1,32 @@
+BEGIN
+INSERT 0 2
+INSERT 0 2
+UPDATE 1
+UPDATE 1
+INSERT 0 2
+INSERT 0 2
+INSERT 0 2
+INSERT 0 2
+INSERT 0 3
+DO
+NOTICE:  OK agent author_role rejected by check
+NOTICE:  OK unique answer key rejects duplicate
+NOTICE:  OK atomic text evidence, retry, conflict, version binding, closed/certified job
+DO
+SET
+                              set_config
+-----------------------------------------------------------------------
+ {"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}
+(1 row)
+
+NOTICE:  OK client sees only own brand, sent only
+DO
+NOTICE:  OK client insert denied
+DO
+DO
+NOTICE:  OK author_user_id column denied
+NOTICE:  OK full-table SELECT denied
+DO
+NOTICE:  OK service-only answer RPC
+DO
+ROLLBACK

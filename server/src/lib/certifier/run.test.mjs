@@ -1,9 +1,14 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {runCertifier} from './run.js';import {CertifierBudget} from '../models/token-budget.js';
+import {runCertifier as actualRun} from './run.js';
+import {createCertifierState} from '../certifier-store.js';
+import {testDatabase} from '../certifier-test-db.mjs';
+let backing, state;
+test.beforeEach(() => { backing = testDatabase(); state = createCertifierState(backing); });
+const runCertifier = (ctx, options = {}) => actualRun(ctx, { ...options, state });import {CertifierBudget} from '../models/token-budget.js';
 import {createCompletionStreamer} from '../models/fallback.js';
 import {validateBrief,unknownStatement} from './validate.js';
 import {fixture,context,recordedOutput,modelMock} from './test-helpers.js';
-const enable=()=>{process.env.CERTIFIER_V2_S2='true';};
+const enable=()=>{process.env.CERTIFIER_V2_S2='1';};
 const saveDraft=async()=> 'draft';
 for(const name of ['cake-me','nomad-roasters','lumen-dental'])test(`${name}: mocked full run validates, persists only drafts and respects cost cap`,async()=>{
  enable();const ctx=context(fixture(name));const writes=[];
@@ -106,4 +111,27 @@ test('provider failure without usage keeps its reservation in the version budget
  for(let i=0;i<20;i++) {try{await runCertifier(ctx,{stream,saveDraft});}catch(e){errors.push(e);if(e.code==='CERTIFIER_COST_CAP')break;}}
  assert.ok(errors[0].certifierRun.costUsd>0);assert.equal(errors.at(-1).code,'CERTIFIER_COST_CAP');
  const before=calls;await assert.rejects(runCertifier(ctx,{stream,saveDraft}),e=>e.code==='CERTIFIER_COST_CAP');assert.equal(calls,before);
+});
+
+test('runner restart uses the committed version balance and retains failed-provider reservations',async()=>{
+ enable();const ctx=context(fixture('nomad-roasters'));const session=await state.acquire(ctx,'seed-run');await session.reserve('seed-call',0.29);await session.release();
+ const restarted=await import('./run.js?runner-restart');let calls=0;
+ await assert.rejects(restarted.runCertifier(ctx,{state:createCertifierState(backing),stream:async function*(){calls++;},saveDraft}),e=>e.code==='CERTIFIER_COST_CAP');assert.equal(calls,0);
+ assert.equal(backing.budgets.values().next().value.spent,0.29);
+});
+
+test('brief persistence happens before lease release; a simultaneous run still gets busy during the commit',async()=>{
+ enable();const ctx=context(fixture('nomad-roasters'));let entered,finish;const ready=new Promise(r=>entered=r),wait=new Promise(r=>finish=r);
+ const first=runCertifier(ctx,{stream:modelMock(recordedOutput(ctx,'nomad-roasters')),saveDraft,persistRun:async()=>{entered();await wait;}});await ready;
+ await assert.rejects(runCertifier(ctx,{stream:modelMock(recordedOutput(ctx,'nomad-roasters')),saveDraft}),e=>e.code==='CERTIFIER_BUSY');finish();await first;
+ assert.equal(backing.budgets.values().next().value.active,null);
+});
+
+test('redraft reloads its parent only after acquiring the version lease',async()=>{
+ enable();const ctx=context(fixture('nomad-roasters'));let reloaded=false;
+ const base=recordedOutput(ctx,'nomad-roasters');const first=await runCertifier(ctx,{stream:modelMock(base),saveDraft});
+ const out={brand_in_60s:[],claims:[base.claims.find(c=>c.claim_id==='visual.logo')],questions:[]};
+ const result=await runCertifier(ctx,{mode:'single_claim',claimId:'visual.logo',stream:modelMock(out),saveDraft,loadPreviousBrief:async()=>{
+ assert.ok(backing.budgets.values().next().value.active);reloaded=true;return first.brief;}});
+ assert.ok(reloaded);assert.equal(result.brief.claims.length,first.brief.claims.length);
 });

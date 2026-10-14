@@ -1563,6 +1563,15 @@
       "preserved": "No Brand Core content or certification actions are shown until the brand and source identity are resolved.",
       "retry": "Check again",
       "sourcesFor": "Sources for {name}. A different brand needs its own record."
+    },
+    "reviewGate": {
+      "waiting": "Waiting on: {reasons}",
+      "score": "Confidence: {score}/{minScore}. Creative Director review will queue automatically when these checks pass.",
+      "LOGO_RIGHTS_UNCONFIRMED": "confirm logo rights",
+      "LOGO_REQUIRED": "add an approved logo",
+      "PRIMARY_COLOUR_REQUIRED": "choose a primary colour",
+      "DISPLAY_FONT_REQUIRED": "add a licensed display font",
+      "BELOW_MIN_SCORE": "raise confidence to {minScore}"
     }
   },
   "floater": {
@@ -1660,5 +1669,29 @@
       "strategic": "Do & don’t"
     },
     "sourceFailure": "Source retrieval failed. No Brand Core was generated. Add a readable public source or upload brand materials."
+  },
+  "vds": {
+    "status": {
+      "needs_review": "Needs review",
+      "approved": "Approved",
+      "failed": "Failed"
+    },
+    "finished": "Finished",
+    "elapsed": " in {seconds}s",
+    "costUnavailable": "cost unavailable",
+    "generationComplete": "Generation complete · needs review",
+    "savedBriefGuidance": "Open a saved brief to use Canvas.",
+    "openBriefs": "Open Briefs",
+    "generationFailed": "Generation failed",
+    "needsHumanReview": "Generation finished · needs human review",
+    "openLibrary": "Open saved items in Library",
+    "taskIntro": "Generate, check and review deliverables against your Brand Core. Human approval is still required.",
+    "checks": "checks",
+    "passed": "Passed",
+    "savedDeliverable": "Saved deliverable",
+    "previewItem": "Preview {index}",
+    "downloadPng": "Download PNG",
+    "savedTasks": "Saved tasks",
+    "running": "Running"
   }
 }

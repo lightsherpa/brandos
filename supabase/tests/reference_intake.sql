@@ -1,0 +1,11 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path=public,extensions;
+select plan(5);
+select ok(not has_function_privilege('authenticated','public.confirm_brand_references(uuid,uuid,integer,uuid,uuid[],jsonb)','execute'),'browser cannot manufacture rights');
+select ok(not has_table_privilege('service_role','public.bio_reference_intakes','UPDATE'),'rights audit is append only');
+select ok(not has_table_privilege('service_role','public.bio_reference_intakes','DELETE'),'rights audit cannot be deleted');
+select ok((select relrowsecurity from pg_class where oid='public.bio_reference_intakes'::regclass),'rights evidence has RLS');
+select has_trigger('public','steward_jobs','reference_review_gate','explicit reviews require owner attestation and remain exact once');
+select * from finish();
+rollback;

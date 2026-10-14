@@ -867,8 +867,8 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "bio":          return <BioViewer go={go} bioScore={tweaks.bioScore} />;
     case "briefs":       return <BriefsLibrary go={go} />;
     case "library":      return <Library go={go} />;
-    case "board":        return <BriefBoard id={route.param} go={go} />;
-    case "brief-detail": return <BriefBoard id={route.param} go={go} />;
+    case "board":
+    case "brief-detail": return <BriefsLibrary go={go} />;
     case "specialists":  return <SpecialistsDirectory go={go} />;
     case "specialist-new": return <SpecialistAuthor go={go} />;
     case "canvas":       return <CanvasView go={go} prototype={route.param === "prototype"} />;

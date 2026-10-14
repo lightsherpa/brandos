@@ -1563,6 +1563,15 @@
       "preserved": "No se muestra contenido del Brand Core ni acciones de certificación hasta resolver la identidad de la marca y sus fuentes.",
       "retry": "Volver a comprobar",
       "sourcesFor": "Fuentes para {name}. Otra marca necesita su propio registro."
+    },
+    "reviewGate": {
+      "waiting": "Pendiente: {reasons}",
+      "score": "Confianza: {score}/{minScore}. La revisión del director creativo se solicitará automáticamente cuando se cumplan estas comprobaciones.",
+      "LOGO_RIGHTS_UNCONFIRMED": "confirmar los derechos del logo",
+      "LOGO_REQUIRED": "añadir un logo aprobado",
+      "PRIMARY_COLOUR_REQUIRED": "elegir un color principal",
+      "DISPLAY_FONT_REQUIRED": "añadir una fuente de títulos con licencia",
+      "BELOW_MIN_SCORE": "elevar la confianza a {minScore}"
     }
   },
   "floater": {
@@ -1660,5 +1669,29 @@
       "strategic": "Qué hacer y qué evitar"
     },
     "sourceFailure": "No se han podido leer las fuentes. No se ha generado ningún Brand Core. Añade una fuente pública accesible o sube materiales de la marca."
+  },
+  "vds": {
+    "status": {
+      "needs_review": "Pendiente de revisión",
+      "approved": "Aprobado",
+      "failed": "Error"
+    },
+    "finished": "Finalizado",
+    "elapsed": " en {seconds}s",
+    "costUnavailable": "coste no disponible",
+    "generationComplete": "Generación completada · pendiente de revisión",
+    "savedBriefGuidance": "Abre un brief guardado para usar Canvas.",
+    "openBriefs": "Abrir Briefs",
+    "generationFailed": "La generación ha fallado",
+    "needsHumanReview": "Generación terminada · pendiente de revisión humana",
+    "openLibrary": "Abrir elementos guardados en la Biblioteca",
+    "taskIntro": "Genera, comprueba y revisa entregables con tu Brand Core. La aprobación humana sigue siendo necesaria.",
+    "checks": "comprobaciones",
+    "passed": "Correcto",
+    "savedDeliverable": "Entregable guardado",
+    "previewItem": "Vista previa {index}",
+    "downloadPng": "Descargar PNG",
+    "savedTasks": "Tareas guardadas",
+    "running": "En curso"
   }
 }

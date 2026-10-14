@@ -1,0 +1,186 @@
+[
+  {
+    "role": "owner",
+    "email": "owner@vds.local",
+    "httpStatus": 200,
+    "profile": {
+      "id": "78cbcad1-c664-4583-a306-55a440ec7b1c",
+      "email": "owner@vds.local",
+      "legacyRole": "client",
+      "workspaceId": "8989b70a-8b6d-4519-8c21-0de3c6ff0442",
+      "scope": "workspace",
+      "persona": "workspace_admin",
+      "portal": "client",
+      "permissions": [
+        "bio.propose",
+        "bio.publish",
+        "bio.read",
+        "brand.manage",
+        "brief.read",
+        "brief.run",
+        "brief.write",
+        "craft.request",
+        "output.client_approve",
+        "output.read",
+        "output.write",
+        "portal.client.access",
+        "workspace.billing.manage",
+        "workspace.delete",
+        "workspace.members.manage",
+        "workspace.read"
+      ],
+      "workspaces": [
+        {
+          "id": "caaf76b8-0d6c-4d4c-9676-a3d01efd7c07",
+          "name": "owner's workspace",
+          "tier": "00",
+          "role": "workspace_admin",
+          "isOwner": true,
+          "source": "membership"
+        },
+        {
+          "id": "8989b70a-8b6d-4519-8c21-0de3c6ff0442",
+          "name": "VDS Integration · Local",
+          "tier": "03",
+          "role": "workspace_admin",
+          "isOwner": true,
+          "source": "membership"
+        }
+      ],
+      "assignments": [],
+      "compatibilityMode": false,
+      "qualifications": [],
+      "displayName": null,
+      "avatarUrl": null,
+      "assuranceLevel": "aal1",
+      "mfaRequired": true,
+      "mfaSatisfied": false
+    }
+  },
+  {
+    "role": "client",
+    "email": "client@vds.local",
+    "httpStatus": 200,
+    "profile": {
+      "id": "d7254ba2-8932-4825-8f93-570ceafc2292",
+      "email": "client@vds.local",
+      "legacyRole": "client",
+      "workspaceId": "8989b70a-8b6d-4519-8c21-0de3c6ff0442",
+      "scope": "workspace",
+      "persona": "workspace_admin",
+      "portal": "client",
+      "permissions": [
+        "bio.propose",
+        "bio.publish",
+        "bio.read",
+        "brand.manage",
+        "brief.read",
+        "brief.run",
+        "brief.write",
+        "craft.request",
+        "output.client_approve",
+        "output.read",
+        "output.write",
+        "portal.client.access",
+        "workspace.billing.manage",
+        "workspace.delete",
+        "workspace.members.manage",
+        "workspace.read"
+      ],
+      "workspaces": [
+        {
+          "id": "8d2b1981-bc0c-48ce-ad60-9fb25521295a",
+          "name": "client's workspace",
+          "tier": "00",
+          "role": "workspace_admin",
+          "isOwner": true,
+          "source": "membership"
+        },
+        {
+          "id": "8989b70a-8b6d-4519-8c21-0de3c6ff0442",
+          "name": "VDS Integration · Local",
+          "tier": "03",
+          "role": "user",
+          "isOwner": false,
+          "source": "membership"
+        }
+      ],
+      "assignments": [],
+      "compatibilityMode": false,
+      "qualifications": [],
+      "displayName": null,
+      "avatarUrl": null,
+      "assuranceLevel": "aal1",
+      "mfaRequired": true,
+      "mfaSatisfied": false
+    }
+  },
+  {
+    "role": "cd",
+    "email": "cd@vds.local",
+    "httpStatus": 200,
+    "profile": {
+      "id": "019d9be9-d86b-49e6-99d0-5d04a620aba0",
+      "email": "cd@vds.local",
+      "legacyRole": "team",
+      "workspaceId": "8989b70a-8b6d-4519-8c21-0de3c6ff0442",
+      "scope": "platform",
+      "persona": "creative_director",
+      "portal": "team",
+      "permissions": [
+        "bio.propose",
+        "bio.read",
+        "brand.manage",
+        "brief.read",
+        "brief.run",
+        "brief.write",
+        "craft.request",
+        "output.internal_approve",
+        "output.internal_submit",
+        "output.read",
+        "output.write",
+        "portal.team.access",
+        "team.assignments.manage",
+        "workspace.read"
+      ],
+      "workspaces": [
+        {
+          "id": "7806a60e-22a1-4287-bf21-b015e49b6ec7",
+          "name": "cd's workspace",
+          "tier": "00",
+          "role": "workspace_admin",
+          "isOwner": true,
+          "source": "membership"
+        }
+      ],
+      "assignments": [
+        {
+          "id": "8989b70a-8b6d-4519-8c21-0de3c6ff0442",
+          "name": "VDS Integration · Local",
+          "tier": "03",
+          "source": "assignment"
+        }
+      ],
+      "compatibilityMode": false,
+      "qualifications": [
+        "steward",
+        "lead_steward"
+      ],
+      "displayName": "VDS Creative Director",
+      "avatarUrl": null,
+      "assuranceLevel": "aal1",
+      "mfaRequired": true,
+      "mfaSatisfied": false
+    }
+  },
+  {
+    "role": "client",
+    "route": "/api/admin/specs",
+    "httpStatus": 403
+  },
+  {
+    "role": "client",
+    "route": "/api/team/overview",
+    "httpStatus": 403
+  }
+]

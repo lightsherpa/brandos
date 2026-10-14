@@ -4,7 +4,7 @@ import { computeFocus } from './bio-focus.js';
 import { claimId } from './claim-id.js';
 import { readField } from './claim-review.js';
 import { isBrandEvidenceSource, sameBrandHost } from './bio-source-policy.js';
-export const certifierS1Enabled = () => String(process.env.CERTIFIER_V2_S1 || '').toLowerCase() === 'true';
+export const certifierS1Enabled = () => ['1', 'true'].includes(String(process.env.CERTIFIER_V2_S1 || '').toLowerCase());
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const empty = v => v == null || v === '' || (Array.isArray(v) && !v.length);
 export const safeEvidenceUrl = raw => {
