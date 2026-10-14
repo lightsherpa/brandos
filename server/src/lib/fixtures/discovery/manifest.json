@@ -1,0 +1,16 @@
+{
+  "capturedOn": "2026-10-14",
+  "sources": [
+    {
+      "file": "lamasbonita.html",
+      "url": "https://www.lamasbonita.es/",
+      "sha256": "9022bdf717b7d2b3612c01ae3d1e7f98e2f7314aa44da30dd45317596cc770df"
+    },
+    {
+      "file": "lamasbonita.css",
+      "url": "https://www.lamasbonita.es/assets/css/main.css",
+      "sha256": "75de82ed894614943091f24b3e130e7458d207020ca629c6dcea5fcd26e94e71"
+    }
+  ],
+  "notes": "Public markup/CSS snapshot. No model synthesis, database mutations or rights certification. Rerun only recomputes visuals and score against existing recorded claim confidence."
+}

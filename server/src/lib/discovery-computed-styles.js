@@ -2,12 +2,12 @@
 // custom properties, inheritance and the cascade on elements actually in use.
 export const COMPUTED_STYLE_SCRIPT = `(() => {
  const samples=[];
- const groups=[['logo','header svg, nav svg, header img, nav img, [class*="logo"] svg'],['header','header,nav'],['button','button,[role="button"],a[class*="btn"],input[type="submit"]'],['background','body,main,section'],['display','h1,h2,h3'],['body','p,li']];
+ const groups=[['logo','header svg, nav svg, header img, nav img, [class*="logo"] svg, [class*="logo"] img'],['header','header,nav,.topbar,[role="banner"]'],['button','button,[role="button"],a[class*="btn"],a[class*="button"],input[type="submit"]'],['background','body,main,section'],['display','h1,h2,h3'],['body','p,li']];
  for(const [kind,selector] of groups){
   for(const el of [...document.querySelectorAll(selector)].slice(0,40)){
    const rect=el.getBoundingClientRect(),style=getComputedStyle(el);
    if(!rect.width||!rect.height||style.visibility==='hidden'||style.display==='none')continue;
-   const colors=[style.color,style.backgroundColor];
+   const colors=kind==='logo'&&el.tagName==='IMG'?[]:[style.color,style.backgroundColor];
    if(kind==='logo')for(const node of [el,...el.querySelectorAll('path,rect,circle,text,use')].slice(0,80)){const s=getComputedStyle(node);colors.push(s.fill,s.stroke);}
    samples.push({kind,colors,fontFamily:style.fontFamily,area:rect.width*rect.height});
   }

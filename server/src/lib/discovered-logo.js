@@ -29,7 +29,34 @@ export async function headPublicLogo(url, redirects = 0) {
  });
 }
 
-export async function verifyDiscoveredLogo(logo, {head=headPublicLogo} = {}) {
+// Verify image bytes through a pinned public connection, bounded before decoding.
+export async function inspectPublicLogo(url,redirects=0) {
+ const target=new URL(assertPublicUrl(url));
+ const addresses=await dns.lookup(target.hostname,{all:true});
+ if(!addresses.length)throw Error('Logo DNS returned no addresses');
+ for(const {address} of addresses)assertPublicUrl(`https://${address.includes(':')?'['+address+']':address}/`);
+ const chosen=addresses[0];
+ const bytes=await new Promise((resolve,reject)=>{
+  const request=(target.protocol==='https:'?https:http).get(target,{timeout:8000,family:chosen.family,lookup:(_host,options,cb)=>options.all?cb(null,[chosen]):cb(null,chosen.address,chosen.family),headers:{Accept:'image/*'}},response=>{
+   if([301,302,303,307,308].includes(response.statusCode)){
+    response.resume();if(redirects>=2||!response.headers.location)return reject(Error('Logo redirect limit'));
+    inspectPublicLogo(new URL(response.headers.location,target).href,redirects+1).then(resolve,reject);return;
+   }
+   if(response.statusCode!==200){response.resume();return reject(Error('Logo GET failed'));}
+   let size=0;const chunks=[];
+   response.on('data',chunk=>{size+=chunk.length;if(size>MAX_UPLOAD_BYTES){response.destroy(Error('Logo size limit'));return;}chunks.push(chunk);});
+   response.on('end',()=>resolve(Buffer.concat(chunks)));response.on('error',reject);
+  });
+  request.on('timeout',()=>request.destroy(Error('Logo GET timeout')));request.on('error',reject);
+ });
+ if(!Buffer.isBuffer(bytes))return bytes; // Redirect already inspected.
+ const {default:sharp}=await import('sharp');
+ const metadata=await sharp(bytes,{limitInputPixels:50_000_000,failOn:'error'}).metadata();
+ if(!['png','jpeg','webp','avif','gif','svg'].includes(metadata.format))return null;
+ return {width:metadata.width,height:metadata.height};
+}
+
+export async function verifyDiscoveredLogo(logo, {head=headPublicLogo,inspect=inspectPublicLogo} = {}) {
  if(!logo?.url)return null;
  try{
   if(logo.url.startsWith('data:image/svg+xml,')){
@@ -37,16 +64,25 @@ export async function verifyDiscoveredLogo(logo, {head=headPublicLogo} = {}) {
    return Buffer.byteLength(svg)<=MAX_UPLOAD_BYTES && safeLogoSvg(svg)?logo:null;
   }
   const url=assertPublicUrl(logo.url);
+  if(/\.ico(?:[?#]|$)/i.test(url))return null;
   const result=await head(url);
   const mime=String(result.headers['content-type'] || '').toLowerCase();
   const length=String(result.headers['content-length'] || '');
-  if(result.status!==200 || !/^image\//.test(mime) || !/^\d+$/.test(length))return null;
+  if(result.status!==200 || !/^image\/(?:png|jpeg|webp|avif|gif|svg\+xml)(?:;|$)/.test(mime) || !/^\d+$/.test(length))return null;
   const size=Number(length);
-  return size>0 && size<=MAX_UPLOAD_BYTES?logo:null;
+  if(!(size>0&&size<=MAX_UPLOAD_BYTES))return null;
+  const dimensions=await inspect(url);
+  return dimensions?.width>=64&&dimensions?.height>=64?logo:null;
  }catch{return null;}
 }
 export async function discoverLogo(html,url,options) {
- return verifyDiscoveredLogo(extractLogo(html,url),options);
+ const exclude=[];
+ for(let attempt=0;attempt<8;attempt++){
+  const candidate=extractLogo(html,url,{exclude});if(!candidate)return null;
+  const verified=await verifyDiscoveredLogo(candidate,options);if(verified)return verified;
+  exclude.push(candidate.url);
+ }
+ return null;
 }
 
 /* Inline header SVGs are never stored or certified as SVG. They are rasterized

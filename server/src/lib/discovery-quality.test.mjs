@@ -99,10 +99,10 @@ test('review confidence gate fails without rights and passes the fully sourced v
  assert.deepEqual(pending.reasons.map(r=>r.code),['LOGO_RIGHTS_UNCONFIRMED']);
 });
 
-test('JSON-LD logo outranks og:image, while header remains first',()=>{
+test('JSON-LD logo outranks header and og:image',()=>{
  const structured='<script type="application/ld+json">{"@type":"Organization","logo":"/official-logo.png"}</script>';
  assert.equal(extractLogo(icons+structured,'https://brand.es').source,'Organization.logo');
- assert.equal(extractLogo(icons+structured+'<header><img class="logo" src="/header.png"></header>','https://brand.es').source,'header image');
+ assert.equal(extractLogo(icons+structured+'<header><img class="logo" src="/header.png"></header>','https://brand.es').source,'Organization.logo');
 });
 test('country detection prioritizes address, then ccTLD, then text',()=>{
  assert.equal(discoveryMarket({url:'https://brand.fr',html:marketHtml+'Canada Germany'}).country,'ES');
