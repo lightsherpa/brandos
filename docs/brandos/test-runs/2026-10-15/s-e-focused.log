@@ -1,0 +1,19 @@
+✔ real La Más Bonita div.topbar markup yields its 75x95 logo, never favicon (0.89075ms)
+✔ Organization logo outranks header and og image; ico and small candidates are rejected (0.343291ms)
+✔ real stylesheet prioritizes header/button colour evidence over gray text and unused declarations (5.740375ms)
+✔ computed logo/CTA colour beats more frequent body text and saturated unused colour (0.25775ms)
+✔ neutral-only computed samples retain evidenced CSS brand proposal with truthful declaration status (2.817208ms)
+✔ combined computed/declaration palette has unique foundation roles and dark text remains ink (2.767125ms)
+(node:25283) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25283) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+(node:25283) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+✔ production V2 persists deterministic logo/palette instead of stale model visual and keeps rights/font gate closed (3.304917ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.250292

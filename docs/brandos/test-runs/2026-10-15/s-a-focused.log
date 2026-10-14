@@ -1,0 +1,44 @@
+(node:20840) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20840) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ copy tasks and social copy reruns pass without foundation (3.501834ms)
+✔ social images and email heroes use foundation gate (0.599792ms)
+(node:20842) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20842) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ latest pending new references block production instead of silently selecting v2 (1.557083ms)
+✔ owner-only self certification of new references cannot release generation (0.285708ms)
+✔ exact old version rerun keeps old provenance; CD certified new version releases v3 (3.222958ms)
+(node:20843) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20843) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ Q&A (degradeRights) keeps working when the rights lookup fails, flagged and using the stored score (6.556041ms)
+✔ production rights failure is 503 even with degradeRights (0.168625ms)
+✔ image work never falls back to a version without a rights-confirmed foundation (1.8735ms)
+✔ rights require each deliberate statement and stable version/idempotency key (1.136625ms)
+✔ references are pinned strictly to version, exclude superseded/avoid/unconfirmed and prefer canonical (1.294041ms)
+✔ missing selected reference bytes fail closed; empty certified list is valid (0.727708ms)
+(node:20845) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20845) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ assigned designer can save roles and font; unassigned designer cannot (24.617042ms)
+✔ foreign logo source cannot enter a brand foundation (0.378917ms)
+✔ upload defaults to inspiration and logo variant persists at ingest (12.808875ms)
+(node:20846) ExperimentalWarning: Module mocking is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20846) DeprecationWarning: mock.module(): options.namedExports is deprecated. Use options.exports instead.
+✔ human owner deliberate confirmation passes exact version and rights to atomic RPC (18.878958ms)
+✔ non-owner, cross-workspace, agent, service and delegation cannot attest rights (0.969417ms)
+✔ missing rights fails before write, stale version and DB outage fail closed (1.087083ms)
+✔ generic PATCH cannot introduce canonical references (0.443417ms)
+✔ pending real upload stores no rights attestor or timestamp (4.349416ms)
+✔ historical superseded and pending version references cannot be deleted; history outage fails closed (0.452291ms)
+✔ generic PATCH cannot remove, re-role or replace existing canonical sources (0.244375ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 286.702708

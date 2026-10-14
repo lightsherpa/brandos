@@ -1,3 +1,27 @@
+# Final gate snapshot — 14 October 2026
+
+**A/B/C engineering PASS and locally integrated; D FAIL/unmerged; E PASS on separate branch. NEW-v3 human rehearsal remains BLOCKED.** Initial entries below are historical and superseded by this table.
+
+| Stream / feature commit | Tests + build | Brand fidelity | Truthful states | Safety | Paid run $ / seconds | Gate / merge |
+|---|---|---|---|---|---|---|
+| A `5f088d2` | 21 focused, 6 real DB, 5 pgTAP PASS; integrated 757 + build PASS | Version-scoped source tests PASS; NEW photos not uploaded | Pending rights/version visible; uncertified v3 blocked | Repair1 PASS: no false rights audit, history retained, immutable audit grants, human-only attestation | $0 offline/DB tests; timings in logs | Engineering PASS; integrated; v3 human BLOCKED |
+| B `f1687c4` (initial `72ab4bb`) | 14 focused, 717 branch; integrated 757 + build PASS | Actual v2 social: 3 refs, OCR 0, real licensed Fraunces/logo embedded; new-v3 BLOCKED | Oversized emails initially flagged; transport/export separated, delivery_ready=false | DNS pinning/bounds/no redirects/tenant PNG PASS | social $0.0943 /92.884s; initial email FAIL $0.028 /28.998s; repaired email $0.0322 /28.899s; PNG $0 /1.264s | Engineering/v2 live PASS; integrated; v3 BLOCKED |
+| C `32b717e` | 51 focused, 717 branch; integrated 757 + build PASS | Same evidence during one schema repair; final live social/email review PASS | Flagged stage truthful; latest reruns restored | DB-authorized recovery; actual restarted API recovers social+3 emails and PNG | role/recovery reads $0; owner/client/CD 0.337/0.159/0.177s; integrated restart reads 0.231/0.167s | PASS; integrated |
+| D `b5b2a06` (earlier `7cf84ce`,`0831777`) | 14 helper, 718 branch; combined candidate 772 + build PASS | Actual v2 HTML/cards/PNG shown; NEW-v3 BLOCKED | FAIL: shelf says COMPLETE for needs_review cards; Library/graph/board truthful | Sandbox previews, auth PNG, craft errors/live credits PASS | $0 UI checks; PNG from Library works | FAIL after two repair rounds; unmerged; extra-round permission requested |
+| E `5ab09d4`, test registration `d75190d` | 612 registered + build PASS | Live actual logo.webp 75×95; primary #6fd4e4 declared CSS evidence, not fabricated computed evidence | Score70 and missing rights/font gate retained | Read-only public extraction, no DB writes | $0 /0.54s | PASS separate feature branch; not integrated |
+
+No individual live run exceeded $0.30 or 120s. Session paid estimates total **$0.1545** including the failed email attempt; these are adapter figures, not reconciled invoices. Offline/DB/browser checks have no provider spend. No new photos, rights, owner attestation or CD certification were submitted by the agent. Only additive local migration 20261014000000 was applied after isolated DB tests and schema backup; no local DB reset. No production writes, seeds or dev/main pushes. All five feature branches were pushed normally; integration and gate-candidate branches remain local.
+
+## D escalation
+
+Actual screenshot `04-office-email-status-gap.png`: header/crew say Needs review, output shelf says COMPLETE / GENERIC for the same cards. Specialist confirmed agency-office.jsx shelf line73 recognizes old flagged/state but needs_review falls through to copy.done. User's “Max 2 rounds, then escalate” limit is exhausted. No third patch applied. Asked for one narrowly scoped additional round; without authorization D remains unmerged. Generic platform labeling is also retained as a known UI gap.
+
+## v3 boundary
+
+The user specifically required actual user upload then human CD review. Current latest Cake Me remains v2. Rights/new-source/version/queue/concurrency gates are proven offline; the full v3 owner/CD/client/S2/certification run is not executed and cannot be marked PASS. Existing v2 scripted historical certification is explicitly a local smoke record, not independent human quality approval.
+
+---
+
 # Brand gate — 14 October 2026
 
 PASS requires evidence; NOT RUN/BLOCKED never means PASS. Root orchestration does not produce feature code or human decisions. Production remains untouched. Costs are adapter estimates unless stated otherwise.
