@@ -4,6 +4,7 @@
 // (apis-and-agents-plan §8 — "Per-run audit ... recoverable forever").
 // The UI reads body.edited_text if present, else body.text.
 
+import { assertHumanActor } from "../lib/human-actor.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
@@ -101,8 +102,11 @@ app.post("/:id/workflow", requireAuth, async (c) => {
   const auth = c.get("auth");
   const outputId = c.req.param("id");
   const { action, reason = null } = await c.req.json().catch(() => ({}));
+  if (["internal_approve", "client_approve"].includes(action)) {
+    try { assertHumanActor(auth); } catch (error) { return c.json({error:error.message,code:error.code}, error.status || 403); }
+  }
   const { data: output, error } = await supabaseAdmin.from("outputs")
-    .select("id,body,workflow_status,submitted_by,brief:briefs(brand:brands(workspace_id))")
+    .select("id,kind,status,body,workflow_status,submitted_by,brief:briefs(brand:brands(workspace_id))")
     .eq("id", outputId).maybeSingle();
   if (error || !output) return c.json({ error: "Output not found" }, 404);
   const workspaceId = output.brief?.brand?.workspace_id;
@@ -124,10 +128,18 @@ app.post("/:id/workflow", requireAuth, async (c) => {
   if (!transition.from.includes(output.workflow_status)) return c.json({ error: "Invalid workflow transition", from: output.workflow_status, action }, 409);
   if (action === "internal_approve" && output.submitted_by === auth.userId) return c.json({ error: "Designers cannot internally approve their own submission", code: "SEPARATION_OF_DUTY" }, 409);
   const next = { workflow_status: transition.to, ...transition.patch };
+  if (["task", "task_rerun"].includes(output.kind)) {
+    if (["internal_approve", "client_approve"].includes(action)) next.status = "approved";
+    else if (action !== "send_client") next.status = "needs_review";
+  }
   if (["internal_changes", "client_changes"].includes(action)) {
-    const priorNotes = Array.isArray(output.body?.workflow_notes) ? output.body.workflow_notes : [];
+    let savedBody = output.body || {};
+    if (["task", "task_rerun"].includes(output.kind) && typeof savedBody === "string") {
+      try { savedBody = JSON.parse(savedBody); } catch { return c.json({error:"Task output cannot be decoded",code:"INVALID_TASK_OUTPUT"},409); }
+    }
+    const priorNotes = Array.isArray(savedBody?.workflow_notes) ? savedBody.workflow_notes : [];
     next.body = {
-      ...(output.body || {}),
+      ...savedBody,
       workflow_notes: [...priorNotes, {
         stage: action === "client_changes" ? "client" : "internal",
         reason: String(reason).trim(),

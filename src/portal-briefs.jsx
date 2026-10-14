@@ -43,7 +43,7 @@ function useLiveBriefs() {
         .select(`
           id, title, type, payload, mode, status, created_at,
           runs ( id, specialist_id, spec_version, bio_version, model_used, status, prompt_tokens, completion_tokens, ended_at,
-                 outputs ( id, kind, body, status, rationale ) )
+                 outputs ( id, kind, body, status, workflow_status, internal_reviewed_by, internal_reviewed_at, client_reviewed_by, client_reviewed_at, rationale ) )
         `)
         .eq("brand_id", brand.id)
         .order("created_at", { ascending: false });
@@ -2911,7 +2911,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         if (bErr || !brief) { setState({ loading: false, brief: null, runs: [], cert: null, error: bErr?.message || t("briefs.view.notFound") }); return; }
 
         const { data: runs } = await supabase
-          .from("runs").select("id, specialist_id, bio_version, started_at, ended_at, status, outputs ( id, kind, body, status, rationale )")
+          .from("runs").select("id, specialist_id, bio_version, started_at, ended_at, status, outputs ( id, kind, body, status, workflow_status, internal_reviewed_by, internal_reviewed_at, client_reviewed_by, client_reviewed_at, rationale )")
           .eq("brief_id", briefId).order("started_at", { ascending: false });
 
         const { data: bio } = await supabase
