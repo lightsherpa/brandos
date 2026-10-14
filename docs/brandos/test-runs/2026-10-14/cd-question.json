@@ -1,0 +1,24 @@
+{
+  "question": {
+    "message": {
+      "id": "e9e86a26-b4be-43d6-9d8a-f1619e3b801f",
+      "job_id": "860581f0-f465-4ceb-b3f7-1612acf78b40",
+      "bio_version": 2,
+      "claim_ids": [
+        "44032714b12eba65cc78a841f8aa2403d72fff2c5ac6ee0e4e0c312bc18cbab4"
+      ],
+      "field_paths": [
+        "identity.positioning"
+      ],
+      "author_role": "cd",
+      "reply_to": null,
+      "body": "Can you confirm that Cake Me makes colourful artisan cakes for celebrations, and that the supplied product photos are approved brand references?",
+      "source_id": null,
+      "sent_at": null,
+      "created_at": "2026-10-14T12:56:24.5833+00:00"
+    }
+  },
+  "send": {
+    "sent": 1
+  }
+}

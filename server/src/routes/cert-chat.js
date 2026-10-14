@@ -28,7 +28,7 @@ import { notify, brandOwnerUserId } from "../lib/notify.js";
 import { requireSteward } from "./steward.js";
 
 const app = new Hono();
-export const certChatEnabled = () => String(process.env.CERTIFIER_V2_S3 || "").toLowerCase() === "true";
+export const certChatEnabled = () => ['1', 'true'].includes(String(process.env.CERTIFIER_V2_S3 || '').toLowerCase());
 const FIELD_PATHS = new Set(BIO_FIELDS.map((f) => f.path.join(".")));
 const CLOSED = new Set(["completed", "cancelled", "rejected", "decertified", "closed", "certified"]);
 const MSG_COLS = "id, job_id, bio_version, claim_ids, field_paths, author_role, reply_to, body, source_id, sent_at, created_at";

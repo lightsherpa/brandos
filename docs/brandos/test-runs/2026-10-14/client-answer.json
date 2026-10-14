@@ -1,0 +1,20 @@
+{
+  "message": {
+    "id": "66061565-3a3f-4a7c-88f8-bedf52f26ee8",
+    "body": "Yes. Cake Me makes colourful artisan cakes for celebrations. The supplied 53.png, 56.png and 58.png product photos are approved Cake Me references for this local test.",
+    "job_id": "860581f0-f465-4ceb-b3f7-1612acf78b40",
+    "sent_at": "2026-10-14T12:57:35.867731+00:00",
+    "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+    "reply_to": "e9e86a26-b4be-43d6-9d8a-f1619e3b801f",
+    "claim_ids": [
+      "44032714b12eba65cc78a841f8aa2403d72fff2c5ac6ee0e4e0c312bc18cbab4"
+    ],
+    "source_id": "87f3188a-50ea-4a47-8648-d3eb22f5d4aa",
+    "created_at": "2026-10-14T12:57:35.867731+00:00",
+    "author_role": "client",
+    "bio_version": 2,
+    "field_paths": [
+      "identity.positioning"
+    ]
+  }
+}

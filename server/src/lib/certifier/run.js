@@ -11,7 +11,7 @@ import { runWithRepair, emptyBriefFrom, checkFinalSchema } from './validate.js';
 import { enrich } from './enrich.js';
 const PRIMARY = 'anthropic/claude-sonnet-5-5';
 const FALLBACK = 'anthropic/claude-sonnet-4-6';
-export const certifierEnabled = () => String(process.env.CERTIFIER_V2_S2 || '').toLowerCase() === 'true';
+export const certifierEnabled = () => ['1', 'true'].includes(String(process.env.CERTIFIER_V2_S2 || '').toLowerCase());
 const provider = createCompletionStreamer(p => streamToolCompletion({ ...p, model: p.route.split('/').pop() }));
 // A brief and all redrafts share one budget for the exact Brand Core version.
 const hash = args => cryptoHash('sha256', JSON.stringify(args));

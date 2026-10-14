@@ -19,7 +19,7 @@ import { preflight, openRun, settle, taskCredits, MAX_RERUNS_PER_ITEM } from "..
 
 // Feature flag: server env TASKS_ENABLED (default off). When off every route
 // 404s except GET /enabled, which the client uses to hide the nav + route.
-export const tasksEnabled = () => String(process.env.TASKS_ENABLED || "").toLowerCase() === "true";
+export const tasksEnabled = () => ['1', 'true'].includes(String(process.env.TASKS_ENABLED || '').toLowerCase());
 // "Save as rule" edits the brand: Owner/Editor only (brand.manage — workspace
 // owner/admin, platform admin, creative director). Contributor/Viewer → 403.
 export const RULE_PERMISSION = "brand.manage";

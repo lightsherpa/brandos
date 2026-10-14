@@ -1,0 +1,685 @@
+{
+  "elapsedSeconds": 29.139,
+  "id": "ef1db6fe-7453-43c1-9cd3-2110ac5de5d6",
+  "type": "email_sequence",
+  "brandId": "35f265f0-0546-4a9a-b793-a49887ad7125",
+  "brief": "Create a three-email welcome sequence for Cake Me: welcome to artisan cakes, choosing a celebration cake, and explore https://thecake-me.com. Use approved brand assets. No invented offers, prices or delivery claims.",
+  "heroes": false,
+  "status": "ready",
+  "stage": "Ready",
+  "eta_s": 60,
+  "run_id": "8db66b73-bae1-4803-b931-a597d2098a2d",
+  "credits": 6,
+  "created_at": "2026-10-14T13:03:55.384Z",
+  "created_by": "78cbcad1-c664-4583-a306-55a440ec7b1c",
+  "brand_core": {
+    "version": 2,
+    "foundation_missing": [
+      "reference_images"
+    ],
+    "references": 0,
+    "rules": 0
+  },
+  "items": [
+    {
+      "index": 0,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 0,
+        "purpose": "welcome",
+        "subject": "Welcome to Cake-me 💛",
+        "preheader": "Artisanal cheesecakes made to turn your everyday moments into little celebrations.",
+        "headline": "Hi, friend! Welcome to Cake-me 💛",
+        "body_blocks": [
+          "We're so happy you're here! At Cake-me we make artisanal cheesecakes, and we make them for the moments that deserve a little extra happiness.",
+          "Think golden-brown, creamy, made-to-share goodness. A regular Tuesday? A birthday? A \"just because\"? We say it all deserves a slice 🌟",
+          "Over the next few emails we'll help you pick the perfect celebration cake and show you around. Ready to peek inside?"
+        ],
+        "cta": {
+          "label": "Meet our cheesecakes",
+          "url": "https://thecake-me.com"
+        },
+        "claims": [
+          "Cake-me sells artisanal cheesecakes",
+          "Cake-me cheesecakes are meant to turn everyday moments into memorable, shareable celebrations"
+        ]
+      },
+      "html": "<!doctype html>\n<html lang=\"en\" dir=\"auto\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n  <head>\n    <title>Welcome to Cake-me 💛</title>\n    <!--[if !mso]><!-->\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <!--<![endif]-->\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <style type=\"text/css\">\n      #outlook a { padding:0; }\n      body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }\n      table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }\n      img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }\n      p { display:block;margin:13px 0; }\n    </style>\n    <!--[if mso]>\n    <noscript>\n    <xml>\n    <o:OfficeDocumentSettings>\n      <o:AllowPNG/>\n      <o:PixelsPerInch>96</o:PixelsPerInch>\n    </o:OfficeDocumentSettings>\n    </xml>\n    </noscript>\n    <![endif]-->\n    <!--[if lte mso 11]>\n    <style type=\"text/css\">\n      .mj-outlook-group-fix { width:100% !important; }\n    </style>\n    <![endif]-->\n    \n      <!--[if !mso]><!-->\n        <link href=\"https://fonts.googleapis.com/css?family=Lato:300,400,500,700\" rel=\"stylesheet\" type=\"text/css\">\n        <style type=\"text/css\">\n          @import url(https://fonts.googleapis.com/css?family=Lato:300,400,500,700);\n        </style>\n      <!--<![endif]-->\n\n    \n    \n    <style type=\"text/css\">\n      @media only screen and (min-width:480px) {\n        .mj-column-per-100 { width:100% !important; max-width: 100%; }\n      }\n    </style>\n    <style media=\"screen and (min-width:480px)\">\n      .moz-text-html .mj-column-per-100 { width:100% !important; max-width: 100%; }\n    </style>\n    \n    \n  \n    \n    <style type=\"text/css\">\n\n    @media only screen and (max-width:479px) {\n      table.mj-full-width-mobile { width: 100% !important; }\n      td.mj-full-width-mobile { width: auto !important; }\n    }\n  \n    </style>\n    \n    \n  </head>\n  \n      <body  style=\"word-spacing:normal;background-color:#FFFFFF;\">\n        \n    <div style=\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\">Artisanal cheesecakes made to turn your everyday moments into little celebrations.</div>\n  \n        <div\n           aria-label=\"Welcome to Cake-me 💛\" aria-roledescription=\"email\" role=\"article\" lang=\"en\" dir=\"auto\" style=\"word-spacing:normal;background-color:#FFFFFF;\"\n        >\n        \n      \n      <!--[if mso | IE]><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:24px 0 12px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:600px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:0;word-break:break-word;\"\n                >\n                  \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;border-spacing:0px;\"\n      >\n        <tbody>\n          <tr>\n            <td  style=\"width:140px;\">\n              \n      <img\n         alt=\"Cake-me\" src=\"http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/72e02457-f001-4bd0-be64-b1655ea30f49-logo-wordmark-ink.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzcyZTAyNDU3LWYwMDEtNGJkMC1iZTY0LWIxNjU1ZWEzMGY0OS1sb2dvLXdvcmRtYXJrLWluay5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgzMDM1LCJleHAiOjE3OTE5ODY2MzV9.oxdhO-3NjWPRrL1uJ9VxJyWR4dSyWiYaduXDSr_ov0I\" style=\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\" width=\"140\" height=\"auto\"\n      />\n    \n            </td>\n          </tr>\n        </tbody>\n      </table>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" bgcolor=\"#ffffff\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"background:#ffffff;background-color:#ffffff;width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:28px 24px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:552px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Fraunces', Helvetica, Arial, sans-serif;font-size:28px;line-height:1.2;text-align:left;color:#3F3F3F;\"\n      >Hi, friend! Welcome to Cake-me 💛</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >We're so happy you're here! At Cake-me we make artisanal cheesecakes, and we make them for the moments that deserve a little extra happiness.</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >Think golden-brown, creamy, made-to-share goodness. A regular Tuesday? A birthday? A &quot;just because&quot;? We say it all deserves a slice 🌟</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >Over the next few emails we'll help you pick the perfect celebration cake and show you around. Ready to peek inside?</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"center\" class=\"cta-primary\" style=\"font-size:0px;padding:10px 25px;padding-top:20px;word-break:break-word;\"\n                >\n                  \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:separate;line-height:100%;\"\n      >\n        <tbody>\n          <tr>\n            <td\n               align=\"center\" bgcolor=\"#FFD115\" role=\"presentation\" style=\"border:none;border-radius:4px;cursor:auto;mso-padding-alt:14px 28px;background:#FFD115;\" valign=\"middle\"\n            >\n              <a\n                 href=\"https://thecake-me.com\" style=\"display:inline-block;background:#FFD115;color:#111111;font-family:'Lato', Helvetica, Arial, sans-serif;font-size:19px;font-weight:bold;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:14px 28px;mso-padding-alt:0px;border-radius:4px;\" target=\"_blank\"\n              >\n                Meet our cheesecakes\n              </a>\n            </td>\n          </tr>\n        </tbody>\n      </table>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:16px 24px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:552px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <p\n         style=\"border-top:solid 2px #FFD115;font-size:1px;margin:0px auto;width:48px;\"\n      >\n      </p>\n      \n      <!--[if mso | IE]><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-top:solid 2px #FFD115;font-size:1px;margin:0px auto;width:48px;\" role=\"presentation\" width=\"48px\" ><tr><td style=\"height:0;line-height:0;\"> &nbsp;\n</td></tr></table><![endif]-->\n    \n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:12px;line-height:1.6;text-align:center;color:#6b6b6b;\"\n      >Cake-me · https://thecake-me.com</div>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><![endif]-->\n    \n    \n      </div>\n      </body>\n    \n</html>\n  ",
+      "html_bytes": 12409,
+      "image": null,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 21/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 82 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 33/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 66/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Meet our cheesecakes\" → https://thecake-me.com",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "12.1 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 12409
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Welcomes subscriber to artisan cheesecakes with approved URL and no invented claims.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Warm, informal, and friendly tone with no forbidden words used.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Functions clearly as day 0 welcome and sets up forthcoming sequence topics.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "CTA invites reader to meet cheesecakes, matching introductory sequence goal.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "No unsupported stats, prices, delivery guarantees, or superlatives present.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject welcomes the reader while preheader elaborates on artisanal cheesecakes.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 1,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 2,
+        "purpose": "value: how to choose a celebration cake",
+        "subject": "Picking a celebration cake? Start here",
+        "preheader": "Three quick questions to help you find the cheesecake that fits your moment.",
+        "headline": "Let's find your celebration cake 🌟",
+        "body_blocks": [
+          "Choosing a celebration cake should be fun, not stressful! Ask yourself three things and you're almost there.",
+          "1. Who's it for? Picture their face when the cake appears. 2. What's the moment? A big milestone or a small win, both count. 3. Who's sharing? A cheesecake tastes even better with friends around 💛",
+          "Got your answers? Now go see which cheesecake makes you say \"that's the one!\" We're right here cheering you on."
+        ],
+        "cta": {
+          "label": "Find your cheesecake",
+          "url": "https://thecake-me.com"
+        },
+        "claims": [
+          "Cake-me cheesecakes are made to be shared and celebrated together"
+        ]
+      },
+      "html": "<!doctype html>\n<html lang=\"en\" dir=\"auto\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n  <head>\n    <title>Picking a celebration cake? Start here</title>\n    <!--[if !mso]><!-->\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <!--<![endif]-->\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <style type=\"text/css\">\n      #outlook a { padding:0; }\n      body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }\n      table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }\n      img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }\n      p { display:block;margin:13px 0; }\n    </style>\n    <!--[if mso]>\n    <noscript>\n    <xml>\n    <o:OfficeDocumentSettings>\n      <o:AllowPNG/>\n      <o:PixelsPerInch>96</o:PixelsPerInch>\n    </o:OfficeDocumentSettings>\n    </xml>\n    </noscript>\n    <![endif]-->\n    <!--[if lte mso 11]>\n    <style type=\"text/css\">\n      .mj-outlook-group-fix { width:100% !important; }\n    </style>\n    <![endif]-->\n    \n      <!--[if !mso]><!-->\n        <link href=\"https://fonts.googleapis.com/css?family=Lato:300,400,500,700\" rel=\"stylesheet\" type=\"text/css\">\n        <style type=\"text/css\">\n          @import url(https://fonts.googleapis.com/css?family=Lato:300,400,500,700);\n        </style>\n      <!--<![endif]-->\n\n    \n    \n    <style type=\"text/css\">\n      @media only screen and (min-width:480px) {\n        .mj-column-per-100 { width:100% !important; max-width: 100%; }\n      }\n    </style>\n    <style media=\"screen and (min-width:480px)\">\n      .moz-text-html .mj-column-per-100 { width:100% !important; max-width: 100%; }\n    </style>\n    \n    \n  \n    \n    <style type=\"text/css\">\n\n    @media only screen and (max-width:479px) {\n      table.mj-full-width-mobile { width: 100% !important; }\n      td.mj-full-width-mobile { width: auto !important; }\n    }\n  \n    </style>\n    \n    \n  </head>\n  \n      <body  style=\"word-spacing:normal;background-color:#FFFFFF;\">\n        \n    <div style=\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\">Three quick questions to help you find the cheesecake that fits your moment.</div>\n  \n        <div\n           aria-label=\"Picking a celebration cake? Start here\" aria-roledescription=\"email\" role=\"article\" lang=\"en\" dir=\"auto\" style=\"word-spacing:normal;background-color:#FFFFFF;\"\n        >\n        \n      \n      <!--[if mso | IE]><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:24px 0 12px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:600px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:0;word-break:break-word;\"\n                >\n                  \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;border-spacing:0px;\"\n      >\n        <tbody>\n          <tr>\n            <td  style=\"width:140px;\">\n              \n      <img\n         alt=\"Cake-me\" src=\"http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/72e02457-f001-4bd0-be64-b1655ea30f49-logo-wordmark-ink.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzcyZTAyNDU3LWYwMDEtNGJkMC1iZTY0LWIxNjU1ZWEzMGY0OS1sb2dvLXdvcmRtYXJrLWluay5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgzMDM1LCJleHAiOjE3OTE5ODY2MzV9.oxdhO-3NjWPRrL1uJ9VxJyWR4dSyWiYaduXDSr_ov0I\" style=\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\" width=\"140\" height=\"auto\"\n      />\n    \n            </td>\n          </tr>\n        </tbody>\n      </table>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" bgcolor=\"#ffffff\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"background:#ffffff;background-color:#ffffff;width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:28px 24px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:552px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Fraunces', Helvetica, Arial, sans-serif;font-size:28px;line-height:1.2;text-align:left;color:#3F3F3F;\"\n      >Let's find your celebration cake 🌟</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >Choosing a celebration cake should be fun, not stressful! Ask yourself three things and you're almost there.</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >1. Who's it for? Picture their face when the cake appears. 2. What's the moment? A big milestone or a small win, both count. 3. Who's sharing? A cheesecake tastes even better with friends around 💛</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >Got your answers? Now go see which cheesecake makes you say &quot;that's the one!&quot; We're right here cheering you on.</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"center\" class=\"cta-primary\" style=\"font-size:0px;padding:10px 25px;padding-top:20px;word-break:break-word;\"\n                >\n                  \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:separate;line-height:100%;\"\n      >\n        <tbody>\n          <tr>\n            <td\n               align=\"center\" bgcolor=\"#FFD115\" role=\"presentation\" style=\"border:none;border-radius:4px;cursor:auto;mso-padding-alt:14px 28px;background:#FFD115;\" valign=\"middle\"\n            >\n              <a\n                 href=\"https://thecake-me.com\" style=\"display:inline-block;background:#FFD115;color:#111111;font-family:'Lato', Helvetica, Arial, sans-serif;font-size:19px;font-weight:bold;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:14px 28px;mso-padding-alt:0px;border-radius:4px;\" target=\"_blank\"\n              >\n                Find your cheesecake\n              </a>\n            </td>\n          </tr>\n        </tbody>\n      </table>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:16px 24px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:552px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <p\n         style=\"border-top:solid 2px #FFD115;font-size:1px;margin:0px auto;width:48px;\"\n      >\n      </p>\n      \n      <!--[if mso | IE]><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-top:solid 2px #FFD115;font-size:1px;margin:0px auto;width:48px;\" role=\"presentation\" width=\"48px\" ><tr><td style=\"height:0;line-height:0;\"> &nbsp;\n</td></tr></table><![endif]-->\n    \n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:12px;line-height:1.6;text-align:center;color:#6b6b6b;\"\n      >Cake-me · https://thecake-me.com</div>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><![endif]-->\n    \n    \n      </div>\n      </body>\n    \n</html>\n  ",
+      "html_bytes": 12460,
+      "image": null,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 38/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 76 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 35/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 73/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Find your cheesecake\" → https://thecake-me.com",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "12.2 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 12460
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Delivers educational guidance on choosing a celebration cake as briefed.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Playful, enthusiastic advice framing without high pressure or corporate terms.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Follows initial welcome with actionable advice on picking celebration cakes.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "CTA drives user to find their cake, aligning with decision-making goal.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Contains no invented promotions, timelines, or unapproved claims.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject poses starting question; preheader introduces the three-question framework.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    },
+    {
+      "index": 2,
+      "status": "ready",
+      "stage": "Ready",
+      "needs_review": false,
+      "revisions": 0,
+      "copy": {
+        "day_offset": 5,
+        "purpose": "convert: explore the site",
+        "subject": "Come explore Cake-me with us",
+        "preheader": "Wander through our artisanal cheesecakes and find your next shareable happy moment.",
+        "headline": "Your next happy moment is waiting 🩷",
+        "body_blocks": [
+          "You've met us, you know how to pick your celebration cake, so now comes the fun part: exploring!",
+          "Browse our artisanal cheesecakes, spot the one that makes your tummy do a happy dance, and imagine it at your next get-together.",
+          "We're not just a dessert shop. We create happiness you can share. Come see for yourself 💛"
+        ],
+        "cta": {
+          "label": "Explore Cake-me",
+          "url": "https://thecake-me.com"
+        },
+        "claims": [
+          "Cake-me sells artisanal cheesecakes",
+          "Cake-me's website is thecake-me.com"
+        ]
+      },
+      "html": "<!doctype html>\n<html lang=\"en\" dir=\"auto\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n  <head>\n    <title>Come explore Cake-me with us</title>\n    <!--[if !mso]><!-->\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <!--<![endif]-->\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <style type=\"text/css\">\n      #outlook a { padding:0; }\n      body { margin:0;padding:0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; }\n      table, td { border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt; }\n      img { border:0;height:auto;line-height:100%; outline:none;text-decoration:none;-ms-interpolation-mode:bicubic; }\n      p { display:block;margin:13px 0; }\n    </style>\n    <!--[if mso]>\n    <noscript>\n    <xml>\n    <o:OfficeDocumentSettings>\n      <o:AllowPNG/>\n      <o:PixelsPerInch>96</o:PixelsPerInch>\n    </o:OfficeDocumentSettings>\n    </xml>\n    </noscript>\n    <![endif]-->\n    <!--[if lte mso 11]>\n    <style type=\"text/css\">\n      .mj-outlook-group-fix { width:100% !important; }\n    </style>\n    <![endif]-->\n    \n      <!--[if !mso]><!-->\n        <link href=\"https://fonts.googleapis.com/css?family=Lato:300,400,500,700\" rel=\"stylesheet\" type=\"text/css\">\n        <style type=\"text/css\">\n          @import url(https://fonts.googleapis.com/css?family=Lato:300,400,500,700);\n        </style>\n      <!--<![endif]-->\n\n    \n    \n    <style type=\"text/css\">\n      @media only screen and (min-width:480px) {\n        .mj-column-per-100 { width:100% !important; max-width: 100%; }\n      }\n    </style>\n    <style media=\"screen and (min-width:480px)\">\n      .moz-text-html .mj-column-per-100 { width:100% !important; max-width: 100%; }\n    </style>\n    \n    \n  \n    \n    <style type=\"text/css\">\n\n    @media only screen and (max-width:479px) {\n      table.mj-full-width-mobile { width: 100% !important; }\n      td.mj-full-width-mobile { width: auto !important; }\n    }\n  \n    </style>\n    \n    \n  </head>\n  \n      <body  style=\"word-spacing:normal;background-color:#FFFFFF;\">\n        \n    <div style=\"display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\">Wander through our artisanal cheesecakes and find your next shareable happy moment.</div>\n  \n        <div\n           aria-label=\"Come explore Cake-me with us\" aria-roledescription=\"email\" role=\"article\" lang=\"en\" dir=\"auto\" style=\"word-spacing:normal;background-color:#FFFFFF;\"\n        >\n        \n      \n      <!--[if mso | IE]><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:24px 0 12px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:600px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:0;word-break:break-word;\"\n                >\n                  \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:collapse;border-spacing:0px;\"\n      >\n        <tbody>\n          <tr>\n            <td  style=\"width:140px;\">\n              \n      <img\n         alt=\"Cake-me\" src=\"http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/72e02457-f001-4bd0-be64-b1655ea30f49-logo-wordmark-ink.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzcyZTAyNDU3LWYwMDEtNGJkMC1iZTY0LWIxNjU1ZWEzMGY0OS1sb2dvLXdvcmRtYXJrLWluay5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgzMDM1LCJleHAiOjE3OTE5ODY2MzV9.oxdhO-3NjWPRrL1uJ9VxJyWR4dSyWiYaduXDSr_ov0I\" style=\"border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;font-size:13px;\" width=\"140\" height=\"auto\"\n      />\n    \n            </td>\n          </tr>\n        </tbody>\n      </table>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" bgcolor=\"#ffffff\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"background:#ffffff;background-color:#ffffff;width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:28px 24px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:552px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Fraunces', Helvetica, Arial, sans-serif;font-size:28px;line-height:1.2;text-align:left;color:#3F3F3F;\"\n      >Your next happy moment is waiting 🩷</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >You've met us, you know how to pick your celebration cake, so now comes the fun part: exploring!</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >Browse our artisanal cheesecakes, spot the one that makes your tummy do a happy dance, and imagine it at your next get-together.</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"left\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.6;text-align:left;color:#3F3F3F;\"\n      >We're not just a dessert shop. We create happiness you can share. Come see for yourself 💛</div>\n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"center\" class=\"cta-primary\" style=\"font-size:0px;padding:10px 25px;padding-top:20px;word-break:break-word;\"\n                >\n                  \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-collapse:separate;line-height:100%;\"\n      >\n        <tbody>\n          <tr>\n            <td\n               align=\"center\" bgcolor=\"#FFD115\" role=\"presentation\" style=\"border:none;border-radius:4px;cursor:auto;mso-padding-alt:14px 28px;background:#FFD115;\" valign=\"middle\"\n            >\n              <a\n                 href=\"https://thecake-me.com\" style=\"display:inline-block;background:#FFD115;color:#111111;font-family:'Lato', Helvetica, Arial, sans-serif;font-size:19px;font-weight:bold;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:14px 28px;mso-padding-alt:0px;border-radius:4px;\" target=\"_blank\"\n              >\n                Explore Cake-me\n              </a>\n            </td>\n          </tr>\n        </tbody>\n      </table>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"\" role=\"presentation\" style=\"width:600px;\" width=\"600\" ><tr><td style=\"line-height:0px;font-size:0px;mso-line-height-rule:exactly;\"><![endif]-->\n    \n      \n      <div  style=\"margin:0px auto;max-width:600px;\">\n        \n        <table\n           align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"width:100%;\"\n        >\n          <tbody>\n            <tr>\n              <td\n                 style=\"direction:ltr;font-size:0px;padding:16px 24px;text-align:center;\"\n              >\n                <!--[if mso | IE]><table role=\"presentation\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr><td class=\"\" style=\"vertical-align:top;width:552px;\" ><![endif]-->\n            \n      <div\n         class=\"mj-column-per-100 mj-outlook-group-fix\" style=\"font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;\"\n      >\n        \n      <table\n         border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"vertical-align:top;\" width=\"100%\"\n      >\n        <tbody>\n          \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <p\n         style=\"border-top:solid 2px #FFD115;font-size:1px;margin:0px auto;width:48px;\"\n      >\n      </p>\n      \n      <!--[if mso | IE]><table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"border-top:solid 2px #FFD115;font-size:1px;margin:0px auto;width:48px;\" role=\"presentation\" width=\"48px\" ><tr><td style=\"height:0;line-height:0;\"> &nbsp;\n</td></tr></table><![endif]-->\n    \n    \n                </td>\n              </tr>\n            \n              <tr>\n                <td\n                   align=\"center\" style=\"font-size:0px;padding:10px 25px;word-break:break-word;\"\n                >\n                  \n      <div\n         style=\"font-family:'Lato', Helvetica, Arial, sans-serif;font-size:12px;line-height:1.6;text-align:center;color:#6b6b6b;\"\n      >Cake-me · https://thecake-me.com</div>\n    \n                </td>\n              </tr>\n            \n        </tbody>\n      </table>\n    \n      </div>\n    \n          <!--[if mso | IE]></td></tr></table><![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        \n      </div>\n    \n      \n      <!--[if mso | IE]></td></tr></table><![endif]-->\n    \n    \n      </div>\n      </body>\n    \n</html>\n  ",
+      "html_bytes": 12331,
+      "image": null,
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_SUBJECT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject 28/50 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_PREHEADER",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Preheader 83 chars (40–100)",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_HEADLINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Headline 36/60 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_BODY",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Body 57/200 words",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA \"Explore Cake-me\" → https://thecake-me.com",
+          "target": "copy"
+        },
+        {
+          "id": "SUBJECT_PREHEADER_DISTINCT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Subject and preheader differ",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "MJML",
+          "pass": true,
+          "severity": "hard",
+          "reason": "MJML compiled with 0 errors",
+          "target": "none"
+        },
+        {
+          "id": "HTML_SIZE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "12.0 KB (limit 80 KB)",
+          "target": "none",
+          "bytes": 12331
+        },
+        {
+          "id": "ALT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All images have alt",
+          "target": "none"
+        },
+        {
+          "id": "LINKS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All links absolute https",
+          "target": "copy"
+        },
+        {
+          "id": "ONE_PRIMARY_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "1 primary CTA(s)",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥4.5:1",
+          "target": "none"
+        },
+        {
+          "id": "CONTRAST_CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "All text pairs ≥3:1",
+          "target": "none"
+        }
+      ],
+      "review": [
+        {
+          "id": "on_brief",
+          "pass": true,
+          "reason": "Invites recipient to explore the website to complete the sequence.",
+          "target": "copy"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": true,
+          "reason": "Enthusiastic and warm tone directly embodying happiness-creator brand stance.",
+          "target": "copy"
+        },
+        {
+          "id": "sequence_progression",
+          "pass": true,
+          "reason": "Naturally concludes sequence by referencing previous emails and driving site exploration.",
+          "target": "copy"
+        },
+        {
+          "id": "cta_consistent",
+          "pass": true,
+          "reason": "CTA directs user directly to explore site URL as required.",
+          "target": "copy"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": true,
+          "reason": "Adheres strictly to core brand concepts without inventing offers.",
+          "target": "copy"
+        },
+        {
+          "id": "subject_preheader_distinct",
+          "pass": true,
+          "reason": "Subject invites exploration while preheader details browsing artisanal cakes.",
+          "target": "copy"
+        }
+      ],
+      "rule_applied": null,
+      "before": null
+    }
+  ],
+  "notices": [
+    "Brand Core foundation missing: reference_images"
+  ],
+  "result": {
+    "spec": {
+      "task": "email_sequence",
+      "language": "en",
+      "smp": "Cake-me's artisanal cheesecakes turn everyday moments into memorable, shareable celebrations of happiness.",
+      "emails": [
+        {
+          "day_offset": 0,
+          "purpose": "welcome",
+          "subject": "Welcome to Cake-me 💛",
+          "preheader": "Artisanal cheesecakes made to turn your everyday moments into little celebrations.",
+          "headline": "Hi, friend! Welcome to Cake-me 💛",
+          "body_blocks": [
+            "We're so happy you're here! At Cake-me we make artisanal cheesecakes, and we make them for the moments that deserve a little extra happiness.",
+            "Think golden-brown, creamy, made-to-share goodness. A regular Tuesday? A birthday? A \"just because\"? We say it all deserves a slice 🌟",
+            "Over the next few emails we'll help you pick the perfect celebration cake and show you around. Ready to peek inside?"
+          ],
+          "cta": {
+            "label": "Meet our cheesecakes",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me cheesecakes are meant to turn everyday moments into memorable, shareable celebrations"
+          ]
+        },
+        {
+          "day_offset": 2,
+          "purpose": "value: how to choose a celebration cake",
+          "subject": "Picking a celebration cake? Start here",
+          "preheader": "Three quick questions to help you find the cheesecake that fits your moment.",
+          "headline": "Let's find your celebration cake 🌟",
+          "body_blocks": [
+            "Choosing a celebration cake should be fun, not stressful! Ask yourself three things and you're almost there.",
+            "1. Who's it for? Picture their face when the cake appears. 2. What's the moment? A big milestone or a small win, both count. 3. Who's sharing? A cheesecake tastes even better with friends around 💛",
+            "Got your answers? Now go see which cheesecake makes you say \"that's the one!\" We're right here cheering you on."
+          ],
+          "cta": {
+            "label": "Find your cheesecake",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me cheesecakes are made to be shared and celebrated together"
+          ]
+        },
+        {
+          "day_offset": 5,
+          "purpose": "convert: explore the site",
+          "subject": "Come explore Cake-me with us",
+          "preheader": "Wander through our artisanal cheesecakes and find your next shareable happy moment.",
+          "headline": "Your next happy moment is waiting 🩷",
+          "body_blocks": [
+            "You've met us, you know how to pick your celebration cake, so now comes the fun part: exploring!",
+            "Browse our artisanal cheesecakes, spot the one that makes your tummy do a happy dance, and imagine it at your next get-together.",
+            "We're not just a dessert shop. We create happiness you can share. Come see for yourself 💛"
+          ],
+          "cta": {
+            "label": "Explore Cake-me",
+            "url": "https://thecake-me.com"
+          },
+          "claims": [
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me's website is thecake-me.com"
+          ]
+        }
+      ]
+    },
+    "metrics": {
+      "total_ms": 27975,
+      "stage_ms": {
+        "Planning": 0,
+        "Writing": 0,
+        "Imaging": 14979,
+        "Checking": 15012,
+        "Ready": 27975
+      },
+      "cost": {
+        "total_usd": 0.0296,
+        "calls": 2,
+        "by_step": {
+          "writing": 0.0222,
+          "review": 0.0074
+        },
+        "limits": {
+          "maxUsd": 0.5,
+          "maxImageCalls": 7,
+          "maxTextCalls": 10,
+          "imageConcurrency": 3
+        }
+      },
+      "ledger": [
+        {
+          "at": "2026-10-14T13:04:10.361Z",
+          "kind": "text",
+          "step": "writing",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": 0.022192,
+          "ms": 14976,
+          "tokens_in": 1626,
+          "tokens_out": 1894,
+          "fallback_from": null,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T13:04:23.359Z",
+          "kind": "text",
+          "step": "review",
+          "model": "google/gemini-3.8-flash",
+          "cost_usd": 0.00743925,
+          "ms": 12962,
+          "tokens_in": 1164,
+          "tokens_out": 1751,
+          "fallback_from": null,
+          "error": null
+        }
+      ],
+      "models": [
+        "claude-sonnet-5-5",
+        "google/gemini-3.8-flash"
+      ]
+    }
+  },
+  "error": null,
+  "finished_at": "2026-10-14T13:04:23.376Z"
+}

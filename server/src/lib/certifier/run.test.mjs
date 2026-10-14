@@ -8,7 +8,7 @@ const runCertifier = (ctx, options = {}) => actualRun(ctx, { ...options, state }
 import {createCompletionStreamer} from '../models/fallback.js';
 import {validateBrief,unknownStatement} from './validate.js';
 import {fixture,context,recordedOutput,modelMock} from './test-helpers.js';
-const enable=()=>{process.env.CERTIFIER_V2_S2='true';};
+const enable=()=>{process.env.CERTIFIER_V2_S2='1';};
 const saveDraft=async()=> 'draft';
 for(const name of ['cake-me','nomad-roasters','lumen-dental'])test(`${name}: mocked full run validates, persists only drafts and respects cost cap`,async()=>{
  enable();const ctx=context(fixture(name));const writes=[];

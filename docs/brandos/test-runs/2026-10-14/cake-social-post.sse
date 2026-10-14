@@ -1,0 +1,8 @@
+event: progress
+data: {"stage":"submitting","pct":5}
+
+event: progress
+data: {"stage":"queued","pct":15}
+
+event: error
+data: {"message":"fal result HTTP 422"}

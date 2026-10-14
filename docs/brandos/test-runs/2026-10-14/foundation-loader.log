@@ -1,0 +1,12 @@
+[apply] brand Cake-me · current v1 stored score 96 · displayed 79 · foundation ["visual.logo","visual.palette.primary","visual.type.display"]
+[apply] reuse logo-wordmark-primary.png → 7c1b4ba2-e8a1-4dea-bafd-2009190e0cda
+[apply] reuse logo-wordmark-on-dark.png → 81d0ff08-58d5-45a4-b385-8ae641d9b42c
+[apply] reuse logo-wordmark-ink.png → c9654b59-2db8-4c58-b336-4bfc2f34a01e
+[apply] uploaded Fraunces.ttf → 8eadeac8-fad5-433c-a955-39ac2b0b45c4
+[apply] tagged 58.png canonical
+[apply] tagged 53.png canonical
+[apply] tagged 56.png canonical
+[apply] new payload: foundation PASS · score 96
+[apply] appended v2 (b8c98aff-35ee-4d0e-a777-42d2d6cabfd7)
+[apply] not certified: certification is human — review and certify this version in the UI
+{"version":2,"stored_score":96,"displayed_score":96,"self_certified":false,"foundation":{"certifiable":true,"missing":[],"logo":true,"logoStatus":"ok","needsRights":[],"primary":true,"display":true}}

@@ -17,7 +17,7 @@ const resolved = l => Object.fromEntries(l.claims.map(c => [c.claim_id,{state:'c
 
 test('S1 flag defaults off and reads runtime changes', () => {
   delete process.env.CERTIFIER_V2_S1;assert.equal(certifierS1Enabled(),false);
-  process.env.CERTIFIER_V2_S1='true';assert.equal(certifierS1Enabled(),true);delete process.env.CERTIFIER_V2_S1;
+  process.env.CERTIFIER_V2_S1='true';assert.equal(certifierS1Enabled(),true);process.env.CERTIFIER_V2_S1='1';assert.equal(certifierS1Enabled(),true);delete process.env.CERTIFIER_V2_S1;
 });
 test('claim IDs exactly match S3, are stable, and separate brands and BIO versions', () => {
   const c = ledger().claims.find(c => c.field_path === 'identity.positioning');

@@ -80,7 +80,7 @@ const client = (ws = "ws-a", scope = "workspace") => ({ userId: "client-user", s
   permissions: new Set(["bio.propose"]), memberships: [{ workspace_id: ws, status: "active" }], assignedWorkspaceIds: new Set([ws]) });
 const req = (path, method = "GET", body) => app.request(path, { method, headers: { "content-type": "application/json" }, ...(body ? { body: JSON.stringify(body) } : {}) });
 const reset = () => {
-  process.env.CERTIFIER_V2_S3 = "true";
+  process.env.CERTIFIER_V2_S3 = "1";
   bio = { id: "bio-1", version: 3, certified: false }; JOB.status = "in_review";
   rows = []; sources = [{ id: "font-src", brand_id: "brand-a", kind: "file_upload" }, { id: "foreign-src", brand_id: "brand-b", kind: "file_upload" }];
   notifications = []; writes = []; auth = cd(); steward = { id: "cd-1", roles: ["steward"], active: true };

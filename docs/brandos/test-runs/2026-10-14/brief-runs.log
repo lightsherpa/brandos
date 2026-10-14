@@ -1,0 +1,4 @@
+Loaded 55 agents from portal-data.js
+Departments: Strategy, Concept, Copy, Visual, Web & UX, Motion & Sound, Research & Ops
+cake-social-post {"status":200,"elapsedSeconds":2.807,"failure":{"event":"error","data":{"message":"fal result HTTP 422"}}}
+cake-email-sequence {"status":200,"elapsedSeconds":61.783,"runId":"c1e4031b-ad52-4143-9604-ce01d66f4804","cost":0.0722,"outputStatus":"needs_review"}

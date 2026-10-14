@@ -1,0 +1,2243 @@
+{
+  "certify": {
+    "enabled": true,
+    "logoRights": [
+      "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+      "81d0ff08-58d5-45a4-b385-8ae641d9b42c",
+      "c9654b59-2db8-4c58-b336-4bfc2f34a01e"
+    ],
+    "bio_version": 2,
+    "claims": [
+      {
+        "claim_id": "d7af4c5adfcba919c4245dbd900398f9f826f84a1a6fd98f4be3b4388518b981",
+        "bio_version": 2,
+        "field_path": "visual.typeScale",
+        "section": "foundation",
+        "kind": "object",
+        "value": null,
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "This is part of the brand’s visual foundation.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "ce8e866f510e1b7558bd5db33514d86f6114d96945070cddc329a7a03e2086e2"
+      },
+      {
+        "claim_id": "534651e7575bb04fad1f39f8d3a2c1b835f944dc2977dd864133f2238d60da0c",
+        "bio_version": 2,
+        "field_path": "voice.rhythm",
+        "section": "foundation",
+        "kind": "scalar",
+        "value": "Uses short, punchy, action-oriented sentences with exclamations, mixed with more descriptive phrases that evoke sensory pleasure.",
+        "level": "guessed",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "inferred from examples in uploaded brand-deck.pdf and homepage copy",
+            "quote": "inferred from examples in uploaded brand-deck.pdf and homepage copy",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "f1f5e5200b03bf64d26d42fac396f9fe64785530bb829a55e7d6afe4e93f64d5"
+      },
+      {
+        "claim_id": "75e00fbe581e958d9c980cec186a1ac0d2f8cd840412e21157277063ca3d4d22",
+        "bio_version": 2,
+        "field_path": "visual.logo",
+        "section": "foundation",
+        "kind": "object",
+        "value": {
+          "conf": 100,
+          "source": "logo-wordmark-primary.png",
+          "sourceId": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+          "variants": {
+            "dark": {
+              "conf": 100,
+              "source": "logo-wordmark-ink.png",
+              "sourceId": "c9654b59-2db8-4c58-b336-4bfc2f34a01e"
+            },
+            "light": {
+              "conf": 100,
+              "source": "logo-wordmark-on-dark.png",
+              "sourceId": "81d0ff08-58d5-45a4-b385-8ae641d9b42c"
+            }
+          }
+        },
+        "level": "medium",
+        "importance": 1.1,
+        "why": "This is part of the brand’s visual foundation.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "source_id": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+            "label": "logo-wordmark-primary.png",
+            "kind": "file_upload",
+            "quote": "Client edit",
+            "url": null,
+            "asset_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/09633bde-af49-4171-b1e7-fc4efb526cc9-logo-wordmark-primary.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzA5NjMzYmRlLWFmNDktNDE3MS1iMWU3LWZjNGVmYjUyNmNjOS1sb2dvLXdvcmRtYXJrLXByaW1hcnkucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MTk4MjU4NCwiZXhwIjoxNzkxOTg2MTg0fQ.zH7ZsYNpQkAOV7tVYTBNLdf_tqKqtEMGWAh-eqIec0s",
+            "screenshot": null,
+            "page": null,
+            "mime": "image/png",
+            "first_party": true
+          },
+          {
+            "source_id": "81d0ff08-58d5-45a4-b385-8ae641d9b42c",
+            "label": "logo-wordmark-on-dark.png",
+            "kind": "file_upload",
+            "quote": "Client edit",
+            "url": null,
+            "asset_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/d956bbb1-ebbb-41dc-9088-1b76966c6a96-logo-wordmark-on-dark.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1L2Q5NTZiYmIxLWViYmItNDFkYy05MDg4LTFiNzY5NjZjNmE5Ni1sb2dvLXdvcmRtYXJrLW9uLWRhcmsucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MTk4MjU4NCwiZXhwIjoxNzkxOTg2MTg0fQ.KJRrX7PoDjfRHGDh43c-Y6EVZU9HKOTrWr3UPFAZzGw",
+            "screenshot": null,
+            "page": null,
+            "mime": "image/png",
+            "first_party": true
+          },
+          {
+            "source_id": "c9654b59-2db8-4c58-b336-4bfc2f34a01e",
+            "label": "logo-wordmark-ink.png",
+            "kind": "file_upload",
+            "quote": "Client edit",
+            "url": null,
+            "asset_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/72e02457-f001-4bd0-be64-b1655ea30f49-logo-wordmark-ink.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzcyZTAyNDU3LWYwMDEtNGJkMC1iZTY0LWIxNjU1ZWEzMGY0OS1sb2dvLXdvcmRtYXJrLWluay5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgyNTg0LCJleHAiOjE3OTE5ODYxODR9.wY8sHTUBm-KlqJQUh91_v_x-Fve-ayWNIf3tnX553WU",
+            "screenshot": null,
+            "page": null,
+            "mime": "image/png",
+            "first_party": true
+          }
+        ],
+        "evidence_token": "83ec17672f50ff273cbd88800260b72df82c4d85beee3f3ee35a97da685691ba"
+      },
+      {
+        "claim_id": "8bb9c97a68b6dc90cca478b67a74e8b872d6108513b7eb75d17e8c092be7f18f",
+        "bio_version": 2,
+        "field_path": "visual.palette",
+        "section": "foundation",
+        "kind": "objlist",
+        "value": [
+          {
+            "hex": "#FFD115",
+            "name": "Golden Pop",
+            "role": "primary",
+            "roleStatus": "confirmed"
+          },
+          {
+            "hex": "#FF4375",
+            "name": "Berrybeat",
+            "role": "accent",
+            "roleStatus": "confirmed"
+          },
+          {
+            "hex": "#FFFFFF",
+            "name": "Milkdrop",
+            "role": "surface",
+            "roleStatus": "confirmed"
+          },
+          {
+            "hex": "#3F3F3F",
+            "name": "Graphite Whisper",
+            "role": "ink",
+            "roleStatus": "confirmed"
+          },
+          {
+            "hex": "#161616",
+            "name": "black"
+          },
+          {
+            "hex": "#ccddcc",
+            "name": "cream"
+          },
+          {
+            "hex": "#f40041",
+            "name": "red"
+          }
+        ],
+        "level": "medium",
+        "importance": 1.1,
+        "why": "This is part of the brand’s visual foundation.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "client-stated",
+            "quote": "Client edit",
+            "url": null,
+            "asset_url": null,
+            "first_party": false
+          }
+        ],
+        "evidence_token": "6e77ebf6d60f2dd571cc977ee4c6d3e9902115c257aff84820b2e308aeab68e4"
+      },
+      {
+        "claim_id": "96322c7df3fdcb1b8f1010cb4c8c87b8b8e5fb793dacefc08b6d5b723ca11d45",
+        "bio_version": 2,
+        "field_path": "visual.type",
+        "section": "foundation",
+        "kind": "objlist",
+        "value": [
+          {
+            "kind": "Display",
+            "note": "Stand-in for Meaty Nineties (commercial, not licensed here)",
+            "family": "Fraunces",
+            "sourceId": "8eadeac8-fad5-433c-a955-39ac2b0b45c4"
+          },
+          {
+            "kind": "Body",
+            "family": "Lato",
+            "provider": "google"
+          },
+          {
+            "kind": "Label",
+            "family": "Inter",
+            "provider": "google"
+          }
+        ],
+        "level": "medium",
+        "importance": 1.1,
+        "why": "This is part of the brand’s visual foundation.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "source_id": "8eadeac8-fad5-433c-a955-39ac2b0b45c4",
+            "label": "Fraunces.ttf",
+            "kind": "file_upload",
+            "quote": "Client edit",
+            "url": null,
+            "asset_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/73195c6e-ea6d-438e-b001-5bf8ebbc0bb6-Fraunces.ttf?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzczMTk1YzZlLWVhNmQtNDM4ZS1iMDAxLTViZjhlYmJjMGJiNi1GcmF1bmNlcy50dGYiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgyNTg0LCJleHAiOjE3OTE5ODYxODR9.vmoZ2dE01LygJI9T0kfzQ7Tien9CE_NPQdNo2nuDj48",
+            "screenshot": null,
+            "page": null,
+            "mime": "font/ttf",
+            "first_party": true
+          }
+        ],
+        "evidence_token": "3c281293f36497eb12bc4ab8c34dacc6029ce4303cb2a44e6254062f96a095d3"
+      },
+      {
+        "claim_id": "f472c265ef03b7acce4aa3ebdd1528ed3d6c9875e9d5270822f3b1714f474782",
+        "bio_version": 2,
+        "field_path": "visual.avoid",
+        "section": "foundation",
+        "kind": "list",
+        "value": [
+          "sterile, corporate product shots",
+          "formal, traditional settings",
+          "aggressive, high-pressure visuals",
+          "distant, unapproachable compositions"
+        ],
+        "level": "medium",
+        "importance": 0.3,
+        "why": "This is part of the brand’s visual foundation.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "client-stated",
+            "quote": "Client edit",
+            "url": null,
+            "asset_url": null,
+            "first_party": false
+          }
+        ],
+        "evidence_token": "571c37c8dae871cc38248d7bbbaa8df8bc060fa13efdf1178fd2f43b9dede668"
+      },
+      {
+        "claim_id": "a7528d536f8b401815da51c45c7137e95c789fe44cb32fd9d1ce7b8a3bfc6774",
+        "bio_version": 2,
+        "field_path": "visual.imagery",
+        "section": "foundation",
+        "kind": "list",
+        "value": [
+          "close-up of baked cheesecake texture",
+          "warm, inviting golden-brown tones",
+          "natural, soft overhead lighting",
+          "minimalist, product-focused composition",
+          "kraft paper packaging"
+        ],
+        "level": "medium",
+        "importance": 0.3,
+        "why": "This is part of the brand’s visual foundation.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "client-stated",
+            "quote": "Client edit",
+            "url": null,
+            "asset_url": null,
+            "first_party": false
+          }
+        ],
+        "evidence_token": "5a4b8b6892936ade5408839027abf34230d5b19a142a208cb9bbc358646e4054"
+      },
+      {
+        "claim_id": "d5f7c5d170b08937876febc8dff73a3c4a6934eb71088382c853c3b2a30bfc7e",
+        "bio_version": 2,
+        "field_path": "voice.forbidden",
+        "section": "foundation",
+        "kind": "list",
+        "value": [
+          "formal",
+          "corporativo",
+          "distante",
+          "agresivo",
+          "negativo",
+          "aburrido",
+          "exclusivo",
+          "cliente"
+        ],
+        "level": "high",
+        "importance": 1,
+        "why": "Every specialist inherits this.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('¿Qué evitar...?')",
+            "quote": "uploaded brand-deck.pdf ('¿Qué evitar...?')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "562896b7213846d3341f2bd56bf0531feab8d4e60944e6c410fe8229ca1da54c"
+      },
+      {
+        "claim_id": "ead6a7fa906d656401818fbf504e3775d792a255b2dfde56bd8a9414db8e4d65",
+        "bio_version": 2,
+        "field_path": "voice.register",
+        "section": "foundation",
+        "kind": "scalar",
+        "value": "Playful, enthusiastic, informal, and direct, like a best friend sharing an exciting discovery.",
+        "level": "high",
+        "importance": 0.6,
+        "why": "Several specialists draw on it.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Tono de Voz')",
+            "quote": "uploaded brand-deck.pdf ('Tono de Voz')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "f0ee89ba0dc45d329feb1e01fad3b81817c618cf2329fba6ee4a442b189a65dd"
+      },
+      {
+        "claim_id": "b5eb1f61a1e7d54329079dcd80b7a54cbdb31c8e6e849a593ac248cb5712fd2e",
+        "bio_version": 2,
+        "field_path": "voice.signatures",
+        "section": "foundation",
+        "kind": "list",
+        "value": [
+          "Addressing the audience directly with 'tú' and using 'nosotros' to build a sense of community.",
+          "Using playful urgency with phrases like '¡Corre, que vuelan!'.",
+          "Incorporating emojis (💛, 🩷, 🌟) and exclamations to convey genuine excitement."
+        ],
+        "level": "high",
+        "importance": 0.3,
+        "why": "Low downstream impact — quick confirm.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Cercanía \"De Tú a Tú\"', 'Ejemplos')",
+            "quote": "uploaded brand-deck.pdf ('Cercanía \"De Tú a Tú\"', 'Ejemplos')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "f586a646ffdee9b91f48bb5f24282560ffa490e083a33015f9e90f0bb3cc0026"
+      },
+      {
+        "claim_id": "2c750aa5c769742ed2679615cae6b04c70e75eb2754dd2f6b4fc65a2ab9fdea3",
+        "bio_version": 2,
+        "field_path": "strategic.watchouts",
+        "section": "guidelines",
+        "kind": "list",
+        "value": [
+          "Maintaining brand authenticity and product quality while scaling through franchising.",
+          "Balancing playful FOMO marketing with sufficient product availability to avoid customer frustration.",
+          "Staying innovative and relevant in a crowded market of trendy, 'Instagrammable' dessert shops."
+        ],
+        "level": "guessed",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "inferred from goals (franchising) and voice (urgency) stated in homepage and uploaded brand-deck.pdf",
+            "quote": "inferred from goals (franchising) and voice (urgency) stated in homepage and uploaded brand-deck.pdf",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "de4ce8ac8ba0ec64cc70ade2a51e3f72294724a8bef95920408e8186552d80bc"
+      },
+      {
+        "claim_id": "3e745796b7068bcc5a52a2a05ab76a877597196924e6a53e54bbf4177df85d31",
+        "bio_version": 2,
+        "field_path": "strategic.notList",
+        "section": "guidelines",
+        "kind": "list",
+        "value": [
+          "Not a formal, traditional, or elegant pastry shop.",
+          "Not an aggressive, high-pressure sales brand.",
+          "Not a cold, distant corporate entity.",
+          "Not just a product; it's an experience of happiness."
+        ],
+        "level": "high",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Alegria Desenfadada', 'Urgencia Juguetona', 'Cercanía \"De Tú a Tú\"')",
+            "quote": "uploaded brand-deck.pdf ('Alegria Desenfadada', 'Urgencia Juguetona', 'Cercanía \"De Tú a Tú\"')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "f3fa2c030419b61691a65e612cefa571bf33b176c8c6a8645d1c5e9bb9fb9eb5"
+      },
+      {
+        "claim_id": "d2975c9ddf4472ef3029df831f833e127e1e846c4b87580aa689a5a27a95304b",
+        "bio_version": 2,
+        "field_path": "aspirations.direction",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "",
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "be43db1066fa404c0945f78247512fd3646ff6cac7d8b56ffc577b39c11805ed"
+      },
+      {
+        "claim_id": "d2052b56efb04773d26068db7edc7d06f722378ad6c2de03ab1242a76123f972",
+        "bio_version": 2,
+        "field_path": "aspirations.notYetTrue",
+        "section": "strategy",
+        "kind": "list",
+        "value": [],
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "eea38c350b2d971b87b8e761f0fe0e892584f0c38d365c678ee4a0273e2ebb41"
+      },
+      {
+        "claim_id": "bcc1553cc9f94a917544b0172ac40779aaa74e7c60f2a09b4df64ca0139b8f46",
+        "bio_version": 2,
+        "field_path": "aspirations.references",
+        "section": "strategy",
+        "kind": "list",
+        "value": [],
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "765b5f786914deb5604078426518de372470efd48b6006c00c08db64cdd6571d"
+      },
+      {
+        "claim_id": "8b04740e9becf7b8686f541e843f5f209e39990085d64359da8d01e5b26712d6",
+        "bio_version": 2,
+        "field_path": "positioning.competitors",
+        "section": "strategy",
+        "kind": "objlist",
+        "value": [],
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "5c439d6b23c201bbb3155b6dd93b5a83b8917805cbb50a63e16b26bbe0d4cfe2"
+      },
+      {
+        "claim_id": "1688d4b0fab350bbaf87c5f9265f377483ecdbe0ab2c09e9d0b4fa5a2cac207c",
+        "bio_version": 2,
+        "field_path": "positioning.frameOfReference",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "",
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "8764012ada4d7cc16570ece359d817bf486d236b65e672080794494443b49f95"
+      },
+      {
+        "claim_id": "878fd2716ebf93a8d3cd800add161f594193aa3e733794a816ad3ff62d908b43",
+        "bio_version": 2,
+        "field_path": "positioning.pointsOfDifference",
+        "section": "strategy",
+        "kind": "objlist",
+        "value": [],
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "c5bd2027c3fc0c54543f9de95c2f2926e5066c309a596316b0c77edd1e768ede"
+      },
+      {
+        "claim_id": "9799ccb26912f2514bf9a3b7f2730e772a062fb1f1d913005327c5ad03c6e8af",
+        "bio_version": 2,
+        "field_path": "positioning.pointsOfParity",
+        "section": "strategy",
+        "kind": "list",
+        "value": [],
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "4c2a866850fd4d349f3ff608cbb80c0cd5bdfa745e6cf91488ad196d03acc4c5"
+      },
+      {
+        "claim_id": "4446c8a0ad76f5d213b990c1489af1d49b53c25717636ce221f48265bd90c31e",
+        "bio_version": 2,
+        "field_path": "positioning.researchGaps",
+        "section": "strategy",
+        "kind": "list",
+        "value": [],
+        "level": "to_confirm",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [],
+        "evidence_token": "30d99c5efbb04f8f401014e2506bd813373cd0f4a202c97a25fb741518f6aed5"
+      },
+      {
+        "claim_id": "0e00599da2efd8e075c7ec6c0ef135e54a585bdb0ce1fd995fee66778bb98410",
+        "bio_version": 2,
+        "field_path": "audience.secondary",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "Individuals and groups celebrating special occasions (birthdays, gatherings) who need a whole cake, as well as B2B hospitality clients.",
+        "level": "medium",
+        "importance": 0.3,
+        "why": "Low downstream impact — quick confirm.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')",
+            "quote": "homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')",
+            "url": null,
+            "asset_url": null,
+            "first_party": false
+          }
+        ],
+        "evidence_token": "f191825b5faa5711a62be61fdaf01b2ebed8ff8de73113b5c564e5bdff152b54"
+      },
+      {
+        "claim_id": "d5022cc8576536857a5097c169fcc855ac02fc6368b87ab41b8802faa69d516f",
+        "bio_version": 2,
+        "field_path": "audience.tertiary",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "Customers with dietary needs, such as those seeking gluten-free options, who are looking for a high-quality treat.",
+        "level": "medium",
+        "importance": 0.3,
+        "why": "Specialists use this to stay true to the brand.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "homepage ('Clásica (Sin Gluten)')",
+            "quote": "homepage ('Clásica (Sin Gluten)')",
+            "url": null,
+            "asset_url": null,
+            "first_party": false
+          }
+        ],
+        "evidence_token": "f95c8faba55c29f3f5d79b81e0df2e4665a55ce9e4d8394cbae22df161821f6e"
+      },
+      {
+        "claim_id": "9e3cf903a4f5a70546f6a2b2cbf4a846eb0aa665db02802e2379d089cabe844a",
+        "bio_version": 2,
+        "field_path": "goals.q2",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "Expand the brand's physical footprint through new franchise locations.",
+        "level": "medium",
+        "importance": 0.3,
+        "why": "Low downstream impact — quick confirm.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "homepage ('Franquicias Abiertas')",
+            "quote": "homepage ('Franquicias Abiertas')",
+            "url": null,
+            "asset_url": null,
+            "first_party": false
+          }
+        ],
+        "evidence_token": "ee858af2468e07301878e9150a26a086a11c19f8aaccd21d11849d5e5f149955"
+      },
+      {
+        "claim_id": "4fa2bcae1dbbe62784c070d0f9a9a4468a0b119dd9461362eed7c5fc6c4b6ef0",
+        "bio_version": 2,
+        "field_path": "goals.q3",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "Grow the B2B channel by supplying cheesecakes to hospitality professionals.",
+        "level": "medium",
+        "importance": 0.3,
+        "why": "Low downstream impact — quick confirm.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "homepage ('Para profesionales de la Hostelería')",
+            "quote": "homepage ('Para profesionales de la Hostelería')",
+            "url": null,
+            "asset_url": null,
+            "first_party": false
+          }
+        ],
+        "evidence_token": "13bc58f8cdbcc601e23eb87cf858cb8cae937cc7223d5046b41326aa0500ef1d"
+      },
+      {
+        "claim_id": "50556420f2a660094d2d8b18461b2d27322096fcd46b446d55c3980b8ee152ba",
+        "bio_version": 2,
+        "field_path": "identity.founded",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "2025",
+        "level": "medium",
+        "importance": 0.3,
+        "why": "Low downstream impact — quick confirm.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)",
+            "quote": "uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "1e34182a2bc732081495aff1cfecc591e56d0618caa505f11bcf652fe698bd48"
+      },
+      {
+        "claim_id": "276e8a86e0faa2384b3589681044b450eaa37263e3279f94f3a4e6ab56a640ed",
+        "bio_version": 2,
+        "field_path": "audience.primary",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "Young, social, and digitally-native adults (Millennials/Gen Z) in urban areas who seek out shareable, 'Instagrammable' experiences and value authentic, fun brands.",
+        "level": "high",
+        "importance": 1,
+        "why": "Every specialist inherits this.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')",
+            "quote": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "db108eb52cd2140efb1d11980b54281de8f201100c0472c144dcc1bd1702b1fd"
+      },
+      {
+        "claim_id": "44032714b12eba65cc78a841f8aa2403d72fff2c5ac6ee0e4e0c312bc18cbab4",
+        "bio_version": 2,
+        "field_path": "identity.positioning",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "Cake-me sells artisanal cheesecakes that transform everyday moments into memorable, shareable celebrations of happiness.",
+        "level": "high",
+        "importance": 1,
+        "why": "Every specialist inherits this.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Quienes somos', 'Misión')",
+            "quote": "uploaded brand-deck.pdf ('Quienes somos', 'Misión')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "6132c3871c7f2f2bb4c166f2561e285cd71197cfccb0af6849c4a19065a43954"
+      },
+      {
+        "claim_id": "dfc34f21c38707e3ede48ac27c9ae8ba59da4d16f0642ab2862f22bd25799a7b",
+        "bio_version": 2,
+        "field_path": "audience.jtbd",
+        "section": "strategy",
+        "kind": "list",
+        "value": [
+          "Help me find a fun, delicious, and photo-worthy dessert to share with my friends.",
+          "Give me an easy and special way to celebrate a moment, big or small.",
+          "Let me indulge in a high-quality, customizable treat that feels personal and exciting."
+        ],
+        "level": "high",
+        "importance": 0.6,
+        "why": "Several specialists draw on it.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')",
+            "quote": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "2eb272e1c3e3d2099ca92f9be49624b6f9abd3a70b5985c3c3e67e2ee2261918"
+      },
+      {
+        "claim_id": "85a7fcbb02f4b0caa678b5c2cc594c9b4cc5ad5caf6e98d4a4b89b5c94524c5f",
+        "bio_version": 2,
+        "field_path": "goals.northStar",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "To sweeten the world, one slice at a time, becoming the perfect excuse for happy breaks.",
+        "level": "high",
+        "importance": 0.6,
+        "why": "Several specialists draw on it.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Misión')",
+            "quote": "uploaded brand-deck.pdf ('Misión')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "ff0d5fe6568cc1982cc3c9a1be3776a39bebbfe0fead634604dac4fe88d1da50"
+      },
+      {
+        "claim_id": "d8c6114d4960961a51d599729699404c522d1c47930075eb250d440fcdce4150",
+        "bio_version": 2,
+        "field_path": "identity.category",
+        "section": "strategy",
+        "kind": "scalar",
+        "value": "Artisanal Desserts / Cheesecake Shop",
+        "level": "high",
+        "importance": 0.6,
+        "why": "Several specialists draw on it.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "homepage, uploaded brand-deck.pdf",
+            "quote": "homepage, uploaded brand-deck.pdf",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "01a0aaf8fabc430bc3fb198d74664917e465cd802ff7c1fcf5594660fbcecc9a"
+      },
+      {
+        "claim_id": "a44745e1c51d0792f4463d8db6f8f938f9ca62abf64f5f4e140ff9d392014b77",
+        "bio_version": 2,
+        "field_path": "identity.pillars",
+        "section": "strategy",
+        "kind": "list",
+        "value": [
+          "Joyful Indulgence",
+          "Artisanal Quality",
+          "Genuine Connection",
+          "Memorable Experiences"
+        ],
+        "level": "high",
+        "importance": 0.6,
+        "why": "Several specialists draw on it.",
+        "open_questions": 0,
+        "evidence": [
+          {
+            "label": "uploaded brand-deck.pdf ('Nuestra Promesa', 'Principales')",
+            "quote": "uploaded brand-deck.pdf ('Nuestra Promesa', 'Principales')",
+            "url": null,
+            "asset_url": null,
+            "first_party": true
+          }
+        ],
+        "evidence_token": "1f7dcb1867bfcb210f1a75d7577867275292b9a3304b054380c1b546d67c1084"
+      }
+    ]
+  },
+  "job": {
+    "id": "860581f0-f465-4ceb-b3f7-1612acf78b40",
+    "bio_id": "b8c98aff-35ee-4d0e-a777-42d2d6cabfd7",
+    "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+    "kind": "drift_check",
+    "status": "queued",
+    "decision": null,
+    "assigned_to": "2bca6687-b392-4d74-9bb0-3f81f75ae5b5",
+    "override_reason": null,
+    "queued_at": "2026-10-14T12:55:44.198852+00:00",
+    "lead_reviewed_by": null,
+    "lead_reviewed_at": null,
+    "bio": {
+      "id": "b8c98aff-35ee-4d0e-a777-42d2d6cabfd7",
+      "score": 96,
+      "payload": {
+        "goals": {
+          "q2": "Expand the brand's physical footprint through new franchise locations.",
+          "q3": "Grow the B2B channel by supplying cheesecakes to hospitality professionals.",
+          "northStar": "To sweeten the world, one slice at a time, becoming the perfect excuse for happy breaks."
+        },
+        "voice": {
+          "rhythm": "Uses short, punchy, action-oriented sentences with exclamations, mixed with more descriptive phrases that evoke sensory pleasure.",
+          "register": "Playful, enthusiastic, informal, and direct, like a best friend sharing an exciting discovery.",
+          "forbidden": [
+            "formal",
+            "corporativo",
+            "distante",
+            "agresivo",
+            "negativo",
+            "aburrido",
+            "exclusivo",
+            "cliente"
+          ],
+          "signatures": [
+            "Addressing the audience directly with 'tú' and using 'nosotros' to build a sense of community.",
+            "Using playful urgency with phrases like '¡Corre, que vuelan!'.",
+            "Incorporating emojis (💛, 🩷, 🌟) and exclamations to convey genuine excitement."
+          ]
+        },
+        "visual": {
+          "logo": {
+            "conf": 100,
+            "source": "logo-wordmark-primary.png",
+            "sourceId": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+            "variants": {
+              "dark": {
+                "conf": 100,
+                "source": "logo-wordmark-ink.png",
+                "sourceId": "c9654b59-2db8-4c58-b336-4bfc2f34a01e"
+              },
+              "light": {
+                "conf": 100,
+                "source": "logo-wordmark-on-dark.png",
+                "sourceId": "81d0ff08-58d5-45a4-b385-8ae641d9b42c"
+              }
+            }
+          },
+          "type": [
+            {
+              "kind": "Display",
+              "note": "Stand-in for Meaty Nineties (commercial, not licensed here)",
+              "family": "Fraunces",
+              "sourceId": "8eadeac8-fad5-433c-a955-39ac2b0b45c4"
+            },
+            {
+              "kind": "Body",
+              "family": "Lato",
+              "provider": "google"
+            },
+            {
+              "kind": "Label",
+              "family": "Inter",
+              "provider": "google"
+            }
+          ],
+          "avoid": [
+            "sterile, corporate product shots",
+            "formal, traditional settings",
+            "aggressive, high-pressure visuals",
+            "distant, unapproachable compositions"
+          ],
+          "imagery": [
+            "close-up of baked cheesecake texture",
+            "warm, inviting golden-brown tones",
+            "natural, soft overhead lighting",
+            "minimalist, product-focused composition",
+            "kraft paper packaging"
+          ],
+          "palette": [
+            {
+              "hex": "#FFD115",
+              "name": "Golden Pop",
+              "role": "primary",
+              "roleStatus": "confirmed"
+            },
+            {
+              "hex": "#FF4375",
+              "name": "Berrybeat",
+              "role": "accent",
+              "roleStatus": "confirmed"
+            },
+            {
+              "hex": "#FFFFFF",
+              "name": "Milkdrop",
+              "role": "surface",
+              "roleStatus": "confirmed"
+            },
+            {
+              "hex": "#3F3F3F",
+              "name": "Graphite Whisper",
+              "role": "ink",
+              "roleStatus": "confirmed"
+            },
+            {
+              "hex": "#161616",
+              "name": "black"
+            },
+            {
+              "hex": "#ccddcc",
+              "name": "cream"
+            },
+            {
+              "hex": "#f40041",
+              "name": "red"
+            }
+          ],
+          "typeScale": null,
+          "references": [
+            {
+              "name": "58.png",
+              "role": "canonical",
+              "sourceId": "192ed447-6a9b-4394-8910-8e39c5819ae5"
+            },
+            {
+              "name": "53.png",
+              "role": "canonical",
+              "sourceId": "de0cbc49-2c82-4379-9993-0176db76294d"
+            },
+            {
+              "name": "56.png",
+              "role": "canonical",
+              "sourceId": "57452734-2e7f-4e28-b030-61a098743c73"
+            }
+          ]
+        },
+        "missing": [],
+        "audience": {
+          "jtbd": [
+            "Help me find a fun, delicious, and photo-worthy dessert to share with my friends.",
+            "Give me an easy and special way to celebrate a moment, big or small.",
+            "Let me indulge in a high-quality, customizable treat that feels personal and exciting."
+          ],
+          "primary": "Young, social, and digitally-native adults (Millennials/Gen Z) in urban areas who seek out shareable, 'Instagrammable' experiences and value authentic, fun brands.",
+          "tertiary": "Customers with dietary needs, such as those seeking gluten-free options, who are looking for a high-quality treat.",
+          "secondary": "Individuals and groups celebrating special occasions (birthdays, gatherings) who need a whole cake, as well as B2B hospitality clients."
+        },
+        "evidence": {
+          "visual.logo": "Client edit",
+          "visual.type": "Client edit",
+          "visual.avoid": "Client edit",
+          "audience.jtbd": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')",
+          "visual.imagery": "Client edit",
+          "visual.palette": "Client edit",
+          "voice.register": "uploaded brand-deck.pdf ('Tono de Voz')",
+          "goals.northStar": "uploaded brand-deck.pdf ('Misión')",
+          "voice.forbidden": "uploaded brand-deck.pdf ('¿Qué evitar...?')",
+          "audience.primary": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')",
+          "identity.category": "homepage, uploaded brand-deck.pdf",
+          "strategic.notList": "uploaded brand-deck.pdf ('Alegria Desenfadada', 'Urgencia Juguetona', 'Cercanía \"De Tú a Tú\"')",
+          "identity.positioning": "uploaded brand-deck.pdf ('Quienes somos', 'Misión')"
+        },
+        "identity": {
+          "founded": "2025",
+          "pillars": [
+            "Joyful Indulgence",
+            "Artisanal Quality",
+            "Genuine Connection",
+            "Memorable Experiences"
+          ],
+          "category": "Artisanal Desserts / Cheesecake Shop",
+          "positioning": "Cake-me sells artisanal cheesecakes that transform everyday moments into memorable, shareable celebrations of happiness."
+        },
+        "refusals": [
+          "Never use formal language or address customers as 'señor/a'; always speak to them as a friend.",
+          "Do not position the brand as a traditional, elegant, or exclusive patisserie.",
+          "Avoid creating aggressive or high-pressure sales promotions; our urgency is always playful and fun.",
+          "Never describe the product with generic terms like 'quality product'; use vibrant, passionate language.",
+          "Do not adopt a cold or corporate tone; we are enthusiastic, warm, and genuine.",
+          "Refuse to be just a dessert shop; we are creators of happiness and memorable moments."
+        ],
+        "strategic": {
+          "notList": [
+            "Not a formal, traditional, or elegant pastry shop.",
+            "Not an aggressive, high-pressure sales brand.",
+            "Not a cold, distant corporate entity.",
+            "Not just a product; it's an experience of happiness."
+          ],
+          "watchouts": [
+            "Maintaining brand authenticity and product quality while scaling through franchising.",
+            "Balancing playful FOMO marketing with sufficient product availability to avoid customer frustration.",
+            "Staying innovative and relevant in a crowded market of trendy, 'Instagrammable' dessert shops."
+          ]
+        },
+        "confidence": {
+          "goals.q2": {
+            "conf": 90,
+            "source": "homepage ('Franquicias Abiertas')"
+          },
+          "goals.q3": {
+            "conf": 90,
+            "source": "homepage ('Para profesionales de la Hostelería')"
+          },
+          "visual.logo": {
+            "conf": 80,
+            "source": "client-stated"
+          },
+          "visual.type": {
+            "conf": 80,
+            "source": "client-stated"
+          },
+          "visual.avoid": {
+            "conf": 80,
+            "source": "client-stated"
+          },
+          "voice.rhythm": {
+            "conf": 80,
+            "source": "inferred from examples in uploaded brand-deck.pdf and homepage copy"
+          },
+          "audience.jtbd": {
+            "conf": 85,
+            "source": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')"
+          },
+          "visual.imagery": {
+            "conf": 80,
+            "source": "client-stated"
+          },
+          "visual.palette": {
+            "conf": 80,
+            "source": "client-stated"
+          },
+          "voice.register": {
+            "conf": 98,
+            "source": "uploaded brand-deck.pdf ('Tono de Voz')"
+          },
+          "goals.northStar": {
+            "conf": 98,
+            "source": "uploaded brand-deck.pdf ('Misión')"
+          },
+          "voice.forbidden": {
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('¿Qué evitar...?')"
+          },
+          "audience.primary": {
+            "conf": 85,
+            "source": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')"
+          },
+          "identity.founded": {
+            "conf": 75,
+            "source": "uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)"
+          },
+          "identity.pillars": {
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('Nuestra Promesa', 'Principales')"
+          },
+          "voice.signatures": {
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('Cercanía \"De Tú a Tú\"', 'Ejemplos')"
+          },
+          "audience.tertiary": {
+            "conf": 80,
+            "source": "homepage ('Clásica (Sin Gluten)')"
+          },
+          "identity.category": {
+            "conf": 90,
+            "source": "homepage, uploaded brand-deck.pdf"
+          },
+          "strategic.notList": {
+            "conf": 98,
+            "source": "uploaded brand-deck.pdf ('Alegria Desenfadada', 'Urgencia Juguetona', 'Cercanía \"De Tú a Tú\"')"
+          },
+          "audience.secondary": {
+            "conf": 88,
+            "source": "homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')"
+          },
+          "strategic.watchouts": {
+            "conf": 70,
+            "source": "inferred from goals (franchising) and voice (urgency) stated in homepage and uploaded brand-deck.pdf"
+          },
+          "identity.positioning": {
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('Quienes somos', 'Misión')"
+          }
+        },
+        "aspirations": {
+          "direction": "",
+          "notYetTrue": [],
+          "references": []
+        },
+        "fieldStatus": {
+          "visual.logo": "client-stated",
+          "visual.type": "client-stated",
+          "visual.avoid": "client-stated",
+          "audience.jtbd": "supported",
+          "visual.imagery": "client-stated",
+          "visual.palette": "client-stated",
+          "voice.register": "supported",
+          "goals.northStar": "supported",
+          "voice.forbidden": "supported",
+          "audience.primary": "supported",
+          "identity.category": "supported",
+          "strategic.notList": "supported",
+          "identity.positioning": "supported"
+        },
+        "positioning": {
+          "competitors": [],
+          "researchGaps": [],
+          "pointsOfParity": [],
+          "frameOfReference": "",
+          "pointsOfDifference": []
+        },
+        "schema_version": "1.0"
+      },
+      "version": 2,
+      "certified": false,
+      "created_at": "2026-10-14T12:55:08.030395+00:00",
+      "certified_at": null,
+      "certified_by": null,
+      "self_certified": true,
+      "cert_valid_until": null
+    },
+    "brand": {
+      "id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+      "url": "https://thecake-me.com",
+      "name": "Cake-me",
+      "industry": null
+    }
+  },
+  "focus": [
+    {
+      "field": "audience.primary",
+      "label": "Primary audience",
+      "status": "low_conf",
+      "importance": 1,
+      "priority": 0.15000000000000002,
+      "conf": 85,
+      "value": "Young, social, and digitally-native adults (Millennials/Gen Z) in urban areas who seek out shareable, 'Instagrammable' experiences and value authentic, fun brands.",
+      "source": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')",
+      "why": "Every specialist inherits this.",
+      "action": "Verify primary audience against uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')."
+    },
+    {
+      "field": "audience.jtbd",
+      "label": "Jobs-to-be-done",
+      "status": "low_conf",
+      "importance": 0.6,
+      "priority": 0.09000000000000001,
+      "conf": 85,
+      "value": [
+        "Help me find a fun, delicious, and photo-worthy dessert to share with my friends.",
+        "Give me an easy and special way to celebrate a moment, big or small.",
+        "Let me indulge in a high-quality, customizable treat that feels personal and exciting."
+      ],
+      "source": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')",
+      "why": "Several specialists draw on it.",
+      "action": "Verify jobs-to-be-done against uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')."
+    },
+    {
+      "field": "identity.founded",
+      "label": "Founded",
+      "status": "low_conf",
+      "importance": 0.3,
+      "priority": 0.075,
+      "conf": 75,
+      "value": "2025",
+      "source": "uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)",
+      "why": "Low downstream impact — quick confirm.",
+      "action": "Verify founded against uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)."
+    },
+    {
+      "field": "identity.category",
+      "label": "Category",
+      "status": "low_conf",
+      "importance": 0.6,
+      "priority": 0.059999999999999984,
+      "conf": 90,
+      "value": "Artisanal Desserts / Cheesecake Shop",
+      "source": "homepage, uploaded brand-deck.pdf",
+      "why": "Several specialists draw on it.",
+      "action": "Verify category against homepage, uploaded brand-deck.pdf."
+    },
+    {
+      "field": "audience.secondary",
+      "label": "Secondary audience",
+      "status": "low_conf",
+      "importance": 0.3,
+      "priority": 0.036,
+      "conf": 88,
+      "value": "Individuals and groups celebrating special occasions (birthdays, gatherings) who need a whole cake, as well as B2B hospitality clients.",
+      "source": "homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')",
+      "why": "Low downstream impact — quick confirm.",
+      "action": "Verify secondary audience against homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')."
+    },
+    {
+      "field": "goals.q2",
+      "label": "Q2 priority",
+      "status": "low_conf",
+      "importance": 0.3,
+      "priority": 0.029999999999999992,
+      "conf": 90,
+      "value": "Expand the brand's physical footprint through new franchise locations.",
+      "source": "homepage ('Franquicias Abiertas')",
+      "why": "Low downstream impact — quick confirm.",
+      "action": "Verify q2 priority against homepage ('Franquicias Abiertas')."
+    },
+    {
+      "field": "goals.q3",
+      "label": "Q3 priority",
+      "status": "low_conf",
+      "importance": 0.3,
+      "priority": 0.029999999999999992,
+      "conf": 90,
+      "value": "Grow the B2B channel by supplying cheesecakes to hospitality professionals.",
+      "source": "homepage ('Para profesionales de la Hostelería')",
+      "why": "Low downstream impact — quick confirm.",
+      "action": "Verify q3 priority against homepage ('Para profesionales de la Hostelería')."
+    }
+  ],
+  "sources": [
+    {
+      "id": "8eadeac8-fad5-433c-a955-39ac2b0b45c4",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "Fraunces.ttf",
+      "signals": {
+        "ext": "ttf",
+        "mime": "font/ttf",
+        "size": 360440,
+        "purpose": "current",
+        "loaded_by": "scripts/load-cake-me-foundation.mjs",
+        "upload_id": "d9cd3904-fd55-4623-874e-338d18093ea4",
+        "asset_kind": "font",
+        "asset_role": "font",
+        "font_usage": "Display",
+        "font_family": "Fraunces",
+        "license_type": "open_source",
+        "rights_confirmed": true,
+        "license_reference": "SIL OFL 1.1 (Google Fonts) — stand-in for Meaty Nineties",
+        "rights_confirmed_at": "2026-10-14T12:55:07.995Z",
+        "rights_confirmed_by": "78cbcad1-c664-4583-a306-55a440ec7b1c"
+      },
+      "created_at": "2026-10-14T12:55:07.993498+00:00",
+      "evidence_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/73195c6e-ea6d-438e-b001-5bf8ebbc0bb6-Fraunces.ttf?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzczMTk1YzZlLWVhNmQtNDM4ZS1iMDAxLTViZjhlYmJjMGJiNi1GcmF1bmNlcy50dGYiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgyNTg0LCJleHAiOjE3OTE5ODYxODR9.vmoZ2dE01LygJI9T0kfzQ7Tien9CE_NPQdNo2nuDj48"
+    },
+    {
+      "id": "c9654b59-2db8-4c58-b336-4bfc2f34a01e",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "logo-wordmark-ink.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png",
+        "size": 24392,
+        "purpose": "current",
+        "loaded_by": "scripts/load-cake-me-foundation.mjs",
+        "upload_id": "54eab34b-30a1-4003-b83e-27aad262489f",
+        "asset_kind": "logo",
+        "asset_role": "logo",
+        "logo_variant": "dark",
+        "rights_confirmed": true,
+        "rights_confirmed_at": "2026-10-14T12:54:36.072Z",
+        "rights_confirmed_by": "78cbcad1-c664-4583-a306-55a440ec7b1c"
+      },
+      "created_at": "2026-10-14T12:54:36.072452+00:00",
+      "evidence_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/72e02457-f001-4bd0-be64-b1655ea30f49-logo-wordmark-ink.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzcyZTAyNDU3LWYwMDEtNGJkMC1iZTY0LWIxNjU1ZWEzMGY0OS1sb2dvLXdvcmRtYXJrLWluay5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgyNTg0LCJleHAiOjE3OTE5ODYxODR9.wY8sHTUBm-KlqJQUh91_v_x-Fve-ayWNIf3tnX553WU"
+    },
+    {
+      "id": "81d0ff08-58d5-45a4-b385-8ae641d9b42c",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "logo-wordmark-on-dark.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png",
+        "size": 24514,
+        "purpose": "current",
+        "loaded_by": "scripts/load-cake-me-foundation.mjs",
+        "upload_id": "4ee1dbfb-2bae-431a-b323-9b7bd6a78269",
+        "asset_kind": "logo",
+        "asset_role": "logo",
+        "logo_variant": "light",
+        "rights_confirmed": true,
+        "rights_confirmed_at": "2026-10-14T12:54:36.049Z",
+        "rights_confirmed_by": "78cbcad1-c664-4583-a306-55a440ec7b1c"
+      },
+      "created_at": "2026-10-14T12:54:36.050273+00:00",
+      "evidence_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/d956bbb1-ebbb-41dc-9088-1b76966c6a96-logo-wordmark-on-dark.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1L2Q5NTZiYmIxLWViYmItNDFkYy05MDg4LTFiNzY5NjZjNmE5Ni1sb2dvLXdvcmRtYXJrLW9uLWRhcmsucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MTk4MjU4NCwiZXhwIjoxNzkxOTg2MTg0fQ.KJRrX7PoDjfRHGDh43c-Y6EVZU9HKOTrWr3UPFAZzGw"
+    },
+    {
+      "id": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "logo-wordmark-primary.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png",
+        "size": 24395,
+        "purpose": "current",
+        "loaded_by": "scripts/load-cake-me-foundation.mjs",
+        "upload_id": "0b70373e-0a86-4690-ba18-007897027a0b",
+        "asset_kind": "logo",
+        "asset_role": "logo",
+        "logo_variant": "light",
+        "rights_confirmed": true,
+        "rights_confirmed_at": "2026-10-14T12:54:36.008Z",
+        "rights_confirmed_by": "78cbcad1-c664-4583-a306-55a440ec7b1c"
+      },
+      "created_at": "2026-10-14T12:54:36.016128+00:00",
+      "evidence_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/09633bde-af49-4171-b1e7-fc4efb526cc9-logo-wordmark-primary.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzA5NjMzYmRlLWFmNDktNDE3MS1iMWU3LWZjNGVmYjUyNmNjOS1sb2dvLXdvcmRtYXJrLXByaW1hcnkucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MTk4MjU4NCwiZXhwIjoxNzkxOTg2MTg0fQ.zH7ZsYNpQkAOV7tVYTBNLdf_tqKqtEMGWAh-eqIec0s"
+    },
+    {
+      "id": "57452734-2e7f-4e28-b030-61a098743c73",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "56.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png",
+        "size": 3256751,
+        "purpose": "current",
+        "asset_kind": "image_reference",
+        "asset_role": "canonical",
+        "rights_confirmed": true,
+        "rights_confirmed_at": "2026-10-14T12:55:08.022Z",
+        "rights_confirmed_by": "78cbcad1-c664-4583-a306-55a440ec7b1c"
+      },
+      "created_at": "2026-10-14T12:54:18.313685+00:00",
+      "evidence_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/56.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzU2LnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3OTE5ODI1ODQsImV4cCI6MTc5MTk4NjE4NH0.5_oUJKW0gwd2ZB-sCFOWtL83ZkNIwrxs6Q_7vxly-JU"
+    },
+    {
+      "id": "de0cbc49-2c82-4379-9993-0176db76294d",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "53.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png",
+        "size": 2009581,
+        "purpose": "current",
+        "asset_kind": "image_reference",
+        "asset_role": "canonical",
+        "rights_confirmed": true,
+        "rights_confirmed_at": "2026-10-14T12:55:08.016Z",
+        "rights_confirmed_by": "78cbcad1-c664-4583-a306-55a440ec7b1c"
+      },
+      "created_at": "2026-10-14T12:54:18.258709+00:00",
+      "evidence_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/53.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzUzLnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3OTE5ODI1ODQsImV4cCI6MTc5MTk4NjE4NH0.tzPNzNroDn3Q1Oq5lC7g8ChESzH9cwFhaKqph-_IT5o"
+    },
+    {
+      "id": "192ed447-6a9b-4394-8910-8e39c5819ae5",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "58.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png",
+        "size": 3098989,
+        "purpose": "current",
+        "asset_kind": "image_reference",
+        "asset_role": "canonical",
+        "rights_confirmed": true,
+        "rights_confirmed_at": "2026-10-14T12:55:08.010Z",
+        "rights_confirmed_by": "78cbcad1-c664-4583-a306-55a440ec7b1c"
+      },
+      "created_at": "2026-10-14T12:54:18.154856+00:00",
+      "evidence_url": "http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/58.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzU4LnBuZyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3OTE5ODI1ODQsImV4cCI6MTc5MTk4NjE4NH0._FnLGUurCBEUS9fXB17jaKDL7vd_574T8ipghxEYYvA"
+    }
+  ],
+  "rubric": {
+    "bands": {
+      "approve": 80,
+      "return_changes": 50,
+      "approve_with_conditions": 68
+    },
+    "criteria": [
+      {
+        "id": "C1",
+        "floor": 2,
+        "label": "Coverage completeness",
+        "gating": true,
+        "signal": "coverage",
+        "source": "auto",
+        "weight": 0.15
+      },
+      {
+        "id": "C2",
+        "floor": 0,
+        "label": "Evidence grounding",
+        "gating": false,
+        "signal": "grounding",
+        "source": "auto",
+        "weight": 0.15
+      },
+      {
+        "id": "C3",
+        "floor": 3,
+        "label": "High-importance field integrity",
+        "gating": true,
+        "source": "human",
+        "weight": 0.25
+      },
+      {
+        "id": "C4",
+        "floor": 0,
+        "label": "Positioning distinctiveness",
+        "gating": false,
+        "source": "human",
+        "weight": 0.15
+      },
+      {
+        "id": "C5",
+        "floor": 0,
+        "label": "Voice fidelity",
+        "gating": false,
+        "source": "human",
+        "weight": 0.1
+      },
+      {
+        "id": "C6",
+        "floor": 2,
+        "label": "Internal consistency",
+        "gating": true,
+        "source": "human",
+        "weight": 0.1
+      },
+      {
+        "id": "C7",
+        "floor": 0,
+        "label": "Strategic soundness",
+        "gating": false,
+        "source": "human",
+        "weight": 0.1
+      }
+    ],
+    "rubric_version": 1,
+    "selfCertMinScore": 58
+  },
+  "autoSignals": {
+    "coverage": 1,
+    "avgConf": 0.886470588235294,
+    "sourceDiversity": 1
+  },
+  "copilot": {
+    "caseFile": {
+      "job": {
+        "id": "860581f0-f465-4ceb-b3f7-1612acf78b40",
+        "status": "queued",
+        "kind": "drift_check"
+      },
+      "brand": {
+        "id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+        "name": "Cake-me",
+        "url": "https://thecake-me.com",
+        "industry": null
+      },
+      "bio": {
+        "id": "b8c98aff-35ee-4d0e-a777-42d2d6cabfd7",
+        "version": 2,
+        "score": 96,
+        "certified": false,
+        "self_certified": true,
+        "cert_valid_until": null
+      },
+      "readiness": {
+        "level": "steward-ready",
+        "reasons": [
+          "Client signed off and major gaps are clear."
+        ]
+      },
+      "scoreBreakdown": {
+        "score": 96,
+        "rawScore": 96,
+        "coverage": 1,
+        "avgConf": 0.886470588235294,
+        "sourceDiversity": 1,
+        "certifiable": true,
+        "missing": [],
+        "logo": true,
+        "logoStatus": "ok",
+        "needsRights": [],
+        "primary": true,
+        "display": true
+      },
+      "changes": [
+        {
+          "field": "visual.logo",
+          "label": "visual.logo",
+          "before": "",
+          "after": "100 logo-wordmark-primary.png 7c1b4ba2-e8a1-4dea-bafd-2009190e0cda"
+        },
+        {
+          "field": "visual.palette",
+          "label": "Palette",
+          "before": "#161616 black, #ffffff white, #ffd115 yellow, #ccddcc cream, #f40041 red",
+          "after": "#FFD115 Golden Pop primary confirmed, #FF4375 Berrybeat accent confirmed, #FFFFFF Milkdrop surface confirmed, #3F3F3F Graphite Whisper ink confirmed, #161616 black, #ccddcc cream, #f40041 red"
+        },
+        {
+          "field": "visual.type",
+          "label": "Typography",
+          "before": "",
+          "after": "Display Stand-in for Meaty Nineties (commercial, not licensed here) Fraunces 8eadeac8-fad5-433c-a955-39ac2b0b45c4, Body Lato google, Label Inter google"
+        }
+      ],
+      "risks": [],
+      "claims": {
+        "sourceBacked": [
+          {
+            "field": "identity.positioning",
+            "label": "identity / positioning",
+            "value": "Cake-me sells artisanal cheesecakes that transform everyday moments into memorable, shareable celebrations of happiness.",
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('Quienes somos', 'Misión')",
+            "status": "source-backed"
+          },
+          {
+            "field": "identity.category",
+            "label": "identity / category",
+            "value": "Artisanal Desserts / Cheesecake Shop",
+            "conf": 90,
+            "source": "homepage, uploaded brand-deck.pdf",
+            "status": "source-backed"
+          },
+          {
+            "field": "identity.founded",
+            "label": "identity / founded",
+            "value": "2025",
+            "conf": 75,
+            "source": "uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)",
+            "status": "source-backed"
+          },
+          {
+            "field": "identity.pillars",
+            "label": "identity / pillars",
+            "value": [
+              "Joyful Indulgence",
+              "Artisanal Quality",
+              "Genuine Connection",
+              "Memorable Experiences"
+            ],
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('Nuestra Promesa', 'Principales')",
+            "status": "source-backed"
+          },
+          {
+            "field": "audience.primary",
+            "label": "audience / primary",
+            "value": "Young, social, and digitally-native adults (Millennials/Gen Z) in urban areas who seek out shareable, 'Instagrammable' experiences and value authentic, fun brands.",
+            "conf": 85,
+            "source": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')",
+            "status": "source-backed"
+          },
+          {
+            "field": "audience.secondary",
+            "label": "audience / secondary",
+            "value": "Individuals and groups celebrating special occasions (birthdays, gatherings) who need a whole cake, as well as B2B hospitality clients.",
+            "conf": 88,
+            "source": "homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')",
+            "status": "source-backed"
+          },
+          {
+            "field": "audience.tertiary",
+            "label": "audience / tertiary",
+            "value": "Customers with dietary needs, such as those seeking gluten-free options, who are looking for a high-quality treat.",
+            "conf": 80,
+            "source": "homepage ('Clásica (Sin Gluten)')",
+            "status": "source-backed"
+          },
+          {
+            "field": "audience.jtbd",
+            "label": "audience / jtbd",
+            "value": [
+              "Help me find a fun, delicious, and photo-worthy dessert to share with my friends.",
+              "Give me an easy and special way to celebrate a moment, big or small.",
+              "Let me indulge in a high-quality, customizable treat that feels personal and exciting."
+            ],
+            "conf": 85,
+            "source": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')",
+            "status": "source-backed"
+          },
+          {
+            "field": "voice.register",
+            "label": "voice / register",
+            "value": "Playful, enthusiastic, informal, and direct, like a best friend sharing an exciting discovery.",
+            "conf": 98,
+            "source": "uploaded brand-deck.pdf ('Tono de Voz')",
+            "status": "source-backed"
+          },
+          {
+            "field": "voice.forbidden",
+            "label": "voice / forbidden",
+            "value": [
+              "formal",
+              "corporativo",
+              "distante",
+              "agresivo",
+              "negativo",
+              "aburrido",
+              "exclusivo",
+              "cliente"
+            ],
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('¿Qué evitar...?')",
+            "status": "source-backed"
+          },
+          {
+            "field": "voice.rhythm",
+            "label": "voice / rhythm",
+            "value": "Uses short, punchy, action-oriented sentences with exclamations, mixed with more descriptive phrases that evoke sensory pleasure.",
+            "conf": 80,
+            "source": "inferred from examples in uploaded brand-deck.pdf and homepage copy",
+            "status": "source-backed"
+          },
+          {
+            "field": "voice.signatures",
+            "label": "voice / signatures",
+            "value": [
+              "Addressing the audience directly with 'tú' and using 'nosotros' to build a sense of community.",
+              "Using playful urgency with phrases like '¡Corre, que vuelan!'.",
+              "Incorporating emojis (💛, 🩷, 🌟) and exclamations to convey genuine excitement."
+            ],
+            "conf": 95,
+            "source": "uploaded brand-deck.pdf ('Cercanía \"De Tú a Tú\"', 'Ejemplos')",
+            "status": "source-backed"
+          },
+          {
+            "field": "goals.northStar",
+            "label": "goals / north Star",
+            "value": "To sweeten the world, one slice at a time, becoming the perfect excuse for happy breaks.",
+            "conf": 98,
+            "source": "uploaded brand-deck.pdf ('Misión')",
+            "status": "source-backed"
+          },
+          {
+            "field": "goals.q2",
+            "label": "goals / q2",
+            "value": "Expand the brand's physical footprint through new franchise locations.",
+            "conf": 90,
+            "source": "homepage ('Franquicias Abiertas')",
+            "status": "source-backed"
+          },
+          {
+            "field": "goals.q3",
+            "label": "goals / q3",
+            "value": "Grow the B2B channel by supplying cheesecakes to hospitality professionals.",
+            "conf": 90,
+            "source": "homepage ('Para profesionales de la Hostelería')",
+            "status": "source-backed"
+          },
+          {
+            "field": "strategic.watchouts",
+            "label": "strategic / watchouts",
+            "value": [
+              "Maintaining brand authenticity and product quality while scaling through franchising.",
+              "Balancing playful FOMO marketing with sufficient product availability to avoid customer frustration.",
+              "Staying innovative and relevant in a crowded market of trendy, 'Instagrammable' dessert shops."
+            ],
+            "conf": 70,
+            "source": "inferred from goals (franchising) and voice (urgency) stated in homepage and uploaded brand-deck.pdf",
+            "status": "source-backed"
+          },
+          {
+            "field": "strategic.notList",
+            "label": "strategic / not List",
+            "value": [
+              "Not a formal, traditional, or elegant pastry shop.",
+              "Not an aggressive, high-pressure sales brand.",
+              "Not a cold, distant corporate entity.",
+              "Not just a product; it's an experience of happiness."
+            ],
+            "conf": 98,
+            "source": "uploaded brand-deck.pdf ('Alegria Desenfadada', 'Urgencia Juguetona', 'Cercanía \"De Tú a Tú\"')",
+            "status": "source-backed"
+          }
+        ],
+        "clientConfirmed": [],
+        "clientStated": [
+          {
+            "field": "visual.logo",
+            "label": "visual / logo",
+            "value": {
+              "conf": 100,
+              "source": "logo-wordmark-primary.png",
+              "sourceId": "7c1b4ba2-e8a1-4dea-bafd-2009190e0cda",
+              "variants": {
+                "dark": {
+                  "conf": 100,
+                  "source": "logo-wordmark-ink.png",
+                  "sourceId": "c9654b59-2db8-4c58-b336-4bfc2f34a01e"
+                },
+                "light": {
+                  "conf": 100,
+                  "source": "logo-wordmark-on-dark.png",
+                  "sourceId": "81d0ff08-58d5-45a4-b385-8ae641d9b42c"
+                }
+              }
+            },
+            "conf": 80,
+            "source": "client-stated",
+            "status": "client-stated"
+          },
+          {
+            "field": "visual.palette",
+            "label": "visual / palette",
+            "value": [
+              {
+                "hex": "#FFD115",
+                "name": "Golden Pop",
+                "role": "primary",
+                "roleStatus": "confirmed"
+              },
+              {
+                "hex": "#FF4375",
+                "name": "Berrybeat",
+                "role": "accent",
+                "roleStatus": "confirmed"
+              },
+              {
+                "hex": "#FFFFFF",
+                "name": "Milkdrop",
+                "role": "surface",
+                "roleStatus": "confirmed"
+              },
+              {
+                "hex": "#3F3F3F",
+                "name": "Graphite Whisper",
+                "role": "ink",
+                "roleStatus": "confirmed"
+              },
+              {
+                "hex": "#161616",
+                "name": "black"
+              },
+              {
+                "hex": "#ccddcc",
+                "name": "cream"
+              },
+              {
+                "hex": "#f40041",
+                "name": "red"
+              }
+            ],
+            "conf": 80,
+            "source": "client-stated",
+            "status": "client-stated"
+          },
+          {
+            "field": "visual.type",
+            "label": "visual / type",
+            "value": [
+              {
+                "kind": "Display",
+                "note": "Stand-in for Meaty Nineties (commercial, not licensed here)",
+                "family": "Fraunces",
+                "sourceId": "8eadeac8-fad5-433c-a955-39ac2b0b45c4"
+              },
+              {
+                "kind": "Body",
+                "family": "Lato",
+                "provider": "google"
+              },
+              {
+                "kind": "Label",
+                "family": "Inter",
+                "provider": "google"
+              }
+            ],
+            "conf": 80,
+            "source": "client-stated",
+            "status": "client-stated"
+          },
+          {
+            "field": "visual.imagery",
+            "label": "visual / imagery",
+            "value": [
+              "close-up of baked cheesecake texture",
+              "warm, inviting golden-brown tones",
+              "natural, soft overhead lighting",
+              "minimalist, product-focused composition",
+              "kraft paper packaging"
+            ],
+            "conf": 80,
+            "source": "client-stated",
+            "status": "client-stated"
+          },
+          {
+            "field": "visual.avoid",
+            "label": "visual / avoid",
+            "value": [
+              "sterile, corporate product shots",
+              "formal, traditional settings",
+              "aggressive, high-pressure visuals",
+              "distant, unapproachable compositions"
+            ],
+            "conf": 80,
+            "source": "client-stated",
+            "status": "client-stated"
+          }
+        ],
+        "inferred": [],
+        "aspirational": [],
+        "conflicting": [],
+        "missing": [
+          {
+            "field": "aspirations.direction",
+            "label": "aspirations / direction",
+            "value": "",
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "aspirations.notYetTrue",
+            "label": "aspirations / not Yet True",
+            "value": [],
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "aspirations.references",
+            "label": "aspirations / references",
+            "value": [],
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "positioning.frameOfReference",
+            "label": "positioning / frame Of Reference",
+            "value": "",
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "positioning.competitors",
+            "label": "positioning / competitors",
+            "value": [],
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "positioning.pointsOfDifference",
+            "label": "positioning / points Of Difference",
+            "value": [],
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "positioning.pointsOfParity",
+            "label": "positioning / points Of Parity",
+            "value": [],
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "positioning.researchGaps",
+            "label": "positioning / research Gaps",
+            "value": [],
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          },
+          {
+            "field": "visual.typeScale",
+            "label": "visual / type Scale",
+            "value": null,
+            "conf": null,
+            "source": null,
+            "status": "missing"
+          }
+        ],
+        "unsupported": [],
+        "stewardCertified": []
+      },
+      "sourceSummary": {
+        "count": 7,
+        "buckets": {
+          "visual": 7
+        },
+        "sourceKinds": {
+          "file_upload": 7
+        },
+        "hasUpload": true,
+        "hasUrlEvidence": true,
+        "diversity": 18
+      },
+      "focus": [
+        {
+          "field": "audience.primary",
+          "label": "Primary audience",
+          "status": "low_conf",
+          "importance": 1,
+          "priority": 0.15000000000000002,
+          "conf": 85,
+          "value": "Young, social, and digitally-native adults (Millennials/Gen Z) in urban areas who seek out shareable, 'Instagrammable' experiences and value authentic, fun brands.",
+          "source": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')",
+          "why": "Every specialist inherits this.",
+          "action": "Verify primary audience against uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')."
+        },
+        {
+          "field": "audience.jtbd",
+          "label": "Jobs-to-be-done",
+          "status": "low_conf",
+          "importance": 0.6,
+          "priority": 0.09000000000000001,
+          "conf": 85,
+          "value": [
+            "Help me find a fun, delicious, and photo-worthy dessert to share with my friends.",
+            "Give me an easy and special way to celebrate a moment, big or small.",
+            "Let me indulge in a high-quality, customizable treat that feels personal and exciting."
+          ],
+          "source": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')",
+          "why": "Several specialists draw on it.",
+          "action": "Verify jobs-to-be-done against uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')."
+        },
+        {
+          "field": "identity.founded",
+          "label": "Founded",
+          "status": "low_conf",
+          "importance": 0.3,
+          "priority": 0.075,
+          "conf": 75,
+          "value": "2025",
+          "source": "uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)",
+          "why": "Low downstream impact — quick confirm.",
+          "action": "Verify founded against uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)."
+        },
+        {
+          "field": "identity.category",
+          "label": "Category",
+          "status": "low_conf",
+          "importance": 0.6,
+          "priority": 0.059999999999999984,
+          "conf": 90,
+          "value": "Artisanal Desserts / Cheesecake Shop",
+          "source": "homepage, uploaded brand-deck.pdf",
+          "why": "Several specialists draw on it.",
+          "action": "Verify category against homepage, uploaded brand-deck.pdf."
+        },
+        {
+          "field": "audience.secondary",
+          "label": "Secondary audience",
+          "status": "low_conf",
+          "importance": 0.3,
+          "priority": 0.036,
+          "conf": 88,
+          "value": "Individuals and groups celebrating special occasions (birthdays, gatherings) who need a whole cake, as well as B2B hospitality clients.",
+          "source": "homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')",
+          "why": "Low downstream impact — quick confirm.",
+          "action": "Verify secondary audience against homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')."
+        },
+        {
+          "field": "goals.q2",
+          "label": "Q2 priority",
+          "status": "low_conf",
+          "importance": 0.3,
+          "priority": 0.029999999999999992,
+          "conf": 90,
+          "value": "Expand the brand's physical footprint through new franchise locations.",
+          "source": "homepage ('Franquicias Abiertas')",
+          "why": "Low downstream impact — quick confirm.",
+          "action": "Verify q2 priority against homepage ('Franquicias Abiertas')."
+        },
+        {
+          "field": "goals.q3",
+          "label": "Q3 priority",
+          "status": "low_conf",
+          "importance": 0.3,
+          "priority": 0.029999999999999992,
+          "conf": 90,
+          "value": "Grow the B2B channel by supplying cheesecakes to hospitality professionals.",
+          "source": "homepage ('Para profesionales de la Hostelería')",
+          "why": "Low downstream impact — quick confirm.",
+          "action": "Verify q3 priority against homepage ('Para profesionales de la Hostelería')."
+        }
+      ],
+      "latestDecision": null
+    },
+    "suggestions": [
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "edit",
+          "reject",
+          "ask_client"
+        ],
+        "id": "review.visual.logo",
+        "type": "review_client_stated",
+        "field": "visual.logo",
+        "title": "Review client-stated visual / logo",
+        "reason": "The client changed this claim; source-backed provenance should not be assumed.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "visual.logo": "client-stated"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "edit",
+          "reject",
+          "ask_client"
+        ],
+        "id": "review.visual.palette",
+        "type": "review_client_stated",
+        "field": "visual.palette",
+        "title": "Review client-stated visual / palette",
+        "reason": "The client changed this claim; source-backed provenance should not be assumed.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "visual.palette": "client-stated"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "edit",
+          "reject",
+          "ask_client"
+        ],
+        "id": "review.visual.type",
+        "type": "review_client_stated",
+        "field": "visual.type",
+        "title": "Review client-stated visual / type",
+        "reason": "The client changed this claim; source-backed provenance should not be assumed.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "visual.type": "client-stated"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "edit",
+          "reject",
+          "ask_client"
+        ],
+        "id": "review.visual.imagery",
+        "type": "review_client_stated",
+        "field": "visual.imagery",
+        "title": "Review client-stated visual / imagery",
+        "reason": "The client changed this claim; source-backed provenance should not be assumed.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "visual.imagery": "client-stated"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "edit",
+          "reject",
+          "ask_client"
+        ],
+        "id": "review.visual.avoid",
+        "type": "review_client_stated",
+        "field": "visual.avoid",
+        "title": "Review client-stated visual / avoid",
+        "reason": "The client changed this claim; source-backed provenance should not be assumed.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "visual.avoid": "client-stated"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.identity.positioning",
+        "type": "certify_field",
+        "field": "identity.positioning",
+        "title": "Certify identity / positioning",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "identity.positioning": "steward-certified"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.identity.category",
+        "type": "certify_field",
+        "field": "identity.category",
+        "title": "Certify identity / category",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "identity.category": "steward-certified"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.identity.pillars",
+        "type": "certify_field",
+        "field": "identity.pillars",
+        "title": "Certify identity / pillars",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "identity.pillars": "steward-certified"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.audience.primary",
+        "type": "certify_field",
+        "field": "audience.primary",
+        "title": "Certify audience / primary",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "audience.primary": "steward-certified"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.audience.jtbd",
+        "type": "certify_field",
+        "field": "audience.jtbd",
+        "title": "Certify audience / jtbd",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "audience.jtbd": "steward-certified"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.voice.register",
+        "type": "certify_field",
+        "field": "voice.register",
+        "title": "Certify voice / register",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "voice.register": "steward-certified"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.voice.forbidden",
+        "type": "certify_field",
+        "field": "voice.forbidden",
+        "title": "Certify voice / forbidden",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "voice.forbidden": "steward-certified"
+            }
+          }
+        }
+      },
+      {
+        "confidence": "deterministic",
+        "sourceRefs": [],
+        "actions": [
+          "accept",
+          "reject"
+        ],
+        "id": "certify.goals.northStar",
+        "type": "certify_field",
+        "field": "goals.northStar",
+        "title": "Certify goals / north Star",
+        "reason": "This high-impact claim has source-backed provenance and no detected conflict.",
+        "patch": {
+          "payloadPatch": {
+            "fieldStatus": {
+              "goals.northStar": "steward-certified"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "you": {
+    "id": "2bca6687-b392-4d74-9bb0-3f81f75ae5b5",
+    "name": "VDS Creative Director",
+    "first_name": "VDS",
+    "roles": [
+      "steward",
+      "lead_steward"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+BrandOS
+Team
+Review desk
+Job queue
+Craft polish
+Capacity
+Clients
+Account
+La Mesa team / Creative Director
+Certify
+1
+← Job
+Certify · Cake-me · Version 2
+Refresh evidence
+Brand in 60 seconds
+Cake-me
+
+Cake-me sells artisanal cheesecakes that transform everyday moments into memorable, shareable celebrations of happiness.
+
+primary
+#FFD115
+ink
+#3F3F3F
+surface
+#FFFFFF
+accent
+#FF4375
+
+Aa · Fraunces
+Display
+
+Aa · Lato
+Body
+
+Aa · Inter
+Label
+
+31 claims · 9 to confirm · 0 conflicting
+
+Website
+Yes. Cake Me makes colourful artisan cakes for celebrations. The supplied 53.png, 56.png and 58.png product photos are approved Cake Me references for this local test.
+File
+Fraunces.ttf
+logo-wordmark-ink.png
+Start review
