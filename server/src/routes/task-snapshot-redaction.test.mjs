@@ -74,3 +74,20 @@ test("routeTier maps routes to the opaque re-run tiers clients see", async () =>
     ["vendor/fal/flux-1.1-pro", "imagePremium"], ["vendor/fal/flux-schnell", "imageDraft"], ["vendor/fal/recraft-v3", "illustration"]]) assert.equal(routeTier(route), tier, route);
   assert.equal(routeTier(undefined), null);
 });
+
+test("the runs migration scrubs the same keys INTERNAL_KEYS drops", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { INTERNAL_KEYS } = await import("../lib/client-redact.js");
+  const sql = readFileSync(new URL("../../../supabase/migrations/20261016020000_client_safe_runs_outputs.sql", import.meta.url), "utf8");
+  for (const key of INTERNAL_KEYS) assert.match(sql, new RegExp(`'${key}'`), key);
+  assert.match(sql, /%\\_usd/);
+});
+
+test("persisted task output bodies are client-safe (outputs.body is browser-readable)", async () => {
+  const { taskOutput, rerunOutput } = await import("./tasks.js");
+  const res = { status: "ready", spec: { posts: [{}] }, items: [item] };
+  for (const out of [taskOutput({ id: "j", type: "social_post" }, res), rerunOutput({ id: "j" }, 0, { item })]) {
+    assert.doesNotMatch(out.body, INTERNAL);
+    assert.match(out.body, /img\.png/);
+  }
+});

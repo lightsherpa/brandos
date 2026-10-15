@@ -54,7 +54,12 @@ test("the production handoff lists every dev migration missing from main, in ord
   assert.match(sectionOf("20260901000000_delegation_token_hash.sql"), /Apply together with or immediately after the main deploy/);
   assert.match(sectionOf("20260901000000_delegation_token_hash.sql"), /discovery-delegation\.js/);
   assert.doesNotMatch(sectionOf("20260901000000_delegation_token_hash.sql"), /Safe before the merge/);
-  for (const file of pending.filter((name) => name !== "20260901000000_delegation_token_hash.sql")) {
+  // Both need code that ships with the merge; applying them earlier breaks the live app.
+  const DEPLOY_COUPLED = ["20260901000000_delegation_token_hash.sql", "20261016020000_client_safe_runs_outputs.sql"];
+  assert.match(sectionOf("20261016020000_client_safe_runs_outputs.sql"), /SPA\/API deploy first, then apply this migration, only with Oscar\/Kai approval/);
+  assert.match(sectionOf("20261016020000_client_safe_runs_outputs.sql"), /runs\.model_used/);
+  assert.doesNotMatch(sectionOf("20261016020000_client_safe_runs_outputs.sql"), /Safe before the merge/);
+  for (const file of pending.filter((name) => !DEPLOY_COUPLED.includes(name))) {
     assert.match(sectionOf(file), /Safe before the merge/, file);
   }
   assert.match(sectionOf("20260910000000_brief_drafts.sql"), /Run the verify query first and skip if a row comes back/);
@@ -82,5 +87,6 @@ test("the production handoff lists every dev migration missing from main, in ord
     "20261014050000_output_qa_passed.sql",
     "20261016000000_brand_core_input_tags.sql",
     "20261016010000_certify_review_progress.sql",
+    "20261016020000_client_safe_runs_outputs.sql",
   ]);
 });

@@ -12,7 +12,7 @@ const { useState: useBrState, useEffect: useBrEffect } = React;
 
   /* useLiveBriefs — fetches real briefs + their runs + outputs from
    Supabase via RLS (workspace auto-filtered). Each brief carries the
-   actual runs (spec_id, model_used, token counts) and outputs (body text,
+   actual runs (spec_id, versions, status) and outputs (body text,
    QA status) that were persisted by POST /api/runs/stream in P3. */
 function useLiveBriefs() {
   const [state, setState] = useBrState(uiFixtureEnabled
@@ -44,7 +44,7 @@ function useLiveBriefs() {
         .from("briefs")
         .select(`
           id, title, type, payload, mode, status, created_at,
-          runs ( id, specialist_id, spec_version, bio_version, model_used, status, prompt_tokens, completion_tokens, ended_at,
+          runs ( id, specialist_id, spec_version, bio_version, status, ended_at,
                  outputs ( id, kind, body, status, workflow_status, internal_reviewed_by, internal_reviewed_at, client_reviewed_by, client_reviewed_at, rationale ) )
         `)
         .eq("brand_id", brand.id)
@@ -2377,7 +2377,7 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
   const assetUrl = node.assetUrl || node.done?.output?.asset_url || null;
   const isImage  = !!assetUrl;
   const rerunOptions = isImage ? IMAGE_RERUN_OPTIONS : TEXT_RERUN_OPTIONS;
-  const currentRoute = node.done?.usage?.model || node.run?.model_used || "";
+  const currentRoute = node.done?.usage?.model || "";
   const currentTier  = node.done?.usage?.tier || null;   /* clients get only the tier, never the route */
 
   const dirty = !isImage && (editedText || "") !== (baselineText || "");
@@ -3182,7 +3182,6 @@ function BriefViewCanvas({ briefId, onClear, go }) {
               brand: { bioVersion: opened.firstRun.bio_version },
               output: opened.output?.body?.asset_url ? { asset_url: opened.output.body.asset_url } : null,
             },
-            run: { model_used: opened.firstRun.model_used },
             state: opened.passed ? "done" : "flagged",
           }}
           cert={state.cert}
@@ -3754,7 +3753,7 @@ function Library({ go }) {
         for (const o of (r.outputs || [])) {
           list.push({ ...o,
             brief: { id: b.id, request: b.payload?.request || b.title, title: b.payload?.title || b.title, mode: b.mode, created_at: b.created_at, payload: b.payload || {} },
-            run: { id: r.id, specialist_id: r.specialist_id, bio_version: r.bio_version, completion_tokens: r.completion_tokens, ended_at: r.ended_at },
+            run: { id: r.id, specialist_id: r.specialist_id, bio_version: r.bio_version, ended_at: r.ended_at },
           });
         }
       }

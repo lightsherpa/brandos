@@ -417,3 +417,22 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/202
 ```sql
 select relname, relrowsecurity from pg_class where oid in ('public.certify_review_progress'::regclass, 'public.certify_review_progress_requests'::regclass);
 ```
+
+## 22. `20261016020000_client_safe_runs_outputs.sql` (fix/client-db-redaction)
+
+Client-portal users only ever see credits. Replaces the table-wide browser `select` on `runs` with a column grant that leaves out `model_used`, the token columns, `cost_usd` and `latency_ms`. Team/admin keep that detail through the service-role API. Also strips model/vendor keys (`image.model`, `attempts`, `fallback_from`, `provider_endpoint`, `*_usd`) from `outputs.body` rows already written. The scrub can't be undone, but nothing reads those keys back. Timestamp `20261015000000` is entry 19 (`email_assets`); this file is `20261016020000`, after entry 21.
+
+**Deploy order: SPA/API deploy first, then apply this migration, only with Oscar/Kai approval.** Applying it early breaks the live brief list, because the SPA still in production selects `runs.model_used` and the column grant answers with permission denied. Do not apply this migration against the current production SPA.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261016020000_client_safe_runs_outputs.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261016020000', 'client_safe_runs_outputs') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select has_column_privilege('authenticated', 'public.runs', 'model_used', 'select') as model_used_readable,  -- false
+       has_column_privilege('authenticated', 'public.runs', 'status', 'select') as status_readable;          -- true
+select count(*) from public.outputs
+ where body::text ~ '\\?"(model|provider_endpoint|fallback_from|attempts|[a-z_]*_usd)\\?":';         -- 0
+```

@@ -108,7 +108,8 @@ test("persisted task and rerun bodies and output reads omit vendor fields", () =
   const stored = JSON.parse(taskOutput(job, res).body);
   assert.deepEqual(vendorHits(stored), []);
   assert.equal(stored.items[0].image.asset_url, "https://img.test/a.png");
-  assert.equal(stored.snapshot.metrics.cost.total_usd, 0.2);
+  assert.equal(stored.snapshot.credits, 12);
+  assert.equal(stored.snapshot.metrics.cost, undefined);
   assert.equal(res.metrics.models[0], "vendor/fal/gpt-image-2.5");
   assert.equal(res.items[0].image.model, "vendor/fal/gpt-image-2.5");
   const rerun = JSON.parse(rerunOutput(job, 0, { item: internalItem({ index: 0, status: "flagged", image: vendorImage }), metrics }).body);

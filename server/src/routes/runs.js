@@ -625,7 +625,6 @@ app.post("/stream", requireAuth, async (c) => {
             height:      imageResult?.height,
             seed:        imageResult?.seed,
             prompt_used: imageResult?.prompt_used,
-            provider_endpoint: imageResult?.endpoint || resolvedImageRequest?.endpoint || null,
             reference_source_id: generationReference?.id || null,
             reference_role: generationReference?.role || null,
             reference_count: generationReferences.length,

@@ -67,8 +67,8 @@ test("credits: happy path reserves before work, attributes usage, finalizes with
   assert.equal(fin.p_model_used, "m1");
   const stored = JSON.parse(fin.p_output_body);
   assert.equal(stored.snapshot.metrics.models, undefined);
-  assert.equal(stored.snapshot.metrics.ledger[0].model, undefined);
-  assert.equal(stored.snapshot.metrics.cost.total_usd, 0.25);
+  assert.equal(stored.snapshot.metrics.ledger, undefined);
+  assert.equal(stored.snapshot.metrics.cost, undefined);
   assert.ok(!log.some(([op]) => op === "release"));
 });
 
