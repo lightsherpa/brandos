@@ -1,0 +1,55 @@
+{
+  "title": "Your everyday cheesecake celebration is waiting",
+  "tension": "How to invite everyday indulgence without feeling exclusive or pressure-driven, staying true to Cake Me's 'happy break' positioning while supporting franchise expansion awareness.",
+  "sharpenedBrief": "Write a warm, direct email that invites readers to treat themselves to a Cake Me cheesecake moment—no occasion needed. Use playful, friend-to-friend language (tú/nosotros), sensory detail, and genuine excitement (💛, emojis, exclamations). Include a photographic hero of a joyful cheesecake slice in a real, shareable moment. Subject, preheader, headline, body, and CTA all link to https://thecake-me.com. No discounts, deadlines, invented offers, or unsupported claims.",
+  "questions": [
+    {
+      "q": "Is the email inviting a solo indulgence moment, a small-group celebration, or both?",
+      "solvingFor": "Tone and scenario framing—whether to emphasize personal treat or shared experience.",
+      "why": "'Help me find a fun, delicious, and photo-worthy dessert to share with my friends' + 'Give me an easy and special way to celebrate a moment, big or small' signals both JTBD paths; clarifying the primary frame sharpens the narrative voice."
+    },
+    {
+      "q": "Should the hero image show a styled flat-lay, a hand holding a fork, or someone mid-bite/sharing?",
+      "solvingFor": "Visual authenticity and emotional connection—which moment best reflects 'Instagrammable' and 'Genuine Connection' without feeling forced.",
+      "why": "PILLARS state 'Memorable Experiences' and 'Genuine Connection'; a candid, real human moment (not overstaged) aligns with VOICE REGISTER 'like a best friend sharing an exciting discovery.'"
+    }
+  ],
+  "deliveryPlan": {
+    "deliverableGroups": [
+      {
+        "type": "email_sequence",
+        "count": 1,
+        "platforms": [
+          "email"
+        ],
+        "parts": [
+          "subject",
+          "body"
+        ],
+        "crew": {
+          "subject": "a14",
+          "body": "a13"
+        }
+      }
+    ],
+    "proposedSpecialists": [
+      "a14",
+      "a13"
+    ]
+  },
+  "proposedSpecialists": [
+    "a14",
+    "a13"
+  ],
+  "refusals": [
+    "Formal, corporate, or distant tone",
+    "Artificial urgency, deadlines, or scarcity claims",
+    "Discounts, invented offers, or unsupported product claims",
+    "High-pressure sales language or exclusivity framing",
+    "Generic 'customer' language—use direct address (tú) and community (nosotros)"
+  ],
+  "brand": {
+    "name": "Cake Me · earlier local UX check 1",
+    "bioVersion": 3
+  }
+}

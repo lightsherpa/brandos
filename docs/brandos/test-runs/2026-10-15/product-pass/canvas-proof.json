@@ -1,0 +1,27 @@
+{
+  "screenshots": [
+    "canvas-social_post-en-1280.png",
+    "canvas-social_post-en-1440.png",
+    "canvas-social_post-es-1280.png",
+    "canvas-social_post-es-1440.png",
+    "canvas-social_post-ar-1280.png",
+    "canvas-social_post-ar-1440.png",
+    "canvas-social_post-component-1280.png",
+    "canvas-social_post-component-1440.png",
+    "canvas-email_sequence-en-1280.png",
+    "canvas-email_sequence-en-1440.png",
+    "canvas-email_sequence-es-1280.png",
+    "canvas-email_sequence-es-1440.png",
+    "canvas-email_sequence-ar-1280.png",
+    "canvas-email_sequence-ar-1440.png",
+    "canvas-email_sequence-component-1280.png",
+    "canvas-email_sequence-component-1440.png"
+  ],
+  "artifacts": [
+    "cake-me-social_post-1.html",
+    "cake-me-social-post.png",
+    "cake-me-email_sequence-1.html"
+  ],
+  "errors": [],
+  "agencyOffice": false
+}

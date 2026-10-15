@@ -1,0 +1,35 @@
+{
+  "codeSha": "7b703475c5c140eb90793d4b4500f205cd838e0a",
+  "branch": "feat/product-pass",
+  "base": "origin/dev",
+  "nodeTests": {
+    "command": "npm test",
+    "files": 156,
+    "passed": 930,
+    "failed": 0,
+    "skipped": 0
+  },
+  "sqlTests": {
+    "command": "supabase test db supabase/tests",
+    "files": 4,
+    "passed": 78,
+    "failed": 0
+  },
+  "builds": {
+    "flagsOn": "passed",
+    "flagsOff": "passed",
+    "agencyOffice": 0
+  },
+  "screenshots": 62,
+  "sharpenP50Ms": {
+    "before": 9563,
+    "after": 7604,
+    "roundsEach": 3
+  },
+  "singleLocalSupabase": "http://127.0.0.1:54321",
+  "app": "http://127.0.0.1:5196",
+  "api": "http://127.0.0.1:8796",
+  "productionDatabaseWrites": false,
+  "newStacks": 0,
+  "newBrandsSeeded": 0
+}

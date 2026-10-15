@@ -1,0 +1,25 @@
+{
+  "taskId": "3661edba-0300-4540-b3df-030aa9f06b96",
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "status": "ready",
+  "component": "composition",
+  "action": "regenerate",
+  "copyUnchanged": true,
+  "imageUnchanged": true,
+  "modelCalls": 0,
+  "metrics": {
+    "total_ms": 1419,
+    "cost": {
+      "total_usd": 0,
+      "calls": 0,
+      "by_step": {},
+      "limits": {
+        "maxUsd": 0.5,
+        "maxImageCalls": 7,
+        "maxTextCalls": 10,
+        "imageConcurrency": 3
+      }
+    },
+    "ledger": []
+  }
+}
