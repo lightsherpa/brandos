@@ -7,6 +7,7 @@ import { loadVisualAssets } from "../lib/visual-assets.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { buildLayer1 } from "./brand-core.js";
 import { applyRules, loadRules } from "./rules.js";
+import { hydrateGoogleFontAssets } from "./google-font-assets.js";
 import { TASKS } from "./registry.js";
 
 export function pickReferences(loaded = [], certified = []) {
@@ -29,7 +30,8 @@ export async function loadTaskContext({ workspaceId, brandId, type, heroes = fal
   const references = pickReferences(assets.references, pinned);
   const provenance = { bioId: bio.id, bioVersion: bio.version, sourceIds: references.map(r => r.id) };
   const rules = await loadRules(brand.id);
-  const layer1 = { ...applyRules(buildLayer1({ brand, bio, refusals, references }), rules), provenance };
+  let layer1 = { ...applyRules(buildLayer1({ brand, bio, refusals, references }), rules), provenance };
+  if (["1","true"].includes(process.env.CREW_CANVAS)) layer1 = await hydrateGoogleFontAssets(layer1);
   const t = TASKS[type];
   const skillsPayloads = t ? await loadSkillPayloads(t.skills) : {};
   return { brand, bio, layer1, skillsPayloads, provenance };

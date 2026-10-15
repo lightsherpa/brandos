@@ -2,15 +2,9 @@ import { bridgeReferences } from "../reference-bridge.js";
 // ─────────────────────────────────────────────────────────────────────
 // fal.ai — image generation adapter.
 //
-// fal is the "OpenRouter of images": one account, one key, many models
-// (Flux 1.1 Pro / Flux schnell / Recraft / SDXL / Ideogram). Image
-// runs DON'T stream tokens — they queue a job, take 5–30s, and return
-// a single asset URL.
-//
-// Cost-optimization (per memory):
-//   Flux 1.1 Pro  → ~$0.04/image  · top-tier · a20 Hero KV, a21 Editorial
-//   Flux schnell  → ~$0.003/image · drafts/iteration · 13× cheaper
-//   Recraft V3    → ~$0.03/image  · vector/logo · a19 Identity Drafts
+// Task generation uses GPT Image 2.5 with Nano Banana 2.1 fallback.
+// Legacy route metadata remains readable for stored runs; Flux and Recraft
+// generation is retired and hard blocked before any network request.
 //
 // Adapter exposes generate() with normalized callbacks (onProgress,
 // onDone, onError) so the runs route can emit unified SSE events.
@@ -196,7 +190,7 @@ export function resolveImageRequest({ route, referenceImageUrl = null, reference
  *   { type: "error", message }
  *
  * @param {object} args
- * @param {string} args.route   - "vendor/fal/flux-1.1-pro" etc.
+ * @param {string} args.route   - internal image route selected by the task pipeline
  * @param {string} args.prompt  - composed prompt (BIO + brief + spec method)
  * @param {string} [args.size]  - "square_hd" | "landscape_16_9" | "portrait_4_3" | ...
  */
