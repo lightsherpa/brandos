@@ -391,7 +391,11 @@ function HomeCreate({ tweaks, go }) {
        assemble there with animations, then the user fires the run from
        the Canvas itself. The Canvas is the moment-of-truth UX surface;
        a flat inline grid breaks that promise. */
+    const groups=sharp.data?.deliveryPlan?.deliverableGroups||[];
+    const normalizedTaskType=groups.length===1?(['email','newsletter'].includes(groups[0].type)?'email_sequence':groups[0].type):null;
     const ctx = {
+      taskType: normalizedTaskType,
+      requestedTaskType: normalizedTaskType,
       sourceDraftId: store.getSnapshot().id,
       rawBrief:      input.trim(),
       composedBrief: composeBriefText(),

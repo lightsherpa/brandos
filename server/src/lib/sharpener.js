@@ -8,15 +8,16 @@
 // `why`. Generic questions ("what's the budget?") break the trust
 // signal and are explicitly disallowed in the prompt.
 //
-// Cost: ~$0.012 per call via Sonnet 4.6 (~1.5k in + ~500 out). At 10k
-// briefs/month = $120/mo. The strategic synthesis quality is the moat
-// — keep Sonnet here, not Gemini Flash. (Per the cost-optimization
-// memory: name the trade-off, then choose. Sonnet wins on strategic
-// synthesis; Gemini Pro saves ~50% if quality holds.)
+// SHARPENER_FAST uses the compact prompt with Haiku 4.5 when the core
+// claims have adequate confidence. Low-confidence brands and a single
+// failed fast quality check use Sonnet 4.6. The default route is unchanged.
 // ─────────────────────────────────────────────────────────────────────
 
 import { streamCompletion } from "./models/router.js";
 import { normalizePlan, wrapLegacy } from "./delivery-plan.js";
+import {DELIVERABLE_TYPES,typeSpec} from "./taxonomy.js";
+import {isPlatform} from "./platforms.js";
+import {createHash} from "node:crypto";
 
 const SHARPENER_SPEC = {
   payload: {
@@ -25,6 +26,41 @@ const SHARPENER_SPEC = {
     cr_estimate: 5,
   },
 };
+
+export const sharpenerFastEnabled=()=>['1','true'].includes(String(process.env.SHARPENER_FAST||'').toLowerCase());
+const FAST_MODEL='anthropic/claude-haiku-4-5-20251001', SAFE_MODEL='anthropic/claude-sonnet-4-6';
+const contextCache=new Map();
+export function renderedBrandCoreContext(brand,bio,refusals=[]){
+ const key=createHash('sha256').update(JSON.stringify([brand?.id,brand?.name,bio,refusals])).digest('hex');
+ if(contextCache.has(key)){const value=contextCache.get(key);contextCache.delete(key);contextCache.set(key,value);return {text:value,cacheHit:true};}
+ const text=renderBioForSharpener(brand,bio,refusals);
+ if(text.length<=64000){contextCache.set(key,text);if(contextCache.size>32)contextCache.delete(contextCache.keys().next().value);}
+ return {text,cacheHit:false};
+}
+export function fastModelConfidence(bio){
+ const required=['identity.positioning','audience.primary','voice.register'];
+ if(!required.every(path=>{const [section,key]=path.split('.');return typeof bio?.[section]?.[key]==='string'&&bio[section][key].trim();}))return false;
+ return required.every(path=>{const value=bio.confidence?.[path];return Number(value?.conf)>=85||value?.human_confirmed===true;})&&!(bio.conflicts||[]).length;
+}
+const FAST_SYSTEM=`You sharpen a founder's request into a specific, on-brand production brief. Read the Brand Core; never invent brand facts. Keep the user's language. Call it Brand Core, never BIO.
+Return STRICT JSON only: {"title":"editorial 4–6 word title","tension":"one specific strategic tension","sharpenedBrief":"2–3 concrete usable sentences","questions":[{"q":"one direct question","solvingFor":"the decision this settles","why":"quote an actual Brand Core phrase and name its field"}],"deliveryPlan":{"deliverableGroups":[{"type":"social_post","count":1,"platforms":["instagram"],"parts":["caption","image"],"crew":{"caption":"a16","image":"a41"}}]},"refusals":["brand-derived boundaries"]}.
+Ask exactly 2–3 short questions answerable without research. EACH why must quote an actual supplied Brand Core phrase; never ask generic budget or audience questions. Assume known facts, ask only unresolved choices. Use real audience, voice, positioning, goals and refusals in the brief. Title is human editorial prose, no unlock/leverage/drive. No hidden-role or model references.
+Delivery plan: smallest set of requested types; explicit requested count and channels win (week=5–7); every visual includes its visual part. Do not add strategy/research/QA roles. Use EXACT parts and crew from this registry: ${JSON.stringify(Object.fromEntries(Object.entries(DELIVERABLE_TYPES).filter(([type])=>type!=='legacy').map(([type,{parts,crew}])=>[type,{parts,crew}])))}.
+Use email_sequence for email work. A single social request is social_post. Never invent additional task types or deliverables. Do not omit images for social. Keep output concise enough for 1600 tokens.`;
+export function fastSharpenerQuality(parsed,bio,refusals=[]){
+ if(!parsed||!['title','tension','sharpenedBrief'].every(key=>typeof parsed[key]==='string'&&parsed[key].trim().length>8))return false;
+ if(/\bBIO\b|Brand Intelligence Object/.test([parsed.title,parsed.tension,parsed.sharpenedBrief].join(' ')))return false;
+ if(!Array.isArray(parsed.questions)||parsed.questions.length<2||parsed.questions.length>3)return false;
+ const meaningful=new Set(citationTokens(bioTextForCitation(bio,refusals)).filter(token=>!CITATION_STOPWORDS.has(token)));
+ const grounded=value=>new Set(citationTokens(value).filter(token=>meaningful.has(token))).size>=2;
+ if(!grounded(parsed.sharpenedBrief)||parsed.sharpenedBrief.trim().length<60)return false;
+ if(!parsed.questions.every(q=>typeof q.q==='string'&&q.q.trim().length>10&&typeof q.solvingFor==='string'&&q.solvingFor.trim().length>10&&typeof q.why==='string'&&grounded(q.why)&&!/^(what(?:'s| is) (?:the |your )?budget|who(?:'s| is) (?:the |your )?audience)/i.test(q.q.trim())))return false;
+ const groups=parsed.deliveryPlan?.deliverableGroups;
+ return Array.isArray(groups)&&groups.length>0&&groups.length<=6&&groups.every(group=>{
+  const spec=typeSpec(group.type);if(!spec||group.type==='legacy'||!Number.isInteger(group.count)||group.count<1||group.count>20)return false;
+  return Array.isArray(group.parts)&&spec.parts.every(part=>group.parts.includes(part)&&group.crew?.[part]===spec.crew[part])&&Object.keys(group.crew||{}).every(part=>spec.parts.includes(part))&&Array.isArray(group.platforms)&&group.platforms.length>0&&group.platforms.every(isPlatform);
+ });
+}
 
 const SHARPENER_SYSTEM = `You are a02 The Sharpener — Brandolph (L1) in operating mode, the senior AI CMO. The operator just typed a raw brief request. Your job, before any specialist runs, is to:
 
@@ -178,6 +214,8 @@ function renderBioForSharpener(brand, bio, refusals) {
   if (bio.audience?.secondary)  lines.push(`SECONDARY: ${bio.audience.secondary}`);
   if (bio.audience?.jtbd?.length) lines.push(`JTBD: ${bio.audience.jtbd.join(" | ")}`);
 
+  if (bio.voice?.rhythm) lines.push(`RHYTHM: ${bio.voice.rhythm}`);
+  if (bio.voice?.signatures?.length) lines.push(`SIGNATURES: ${bio.voice.signatures.join(" | ")}`);
   if (bio.voice?.register)        lines.push(`\nVOICE REGISTER: ${bio.voice.register}`);
   if (bio.voice?.forbidden?.length) lines.push(`FORBIDDEN WORDS: ${bio.voice.forbidden.join(", ")}`);
 
@@ -259,38 +297,31 @@ export function questionCitesBio(question, bio, refusals = []) {
  *   unrecognized type and was dropped) — the run engine / UX must surface that
  *   rather than running nothing silently.
  */
-export async function sharpenBrief({ briefText, brand, bio, refusals = [], memorySummary = "", telemetry = {} }) {
+export async function sharpenBrief({ briefText, brand, bio, refusals = [], memorySummary = "", telemetry = {}, completion = streamCompletion, fast = sharpenerFastEnabled() }) {
+  const started=performance.now();
+  const context=fast?renderedBrandCoreContext(brand,bio,refusals):{text:renderBioForSharpener(brand,bio,refusals),cacheHit:false};
   const userMsg = [
     `## RAW BRIEF`,
     String(briefText || "").trim(),
     ``,
     `## BRAND CONTEXT`,
-    renderBioForSharpener(brand, bio, refusals),
+    context.text,
     memorySummary ? `\n${memorySummary}` : ``,
   ].filter(Boolean).join("\n");
 
-  let text = "";
-  let usage = null;
-  for await (const ev of streamCompletion({
-    spec: SHARPENER_SPEC,
-    system: SHARPENER_SYSTEM,
-    messages: [{ role: "user", content: userMsg }],
-    // Sonnet 5.5 needs room for a complete multi-deliverable JSON plan.
-    maxTokens: 3200,
-    telemetry: { operationKey: "brief.sharpen", feature: "brief.sharpen", ...telemetry },
-  })) {
-    if (ev.type === "token")      text += ev.text;
-    else if (ev.type === "done")  usage = ev.usage;
-    else if (ev.type === "error") throw new Error(`Sharpener error: ${ev.message}`);
-  }
-
-  const stripped = text
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```\s*$/i, "")
-    .trim();
-  let parsed;
-  try { parsed = JSON.parse(stripped); }
-  catch { throw new Error(`Sharpener returned non-JSON: ${stripped.slice(0, 300)}`); }
+  let usage=null,parsed,attempts=0,model=fast?(fastModelConfidence(bio)?FAST_MODEL:SAFE_MODEL):SHARPENER_SPEC.payload.modelRouting.primary;
+  const complete=async(selectedModel,correction=false)=>{
+   attempts++;let text='';
+   const spec=fast?{payload:{...SHARPENER_SPEC.payload,modelRouting:{primary:selectedModel,fallback:SAFE_MODEL,reason:'Fast grounded brief sharpening; quality fallback to Sonnet'}}}:SHARPENER_SPEC;
+   for await(const ev of completion({spec,system:fast?FAST_SYSTEM:SHARPENER_SYSTEM,messages:[{role:'user',content:userMsg+(correction?'\nPrevious output did not pass quality validation. Include exactly 2–3 questions quoting real Brand Core phrases and a complete canonical delivery plan.':'')}],maxTokens:fast?1600:3200,telemetry:{operationKey:'brief.sharpen',feature:'brief.sharpen',...telemetry}})){
+    if(ev.type==='token')text+=ev.text;else if(ev.type==='done')usage=ev.usage;else if(ev.type==='error')throw new Error(`Sharpener error: ${ev.message}`);
+   }
+   try{return JSON.parse(text.replace(/^```(?:json)?\s*/i,'').replace(/\s*```\s*$/i,'').trim());}catch{throw new Error('Sharpener returned invalid JSON. Please retry.');}
+  };
+  if(fast){
+   try{parsed=await complete(model);if(!fastSharpenerQuality(parsed,bio,refusals))throw Error('Sharpener quality validation failed');}
+   catch(error){if(model!==FAST_MODEL)throw error;model=SAFE_MODEL;parsed=await complete(model,true);if(!fastSharpenerQuality(parsed,bio,refusals))throw Error('The brief needs another attempt: brand-grounded questions and a usable delivery plan are required.');}
+  }else parsed=await complete(model);
 
   // New path: Sharpener emitted a deliveryPlan -> normalize against the
   // taxonomy/platform registries. Back-compat: if it only gave the legacy
@@ -322,5 +353,6 @@ export async function sharpenBrief({ briefText, brand, bio, refusals = [], memor
     proposedSpecialists: plan.proposedSpecialists,      // back-compat for the current client
     refusals:            Array.isArray(parsed.refusals) ? parsed.refusals : [],
     usage,
+    performance:{durationMs:Math.round(performance.now()-started),model,attempts,contextCacheHit:context.cacheHit},
   };
 }

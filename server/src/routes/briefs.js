@@ -9,7 +9,7 @@
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
 import { loadBioForBriefing } from "../lib/load-brand-bio.js";
-import { sharpenBrief } from "../lib/sharpener.js";
+import { sharpenBrief,sharpenerFastEnabled } from "../lib/sharpener.js";
 import { loadBrandMemorySummary } from "../lib/brandolph-memory.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { hasPermission } from "../lib/permissions.js";
@@ -24,6 +24,7 @@ app.route("/drafts", createBriefDraftRoutes({ db: supabaseAdmin, authenticate: r
 app.route("/", formatPreview);
 
 app.post("/sharpen", requireAuth, async (c) => {
+  const started=performance.now();
   const auth = c.get("auth");
   const { userId } = auth;
   let workspaceId = auth.workspaceId || auth.memberships?.[0]?.workspace_id || null;
@@ -52,9 +53,13 @@ app.post("/sharpen", requireAuth, async (c) => {
   /* BRIEFING gate — sharpening a brief requires the client to have
      self-certified the BIO. loadBioForBriefing throws NOT_SELF_CERTIFIED
      (or NO_BIO) otherwise. */
-  let brandBio;
+  const authorizedAt=performance.now();
+  const loadMemory=async id=>{try{return await loadBrandMemorySummary(id);}catch(e){console.warn("[briefs] memory load failed:",e?.message||e);return "";}};
+  let brandBio,memorySummary="";
   try {
-    brandBio = await loadBioForBriefing({ workspaceId, brandId });
+    if(sharpenerFastEnabled()&&brandId){
+      [brandBio,memorySummary]=await Promise.all([loadBioForBriefing({workspaceId,brandId}),loadMemory(brandId)]);
+    }else{brandBio=await loadBioForBriefing({workspaceId,brandId});memorySummary=await loadMemory(brandBio.brand.id);}
   } catch (err) {
     if (err.code === "NOT_SELF_CERTIFIED") {
       return c.json({ error: "Confirm your Brand Core (self-certify) before briefing.", code: err.code }, 409);
@@ -65,15 +70,7 @@ app.post("/sharpen", requireAuth, async (c) => {
     return c.json({ error: err.message || String(err) }, 400);
   }
 
-  /* Pull this brand's running memory — short markdown summary the
-     Sharpener uses to recommend specialists that have actually
-     shipped for THIS brand. Best-effort: returns "" on a fresh brand. */
-  let memorySummary = "";
-  try {
-    memorySummary = await loadBrandMemorySummary(brandBio.brand.id);
-  } catch (e) {
-    console.warn("[briefs] memory load failed:", e?.message || e);
-  }
+  const contextAt=performance.now();
 
   try {
     const result = await sharpenBrief({
@@ -84,7 +81,9 @@ app.post("/sharpen", requireAuth, async (c) => {
       memorySummary,
       telemetry: { workspaceId, brandId: brandBio.brand.id, actorUserId: userId, breakerOverride: !!override },
     });
-    const { usage: _internalUsage, ...clientResult } = result;
+    const { usage: _internalUsage, performance:metrics, ...clientResult } = result;
+    c.header('Server-Timing',`authorization;dur=${(authorizedAt-started).toFixed(1)}, context;dur=${(contextAt-authorizedAt).toFixed(1)}, sharpen;dur=${(performance.now()-contextAt).toFixed(1)}, total;dur=${(performance.now()-started).toFixed(1)}`);
+    if(metrics)c.header('X-Sharpener-Context-Cache',metrics.contextCacheHit?'hit':'miss');
     return c.json({
       ...clientResult,
       brand: { name: brandBio.brand.name, bioVersion: brandBio.bio?.version },
