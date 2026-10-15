@@ -63,7 +63,11 @@ try{
   }
  }
  await page.evaluate(()=>window.changeLocale('en'));
- await page.getByRole('button',{name:'Save Brand Core',exact:true}).click();
+ const saveButtons=page.getByRole('button',{name:'Save Brand Core',exact:true});
+ assert.equal(await saveButtons.count(),2);
+ const cancelVisible=await page.getByRole('button',{name:'Cancel',exact:true}).isVisible();
+ assert.equal(cancelVisible,true);
+ await saveButtons.last().click();
  await page.getByRole('button',{name:'Edit Brand Core inputs',exact:true}).waitFor();
  const saved=await page.evaluate(()=>window.savedVisual);
  assert.equal(Object.keys(saved.logo.variants).length,8);assert.equal(saved.references.length,10);assert.equal(saved.palette.length,7);assert.equal(saved.type.length,3);

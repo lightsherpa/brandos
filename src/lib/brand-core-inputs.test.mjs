@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {fileIssue,appendUploadedAsset,fontDescriptors,uploadMetadata,LOGO_USES,PALETTE_GROUPS,MAX_REFERENCE_BATCH,brandCoreInputsEnabled} from './brand-core-inputs.js';
+import {fileIssue,appendUploadedAsset,fontDescriptors,uploadMetadata,uploadErrorCopyKey,LOGO_USES,PALETTE_GROUPS,MAX_REFERENCE_BATCH,MAX_REFERENCE_BYTES,MAX_ASSET_BYTES,brandCoreInputsEnabled} from './brand-core-inputs.js';
+import {MAX_REFERENCE_BYTES as SERVER_REFERENCE_BYTES, MAX_UPLOAD_BYTES} from '../../server/src/lib/ingest-guards.js';
 import {validateFoundationVisual,logoSourceIds} from '../../server/src/lib/brand-foundation.js';
 import {validateVisualAssetMetadata} from '../../server/src/lib/ingest-guards.js';
 import {brandCoreInputsCopy} from '../locales/brand-core-inputs-copy.js';
@@ -9,12 +10,32 @@ test('Brand Core inputs flag defaults off and reference batch limit is ten',()=>
  assert.equal(brandCoreInputsEnabled,false);assert.equal(MAX_REFERENCE_BATCH,10);
 });
 test('file errors distinguish empty, size and unsupported format without rejecting future files',()=>{
+ assert.equal(MAX_REFERENCE_BYTES,SERVER_REFERENCE_BYTES);
+ assert.equal(MAX_ASSET_BYTES,MAX_UPLOAD_BYTES);
  assert.equal(fileIssue({name:'one.png',size:0},'logo'),'empty');
  assert.equal(fileIssue({name:'one.png',size:15*1024*1024+1},'logo'),'size');
+ assert.equal(fileIssue({name:'one.png',size:5*1024*1024+1},'reference'),'size');
+ assert.equal(fileIssue({name:'one.png',size:5*1024*1024},'reference'),null);
+ assert.equal(fileIssue({name:'one.png',size:5*1024*1024+1},'logo'),null);
+ assert.equal(fileIssue({name:'one.woff2',size:15*1024*1024},'font'),null);
  assert.equal(fileIssue({name:'one.svg',size:120},'logo'),'format');
  assert.equal(fileIssue({name:'one.PNG',size:120},'logo'),null);
  assert.equal(fileIssue({name:'one.webp',size:120},'reference'),null);
  assert.equal(fileIssue({name:'one.woff2',size:120},'font'),null);
+});
+test('413 and payload-too-large map to the size toast, not a generic failure',()=>{
+ assert.equal(uploadErrorCopyKey({code:'PAYLOAD_TOO_LARGE',error:'Request body too large'},413),'size');
+ assert.equal(uploadErrorCopyKey({code:'TOO_LARGE'},413),'size');
+ assert.equal(uploadErrorCopyKey({},413),'size');
+ assert.equal(uploadErrorCopyKey({error:'Upload needs attention'},400),null);
+ assert.equal(brandCoreInputsCopy.en.size,'File too large · max 5 MB for references / 15 MB for logos and fonts');
+ for(const locale of ['en','es','ar']){
+  assert.match(brandCoreInputsCopy[locale].size,/5/);
+  assert.match(brandCoreInputsCopy[locale].size,/15/);
+  assert.match(brandCoreInputsCopy[locale].imageFormats,/5/);
+  assert.match(brandCoreInputsCopy[locale].logoFormats,/15/);
+  assert.match(brandCoreInputsCopy[locale].fontHelp,/15/);
+ }
 });
 test('logo variants retain every upload and independently carry one of the seven uses',()=>{
  let visual={};

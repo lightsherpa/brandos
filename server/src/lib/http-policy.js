@@ -44,8 +44,11 @@ export const PERIMETER_CLASSES = {
   // is a bearer credential in a URL, so this is the brute-force surface.
   publicToken: { windowMs: MINUTE, ipMax: 20, userMax: null, bodyBytes: 256 * KB },
 
-  // Multipart evidence/avatar intake. MAX_UPLOAD_BYTES (15 MB) plus multipart
-  // framing slack; the route still re-validates size/type per file.
+  // Multipart evidence, avatar, and Brand Core foundation intake
+  // (POST /api/bios/:brandId/sources/upload — references, logos, fonts).
+  // 16 MB clears one 15 MB logo/font plus multipart framing. Reference
+  // images are capped at 5 MB inside validateUpload. Hosted on Render;
+  // this is the request ceiling, not a laptop limit.
   upload: { windowMs: MINUTE, ipMax: 60, userMax: 20, bodyBytes: 16 * MB },
 
   // Anything that can start model work (specialist runs, Brandolph, discovery,
@@ -101,7 +104,10 @@ export function classifyRequest(method, path) {
 
   if (!p.startsWith("/api/")) return "asset";
 
-  if (m === "POST" && (p === "/api/me/avatar" || /^\/api\/bios\/[^/]+\/evidence$/.test(p))) return "upload";
+  // Foundation files (references, logos, fonts) share sources/upload.
+  // Evidence and avatar are the other multipart intakes. Anything else
+  // under /api/bios stays on the tighter classes below.
+  if (m === "POST" && (p === "/api/me/avatar" || /^\/api\/bios\/[^/]+\/(?:evidence|sources\/upload)$/.test(p))) return "upload";
 
   // Cost surface. Checked before the generation prefix so these writes do not
   // inherit the loose 120/min generation ceiling. Audited 2026-10-10: every

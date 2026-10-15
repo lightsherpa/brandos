@@ -66,6 +66,7 @@ test("classifyRequest maps every perimeter surface to its abuse class", () => {
     ["PATCH", "/api/discovery/delegation/abc-123", "publicToken"],
     ["POST", "/api/discovery/delegation", "generation"], // authenticated create
     ["POST", "/api/bios/brand-1/evidence", "upload"],
+    ["POST", "/api/bios/brand-1/sources/upload", "upload"],
     ["POST", "/api/me/avatar", "upload"],
     ["POST", "/api/brandolph/ask", "paid"],
     ["POST", "/api/discovery/start", "paid"],
@@ -259,8 +260,47 @@ test("a body within the class ceiling is accepted", async () => {
 test("upload routes get a larger ceiling than JSON routes, and webhooks larger still", () => {
   assert.ok(PERIMETER_CLASSES.upload.bodyBytes > PERIMETER_CLASSES.api.bodyBytes);
   assert.ok(PERIMETER_CLASSES.upload.bodyBytes >= 15 * 1024 * 1024, "must clear MAX_UPLOAD_BYTES");
+  assert.ok(PERIMETER_CLASSES.upload.bodyBytes <= 16 * 1024 * 1024, "one logo or font, plus multipart slack");
   assert.ok(PERIMETER_CLASSES.webhook.bodyBytes > PERIMETER_CLASSES.api.bodyBytes);
   assert.ok(PERIMETER_CLASSES.publicToken.bodyBytes < PERIMETER_CLASSES.api.bodyBytes);
+});
+
+test("classifyRequest treats Brand Core sources/upload as upload so a logo-sized body is not stuck on the 1MB api class", async () => {
+  const path = "/api/bios/brand-1/sources/upload";
+  assert.equal(classifyRequest("POST", path), "upload");
+  assert.equal(classifyRequest("GET", path), "api");
+  assert.equal(classifyRequest("POST", "/api/bios/brand-1/sources"), "generation");
+
+  let handlerRan = false;
+  const app = buildApp(PROD_ENV, (a) => {
+    a.post("/api/bios/:brandId/sources/upload", (c) => { handlerRan = true; return c.json({ ok: true }); });
+  });
+  const logoSized = String(15 * 1024 * 1024);
+  const accepted = await app.request(path, from("203.0.113.9", {
+    method: "POST",
+    body: "x",
+    headers: { "content-type": "multipart/form-data; boundary=----x", "content-length": logoSized },
+  }));
+  assert.equal(accepted.status, 200);
+  assert.equal(handlerRan, true);
+
+  const apiBlocked = await app.request("/api/echo", from("203.0.113.9", {
+    method: "POST",
+    body: "x",
+    headers: { "content-type": "application/json", "content-length": logoSized },
+  }));
+  assert.equal(apiBlocked.status, 413);
+  assert.equal((await apiBlocked.json()).code, "PAYLOAD_TOO_LARGE");
+
+  handlerRan = false;
+  const overUpload = await app.request(path, from("203.0.113.9", {
+    method: "POST",
+    body: "x",
+    headers: { "content-type": "multipart/form-data; boundary=----x", "content-length": String(PERIMETER_CLASSES.upload.bodyBytes + 1) },
+  }));
+  assert.equal(overUpload.status, 413);
+  assert.equal((await overUpload.json()).code, "PAYLOAD_TOO_LARGE");
+  assert.equal(handlerRan, false);
 });
 
 test("an oversized chunked body is rejected even without a content-length header", async () => {
