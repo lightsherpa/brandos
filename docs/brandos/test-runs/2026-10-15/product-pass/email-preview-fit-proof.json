@@ -1,0 +1,23 @@
+{
+  "taskId": "3661edba-0300-4540-b3df-030aa9f06b96",
+  "measurements": [
+    {
+      "width": 1280,
+      "frameHeight": 1062,
+      "contentHeight": 1062,
+      "ctaBottom": 930.6875,
+      "ctaText": "Quiero mi momento 💛",
+      "sandbox": "allow-same-origin"
+    },
+    {
+      "width": 1440,
+      "frameHeight": 1062,
+      "contentHeight": 1062,
+      "ctaBottom": 930.6875,
+      "ctaText": "Quiero mi momento 💛",
+      "sandbox": "allow-same-origin"
+    }
+  ],
+  "errors": [],
+  "mutations": "None; existing saved email and read-only browser checks"
+}

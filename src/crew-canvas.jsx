@@ -5,14 +5,23 @@ import { requestedCrew, crewRoles, crewDeliverables, crewCopy } from './lib/crew
 import './crew-canvas.css';
 
 function Artifact({item,type,onSelect,onComponentSelect,selected,copy}) {
- const box=React.useRef(null),[scale,setScale]=React.useState(.3);
- React.useEffect(()=>{const observer=new ResizeObserver(entries=>setScale(entries[0].contentRect.width/1080));if(box.current)observer.observe(box.current);return()=>observer.disconnect();},[]);
+ const box=React.useRef(null),frame=React.useRef(null),[scale,setScale]=React.useState(.3),[emailHeight,setEmailHeight]=React.useState(650);
+ const measureEmail=React.useCallback(()=>{
+  const document=frame.current?.contentDocument;
+  if(type!=='email_sequence'||!document?.body)return;
+  // The body's natural size can shrink on a wider card; root.scrollHeight
+  // includes the current iframe viewport and would keep an obsolete height.
+  const height=Math.max(320,Math.ceil(Math.max(document.body.scrollHeight,document.body.getBoundingClientRect().height)));
+  setEmailHeight(current=>current===height?current:height);
+ },[type]);
+ React.useEffect(()=>{const observer=new ResizeObserver(entries=>{setScale(entries[0].contentRect.width/1080);measureEmail();});if(box.current)observer.observe(box.current);return()=>observer.disconnect();},[measureEmail]);
+ const onEmailLoad=()=>{measureEmail();const document=frame.current?.contentDocument;document?.fonts?.ready.then(measureEmail).catch(()=>{});};
  return <article className={`crew-artifact${selected?' crew-artifact--selected':''}`}>
   <button className="crew-artifact__heading" onClick={onSelect}><span>{copy.artifact} {item.index+1}</span><span>{copy.edit} ↗</span></button>
   {type==='email_sequence'&&<div className="crew-envelope"><strong>{item.copy?.subject}</strong><p>{item.copy?.preheader}</p></div>}
   <div ref={box} className={type==='social_post'?'crew-social':'crew-email'}>
-   <iframe title={`${copy[type]} ${item.index+1}`} sandbox="" srcDoc={item.html} style={type==='social_post'?{width:1080,height:1350,transform:`scale(${scale})`,transformOrigin:'top left'}:undefined}/>
-   <button className="crew-artifact__select" aria-label={`${copy.edit} ${type==='social_post'?copy.image:item.index+1}`} onClick={()=>type==='social_post'?onComponentSelect('image'):onSelect()}/>
+   <iframe ref={frame} title={`${copy[type]} ${item.index+1}`} sandbox={type==='email_sequence'?'allow-same-origin':''} onLoad={type==='email_sequence'?onEmailLoad:undefined} srcDoc={item.html} style={type==='social_post'?{width:1080,height:1350,transform:`scale(${scale})`,transformOrigin:'top left'}:{height:emailHeight}}/>
+   {type==='social_post'&&<button className="crew-artifact__select" aria-label={`${copy.edit} ${copy.image}`} onClick={()=>onComponentSelect('image')}/>}
   </div>
   {type==='social_post'&&<button className="crew-caption" onClick={()=>onComponentSelect('caption')}>{item.copy?.caption}</button>}
  </article>;
