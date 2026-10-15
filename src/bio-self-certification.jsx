@@ -12,6 +12,7 @@ import { BIO_FIELDS } from '../server/src/lib/bio-schema.js';
 import { certifyUxEnabled } from './certify/ux-flags.js';
 import { ownerCertifyPath } from './lib/certify-routing.js';
 import { useBrandFonts } from './brand-fonts.jsx';
+import {bookCopy} from './locales/brand-book-copy.js';
 
 export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,renderSection,initiallyOpen=false,onClose,go}){
  const {t}=useLocale();
@@ -25,8 +26,9 @@ export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,rende
   {open&&<CertificationDialog key={bio.id} {...{brandId,brandName,bio,renderSection,onDone}} onClose={()=>{setOpen(false);onClose?.();}}/>}
  </>;
 }
-function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection,embedded=false}){
- const {t,locale}=useLocale();const copy=reviewCopy(locale);
+export function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection,embedded=false}){
+ const {t,locale}=useLocale();const copy=reviewCopy(locale),actionCopy=bookCopy[locale]||bookCopy.en;
+ const modern=certifyUxEnabled();
  const ref=React.useRef(null);
  const [step,setStep]=React.useState(0);
  const [section,setSection]=React.useState('identity');
@@ -83,6 +85,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
    setReceipt(j);
   }catch(e){setError(e.message);}finally{setBusy(false);}
  };
+ const confirmCurrent=()=>{setReviewed(prev=>prev.includes(section)?prev:[...prev,section]);const next=CERTIFICATION_SECTIONS.find(s=>s!==section&&!reviewed.includes(s));if(next)setSection(next);};
  const label=s=>t('discovery.tab.'+(s==='positioning'?'competitive':s));
  const Container=embedded?'section':'dialog';
  return <Container ref={ref} className={embedded?'bio-cert-dialog bio-cert-inline':'bio-cert-dialog'} role={embedded?'region':'dialog'} aria-modal={embedded?undefined:'true'} aria-labelledby="bio-cert-title" tabIndex={-1} onCancel={e=>{e.preventDefault();close();}}>
@@ -107,7 +110,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
     </section>}
     {!step?<>
      <div className="bio-cert-review-grid"><nav aria-label={t('discovery.certification.sections')}>{CERTIFICATION_SECTIONS.map(s=><button type="button" key={s} aria-current={section===s?'page':undefined} onClick={()=>setSection(s)}><span>{label(s)}</span><span>{reviewed.includes(s)?'✓':'—'}</span></button>)}</nav>
-      <section className="bio-cert-preview" aria-label={label(section)}><h3>{label(section)}</h3>{renderSection(section)}<label className="bio-cert-check"><input type="checkbox" checked={reviewed.includes(section)} onChange={e=>setReviewed(prev=>e.target.checked?[...prev,section]:prev.filter(s=>s!==section))}/><span>{t('discovery.certification.reviewed',{section:label(section)})}</span></label></section></div>
+      <section className="bio-cert-preview" aria-label={label(section)}><h3>{label(section)}</h3>{modern&&<div className="bio-cert-section-action"><div><strong>{label(section)}</strong><small>{reviewed.length} / {CERTIFICATION_SECTIONS.length} {actionCopy.progress}</small></div><button className="btn btn--primary" onClick={confirmCurrent}>{reviewed.includes(section)?actionCopy.recorded:actionCopy.next} {reviewed.includes(section)?"✓":"→"}</button>{reviewed.includes(section)&&<button className="btn btn--ghost" onClick={()=>setReviewed(prev=>prev.filter(s=>s!==section))}>{actionCopy.unconfirm}</button>}</div>}{renderSection(section)}{!modern&&<label className="bio-cert-check"><input type="checkbox" checked={reviewed.includes(section)} onChange={e=>setReviewed(prev=>e.target.checked?[...prev,section]:prev.filter(s=>s!==section))}/><span>{t('discovery.certification.reviewed',{section:label(section)})}</span></label>}</section></div>
      {issues.length>0&&<details className="bio-cert-issues"><summary>{t('discovery.certification.issues',{count:issues.length})}</summary><p>{t('discovery.certification.issuesText')}</p><ul>{issues.map(i=><li key={i.field}>{i.label} · {i.status==='missing'?t('discovery.certification.missing'):t('discovery.certification.verify')}</li>)}</ul></details>}
      {blocking.length>0&&<p role="alert" className="bio-cert-error">{t('discovery.selfCert.fillBefore',{fields:blocking.map(i=>i.label).join(', ')})}</p>}
     </>:<>
@@ -117,7 +120,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
     </>}
     {error&&<p role="alert" className="bio-cert-error">{error}</p>}
    </div>
-   <footer><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&(blocking.length>0||below))} onClick={()=>setStep(1)}>{t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)||below} onClick={submit}>{embedded&&!busy?copy.certify:t(busy?'discovery.selfCert.submitting':accepting?'discovery.certification.acceptChanges':'discovery.certification.submit')}</button>}</footer>
+   <footer className={modern?"bio-cert-primary-footer":undefined}><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&(blocking.length>0||below))} onClick={()=>setStep(1)}>{modern?actionCopy.finish:t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)||below} onClick={submit}>{embedded&&!busy?copy.certify:t(busy?'discovery.selfCert.submitting':accepting?'discovery.certification.acceptChanges':'discovery.certification.submit')}</button>}</footer>
   </>}
  </Container>;
 }
@@ -133,7 +136,8 @@ export function OwnerCertifyView({brandId,go}){
  const bio=data?.bio,payload=bio?.payload||{};
  const [sources,setSources]=React.useState([]);
  React.useEffect(()=>{let active=true;if(!supabase||!brandId)return;supabase.from('bio_sources').select('id,src,kind,signals').eq('brand_id',brandId).then(async({data:rows,error})=>{if(error)return;const signed=await Promise.all((rows||[]).map(async source=>{if(source.kind!=='file_upload')return source;try{const res=await apiFetch(`/api/bios/${brandId}/sources/${source.id}/url`);const j=await res.json();return {...source,evidence_url:j.url};}catch{return source;}}));if(active)setSources(signed);});return()=>{active=false;};},[brandId,bio?.id]);
- const displayFont=(payload.visual?.type||[]).find(font=>/^(display|both)$/i.test(font.kind||''))?.family||payload.visual?.type?.[0]?.family;
+ const specimenFont=(payload.visual?.type||[]).find(font=>/^(display|both)$/i.test(font.kind||''))||payload.visual?.type?.[0];
+ const displayFont=specimenFont?.sourceId?`BrandFont-${specimenFont.sourceId}`:specimenFont?.family;
  const ledger={claims:BIO_FIELDS.map(field=>{const path=field.path.join('.'),value=payload[field.path[0]]?.[field.path[1]],confidence=payload.confidence?.[path];const ids=new Set();const collect=v=>{if(v&&typeof v==='object'){if(v.sourceId)ids.add(v.sourceId);Object.values(v).forEach(collect);}};collect(value);if(path==='visual.imagery')collect(payload.visual?.references);const evidence=sources.filter(source=>ids.has(source.id)||source.src===confidence?.source).map(source=>({label:source.src,url:/^https?:/.test(source.src)?source.src:undefined,asset_url:source.evidence_url,mime:source.signals?.mime,screenshot:source.signals?.screenshotUrl,quote:typeof payload.evidence?.[path]==='string'?payload.evidence[path]:payload.evidence?.[path]?.quote||''}));if(!evidence.length&&confidence?.source)evidence.push({label:confidence.source,url:/^https?:/.test(confidence.source)?confidence.source:undefined,quote:typeof payload.evidence?.[path]==='string'?payload.evidence[path]:payload.evidence?.[path]?.quote||''});return{claim_id:path,field_path:path,value,evidence};})};
  const feedback=async()=>{if(!body.trim()||busy)return;setBusy(true);setError('');try{const res=await apiFetch(`/api/bios/${brandId}`,{method:'PATCH',body:JSON.stringify({expectedVersion:bio.version,payload:{...payload,owner_feedback:{section,kind,body:body.trim(),base_version:bio.version}}})});const json=await res.json();if(!res.ok)throw Error(json.error||'Could not create version');setBody('');await reload();}catch(e){setError(e.message);}finally{setBusy(false);}};
  const renderSection=key=><div><SectionExplanation path={key} locale={locale}/>{ledger.claims.filter(c=>c.field_path.startsWith(key+'.')).map(c=><article key={c.claim_id} className="certify-owner-claim"><h4>{reviewFieldLabel(c.field_path,locale,t)}</h4><ClaimValue claim={{...c,fontFamily:displayFont}} sources={sources}/><ClaimEvidence claim={c}/></article>)}</div>;

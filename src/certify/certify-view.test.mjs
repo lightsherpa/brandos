@@ -70,3 +70,9 @@ test('empty specialized claim arrays display the explicit empty value',async(t)=
   const html=renderToStaticMarkup(React.createElement(ClaimValue,{claim:{field_path,value:[]}}));assert.match(html,/No value recorded/);
  }
 });
+test('uploaded certified fonts render using their registered FontFace name while retaining family caption',async(t)=>{
+ const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());
+ const {ClaimValue}=await vite.ssrLoadModule('/src/certify/CertifyView.jsx');
+ const html=renderToStaticMarkup(React.createElement(ClaimValue,{claim:{field_path:'visual.type',value:[{family:'Cake Commercial',sourceId:'commercial-source'}]}}));
+ assert.match(html,/BrandFont-commercial-source/);assert.match(html,/>Cake Commercial<\/strong>/);assert.equal((html.match(/The quick brown fox/g)||[]).length,7);
+});

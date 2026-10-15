@@ -1,0 +1,29 @@
+{
+  "base": "http://127.0.0.1:5196",
+  "bookBrand": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "pendingBrand": "c566c64a-1423-4525-9103-6a50f21f6484",
+  "specimens": 21,
+  "finalVisible": true,
+  "screenshots": [
+    "brand-book-en-1280.png",
+    "brand-book-en-1440.png",
+    "brand-book-es-1280.png",
+    "brand-book-es-1440.png",
+    "brand-book-ar-1280.png",
+    "brand-book-ar-1440.png",
+    "certify-cta-en-1280.png",
+    "certify-cta-en-1440.png",
+    "certify-cta-es-1280.png",
+    "certify-cta-es-1440.png",
+    "certify-cta-ar-1280.png",
+    "certify-cta-ar-1440.png",
+    "certify-final-confirmation-en-1280.png",
+    "certify-final-confirmation-en-1440.png",
+    "certify-final-confirmation-es-1280.png",
+    "certify-final-confirmation-es-1440.png",
+    "certify-final-confirmation-ar-1280.png",
+    "certify-final-confirmation-ar-1440.png"
+  ],
+  "errors": [],
+  "mutations": "None: no API writes, seeding or submission"
+}
