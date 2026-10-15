@@ -5,13 +5,14 @@
 //   POST /api/tasks/:id/rules               { index, kind, value, reason, checkId } "Save as rule"
 //   POST /api/tasks/:id/items/:index/rerun  copy-only re-run of one flagged item (Beat 5)
 // Jobs run server-side, so the user can leave the page and come back.
+import { crewCanvasEnabled, crewFor, validateComponent } from "../harness/crew-canvas.js";
 import { recoverTasks } from "../harness/task-recovery.js";
 import { Hono } from "hono";
 import crypto from "node:crypto";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { hasPermission } from "../lib/permissions.js";
-import { runTask, rerunItem, ETA_SECONDS } from "../harness/pipeline.js";
+import { runTask, rerunItem, reviseComponent, publicItem, ETA_SECONDS } from "../harness/pipeline.js";
 import { loadTaskContext } from "../harness/task-context.js";
 import { saveRule } from "../harness/rules.js";
 import { TASKS } from "../harness/registry.js";
@@ -27,7 +28,7 @@ export const RULE_PERMISSION = "brand.manage";
 export const canSaveRule = (auth, workspaceId) => hasPermission(auth, RULE_PERMISSION, workspaceId);
 
 const app = new Hono();
-app.get("/enabled", (c) => c.json({ enabled: tasksEnabled() }));
+app.get("/enabled", (c) => c.json({ enabled: tasksEnabled(), ...(crewCanvasEnabled() ? {crew_canvas:true} : {}) }));
 app.use("*", async (c, next) => {
   if (!tasksEnabled()) return c.json({ error: "Tasks are not enabled", code: "TASKS_DISABLED" }, 404);
   return next();
@@ -41,7 +42,7 @@ function remember(job) {
 }
 function snapshot(job) {
   const { workspaceId, ...rest } = job;
-  return rest;
+  return { ...rest, ...(crewCanvasEnabled() ? { items: (job.items || []).map(publicItem), crew: crewFor(job.type, job.heroes) } : {}) };
 }
 
 async function scopeBrand(c, brandId) {
@@ -55,6 +56,7 @@ async function scopeBrand(c, brandId) {
 app.post("/", requireAuth, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const { brandId, type, brief, count, heroes } = body;
+  if (crewCanvasEnabled() && body.modelOverride != null) return c.json({ error: "Model choice is managed by the crew", code: "MODEL_OVERRIDE_NOT_ALLOWED" }, 400);
   if (!TASKS[type]) return c.json({ error: "Unknown task type", code: "UNKNOWN_TASK" }, 400);
   if (!brandId || typeof brief !== "string" || brief.trim().length < 10) return c.json({ error: "brandId and a brief (≥10 chars) are required" }, 400);
   const scoped = await scopeBrand(c, brandId);
@@ -177,7 +179,19 @@ app.post("/:id/items/:index/rerun", requireAuth, async (c) => {
   return c.json(r.body, r.status);
 });
 
-const rerunDeps = { preflight, loadTaskContext, openRun, settle, rerunItem };
+app.post('/:id/items/:index/component', requireAuth, async (c) => {
+  if (!crewCanvasEnabled()) return c.json({ error: 'Crew Canvas is not enabled' }, 404);
+  const { job, error } = await getJob(c);
+  if (error) return error;
+  const body = await c.req.json().catch(() => ({}));
+  const invalid = validateComponent({ ...body, type: job.type, heroes: job.heroes });
+  if (invalid || body.modelOverride != null) return c.json({ error: invalid || 'Model choice is managed by the crew', code: 'INVALID_COMPONENT' }, 400);
+  const r = await executeRerun({ job, index: Number(c.req.param('index')), body: { ...body, componentEdit: true }, userId: c.get('auth').userId });
+  if (r.credit) return creditErrorResponse(c, r.credit);
+  return c.json(r.body, r.status);
+});
+
+const rerunDeps = { preflight, loadTaskContext, openRun, settle, rerunItem, reviseComponent };
 
 /**
  * One copy-only re-run. Race-safe: the gate, the `fixing` state and the
@@ -199,7 +213,7 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
     const credits = taskCredits({ type: job.type, rerun: true });
     const pre = await deps.preflight({ workspaceId: job.workspaceId, credits });
     if (!pre.ok) { rollback(); return { credit: pre.check }; }
-    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, copyOnly: true, bioVersion: job.provenance?.bioVersion ?? job.brand_core?.version });
+    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, copyOnly: !(body.componentEdit && body.component === "image"), heroes: job.heroes, bioVersion: job.provenance?.bioVersion ?? job.brand_core?.version });
     run = await deps.openRun({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, brief: job.brief, bioVersion: ctx.bio?.version, credits, kind: "rerun", parentTaskId: job.id, itemIndex: index });
   } catch (e) {
     rollback();
@@ -208,7 +222,7 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
   try {
     const ruleIds = Array.isArray(body.ruleIds) ? body.ruleIds : (job.saved_rules || []).map((r) => r.id);
     const res = await deps.settle({ workspaceId: job.workspaceId, brandId: job.brandId, userId, run,
-      work: () => deps.rerunItem({ type: job.type, brief: job.brief, layer1: ctx.layer1, spec: job.result.spec, item, heroes: job.heroes, ruleIds, skillsPayloads: ctx.skillsPayloads }),
+      work: () => (body.componentEdit ? deps.reviseComponent : deps.rerunItem)({ ...(body.componentEdit ? {component: body.component, action: body.action, value: body.value, feedback: body.feedback} : {}), type: job.type, brief: job.brief, layer1: ctx.layer1, spec: job.result.spec, item, heroes: job.heroes, ruleIds, skillsPayloads: ctx.skillsPayloads }),
       toOutput: (r) => rerunOutput(job, index, r, ctx.provenance || {bioId:ctx.bio?.id ?? null,bioVersion:ctx.bio?.version ?? null}) });
     job.items[index] = res.item;
     job.status = job.items.every((it) => it.status === "ready") ? "ready" : "flagged";

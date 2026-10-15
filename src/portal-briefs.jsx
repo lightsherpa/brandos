@@ -1,3 +1,5 @@
+import { CrewCanvas } from "./crew-canvas.jsx";
+import { crewCanvasEnabled } from "./lib/crew-canvas.js";
 import { outputStatus, statusLabel, expandOutput, coalesceTaskCards, newestRuns, requestHumanCraft } from "./lib/task-output.js";
 import React from "react";
 import { BriefWorkspaceSurface } from "./brief-workspace-surface.jsx";
@@ -2541,11 +2543,11 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
           display:"flex", flexDirection:"column", gap: 10,
         }}>
           <div style={{display:"flex", gap: 8, flexWrap:"wrap"}}>
-            <button className="btn btn--ghost btn--sm"
+            {!crewCanvasEnabled && <button className="btn btn--ghost btn--sm"
               onClick={() => { setRerunOpen(o => !o); setReviseOpen(false); }}
               disabled={rerunState?.running}>
               <Icon name="refresh" size={13} /> {t("briefs.notepad.rerunWith")}
-            </button>
+            </button>}
             <button className="btn btn--ghost btn--sm"
               onClick={() => { setReviseOpen(o => !o); setRerunOpen(false); }}
               disabled={rerunState?.running}>
@@ -2554,7 +2556,7 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
           </div>
 
           {/* Re-run dropdown */}
-          {rerunOpen && (
+          {!crewCanvasEnabled && rerunOpen && (
             <div className="card" style={{padding: 8, display:"flex", flexDirection:"column", gap: 2, animation:"cvPopIn 160ms cubic-bezier(.2,.8,.2,1)"}}>
               {rerunOptions.map((opt) => {
                 const isCurrent = currentRoute && (currentRoute === opt.route || opt.route.endsWith(currentRoute));
@@ -2842,6 +2844,7 @@ function PlexCanvasPrototype({ go }) {
 }
 
 function CanvasView({ go, prototype = false }) {
+  const { t } = useLocale();
   /* Read context off sessionStorage. Two modes:
        mode:"run"  → assembled crew ready to run (from HomeCreate handoff)
        mode:"view" → existing brief opened from BriefsLibrary; loads runs/outputs from DB
@@ -2858,6 +2861,7 @@ function CanvasView({ go, prototype = false }) {
     setCtx(null);
   };
 
+  if (crewCanvasEnabled && ctx?.brandId && ctx.mode !== "view") return <CrewCanvas context={ctx} onClear={clearCtx} go={go} />;
   if (prototype) return <PlexCanvasPrototype go={go} />;
   if (ctx?.mode === "view" && ctx.briefId) {
     return <BriefViewCanvas briefId={ctx.briefId} onClear={clearCtx} go={go} />;
