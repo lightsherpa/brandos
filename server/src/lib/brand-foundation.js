@@ -63,8 +63,9 @@ export function validateFoundationVisual(visual = {}) {
   const roles = new Set();
   for (const colour of visual.palette || []) {
     if (!colour || !/^#[\da-f]{6}$/i.test(colour.hex || '')) return 'Use six-digit colour hex values';
-    if (colour.role && !COLOUR_ROLES.includes(colour.role) && !['secondary','background','neutral','unclassified'].includes(colour.role)) return 'Unknown colour role';
-    if (['primary','ink','surface'].includes(colour.role)) { if(roles.has(colour.role)) return `Choose one ${colour.role} colour`;roles.add(colour.role); }
+    if (colour.role && !COLOUR_ROLES.includes(colour.role) && !['secondary','tertiary','background','neutral','unclassified'].includes(colour.role)) return 'Unknown colour role';
+    if (colour.group && !['primary','secondary','tertiary','neutral','accent'].includes(colour.group)) return 'Unknown colour group';
+    if (['primary','ink','surface'].includes(colour.role) && !colour.group) { if(roles.has(colour.role)) return `Choose one ${colour.role} colour`;roles.add(colour.role); }
   }
   if (visual.type != null && !Array.isArray(visual.type)) return 'Typography must be a list';
   for (const font of visual.type || []) {

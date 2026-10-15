@@ -79,7 +79,15 @@ export function validateVisualAssetMetadata({
   fontUsage = "",
   licenseType = "",
   licenseReference = "",
+  logoUse = "",
+  referenceTag = "",
+  referenceAppend = false,
+  fontWeight = "400",
+  fontStyle = "normal",
 } = {}) {
+  if (logoUse && !['primary','secondary','mark','small','light','dark','monochrome'].includes(logoUse)) return {ok:false,code:'LOGO_USE',message:'Choose a supported logo use'};
+  if (referenceTag && !['product','lifestyle','usage'].includes(referenceTag)) return {ok:false,code:'REFERENCE_TAG',message:'Choose product, brand/lifestyle or usage example'};
+  if (!/^(100|200|300|400|500|600|700|800|900)$/.test(String(fontWeight)) || !['normal','italic'].includes(fontStyle)) return {ok:false,code:'FONT_STYLE',message:'Choose a font weight from 100 to 900 and a regular or italic style'};
   const normalizedExt = String(ext).toLowerCase().replace(/^\./, "");
   const isFont = FONT_UPLOAD_EXTS.has(normalizedExt);
   const isImage = IMAGE_UPLOAD_EXTS.has(normalizedExt);
@@ -104,6 +112,8 @@ export function validateVisualAssetMetadata({
         asset_role: "font",
         rights_confirmed: true,
         font_family: family,
+        font_weight: String(fontWeight),
+        font_style: fontStyle,
         font_usage: usage[0].toUpperCase() + usage.slice(1).toLowerCase(),
         license_type: license,
         license_reference: String(licenseReference).trim(),
@@ -114,7 +124,9 @@ export function validateVisualAssetMetadata({
   return {
     ok: true,
     metadata: {
-      ...(role === "logo" ? { logo_variant:logoVariant } : {}),
+      ...(role === "logo" ? { logo_variant:logoVariant, ...(logoUse?{logo_use:logoUse}:{}) } : {}),
+      ...(referenceTag?{reference_tag:referenceTag}:{}),
+      ...(referenceAppend?{reference_append:true}:{}),
       asset_kind: role === "logo" ? "logo" : isImage ? "image_reference" : "visual_document",
       asset_role: role,
       rights_confirmed: true,

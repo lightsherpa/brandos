@@ -142,6 +142,11 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
       fontUsage: form.get("fontUsage"),
       licenseType: form.get("licenseType"),
       licenseReference: form.get("licenseReference"),
+      logoUse: form.get("logoUse") || "",
+      referenceTag: form.get("referenceTag") || "",
+      referenceAppend: String(form.get("referenceAppend")) === "true",
+      fontWeight: form.get("fontWeight") || "400",
+      fontStyle: form.get("fontStyle") || "normal",
     });
     if (!metadata.ok) return c.json({ error: metadata.message, code: metadata.code }, 400);
     visualMetadata = pendingReference ? {...metadata.metadata,asset_role:"canonical",rights_confirmed:false,reference_intake_pending:true} : metadata.metadata;
@@ -327,6 +332,7 @@ app.patch("/:brandId", requireAuth, async (c) => {
     .limit(1)
     .maybeSingle();
   if(previousError)return c.json({code:"BIO_UNAVAILABLE",error:"Could not read the current Brand Core"},503);
+  if (body.expectedVersion != null && (!Number.isInteger(body.expectedVersion) || body.expectedVersion !== previousBio?.version)) return c.json({code:"STALE_BIO_VERSION",error:"Brand Core changed; reload before saving"},409);
   if (JSON.stringify(body.payload.visual?.references || []) !== JSON.stringify(previousBio?.payload?.visual?.references || [])) return c.json({code:"REFERENCE_CONFIRMATION_REQUIRED",error:"Use the owner reference confirmation flow to change product references"},409);
   const logoUnchanged = JSON.stringify(body.payload.visual?.logo ?? null) === JSON.stringify(previousBio?.payload?.visual?.logo ?? null);
   const foundationAssetError = await validateFoundationAssets(brandId, body.payload.visual || {}, previousBio?.payload?.visual || {}, { allowUnconfirmedLogos: logoUnchanged });
