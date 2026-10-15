@@ -1,0 +1,13 @@
+{
+  "scope": "Existing local test profile only",
+  "localEndpoint": "http://127.0.0.1:54321",
+  "userId": "019d9be9-d86b-49e6-99d0-5d04a620aba0",
+  "teamMemberId": "2bca6687-b392-4d74-9bb0-3f81f75ae5b5",
+  "changed": [
+    "name",
+    "first_name"
+  ],
+  "newName": "Local creative director",
+  "productionWrites": false,
+  "seeding": false
+}
