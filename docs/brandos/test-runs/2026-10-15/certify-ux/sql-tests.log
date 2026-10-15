@@ -1,0 +1,22 @@
+Connecting to local database...
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:4: NOTICE:  extension "pgtap" already exists, skipping
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:34: NOTICE:  OK agent author_role rejected by check
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:78: NOTICE:  OK unique answer key rejects duplicate
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:78: NOTICE:  OK atomic text evidence, retry, conflict, version binding, closed/certified job
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:86: NOTICE:  OK client sees only own brand, sent only
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:91: NOTICE:  OK client insert denied
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:96: NOTICE:  OK author_user_id column denied
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:101: NOTICE:  OK full-table SELECT denied
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql:106: NOTICE:  OK service-only answer RPC
+/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/cert_messages_rls.sql ...... ok
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/discovery_review_gate.sql:2: NOTICE:  extension "pgtap" already exists, skipping
+/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/discovery_review_gate.sql .. ok
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/platform_integrity.sql:3: NOTICE:  extension "pgtap" already exists, skipping
+/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/platform_integrity.sql ..... ok
+psql:/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/reference_intake.sql:2: NOTICE:  extension "pgtap" already exists, skipping
+/Users/oscarmottaquintana/.codex/worktrees/certify-ux/CaastorOS/supabase/tests/reference_intake.sql ....... ok
+All tests successful.
+Files=4, Tests=78,  0 wallclock secs ( 0.02 usr  0.01 sys +  0.01 cusr  0.01 csys =  0.05 CPU)
+Result: PASS
+A new version of Supabase CLI is available: v2.121.0 (currently installed v2.119.0)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
