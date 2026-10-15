@@ -41,6 +41,10 @@ test('combined OCR/visual gate rejects graphics, malformed QA and single letters
  for(const json of [{tokens:[]},{tokens:[],violations:['moodboard grid']},{tokens:[{text:'A',confidence:95}],violations:[]},{tokens:[{text:'word',confidence:'bad'}],violations:[]}])assert.equal((await ocrNoText({imageUrl:'https://assets.test/x',complete:complete(json)})).pass,false);
  assert.equal((await ocrNoText({imageUrl:'https://assets.test/x',complete:complete({tokens:[],violations:[]})})).pass,true);
 });
+test('brand palette check is mandatory for backgrounds and email heroes',async()=>{
+ for(const json of [{tokens:[],violations:[]},{tokens:[],violations:[],palette_match:false}])assert.equal((await ocrNoText({imageUrl:'https://assets.test/x',palette:layer1.palette,complete:complete(json)})).pass,false);
+ assert.equal((await ocrNoText({imageUrl:'https://assets.test/x',palette:layer1.palette,complete:complete({tokens:[],violations:[],palette_match:true})})).pass,true);
+});
 test('compositor typesets brand text after generation with certified font, palette, logo and RTL',async()=>{
  const html=renderSocialComposite({post:{overlay_line:'Tarta <real>'},imageUrl:'https://assets.test/photo',layer1:{...layer1,language:'ar'}});
  assert.match(html,/font-family:'Recoleta'/);assert.match(html,/font-weight:600/);assert.match(html,/color:#161616;background:#ffffff/);assert.match(html,/class="logo"/);assert.match(html,/Tarta &lt;real&gt;/);assert.match(html,/dir="rtl"/);

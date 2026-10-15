@@ -78,7 +78,7 @@ export async function generateSlot({ slot, imageBrief, layer1, budget, gen = gen
     budget?.record({ kind: "image", step: "imaging", slot, model: done?.model || route, cost_usd: cost, ms: Date.now() - t0, fallback_from: done?.fallback_from || null, uses_reference: done?.uses_reference ?? false, error });
     const attempt = { route, model: done?.model || null, fallback_from: done?.fallback_from || null, ms: Date.now() - t0, error, asset_url: done?.asset_url || null, width: done?.width, height: done?.height, uses_reference: done?.uses_reference ?? false, reference_count: done?.reference_count ?? 0 };
     if (done) {
-      try { attempt.ocr = await ocr({ imageUrl: done.asset_url, budget, complete }); }
+      try { attempt.ocr = await ocr({ imageUrl: done.asset_url, palette: layer1.palette, budget, complete }); }
       catch { attempt.ocr = { pass: false, reason: "Image quality check unavailable" }; }
       // Missing or malformed QA is a rejection, including injected QA adapters.
       if (attempt.ocr?.pass !== true) attempt.ocr = { ...attempt.ocr, pass: false, reason: attempt.ocr?.reason || "Image quality check did not pass" };
@@ -90,7 +90,7 @@ export async function generateSlot({ slot, imageBrief, layer1, budget, gen = gen
   for (let retry = 1; best.asset_url && best.ocr?.pass !== true && retry <= 2; retry++) {
     onEvent({ type: "image_retry", slot, attempt: retry, reason: "image_quality", message_key: "image_redoing" });
     try {
-      best = await tryModel(IMAGE_PRIMARY, IMAGE_FALLBACK, "qa_regenerate", `\nCORRECTION ${retry}: The previous image failed visual quality checks. Start a new single photograph with plain, unmarked surfaces. Remove all lettering, logos, graphic panels, colour chips and layout grids. Do not imitate reference typography. ${NO_TEXT_RULE}`);
+      best = await tryModel(IMAGE_PRIMARY, IMAGE_FALLBACK, "qa_regenerate", `\nCORRECTION ${retry}: The previous image failed visual quality checks. Start a new single photograph with plain, unmarked surfaces. Remove all lettering, logos, graphic panels, colour chips and layout grids. Do not imitate reference typography. Follow the brand palette for backgrounds, props and styling. ${NO_TEXT_RULE}`);
     } catch (e) { best = { error: e.message }; break; }
   }
   const accepted = !!best.asset_url && best.ocr?.pass === true;

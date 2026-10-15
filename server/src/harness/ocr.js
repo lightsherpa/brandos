@@ -14,17 +14,18 @@ export function evaluateOcrTokens(tokens = [], { minLength = 1, minConfidence = 
   return { pass: hits.length === 0, hits: hits.map((t) => String(t.text)).slice(0, 8) };
 }
 
-export async function ocrNoText({ imageUrl, budget, complete }) {
+export async function ocrNoText({ imageUrl, palette = null, budget, complete }) {
   const ctx = assemble("ocr", { image_url: imageUrl });
   try {
     const { json } = await callJson({
-      role: "ocr", step: "ocr", route: OCR_ROUTE, fallback: OCR_FALLBACK, system: SYSTEM, maxTokens: 600, budget, estimateUsd: 0.002, complete,
-      content: [{ type: "text", text: "Transcribe all legible text. JSON only." }, { type: "image_url", image_url: { url: ctx.image_url } }],
+      role: "ocr", step: "ocr", route: OCR_ROUTE, fallback: OCR_FALLBACK, system: SYSTEM + (palette ? `\nAlso assess the provided brand palette: backgrounds, props and colour styling must follow it, allowing natural subject colours. Include "palette_match":boolean in the JSON. This field is mandatory.` : ""), maxTokens: 600, budget, estimateUsd: 0.002, complete,
+      content: [{ type: "text", text: `Transcribe all legible text and check prohibited graphics. ${palette ? `Brand palette: ${JSON.stringify(palette)}. Check palette_match.` : ""} JSON only.` }, { type: "image_url", image_url: { url: ctx.image_url } }],
     });
     if (!json || !Array.isArray(json.tokens)) return { pass: false, hits: [], reason: "OCR returned no parseable result (fail closed)" };
     if (json.tokens.some(t => !t || typeof t.text !== "string" || !Number.isFinite(t.confidence) || t.confidence < 0 || t.confidence > 100)) return { pass: false, hits: [], reason: "Image quality result malformed" };
     if (!Array.isArray(json.violations)) return { pass: false, hits: [], reason: "Image quality result malformed" };
     if (json.violations?.length) return { pass: false, hits: [], violations: json.violations.map(String), reason: "Image contains prohibited graphics or layout" };
+    if (palette && json.palette_match !== true) return { pass: false, hits: [], reason: "Image colour styling does not match the brand palette" };
     const r = evaluateOcrTokens(json.tokens);
     return { ...r, reason: r.pass ? "0 legible text tokens" : `Text found in image: ${r.hits.join(", ")}` };
   } catch (e) {
