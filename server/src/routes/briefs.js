@@ -89,6 +89,7 @@ app.post("/sharpen", requireAuth, async (c) => {
       brand: { name: brandBio.brand.name, bioVersion: brandBio.bio?.version },
     });
   } catch (e) {
+    if(e.qualityIssues)console.warn('[briefs] sharpener quality rejected',JSON.stringify({issues:e.qualityIssues,previousIssues:e.previousQualityIssues||[]}));
     return c.json({ error: e?.message || String(e) }, 500);
   }
 });

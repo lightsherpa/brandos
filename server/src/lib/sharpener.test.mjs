@@ -71,3 +71,9 @@ test('rendered Brand Core cache is keyed by exact brand/payload/refusals and bou
 test('disabled fast flag keeps the existing primary model and token budget',async()=>{
  const f=completionFixture([validOutput()]);await sharpenBrief({briefText:'Five coffee posts',bio:BIO,completion:f.completion,fast:false});assert.equal(f.calls[0].spec.payload.modelRouting.primary,'anthropic/claude-sonnet-5-5');assert.equal(f.calls[0].maxTokens,3200);
 });
+test('email hero requirements keep canonical email crew and produce actionable private failure codes',async()=>{
+ const valid=validOutput();valid.deliveryPlan.deliverableGroups=[{type:'email_sequence',count:1,platforms:['email'],parts:['subject','body'],crew:{subject:'a14',body:'a13'}}];
+ const invalid=structuredClone(valid);invalid.deliveryPlan.deliverableGroups[0].crew.hero_image='a21';invalid.deliveryPlan.deliverableGroups[0].parts.push('hero_image');
+ const f=completionFixture([invalid,valid]);const result=await sharpenBrief({briefText:'One HTML email with photographic hero',bio:confidentBio(),completion:f.completion,fast:true});
+ assert.equal(result.deliveryPlan.deliverableGroups[0].type,'email_sequence');assert.match(f.calls[0].system,/DO NOT add html, preheader, headline, cta or hero_image/);assert.match(f.calls[1].messages[0].content,/deliveryPlan\.0\.crew/);
+});
