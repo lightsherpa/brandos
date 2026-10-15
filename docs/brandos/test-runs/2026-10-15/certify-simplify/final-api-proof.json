@@ -1,0 +1,22 @@
+{
+  "branch": "feat/certify-simplify",
+  "cwd": "/Users/oscarmottaquintana/Documents/Claudio/CaastorOS",
+  "supabase": "http://127.0.0.1:54321",
+  "brandId": "ca1272b9-0a14-4fae-bda4-c206ff32b984",
+  "jobId": "7d3aa222-0d9c-47c6-a2bc-6da7ea802059",
+  "version": 3,
+  "status": "completed",
+  "certified": true,
+  "persistedDecisions": 31,
+  "manualScoreCount": 0,
+  "auditCriteria": [
+    "C1",
+    "C2"
+  ],
+  "composite": null,
+  "humanApproval": true,
+  "closed": true,
+  "terminalMode": "done",
+  "ownerJobStatus": 403,
+  "ownerProgressStatus": 403
+}

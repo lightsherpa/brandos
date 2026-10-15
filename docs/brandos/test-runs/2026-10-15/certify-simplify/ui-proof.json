@@ -1,0 +1,218 @@
+[
+  {
+    "stage": "03-review",
+    "lang": "es",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "03-review",
+    "lang": "es",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "03-review",
+    "lang": "ar",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "03-review",
+    "lang": "ar",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "03-review",
+    "lang": "en",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "03-review",
+    "lang": "en",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "04-stewart-strategy",
+    "lang": "en",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "04-stewart-strategy",
+    "lang": "en",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "05-stewart-cited-reply",
+    "lang": "en",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "05-stewart-cited-reply",
+    "lang": "en",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "06-confirm",
+    "lang": "en",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "06-confirm",
+    "lang": "en",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "06-confirm",
+    "lang": "es",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "06-confirm",
+    "lang": "es",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "06-confirm",
+    "lang": "ar",
+    "width": 1280,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "06-confirm",
+    "lang": "ar",
+    "width": 1440,
+    "done": null,
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "en",
+    "width": 1280,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "en",
+    "width": 1440,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "es",
+    "width": 1280,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "es",
+    "width": 1440,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "ar",
+    "width": 1280,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "ar",
+    "width": 1440,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "en",
+    "width": 1280,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  },
+  {
+    "stage": "07-done",
+    "lang": "en",
+    "width": 1440,
+    "done": "certified",
+    "overflow": false,
+    "rawVisible": false,
+    "selects": 0
+  }
+]

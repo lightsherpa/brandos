@@ -11,7 +11,8 @@ import briefs from "./routes/briefs.js";
 import discovery from "./routes/discovery.js";
 import discoverySession from "./routes/discovery-session.js";
 import discoveryDelegation from "./routes/discovery-delegation.js";
-import steward from "./routes/steward.js";
+import steward, {requireSteward} from "./routes/steward.js";
+import {createReviewProgressRoutes} from "./routes/review-progress.js";
 import certChat from "./routes/cert-chat.js";
 import runs from "./routes/foundation-run-gateway.js";
 import outputs from "./routes/outputs.js";
@@ -69,6 +70,7 @@ app.route("/api/briefs", briefs);
 app.route("/api/discovery", discovery);
 app.route("/api/discovery", discoverySession);      // /session/:brandId, /session/:brandId/attest
 app.route("/api/discovery", discoveryDelegation);   // /delegation, /delegation/:token
+app.route("/api/steward", createReviewProgressRoutes(requireSteward));
 app.route("/api/steward", steward);
 app.route("/api/cert-chat", certChat);
 app.route("/api/runs", runs);

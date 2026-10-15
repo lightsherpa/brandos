@@ -1,0 +1,16 @@
+import {test}from'node:test';import assert from'node:assert/strict';
+import {orderForDirector,nextUnresolved,terminalReview,validDecisions,reviewGroup}from'./friction-model.js';import{frictionCopy}from'./friction-copy.js';
+const claims=['identity.positioning','voice.forbidden','visual.imagery','visual.palette','visual.logo','strategic.watchouts'].map((field_path,i)=>({field_path,claim_id:String(i),evidence_token:'same',bio_version:3}));
+test('CD queue puts all visual identity first, voice production next, strategy last',()=>{assert.deepEqual(orderForDirector(claims).map(c=>c.field_path),['visual.logo','visual.palette','visual.imagery','voice.forbidden','identity.positioning','strategic.watchouts']);assert.equal(reviewGroup(claims.at(-1)),'strategy');});
+test('next focus skips resolved claims but never treats sent questions or flags as confirmed',()=>{const order=orderForDirector(claims),decisions={4:{state:'confirmed',evidence_token:'same'},3:{state:'asked',evidence_token:'same'}};assert.equal(nextUnresolved(order,decisions,[],order[0].claim_id),'3');decisions[3]={state:'flagged',evidence_token:'same'};assert.equal(nextUnresolved(order,decisions,[],order[0].claim_id),'3');});
+test('changed evidence invalidates only its own decision',()=>{const old={0:{state:'confirmed',evidence_token:'old'},1:{state:'fixed',evidence_token:'same',value:'direct'}};assert.deepEqual(validDecisions(old,claims),{1:old[1]});});
+test('finished, rejected and second-review states never masquerade as a new review or certification',()=>{assert.equal(terminalReview({status:'completed',bio:{certified:true}}),'certified');assert.equal(terminalReview({status:'in_review',bio:{certified:false}},{status:'completed',decision:'approve'}),'certified');assert.equal(terminalReview({status:'pending_lead_review'}),'submitted');assert.equal(terminalReview({status:'rejected'}),'rejected');assert.equal(terminalReview({status:'in_review'}),null);});
+test('all friction controls have en/es/ar copy and preserve literal Brand Core',()=>{for(const lang of['es','ar']){assert.deepEqual(Object.keys(frictionCopy(lang)).sort(),Object.keys(frictionCopy('en')).sort());for(const key of['done','certify'])assert.match(frictionCopy(lang)[key],/Brand Core/);}});
+test('a proposed rejection awaiting second review remains submitted until the second reviewer decides',()=>{
+ assert.equal(terminalReview({status:'pending_lead_review',decision:'reject',bio:{certified:false}}),'submitted');
+ assert.equal(terminalReview({status:'in_review',decision:null},{status:'pending_lead_review',decision:'reject'}),'submitted');
+ assert.equal(terminalReview({status:'completed',decision:'reject',bio:{certified:false}}),'rejected');
+ assert.equal(terminalReview({status:'in_review'},{status:'completed',decision:'reject'}),'rejected');
+});
+
+test('final lead approval and the certified record take precedence over a prior proposed rejection',()=>{assert.equal(terminalReview({status:'pending_lead_review',decision:'reject',bio:{certified:false}},{status:'completed',action:'approved',certifiedVersion:4}),'certified');assert.equal(terminalReview({status:'completed',decision:'reject',bio:{certified:true}}),'certified');});

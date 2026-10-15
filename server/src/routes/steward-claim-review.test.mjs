@@ -107,3 +107,27 @@ test('Lead approval also requires a complete current claim review and preserves 
   reset();auth.roles=['lead_steward'];job.status='pending_lead_review';job.assigned_to='cd';
   const own=await req({leadApprove:true,claimReview:review()});assert.equal(own.status,409);assert.match((await own.json()).error,/different Lead/);
 });
+
+test('simplified approval defaults off and cannot silently accept without a human decision',async()=>{
+ reset();delete process.env.CERTIFY_SIMPLIFY;
+ assert.equal((await req({reviewMode:'simplified',decision:'approve',claimReview:review()})).status,404);
+ process.env.CERTIFY_SIMPLIFY='1';assert.equal((await req({reviewMode:'simplified',claimReview:review()})).status,400);delete process.env.CERTIFY_SIMPLIFY;
+});
+test('simplified human approval records only measured criteria and preserves calibration without five ratings',async()=>{
+ reset();process.env.CERTIFY_SIMPLIFY='1';
+ const response=await req({reviewMode:'simplified',decision:'approve',claimReview:review(),notes:'Checked visually'});assert.equal(response.status,200,JSON.stringify(await response.clone().json()));assert.equal((await response.json()).status,'pending_lead_review');
+ const audit=writes.find(w=>w.table==='cert_decisions').body;assert.equal(audit.composite_score,null);assert.deepEqual(audit.criterion_scores.map(c=>c.id),['C1','C2']);assert.ok(audit.criterion_scores.every(c=>c.source==='auto'));assert.equal(JSON.parse(audit.narrative).humanApproval,true);delete process.env.CERTIFY_SIMPLIFY;
+});
+test('simplified review retains stale evidence, unresolved questions, rights, owner and agent gates',async()=>{
+ reset();process.env.CERTIFY_SIMPLIFY='1';
+ assert.equal((await req({reviewMode:'simplified',decision:'approve'})).status,409);
+ const r=review();sources[1].signals.snippet='New evidence';assert.equal((await req({reviewMode:'simplified',decision:'approve',claimReview:r})).status,409);
+ sources[0].signals.rights_confirmed=false;assert.equal((await req({reviewMode:'simplified',decision:'approve',claimReview:review()})).status,409);
+ reset();owner='reviewer';assert.equal((await req({reviewMode:'simplified',decision:'approve',claimReview:review()})).status,403);
+ reset();auth.actor={type:'agent'};assert.equal((await req({reviewMode:'simplified',decision:'approve',claimReview:review()})).status,403);
+ assert.ok(!writes.some(w=>w.table==='cert_decisions'));delete process.env.CERTIFY_SIMPLIFY;
+});
+test('simplified final human approval certifies without rating placeholders',async()=>{
+ reset();process.env.CERTIFY_SIMPLIFY='1';auth.roles=['lead_steward'];
+ const res=await req({reviewMode:'simplified',decision:'approve',claimReview:review()});assert.equal(res.status,200,JSON.stringify(await res.clone().json()));assert.equal((await res.json()).status,'completed');assert.equal(writes.find(w=>w.table==='bios').body.certified,true);delete process.env.CERTIFY_SIMPLIFY;
+});

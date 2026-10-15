@@ -400,3 +400,20 @@ Verify:
 ```sql
 select position('reference_append' in pg_get_functiondef('public.confirm_brand_references(uuid,uuid,integer,uuid,uuid[],jsonb)'::regprocedure)) > 0 as supports_append_and_tags;
 ```
+
+
+## 21. `20261016010000_certify_review_progress.sql` (feat/certify-simplify)
+
+Apply after entry 20. Adds reviewer/job/version-scoped draft review progress and idempotent save receipts. Service-only RPC rechecks active certifier role, assignment, exact version and closed-job state under a job lock. It does not certify Brand Core or change existing decision gates. `CERTIFY_SIMPLIFY` defaults off. This handoff does not authorize production application; only the existing CaastorOS local stack is used for acceptance. Re-running the file is safe: tables use `if not exists` and the save function uses `or replace`.
+
+Verify `certify_review_progress` and `certify_review_progress_requests` have RLS enabled, authenticated/anon have no table access, and only service_role can execute `save_certify_review_progress`. Regression: `supabase/tests/certify_review_progress.sql` (transactional rollback fixtures in the existing local database).
+
+Safe before the merge with CERTIFY_SIMPLIFY off. Apply only after deployment approval; this command is documentation, not authorization:
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261016010000_certify_review_progress.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261016010000', 'certify_review_progress') on conflict do nothing" -c 'commit'
+```
+
+```sql
+select relname, relrowsecurity from pg_class where oid in ('public.certify_review_progress'::regclass, 'public.certify_review_progress_requests'::regclass);
+```

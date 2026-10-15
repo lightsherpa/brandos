@@ -1,0 +1,8 @@
+// Existing local test identities and the separately copied Cake Me v3 only.
+import assert from'node:assert/strict';import{readFile,writeFile,mkdir}from'node:fs/promises';import{CERTIFICATION_SECTIONS}from'../server/src/lib/certification-review.js';
+const state=JSON.parse(await readFile('.mvp-local/certify-ux-session.json'));const api='http://127.0.0.1:8797';
+async function request(role,path,body){const r=await fetch(api+path,{method:body?'POST':'GET',headers:{Authorization:`Bearer ${state.sessions[role].access_token}`,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const json=await r.json();assert.ok(r.ok,`${path}: ${r.status} ${json.error||''}`);return json;}
+const {bio}=await request('owner',`/api/bios/${state.brandId}`);assert.equal(bio.version,3);assert.equal(bio.certified,false);
+if(!bio.self_certified)await request('owner',`/api/bios/${state.brandId}/self-certify`,{bioId:bio.id,version:bio.version,statements:{authority:true,reflects:true,aspirationalMarked:true},reviewedSections:CERTIFICATION_SECTIONS,statementVersion:'2'});
+const jobs=(await request('cd','/api/steward/jobs')).jobs.filter(job=>job.brand_id===state.brandId&&job.bio_id===bio.id);assert.equal(jobs.length,1);
+const proof={brandId:state.brandId,jobId:jobs[0].id,bioVersion:bio.version,bioId:bio.id,api,source:'Separate local validation copy of saved Cake Me v3; original untouched.'};await writeFile('.mvp-local/certify-simplify-run.json',JSON.stringify(proof),{mode:0o600});await mkdir('docs/brandos/test-runs/2026-10-15/certify-simplify',{recursive:true});await writeFile('docs/brandos/test-runs/2026-10-15/certify-simplify/setup.json',JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof));

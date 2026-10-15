@@ -1,6 +1,6 @@
 import {reviewDeskCopy,reviewDeskEnabled} from './lib/review-desk-copy.js';
 import {certifyUxEnabled} from './certify/ux-flags.js';
-import {brandCoreNavTarget,resolveCertifyRoute} from './lib/certify-routing.js';
+import {brandCoreNavTarget,resolveCertifyRoute,canEnterCertify} from './lib/certify-routing.js';
 import { CertifyView } from "./certify/CertifyView.jsx";
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
@@ -794,7 +794,7 @@ function App() {
       if (!decision.allow && decision.redirect) { go(decision.redirect); return; }
     }
     const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "formats" || route.id === "upgrade";
-    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || route.id === "team-job" || route.id === "certify" || route.id === "team-account";
+    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || route.id === "team-job" || route.id === "certify" || route.id === "team-account" || (route.id === "brand-book" && canEnterCertify(session));
     const isAdminRoute = route.id === "admin-account" || [...ADMIN_ROUTES,...SUPER_ADMIN_ROUTES].some(r => r.id === route.id);
     const legacySection = LEGACY_ADMIN_SECTION[route.id];
     if (legacySection) { go(`admin-account/${legacySection}`); return; }

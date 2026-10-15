@@ -33,7 +33,9 @@ import { payloadHash } from "../lib/bio-hash.js";
 import { prepareStewardBioPatchPayload } from "../lib/bio-evidence.js";
 import { notify, brandOwnerUserId } from "../lib/notify.js";
 import { buildStewardCopilot } from "../lib/steward-copilot.js";
+import {certifySimplifyEnabled,evaluateSimpleCertification} from "../lib/certify-simplify.js";
 import { canEnterCertify } from "../lib/certify-access.js";
+import {buildStrategyAssist,certifyFrictionEnabled} from "../lib/strategy-assist.js";
 
 const app = new Hono();
 const CERT_TTL_DAYS = Number(process.env.CERT_TTL_DAYS || 180);
@@ -184,6 +186,7 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
           messages: await claimMessages(job.brand_id, job.id) }) };
     } catch (err) { return c.json({ error: err.message }, err.status || 503); }
   }
+  if(certifyFrictionEnabled()&&certify)copilot.strategyAssist=buildStrategyAssist({job,bio:job.bio,claims:certify.claims,sources:reviewableSources,previousBio});
   return c.json({
     ...(certify ? { certify } : {}),
     job,
@@ -313,12 +316,17 @@ app.patch("/jobs/:id", requireHumanActor, requireAuth, requireHumanActor, requir
   let targetBioId = bio.id;
   let targetVersion = bio.version;
 
-  // Evaluate the rubric.
+  const simplified=body.reviewMode==='simplified';
+  if(simplified&&!certifySimplifyEnabled())return c.json({error:"Simplified review is unavailable",code:"REVIEW_MODE_UNAVAILABLE"},404);
+  if(simplified&&body.decision!=='approve')return c.json({error:"Explicit human approval is required",code:"HUMAN_APPROVAL_REQUIRED"},400);
+
+  // Evaluate measured checks or the original rubric.
   const rubric = await loadActiveRubric();
   let logoRights;try{logoRights=await loadLogoRights(bio.brand_id,workingPayload);}catch{return c.json({error:"Could not verify logo rights",code:"RIGHTS_LOOKUP_FAILED"},503);}
   const bd = scoreBioBreakdown(workingPayload, { logoRights });
   const autoSignals = { coverage: bd.coverage, avgConf: bd.avgConf, sourceDiversity: bd.sourceDiversity };
-  const result = evaluateCertification({ autoSignals, reviewerScores: body.reviewerScores || {}, rubricConfig: rubric.config });
+  const result = simplified?evaluateSimpleCertification({autoSignals,rubricConfig:rubric.config}):evaluateCertification({ autoSignals, reviewerScores: body.reviewerScores || {}, rubricConfig: rubric.config });
+  if(simplified&&result.gateFailures.length)return c.json({error:"Coverage needs attention. Review the missing Brand Core evidence before certifying.",code:"AUTO_REVIEW_INCOMPLETE"},409);
   if (result.incomplete) {
     return c.json({ error: "Score every human criterion before submitting", missingScores: result.missingScores }, 400);
   }
@@ -326,7 +334,7 @@ app.patch("/jobs/:id", requireHumanActor, requireAuth, requireHumanActor, requir
   const decision = result.recommendedDecision;                 // approve | approve_with_conditions | return_changes | reject
   const approves = decision === "approve" || decision === "approve_with_conditions";
   if (approves) {
-    if (certifierS1Enabled()) {
+    if (certifierS1Enabled()||simplified) {
       try {
         const ledger = await currentClaimLedger(job, bio);
         const invalidReview = validateClaimReview(ledger, body.claimReview, workingPayload, logoRights);
@@ -396,8 +404,8 @@ app.patch("/jobs/:id", requireHumanActor, requireAuth, requireHumanActor, requir
     conditions: body.conditions,
     requiredChanges: body.required_changes,
     rejectReasonCode: body.reject_reason_code,
-    narrative: certifierS1Enabled() && body.claimReview
-      ? JSON.stringify({ notes: body.notes || null, claimReview: body.claimReview })
+    narrative: (certifierS1Enabled()||simplified) && body.claimReview
+      ? JSON.stringify({ notes: body.notes || null, claimReview: body.claimReview,...(simplified?{reviewMode:"simplified",humanApproval:true}:{}) })
       : body.notes,
   });
 
