@@ -12,3 +12,5 @@ test('a proposed rejection awaiting second review remains submitted until the se
  assert.equal(terminalReview({status:'completed',decision:'reject',bio:{certified:false}}),'rejected');
  assert.equal(terminalReview({status:'in_review'},{status:'completed',decision:'reject'}),'rejected');
 });
+
+test('final lead approval and the certified record take precedence over a prior proposed rejection',()=>{assert.equal(terminalReview({status:'pending_lead_review',decision:'reject',bio:{certified:false}},{status:'completed',action:'approved',certifiedVersion:4}),'certified');assert.equal(terminalReview({status:'completed',decision:'reject',bio:{certified:true}}),'certified');});
