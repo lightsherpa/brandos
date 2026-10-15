@@ -27,3 +27,15 @@ test('specialist deliverable clusters render every copy component and art direct
  const components=reviewComponents({kind:'deliverables',deliverables:[{title:'One',body:'Caption one',visualDirection:'Cake close-up'},{title:'Two',body:'Caption two'}]});
  assert.equal(components.length,5);assert.deepEqual(components[1].path,['deliverables',0,'body']);
 });
+test('review desk workflow copy covers every state and control in all locales',()=>{
+ const baseline=reviewDeskCopy('en');
+ for(const locale of ['es','ar']){
+  const translated=reviewDeskCopy(locale);
+  assert.deepEqual(Object.keys(translated).sort(),Object.keys(baseline).sort());
+  assert.deepEqual(Object.keys(translated.states).sort(),Object.keys(baseline.states).sort());
+  for(const key of ['attention','eyebrow','approve','requestChanges','waiting','transitionError','clientFeedback','independentHelp']){
+   assert.ok(translated[key]);assert.notEqual(translated[key],baseline[key]);
+  }
+  for(const state of Object.keys(baseline.states))assert.notEqual(translated.states[state],baseline.states[state]);
+ }
+});
