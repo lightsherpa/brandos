@@ -1,3 +1,4 @@
+import { sanitizeOutput, hasQuarantinedOutput } from "../lib/output-quality.js";
 // PATCH /api/outputs/:id — save the user's edited output body.
 // Writes `edited_text` + `edited_at` + `edited_by` INSIDE the existing
 // outputs.body JSONB so the original AI output stays intact for audit
@@ -80,7 +81,7 @@ app.patch("/:id", requireAuth, async (c) => {
     });
   } catch {}
 
-  return c.json({ output: updated });
+  return c.json({ output: sanitizeOutput(updated) });
 });
 
 app.delete("/:id", requireAuth, async (c) => {
@@ -136,6 +137,7 @@ app.post("/:id/workflow", requireAuth, async (c) => {
   if (!hasPermission(auth, transition.permission, workspaceId)) return c.json({ error: "Forbidden", permission: transition.permission }, 403);
   if (!transition.from.includes(output.workflow_status)) return c.json({ error: "Invalid workflow transition", from: output.workflow_status, action }, 409);
   if (action === "internal_approve" && output.submitted_by === auth.userId) return c.json({ error: "Designers cannot internally approve their own submission", code: "SEPARATION_OF_DUTY" }, 409);
+  if (["submit_internal", "internal_approve", "send_client", "client_approve"].includes(action) && hasQuarantinedOutput(output.body)) return c.json({error:"This artifact has not passed quality review",code:"QUALITY_REVIEW_REQUIRED"},409);
   const next = { workflow_status: transition.to, ...transition.patch };
   if (["task", "task_rerun"].includes(output.kind)) {
     if (["internal_approve", "client_approve"].includes(action)) next.status = "approved";
@@ -159,7 +161,7 @@ app.post("/:id/workflow", requireAuth, async (c) => {
   }
   const { data: updated, error: updateError } = await supabaseAdmin.from("outputs").update(next).eq("id", outputId).eq("workflow_status", output.workflow_status).select().single();
   await writeAuthorizationAudit(c, { permission: transition.permission, action, targetType:"output", targetId:outputId, workspaceId, priorState:{workflow_status:output.workflow_status}, newState:updated, outcome:updateError?"failure":"success", reason });
-  return updateError ? c.json({ error:updateError.message },409) : c.json({ output:updated });
+  return updateError ? c.json({ error:updateError.message },409) : c.json({ output:sanitizeOutput(updated) });
 });
 
 export default app;

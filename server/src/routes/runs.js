@@ -1,3 +1,4 @@
+import { sanitizeOutput } from "../lib/output-quality.js";
 // ─────────────────────────────────────────────────────────────────────
 // P3 — first production specialist run + QA gate.
 //
@@ -795,7 +796,7 @@ app.get("/:id", requireAuth, async (c) => {
     .select("*")
     .in("output_id", (outputs || []).map((o) => o.id));
 
-  return c.json({ run, outputs: outputs || [], qa: qaResults || [] });
+  return c.json({ run, outputs: (outputs || []).map(sanitizeOutput), qa: qaResults || [] });
 });
 
 export default app;

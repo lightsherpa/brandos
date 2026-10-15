@@ -42,7 +42,7 @@ function remember(job) {
 }
 function snapshot(job) {
   const { workspaceId, ...rest } = job;
-  return { ...rest, ...(crewCanvasEnabled() ? { items: (job.items || []).map(publicItem), crew: crewFor(job.type, job.heroes) } : {}) };
+  return { ...rest, ...(crewCanvasEnabled() || (job.items || []).some(item => item.quality_gated) ? { items: (job.items || []).map(publicItem), crew: crewFor(job.type, job.heroes) } : {}) };
 }
 
 async function scopeBrand(c, brandId) {
