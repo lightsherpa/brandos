@@ -10,8 +10,8 @@ const { useState, useEffect, useRef } = React;
 
 const STAGES = ["Planning", "Writing", "Imaging", "Checking", "Fixing", "Ready"];
 const TYPES = {
-  social_post: { label: "Social post", hint: "3 Instagram posts, 1 image each", writer: "a16 Social Captions", skills: "a37 Headlines", reviewer: "a18 Voice QA + a24 Brand Consistency" },
-  email_sequence: { label: "Email sequence", hint: "3 branded HTML emails", writer: "a13 Email Sequence", skills: "a14 Subject Lines, a12 Conversion Copy", reviewer: "a18 Voice QA" },
+  social_post: { label: "Social post", hint: "3 Instagram posts, 1 image each", writer: "Social Captions", skills: "Headlines", reviewer: "Voice QA + Brand Consistency" },
+  email_sequence: { label: "Email sequence", hint: "3 branded HTML emails", writer: "Email Sequence", skills: "Subject Lines, Conversion Copy", reviewer: "Voice QA" },
 };
 const STATUS_DOT = { queued: "#a8a29e", writing: "#a16207", imaging: "#a16207", checking: "#a16207", fixing: "#b45309", ready: "#15803d", flagged: "#b91c1c" };
 const STATUS_WORD = { queued: "Queued", writing: "Writing", imaging: "Designing", checking: "Checking", fixing: "Fixing", ready: "Needs review", flagged: "Needs review", approved: "Approved", needs_review: "Needs review", failed: "Failed" };
@@ -242,7 +242,7 @@ export function TaskPipelineView({ go }) {
     {task && <section style={{ marginTop: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
         <h2 style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 24, margin: 0 }}>{TYPES[task.type]?.label}</h2>
-        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t) : task.status === "failed" ? task.error : ""}</span>
+        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t, task.credits) : task.status === "failed" ? task.error : ""}</span>}
       </div>
       <Stepper stage={task.stage} status={task.status} />
       {!running && <p style={css.dim}>{task.status === "approved" ? statusLabel("approved", t) : task.status === "failed" ? t("taskOutput.generationFailed") : t("taskOutput.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("taskOutput.openLibrary")}</button></p>}

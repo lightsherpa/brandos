@@ -24,12 +24,17 @@ test('latest persisted task item supersedes original retaining its task type and
  const rerun={id:'new',kind:'task_rerun',body:{task_id:'job',index:0,item:{status:'ready',html:'new',export:{stable:true}}}};
  const cards=coalesceTaskCards([rerun,original]); assert.equal(cards.length,2);assert.equal(cards[0].outputId,'new');assert.equal(cards[0].kind,'social_post');assert.equal(cards[0].html,'new');assert.equal(cards[0].status,'needs_review');
 });
-test('legacy metrics have an honest unavailable cost',()=>{assert.equal(taskMetricsLabel({total_ms:1200,cost:null}),'Finished in 1s · cost unavailable');assert.equal(taskMetricsLabel({}), 'Finished · cost unavailable');});
+test('metrics show elapsed and credits, never a dollar cost',()=>{
+ assert.equal(taskMetricsLabel({total_ms:1200,cost:{total_usd:1.23}}),'Finished in 1s');
+ assert.equal(taskMetricsLabel({total_ms:1200}, null, 12),'Finished in 1s · 12 cr');
+ assert.equal(taskMetricsLabel({}), 'Finished');
+ assert.doesNotMatch(taskMetricsLabel({total_ms:1200,cost:{total_usd:1.23}}, null, 4), /\$|cost/i);
+});
 
 test('presentation helpers resolve locale keys without changing truthful status',()=>{
- const t=(key,values)=>values ? `${key}:${values.seconds}` : key;
+ const t=(key,values)=>values ? `${key}:${values.seconds ?? values.count}` : key;
  assert.equal(statusLabel('ready',t),'taskOutput.status.needs_review');
- assert.equal(taskMetricsLabel({total_ms:1000,cost:null},t),'taskOutput.finishedtaskOutput.elapsed:1 · taskOutput.costUnavailable');
+ assert.equal(taskMetricsLabel({total_ms:1000},t,3),'taskOutput.finishedtaskOutput.elapsed:1taskOutput.credits:3');
 });
 test('new browser restores latest persisted task without local storage',async()=>{
  const calls=[]; const result=await loadSavedTasks(async path=>{calls.push(path);return {ok:true,json:async()=>({tasks:[{id:'older',created_at:'2020-01-01',status:'ready'},{id:'latest',created_at:'2021-01-01',status:'ready'}]})};},'brand',null);

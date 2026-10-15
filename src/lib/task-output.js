@@ -29,10 +29,11 @@ export function coalesceTaskCards(outputs=[]) {
  const seen=new Set();
  return expanded.filter(card=>{if(!card.taskId)return true;const key=`${card.taskId}:${card.itemIndex}`;if(seen.has(key))return false;seen.add(key);return true;}).map(card=>card.taskId?{...card,taskType:types.get(card.taskId)||card.taskType,kind:types.get(card.taskId)||card.kind}:card);
 }
-export function taskMetricsLabel(metrics, t) {
+export function taskMetricsLabel(metrics, t, credits) {
  const elapsed=Number.isFinite(metrics?.total_ms)?(t ? t('taskOutput.elapsed', {seconds:(metrics.total_ms/1000).toFixed(0)}) : ` in ${(metrics.total_ms/1000).toFixed(0)}s`):'';
- const cost=metrics?.cost?.total_usd;
- return `${t ? t('taskOutput.finished') : 'Finished'}${elapsed} · ${Number.isFinite(cost)?`$${cost.toFixed(3)}`:t ? t('taskOutput.costUnavailable') : 'cost unavailable'}`;
+ const creditCount=Number.isFinite(credits)?credits:Number.isFinite(metrics?.credits)?metrics.credits:null;
+ const creditLabel=Number.isFinite(creditCount)?(t ? t('taskOutput.credits', {count:creditCount}) : ` · ${creditCount} cr`):'';
+ return `${t ? t('taskOutput.finished') : 'Finished'}${elapsed}${creditLabel}`;
 }
 export async function loadSavedTasks(fetcher, brandId, preferredId) {
  const response=await fetcher(`/api/tasks?brandId=${encodeURIComponent(brandId)}`);
