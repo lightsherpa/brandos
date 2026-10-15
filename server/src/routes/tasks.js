@@ -12,7 +12,8 @@ import crypto from "node:crypto";
 import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { hasPermission } from "../lib/permissions.js";
-import { runTask, rerunItem, reviseComponent, publicItem, ETA_SECONDS } from "../harness/pipeline.js";
+import { runTask, rerunItem, reviseComponent, publicItem, publicMetrics, ETA_SECONDS } from "../harness/pipeline.js";
+import { clientItem } from "../lib/client-payload.js";
 import { loadTaskContext } from "../harness/task-context.js";
 import { saveRule } from "../harness/rules.js";
 import { TASKS } from "../harness/registry.js";
@@ -40,10 +41,19 @@ function remember(job) {
   jobs.set(job.id, job);
   if (jobs.size > MAX_JOBS) jobs.delete(jobs.keys().next().value);
 }
-function snapshot(job) {
+export function clientTaskSnapshot(job) {
   const { workspaceId, ...rest } = job;
-  return { ...rest, ...(crewCanvasEnabled() || (job.items || []).some(item => item.quality_gated) ? { items: (job.items || []).map(publicItem), crew: crewFor(job.type, job.heroes) } : {}) };
+  const gated = crewCanvasEnabled() || (job.items || []).some(item => item?.quality_gated);
+  const result = rest.result ? { ...rest.result, metrics: publicMetrics(rest.result.metrics) } : rest.result;
+  return {
+    ...rest,
+    items: (job.items || []).map(publicItem),
+    result,
+    ...(Array.isArray(rest.reruns) ? { reruns: rest.reruns.map((rerun) => publicMetrics(rerun)) } : {}),
+    ...(gated ? { crew: crewFor(job.type, job.heroes) } : {}),
+  };
 }
+function snapshot(job) { return clientTaskSnapshot(job); }
 
 async function scopeBrand(c, brandId) {
   const auth = c.get("auth");
@@ -111,9 +121,9 @@ export function taskOutput(job, res) {
   const ready = res.status === "ready";
   return {
     kind: "task", status: ready ? "qa_passed" : "needs_review", ledger_kind: ready ? "run" : "run_flagged",
-    body: JSON.stringify({ task_id: job.id, type: job.type, spec: res.spec, items: res.items,
+    body: JSON.stringify({ task_id: job.id, type: job.type, spec: res.spec, items: (res.items || []).map(clientItem),
       snapshot: { brief: job.brief, heroes: job.heroes, created_at: job.created_at, finished_at: new Date().toISOString(), created_by: job.created_by,
-        credits: job.credits, brand_core: job.brand_core, generation_brand_core: res.brand_core ?? null, provenance: job.provenance, notices: job.notices, metrics: res.metrics } }),
+        credits: job.credits, brand_core: job.brand_core, generation_brand_core: res.brand_core ?? null, provenance: job.provenance, notices: job.notices, metrics: publicMetrics(res.metrics) } }),
     asset_url: res.items?.find((it) => it?.asset_url)?.asset_url || null,
     qa_passed: ready, qa_evidence: { items: (res.items || []).map((it) => ({ index: it?.index, status: it?.status, checks: it?.checks })) },
     rationale: ready ? null : "One or more items need review",
@@ -124,7 +134,7 @@ export function rerunOutput(job, index, res, provenance = null) {
   const ready = res.item?.status === "ready";
   return {
     kind: "task_rerun", status: ready ? "qa_passed" : "needs_review", ledger_kind: ready ? "run" : "run_flagged",
-    body: JSON.stringify({ task_id: job.id, index, item: res.item, metrics: res.metrics, provenance, finished_at: new Date().toISOString() }), asset_url: res.item?.asset_url || null,
+    body: JSON.stringify({ task_id: job.id, index, item: clientItem(res.item), metrics: publicMetrics(res.metrics), provenance, finished_at: new Date().toISOString() }), asset_url: res.item?.asset_url || null,
     qa_passed: ready, qa_evidence: { index, checks: res.item?.checks }, rationale: ready ? null : "Re-run still needs review",
   };
 }
@@ -229,7 +239,7 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
     job.stage = job.status === "ready" ? "Ready" : "Flagged";
     job.finished_at = new Date().toISOString();
     job.reruns = [...(job.reruns || []), { index, run_id: run.runId, ...res.metrics }];
-    return { status: 200, body: { item: publicItem(res.item), metrics: res.metrics, run_id: run.runId, reruns_left: MAX_RERUNS_PER_ITEM - job.rerun_counts[index] } };
+    return { status: 200, body: { item: publicItem(res.item), metrics: publicMetrics(res.metrics), run_id: run.runId, reruns_left: MAX_RERUNS_PER_ITEM - job.rerun_counts[index] } };
   } catch (e) {
     job.items[index] = item;   // count stays: the reservation was made and settled
     return { status: e.status || 500, body: { error: e.message, code: e.code } };

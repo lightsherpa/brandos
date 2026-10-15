@@ -16,6 +16,7 @@ import { checkSocialCopy, checkSocialImage } from "./checks/social.js";
 import { checkEmailCopy, checkEmailHtml } from "./checks/email.js";
 import { ocrNoText } from "./ocr.js";
 import { result, findBanned } from "./checks/common.js";
+import { clientImage, clientMetrics } from "../lib/client-payload.js";
 
 export const STAGES = ["Planning", "Writing", "Imaging", "Checking", "Fixing", "Ready"];
 /* Rough wait estimates shown to the user (seconds), from E2E timings. */
@@ -203,19 +204,31 @@ export async function rerunItem({ type, brief, layer1, spec, item, heroes = fals
 }
 
 export function publicItem(it) { return serializeItem(it, false); }
+export { clientMetrics as publicMetrics };
 // Persist only QA-accepted source images, even when rendering/reviewer work fails.
 // The quality_gated marker follows stored output into every UI read path.
+// Model and vendor fields stay on this server shape; publicItem removes them.
 export function internalItem(it) { return serializeItem(it, true); }
+function serverImage(image, assetUrl) {
+  return {
+    rejected: !!image.rejected, asset_url: assetUrl, model: image.model || null, fallback_from: image.fallback_from || null,
+    width: image.width, height: image.height, uses_reference: image.uses_reference, reference_count: image.reference_count,
+    ocr: image.ocr || null, ms: image.ms,
+    attempts: (image.attempts || []).map((attempt) => ({ route: attempt.route ?? null, model: attempt.model ?? null, fallback_from: attempt.fallback_from ?? null, ms: attempt.ms, error: attempt.error ?? null, ocr_pass: attempt.ocr_pass ?? attempt.ocr?.pass ?? null })),
+    error: image.error || null,
+  };
+}
 function serializeItem(it, privateArtifacts) {
   const gated = crewCanvasEnabled() || it.quality_gated === true;
   const publish = privateArtifacts || !gated || ["ready", "approved"].includes(it.status);
+  const assetUrl = it.image && publish && (!gated || it.image.ocr?.pass === true) ? it.image.asset_url || null : null;
   return {
     index: it.index, quality_gated: gated, status: it.status, stage: it.stage, needs_review: !!it.needs_review, revisions: it.revisions,
     can_retry_render: gated && !["ready", "approved"].includes(it.status) && (!it.image || it.image.ocr?.pass === true && !!it.image.asset_url) && (it.checks || []).some(check => !check.pass && ["EXPORT_ASSETS", "MJML"].includes(check.id)) && (it.review || []).length > 0 && (it.review || []).every(check => check.pass),
     export: it.export || null,
     transport_html: publish ? it.transport_html || null : null, transport: it.transport || null,
     copy: it.copy || null, html: publish ? it.html || null : null, html_bytes: it.html_bytes || null,
-    image: it.image ? { rejected: !!it.image.rejected, asset_url: publish && (!gated || it.image.ocr?.pass === true) ? it.image.asset_url || null : null, model: it.image.model || null, fallback_from: it.image.fallback_from || null, width: it.image.width, height: it.image.height, uses_reference: it.image.uses_reference, reference_count: it.image.reference_count, ocr: it.image.ocr || null, ms: it.image.ms, attempts: (it.image.attempts || []).map(({ route, model, ms, error, ocr }) => ({ route, model, ms, error, ocr_pass: ocr?.pass ?? null })), error: it.image.error || null } : null,
+    image: it.image ? (privateArtifacts ? serverImage(it.image, assetUrl) : clientImage(it.image, assetUrl)) : null,
     checks: it.checks, review: it.review,
     rule_applied: it.rule_applied || null,
     before: it.before ? { copy: it.before.copy, image_url: crewCanvasEnabled() ? null : it.before.image_url, failed: it.before.failed } : null,

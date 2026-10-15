@@ -260,7 +260,7 @@ app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
    from the site's inline SVG during Discovery, stored with rights unconfirmed).
    Same permission as uploading with rights. Only flips the signal; the Brand
    Core version is unchanged, and foundationStatus reads rights live. */
-app.post("/:brandId/sources/:sourceId/confirm-rights", requireAuth, async (c) => {
+app.post("/:brandId/sources/:sourceId/confirm-rights", requireHumanActor, requireAuth, requireHumanActor, async (c) => {
   const { userId } = c.get("auth");
   const brandId = c.req.param("brandId");
   const sourceId = c.req.param("sourceId");

@@ -23,6 +23,11 @@ test('confirm-rights flips rights on a pending PNG logo and audits it',async()=>
  assert.equal(updates[0].signals.rights_confirmed,true);assert.equal(updates[0].signals.rights_confirmed_by,'owner');assert.equal(updates[0].signals.origin,'discovery_inline_svg');
  assert.equal(audits[0].action,'brand.logo.confirm_rights');
 });
+test('confirm-rights rejects a non-human actor',async()=>{
+ auth={...member(),actorType:'agent'};source=pending();updates=[];
+ const res=await confirm({rightsConfirmed:true});assert.equal(res.status,403);assert.equal((await res.json()).code,'AGENT_CANNOT_CERTIFY');
+ assert.equal(updates.length,0);
+});
 test('confirm-rights requires the explicit statement, permission, and a PNG logo',async()=>{
  auth=member();source=pending();updates=[];
  assert.equal((await confirm({})).status,400);

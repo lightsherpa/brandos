@@ -66,7 +66,7 @@ Review Desk synthetic output: **7c6fb202-3a91-4c66-920a-b1ebcfd5cd14**. Its thre
 | Certify and Stewart | `VITE_CERTIFY_UX=1` | Existing `CERTIFIER_V2_S1=1`; `CERTIFIER_V2_S3=1` for chat |
 | Review Desk | `VITE_REVIEW_DESK_UX=1` | `REVIEW_DESK_UX=1` for component writes |
 
-`20261015150000_brand_core_input_tags.sql` was applied and tracked **only in the existing local CaastorOS database**. It preserves tags and appends new flagged reference batches while retaining legacy replacement semantics. Local configuration and session files are ignored, contain no copied production/provider keys and are not committed. External email is disabled for the local walkthrough identities.
+`20261016000000_brand_core_input_tags.sql` was applied and tracked **only in the existing local CaastorOS database**. It preserves tags and appends new flagged reference batches while retaining legacy replacement semantics. Local configuration and session files are ignored, contain no copied production/provider keys and are not committed. External email is disabled for the local walkthrough identities.
 
 - Web: http://127.0.0.1:5198
 - API: http://127.0.0.1:8798

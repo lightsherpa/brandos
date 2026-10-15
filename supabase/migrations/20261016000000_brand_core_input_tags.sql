@@ -1,4 +1,6 @@
 -- Preserve reference labels and append batches from the flagged Brand Core input experience.
+-- Landing order: after 20261015000000_email_assets.sql (feat/email-asset-hosting, handoff #19).
+-- Renumbered from 20261015150000 so this branch does not also claim handoff entry 19.
 create or replace function public.confirm_brand_references(p_brand_id uuid,p_user_id uuid,p_expected_version integer,p_request_id uuid,p_source_ids uuid[],p_rights jsonb)
 returns public.bios language plpgsql security definer set search_path=public,pg_temp as $$
 declare

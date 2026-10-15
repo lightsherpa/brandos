@@ -19,7 +19,7 @@ test.before(async()=>{
  await sql(readFileSync(new URL('../supabase/migrations/20261013010000_append_bio_version_expected.sql',import.meta.url),'utf8'));
  await sql('alter default privileges for role postgres in schema public grant all on tables to anon,authenticated,service_role;');
  await sql(readFileSync(new URL('../supabase/migrations/20261014000000_reference_intake.sql',import.meta.url),'utf8'));
- await sql(readFileSync(new URL('../supabase/migrations/20261015150000_brand_core_input_tags.sql',import.meta.url),'utf8'));
+ await sql(readFileSync(new URL('../supabase/migrations/20261016000000_brand_core_input_tags.sql',import.meta.url),'utf8'));
 });
 async function fixture(){const brand=randomUUID(),old=randomUUID(),sources=[randomUUID(),randomUUID()];await sql(`insert into brands values('${brand}','${ws}');insert into bios(brand_id,version,payload,score,certified) values('${brand}',2,'{"visual":{"references":[{"sourceId":"${old}","role":"canonical"}]} }',96,true);${sources.map(id=>`insert into bio_sources values('${id}','${brand}','file_upload','visual','new photo','${ws}/${brand}/${id}.png','{"asset_role":"canonical","ext":"png","rights_confirmed":false}');`).join('')}`);return{brand,old,sources};}
 const rights=`'{"authority":true,"ownsOrLicensed":true,"generationAllowed":true}'`;
@@ -39,7 +39,7 @@ test('flagged reference batches preserve tags and append active prior references
  assert.equal(result.payload.visual.references[2].sourceId,f.old);
  assert.notEqual(result.payload.visual.references[2].status,'superseded');
  assert.equal(result.certified,false);assert.equal(result.self_certified,false);
- await sql(readFileSync(new URL('../supabase/migrations/20261015150000_brand_core_input_tags.sql',import.meta.url),'utf8'));
+ await sql(readFileSync(new URL('../supabase/migrations/20261016000000_brand_core_input_tags.sql',import.meta.url),'utf8'));
  assert.equal(await sql(`select count(*) from bio_reference_intakes where brand_id='${f.brand}';`),'1');
 });
 
