@@ -11,7 +11,7 @@ mock.module(new URL('harness/task-context.js',root).href,{namedExports:{loadTask
  if(args.type==='social_post'||args.heroes)throw Object.assign(Error('Missing foundation'),{code:'FOUNDATION_INCOMPLETE',status:409,missing:['visual.logo']});
  return {brand:{id:'brand'},bio:{version:1},layer1:{foundation_missing:['logo'],references:[],rules:[]},skillsPayloads:{}};
 }}});
-mock.module(new URL('harness/pipeline.js',root).href,{namedExports:{runTask:async()=>{models++;return {items:[],spec:{},metrics:{},status:'ready'};},rerunItem:async()=>({}),ETA_SECONDS:{email_sequence:60,social_post:150}}});
+mock.module(new URL('harness/pipeline.js',root).href,{namedExports:{runTask:async()=>{models++;return {items:[],spec:{},metrics:{},status:'ready'};},rerunItem:async()=>({}),reviseComponent:async()=>({}),publicItem:it=>it,ETA_SECONDS:{email_sequence:60,social_post:150}}});
 mock.module(new URL('harness/settlement.js',root).href,{namedExports:{
  preflight:async()=>{credits++;return {ok:true};},openRun:async()=>{ledger++;return {runId:'run'};},settle:async args=>args.work(),taskCredits:()=>12,MAX_RERUNS_PER_ITEM:3,
 }});

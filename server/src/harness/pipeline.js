@@ -139,6 +139,7 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
 /** Code checks + render for one item (shared by runTask and rerunItem). */
 export async function checkAndRender({ type, task, it, layer1, language, briefCheck, renderEmailFn = renderEmail }) {
   const pre = briefCheck ? [briefCheck] : [];
+  let renderedAssets = [];
   if (type === "social_post") {
     it.checks = [...pre, ...checkSocialCopy(it.copy, { banned: layer1.voice.forbidden }), ...checkSocialImage(it.image, { aspect: task.aspect })];
     if (it.image?.asset_url && (!crewCanvasEnabled() || it.image.ocr?.pass === true)) {
@@ -149,6 +150,7 @@ export async function checkAndRender({ type, task, it, layer1, language, briefCh
     let r; try { r = await renderEmailFn({ email: it.copy, layer1, heroUrl: it.image?.ocr?.pass === true ? it.image.asset_url : null, language }); } catch { r = { html: "", mjmlErrors: ["Stable export assets unavailable"], tokens: {} }; }
     it.export = { kind: "standalone_html", stable: !!r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), transport_html_bytes: r.transport?.html_bytes || null, delivery_ready: false, assets: r.assets || [], formats: ["html"] };
     it.html = r.html;
+    renderedAssets = r.assets || [];
     it.transport_html = r.transport_html || null;
     it.transport = r.transport || null;
     it.html_bytes = Buffer.byteLength(r.html || "", "utf8");
@@ -162,7 +164,7 @@ export async function checkAndRender({ type, task, it, layer1, language, briefCh
     const fontPresent = (type === "social_post" ? [layer1.fonts.display] : [layer1.fonts.display, layer1.fonts.body]).filter(Boolean).every(font => html.toLowerCase().includes(String(fontStack(font)).split(',')[0].replace(/["']/g, '').toLowerCase()));
     it.checks.push(result('BRAND_FONTS', fontPresent, 'The renderer must use the certified brand fonts', 'hard', 'none'));
     it.checks.push(result('BRAND_PALETTE', !!layer1.palette.primary && html.toLowerCase().includes(layer1.palette.primary.toLowerCase()), 'The renderer must use the certified brand palette', 'hard', 'none'));
-    if (type === 'email_sequence' && task.heroes) it.checks.push(result('HERO_RENDERED', !!it.image?.asset_url && /<img\b/i.test(html) && it.image?.ocr?.pass === true, 'A checked hero image must be embedded in the HTML', 'hard', 'image'));
+    if (type === 'email_sequence' && task.heroes) it.checks.push(result('HERO_RENDERED', !!it.image?.asset_url && /<img\b/i.test(html) && (html.includes(it.image.asset_url.replaceAll('&', '&amp;')) || renderedAssets.some(asset => asset.role === 'generated_image')) && it.image?.ocr?.pass === true, 'A checked hero image must be embedded in the HTML', 'hard', 'image'));
   }
   return it;
 }
