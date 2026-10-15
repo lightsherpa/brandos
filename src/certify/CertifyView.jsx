@@ -1,4 +1,6 @@
 import React from 'react';
+import {brandCoreInputsCopy} from '../locales/brand-core-inputs-copy.js';
+import {LOGO_USES} from '../lib/brand-core-inputs.js';
 import { apiFetch } from '../lib/supabase-browser.js';
 import { useCertThread, ClientThread } from './ClientThread.jsx';
 import { useBrandFonts } from '../brand-fonts.jsx';
@@ -22,8 +24,15 @@ const fieldLabel = path => path.split('.').at(-1).replace(/([a-z])([A-Z])/g, '$1
 
 export function ClaimValue({ claim, value = claim.value, sources = [] }) {
   const {locale}=useLocale();const ct=text=>reviewText(text,locale);
+  if(value==null||value===''||(Array.isArray(value)&&!value.length))return <p className="certify-value">{ct('No value recorded')}</p>;
   if (/competitors|pointsOfDifference/.test(claim.field_path)&&Array.isArray(value))return <div className="certify-competitors">{value.map((item,i)=><article key={i}><h3>{item.name||item.claim||String(item)}</h3>{Object.entries(item).filter(([key,v])=>!['name','claim','url','source','id'].includes(key)&&typeof v==='string').map(([key,v])=><p key={key}>{v}</p>)}{['url','source'].map(key=>{let url;try{const parsed=new URL(item[key]);if(['https:','http:'].includes(parsed.protocol))url=parsed.href;}catch{}return url?<a key={key} href={url} target="_blank" rel="noreferrer">{item[key]} ↗</a>:item[key]?<p key={key}>{item[key]}</p>:null;})}</article>)}</div>;
-  if (claim.field_path==='visual.logo'&&value?.variants)return <div>{Object.entries(value.variants).map(([use,logo])=>{const url=sourceAsset(sources,logo.sourceId);return <figure key={use}><figcaption>{ct(use)}</figcaption>{url?<img className="certify-logo" src={url} alt={ct('Brand logo')}/>:<p>{ct('Logo preview unavailable · inspect the source evidence.')}</p>}</figure>;})}</div>;
+  if (claim.field_path==='visual.logo'&&value?.variants){
+    const logos=new Map();
+    if(value.sourceId)logos.set(value.sourceId,{...value,use:value.use||'primary'});
+    Object.entries(value.variants).forEach(([legacyUse,logo])=>{if(!logo?.sourceId)return;const previous=logos.get(logo.sourceId);logos.set(logo.sourceId,{...previous,...logo,use:logo.use||(LOGO_USES.includes(legacyUse)?legacyUse:previous?.use)||'primary'});});
+    const copy=brandCoreInputsCopy[locale]||brandCoreInputsCopy.en;
+    return logos.size?<div>{[...logos.values()].map(logo=>{const url=sourceAsset(sources,logo.sourceId),use=copy.uses[LOGO_USES.indexOf(logo.use)]||copy.logo;return <figure key={logo.sourceId}><figcaption>{use}{logo.name&&<small> · {logo.name}</small>}</figcaption>{url?<img className="certify-logo" src={url} alt={`${use}${logo.name?' · '+logo.name:''}`}/>:<p>{ct('Logo preview unavailable · inspect the source evidence.')}</p>}</figure>;})}</div>:<p className="certify-value">{ct('No value recorded')}</p>;
+  }
   if (claim.field_path === 'visual.logo' && value?.sourceId) {
     const url = sourceAsset(sources, value.sourceId);
     return url ? <img className="certify-logo" src={url} alt="Brand logo" /> : <p>{ct('Logo preview unavailable · inspect the source evidence.')}</p>;
@@ -203,16 +212,17 @@ export function ModernCertifyReview({ data, thread = {enabled:false,messages:[]}
 export function SectionExplanation({path,locale='en'}){const e=sectionExplanation(path,locale);return <div className="certify-explanation"><p>{e.line}</p><details><summary aria-label={e.title}>ⓘ</summary><p>{e.info}</p></details></div>;}
 export function CertifyReview(props){return certifyUxEnabled()?<ModernCertifyReview {...props}/>:<LegacyCertifyReview {...props}/>;}
 export function CertifyView({ id, go }) {
+  const {locale}=useLocale(),copy=reviewCopy(locale);
   const [data,setData] = React.useState(null);
   const [error,setError] = React.useState('');
   const thread = useCertThread(id);
   const reload = React.useCallback(async () => {
     try {const res=await apiFetch(`/api/steward/jobs/${id}`);const json=await res.json();if(!res.ok)throw Error(json.error || 'Review unavailable');setData(json);setError('');await thread.reload();}
-    catch(e){setError(e.message);}
-  },[id]);
+    catch(e){setError(e.message==='Failed to fetch'?reviewText('A network connection could not be established. Check your connection and retry.',locale):e.message);}
+  },[id,locale]);
   React.useEffect(() => {reload();},[reload]);
-  React.useEffect(() => {if(data && !data.certify?.enabled) go(`team-job/${id}`);},[data,id,go]);
-  if(error)return <p role="alert">{error}</p>;
+  React.useEffect(() => {if(data && !data.certify?.enabled && !certifyUxEnabled()) go(`team-job/${id}`);},[data,id,go]);
+  if(error || (data && !data.certify?.enabled && certifyUxEnabled()))return <div role="alert"><p>{error || reviewText('Review unavailable. Retry to reconnect.',locale)}</p><button className="btn btn--ghost" onClick={reload}>{copy.retry}</button></div>;
   if(!data?.certify?.enabled)return null;
   const submit = async body => {const res=await apiFetch(`/api/steward/jobs/${id}`,{method:'PATCH',body:JSON.stringify(body)});const json=await res.json();if(!res.ok)throw Error(json.error || 'Review failed');return json;};
   return <CertifyReview key={data.job.bio.id} data={data} thread={thread} onReload={reload} onSubmit={submit} onBack={() => go('team')} />;

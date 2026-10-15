@@ -52,3 +52,21 @@ test('Stewart shows the deterministic case file, current risks, sources and revi
  const html=renderToStaticMarkup(React.createElement(StewartSupport,{claim,copilot,locale:'en',localLabel:()=> 'Positioning'}));
  assert.match(html,/Ready for review/);assert.match(html,/Conflicting evidence/);assert.match(html,/Resolve before certification/);assert.match(html,/href="https:\/\/brand.test\/about"/);assert.match(html,/Suggested actions/);assert.match(html,/Review evidence/);assert.match(html,/Dismiss suggestion/);assert.doesNotMatch(html,/UNRELATED RISK/);
 });
+test('unlimited logo previews use tagged labels, retain main and deduplicate source IDs without UUID captions',async(t)=>{
+ const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());
+ const {ClaimValue}=await vite.ssrLoadModule('/src/certify/CertifyView.jsx');
+ const value={sourceId:'main-id',name:'Main.png',variants:{'d7c559aa-1111-4444-9999-44a566449899':{sourceId:'mark-id',use:'mark',name:'Emblem.png'},'f2db88a1-2222-4444-9999-44a566449899':{sourceId:'main-id',use:'primary',name:'Main.png'},'7d9044b4-3333-4444-9999-44a566449899':{sourceId:'dark-id',use:'dark',name:'Dark.png'}}};
+ const sources=[{id:'main-id',evidence_url:'https://assets.test/main.png'},{id:'mark-id',evidence_url:'https://assets.test/mark.png'},{id:'dark-id',evidence_url:'https://assets.test/dark.png'}];
+ const html=renderToStaticMarkup(React.createElement(ClaimValue,{claim:{field_path:'visual.logo',value},sources}));
+ assert.equal((html.match(/<figure>/g)||[]).length,3);assert.equal((html.match(/src="https:\/\/assets.test\/main.png"/g)||[]).length,1);
+ assert.match(html,/Primary/);assert.match(html,/Emblem \/ mark/);assert.match(html,/For dark backgrounds/);assert.match(html,/Emblem.png/);assert.doesNotMatch(html,/d7c559aa|f2db88a1|7d9044b4/);
+ const distinctMain=renderToStaticMarkup(React.createElement(ClaimValue,{claim:{field_path:'visual.logo',value:{sourceId:'main-id',variants:{arbitrary:{sourceId:'mark-id',use:'mark'}}}},sources}));
+ assert.equal((distinctMain.match(/<figure>/g)||[]).length,2);assert.match(distinctMain,/main.png/);
+});
+test('empty specialized claim arrays display the explicit empty value',async(t)=>{
+ const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());
+ const {ClaimValue}=await vite.ssrLoadModule('/src/certify/CertifyView.jsx');
+ for(const field_path of ['positioning.competitors','positioning.pointsOfDifference','visual.palette','visual.type']){
+  const html=renderToStaticMarkup(React.createElement(ClaimValue,{claim:{field_path,value:[]}}));assert.match(html,/No value recorded/);
+ }
+});
