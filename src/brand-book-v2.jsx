@@ -7,6 +7,8 @@ import {reviewFieldLabel} from './certify/review-copy.js';
 import {brandCoreInputsCopy} from './locales/brand-core-inputs-copy.js';
 import {LOGO_USES,PALETTE_GROUPS,REFERENCE_TAGS} from './lib/brand-core-inputs.js';
 import {DEFAULT_TYPE_SCALE} from '../server/src/lib/brand-foundation.js';
+import {normalizeSourceKinds} from '../server/src/lib/source-kind.js';
+import {certaintyWord,distinctQuote,sourceLine} from './lib/provenance-copy.js';
 import './brand-book-v2.css';
 export const brandBookV2Enabled=()=>['1','true'].includes(String(import.meta.env?.VITE_BRAND_BOOK_V2||'').toLowerCase());
 export {bookCopy} from './locales/brand-book-copy.js';
@@ -25,7 +27,14 @@ export function BrandBookV2({bio,payload=bio?.payload||{},brandName,certified,br
  const family=font=>fontState[font?.sourceId||font?.family]?.family;
  const palette=visual.palette||[],primary=palette.find(p=>/primary/i.test(p.group||p.role||''))||palette[0];
  const fields=sections=>sections.flatMap(section=>Object.entries(payload[section]||{}).filter(([key])=>!['name'].includes(key)).map(([key,value])=>({path:`${section}.${key}`,value}))).filter(f=>f.value&&(!Array.isArray(f.value)||f.value.length));
- const renderField=f=><article className="book2-field" key={f.path}><h3>{reviewFieldLabel(f.path,locale,t)}</h3><ClaimValue claim={{field_path:f.path,value:f.value}}/>{payload.confidence?.[f.path]?.source&&<small className="book2-source">{c.source} · {payload.confidence[f.path].source}</small>}</article>;
+ const renderField=f=>{
+  const record=payload.confidence?.[f.path];
+  const kinds=record?normalizeSourceKinds(record.source_kind||record.source):[];
+  const from=record?sourceLine(kinds,t):'';
+  const sure=record?certaintyWord({conf:record.conf,sourceKinds:kinds,confirmedByOwner:record.owner_confirmed||record.confirmedByOwner,confirmedByCd:record.cd_confirmed||record.confirmedByCd},t):'';
+  const quote=distinctQuote(record?.quote,from);
+  return <article className="book2-field" key={f.path}><h3>{reviewFieldLabel(f.path,locale,t)}</h3><ClaimValue claim={{field_path:f.path,value:f.value}}/>{(sure||from)&&<small className="book2-source"><span aria-label={t('provenance.howSure')}>{sure}</span>{from&&from!==sure?` · ${from}`:''}</small>}{quote&&<blockquote>{quote}</blockquote>}</article>;
+ };
  const chapters=[['strategy',c.strategy,c.strategyNote],['visual',c.visual,c.visualNote],['voice',c.voice,c.voiceNote]];
  return <article className="book2" dir={locale==='ar'?'rtl':'ltr'} style={{'--book-accent':colour(primary?.hex)||'#cfeb89','--book-display':family(display)?`"${family(display)}"`:undefined,'--book-body':family(body)?`"${family(body)}"`:undefined}}>
   <header className="book2-masthead"><span>Brand Core / {String(bio.version).padStart(2,'0')}</span><span>{certified?'●':'○'} {certified?c.certified:c.draft}</span><button className="btn btn--ghost" onClick={()=>go('bio')}>{c.back} ↗</button></header>

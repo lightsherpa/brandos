@@ -63,9 +63,11 @@ test("low_conf items carry conf, value, source, and a templated action", () => {
   assert.equal(ap.status, "low_conf");
   assert.equal(ap.conf, 40);
   assert.equal(ap.value, "Urban professionals who treat coffee as a ritual.");
-  assert.equal(ap.source, "inferred — not stated");
-  // inferred source → "Confirm ... — inferred, not stated."
-  assert.match(ap.action, /inferred, not stated/);
+  assert.equal(ap.source, null);
+  assert.deepEqual(ap.sourceKinds, ["guess"]);
+  assert.equal(ap.label, "Main customers");
+  assert.equal(ap.actionKey, "provenance.focusGuess");
+  assert.doesNotMatch(ap.action, /inferred/);
 });
 
 test("empty payload yields no focus items", () => {

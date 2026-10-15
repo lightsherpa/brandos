@@ -1,6 +1,6 @@
 // Presentation boundary only. Keep original claim values/tokens for API gates
 // and original URLs in resource attributes; never print implementation data.
-const SOURCE={en:'Source evidence',es:'Fuente',ar:'مصدر الأدلة'};
+const SOURCE={en:'…',es:'…',ar:'…'};
 export const privateField=key=>/^(id|.*_id|sourceId|sourceIds|raw_ref|.*url|.*path|storage.*|token|.*token|provider|bucket|objectKey|fileKey|evidence_token)$/i.test(key);
 export function displayText(value,locale='en'){
  const source=SOURCE[locale]||SOURCE.en;

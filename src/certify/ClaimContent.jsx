@@ -1,4 +1,5 @@
 import {displayText,previewValue,privateField,safeHref} from './display-text.js';
+import {distinctQuote,sourceLine} from '../lib/provenance-copy.js';
 import React from 'react';
 import {brandCoreInputsCopy} from '../locales/brand-core-inputs-copy.js';
 import {LOGO_USES} from '../lib/brand-core-inputs.js';
@@ -32,22 +33,31 @@ export function ClaimValue({ claim, value = claim.value, sources = [] }) {
   return <p className="certify-value">{typeof value === 'object' && value ? previewValue(value,locale) : ct(display(value))}</p>;
 }
 export function FontSpecimen({family,label='Brand font',scale={}}){return <div className="certify-font-samples" style={{'--certify-specimen-family':`"${family}"`,fontFamily:`"${family}",sans-serif`}}><strong>{displayText(label)}</strong>{['h1','h2','h3','h4','h5','h6','body'].map((tag,i)=><div key={tag}><small>{tag.toUpperCase()}</small><p style={{fontFamily:'inherit',fontSize:Math.min(48,Number(scale?.[tag])||[40,34,28,24,20,18,16][i]),lineHeight:1.3}}>The quick brown fox jumps over the lazy dog.</p></div>)}</div>;}
+const pageLabel=(page,t,ct)=>{
+  if(page==null||page==='')return '';
+  const named=t(`provenance.page.${page}`);
+  if(named&&named!==`provenance.page.${page}`)return named;
+  return Number.isFinite(Number(page))?`${ct('Page')} ${page}`:'';
+};
 export function ClaimEvidence({ claim }) {
-  const {locale}=useLocale();const copy=reviewCopy(locale);const ct=text=>displayText(reviewText(text,locale),locale);
+  const {locale,t}=useLocale();const copy=reviewCopy(locale);const ct=text=>displayText(reviewText(text,locale),locale);
   const [tab, setTab] = React.useState(0);
   React.useEffect(() => setTab(0), [claim.claim_id]);
   const evidence = claim.evidence?.[tab] || claim.evidence?.[0];
+  const line=evidence?sourceLine(evidence.source_kind?.length?evidence.source_kind:evidence.label?[evidence.label]:['guess'],t):'';
+  const quote=evidence?distinctQuote(evidence.quote,line):'';
+  const href=evidence?safeHref(evidence.url||evidence.asset_url):null;
+  const where=pageLabel(evidence?.source_page||evidence?.page,t,ct);
   return <div className="certify-evidence">
     <div className="eyebrow">{copy.evidence}</div>
-    {(claim.evidence||[]).length > 1 && <div className="certify-tabs" role="tablist" aria-label="Evidence sources">{claim.evidence.map((e,i) => <button key={i} role="tab" aria-selected={tab === i} onClick={() => setTab(i)}>{e.page ? `${ct('Page')} ${e.page}` : `${ct('Source')} ${i+1}`}</button>)}</div>}
-    {!evidence ? <p className="certify-empty">{ct('● To confirm · No evidence yet')}</p> : <>
-      <p className="certify-provenance">● {ct(evidence.first_party ? 'First-party' : 'Recorded / inferred')}{evidence.page ? ` · ${ct('Page')} ${evidence.page}` : ''}</p>
-      {evidence.quote && <blockquote>{displayText(evidence.quote,locale)}</blockquote>}
-      {evidence.screenshot && <img className="certify-source-image" src={evidence.screenshot} alt={displayText(evidence.label,locale)} />}
-      {evidence.asset_url && isImage(evidence) && <img className="certify-source-image" src={evidence.asset_url} alt={displayText(evidence.label,locale)} />}
-      {evidence.asset_url && (evidence.mime === 'application/pdf' || /\.pdf$/i.test(evidence.label || '')) && <iframe className="certify-pdf" title={displayText(evidence.label,locale)} src={`${evidence.asset_url}#page=${evidence.page || 1}`} />}
-      {(evidence.url || evidence.asset_url) ? <a href={safeHref(evidence.url || evidence.asset_url)||undefined} target="_blank" rel="noreferrer">{displayText(evidence.label,locale) || ct('Open source')} ↗</a> : <small>{displayText(evidence.label,locale)}</small>}
-      {!evidence.quote && !evidence.asset_url && !evidence.screenshot && <p>{ct('No excerpt captured · inspect the source link.')}</p>}
+    {(claim.evidence||[]).length > 1 && <div className="certify-tabs" role="tablist" aria-label={copy.evidence}>{claim.evidence.map((e,i) => <button key={i} role="tab" aria-selected={tab === i} onClick={() => setTab(i)}>{pageLabel(e.source_page||e.page,t,ct)||i+1}</button>)}</div>}
+    {!evidence ? <p className="certify-empty">{t('provenance.missingNotFound')}</p> : <>
+      <p className="certify-provenance">{line}{where?` · ${where}`:''}</p>
+      {quote && <blockquote>{displayText(quote,locale)}</blockquote>}
+      {evidence.screenshot && <img className="certify-source-image" src={evidence.screenshot} alt={line} />}
+      {evidence.asset_url && isImage(evidence) && <img className="certify-source-image" src={evidence.asset_url} alt={line} />}
+      {evidence.asset_url && (evidence.mime === 'application/pdf' || /\.pdf$/i.test(evidence.asset_url || '')) && <iframe className="certify-pdf" title={line} src={`${evidence.asset_url}#page=${evidence.page || 1}`} />}
+      {href && <a href={href} target="_blank" rel="noreferrer">{ct('Open source')} ↗</a>}
     </>}
   </div>;
 }

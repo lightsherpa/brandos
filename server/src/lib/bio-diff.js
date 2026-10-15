@@ -13,35 +13,12 @@
 // Returns [] when the payloads are equal or when prev is null/absent.
 //
 // Self-check: diffBio({voice:{register:"warm"}}, {voice:{register:"crisp"}})
-//   → [{ field:"voice.register", label:"Voice register", before:"warm", after:"crisp" }]
+//   → [{ field:"voice.register", label:"How you sound", before:"warm", after:"crisp" }]
 
 import { BIO_FIELDS, normalizeBio } from "./bio-schema.js";
+import { FIELD_LABELS_EN, fieldLabelEn } from "./field-labels.js";
 
-// Readable names for every registered leaf (extends the LABELS idea from
-// bio-focus.js to the full registry, incl. the non-scored visual fields).
-const LABELS = {
-  "identity.positioning": "Positioning",
-  "identity.category": "Category",
-  "identity.founded": "Founded",
-  "identity.pillars": "Pillars",
-  "audience.primary": "Primary audience",
-  "audience.secondary": "Secondary audience",
-  "audience.tertiary": "Tertiary audience",
-  "audience.jtbd": "Jobs-to-be-done",
-  "voice.register": "Voice register",
-  "voice.forbidden": "Forbidden words",
-  "voice.rhythm": "Voice rhythm",
-  "voice.signatures": "Voice signatures",
-  "goals.northStar": "North star",
-  "goals.q2": "Q2 priority",
-  "goals.q3": "Q3 priority",
-  "strategic.watchouts": "Watchouts",
-  "strategic.notList": "Not-list",
-  "visual.palette": "Palette",
-  "visual.type": "Typography",
-  "visual.imagery": "Imagery",
-  "visual.avoid": "Visual avoid",
-};
+const LABELS = FIELD_LABELS_EN;
 
 // One array item → a readable string. Objects (palette/type entries) render as
 // their primitive values joined by a space (e.g. "Ink #101820").
@@ -81,7 +58,9 @@ export function diffBio(prevPayload, nextPayload) {
     const after = next[section]?.[key];
     if (JSON.stringify(before ?? null) === JSON.stringify(after ?? null)) continue;
     const field = f.path.join(".");
-    out.push({ field, label: LABELS[field] || field, before: render(before), after: render(after) });
+    const label = fieldLabelEn(field);
+    if (!label) continue;
+    out.push({ field, label, before: render(before), after: render(after) });
   }
   return out;
 }

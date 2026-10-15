@@ -1,7 +1,7 @@
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_SESSION } from "./lib/ui-fixture.js";
-import { setLocale } from "./lib/i18n.js";
+import { setLocale, useLocale } from "./lib/i18n.js";
 import { prepareTotpFactor } from "./lib/mfa.js";
 
 const { Icon, BrandolphAvatar } = window;
@@ -135,13 +135,13 @@ function MfaGate({ onCancel = null }) {
 
   return <div className="auth-page"><form className="auth-card" onSubmit={verify}>
     <div className="eyebrow">Security checkpoint</div>
-    <h1>{enrolling ? "Set up admin security" : "Verify your identity"}</h1>
-    <p>{enrolling ? "Scan this QR code with Apple Passwords, Google Authenticator, 1Password, or another authenticator, then enter its six-digit code." : "Sensitive admin controls require the six-digit code from your authenticator."}</p>
-    {factor?.totp?.qr_code && <img src={factor.totp.qr_code} alt="Authenticator QR code" style={{width:180,height:180,alignSelf:"center"}} />}
+    <h1>{enrolling ? "Set up extra security" : "Confirm it's you"}</h1>
+    <p>{enrolling ? "Scan this QR code with Apple Passwords, Google Authenticator, 1Password, or another authenticator, then enter its six-digit code." : "For admin settings, enter the 6-digit code from your authenticator app."}</p>
+    {factor?.totp?.qr_code && <img src={factor.totp.qr_code} alt="QR code for your authenticator app" style={{width:180,height:180,alignSelf:"center"}} />}
     {factor?.totp?.secret && <code style={{overflowWrap:"anywhere"}}>{factor.totp.secret}</code>}
     <label>6-digit code<input value={code} inputMode="numeric" autoComplete="one-time-code" onChange={(e)=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} /></label>
     {error && <div className="auth-error">{error}</div>}
-    <button className="btn btn--primary" disabled={busy || !factor || code.length !== 6}>{busy ? "Verifying…" : "Continue securely"}</button>
+    <button className="btn btn--primary" disabled={busy || !factor || code.length !== 6}>{busy ? "Verifying…" : "Continue"}</button>
     {onCancel && <button type="button" className="btn btn--ghost" onClick={async () => {
       if (enrolling && factor?.id) {
         try { await supabase.auth.mfa.unenroll({ factorId:factor.id }); } catch { /* abandoned factors are cleaned on the next setup */ }
@@ -180,7 +180,7 @@ async function signUpWithPassword(email, password) {
   if (error) throw error;
   if (!data.session) {
     // Email confirmation is enabled — user needs to verify before they get a session.
-    throw new Error("Check your inbox to confirm your email, then sign in. (Or disable 'Confirm email' in Supabase → Authentication → Settings for dev.)");
+    throw new Error("Check your inbox to confirm your email, then sign in.");
   }
   currentProfile = await resolveProfile(data.user);
   notify();
@@ -340,6 +340,7 @@ function useSession() {
    forgot   — email only → email reset link
    recovery — new password only → set new password (after email link click) */
 function Login({ role = "client", go, initialMode = "signin" }) {
+  const { t } = useLocale();
   const isTeam = role === "team";
   const [email, setEmail] = useAuthState("");
   const [password, setPassword] = useAuthState("");
@@ -358,7 +359,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
         if (profile) go(profile.role === "team" ? "team" : "home");
       } else if (mode === "forgot") {
         await requestPasswordReset(email);
-        setInfo("Check your inbox — we sent you a link to reset your password.");
+        setInfo("Check your inbox. We've sent you a link to reset your password.");
       } else if (mode === "recovery") {
         await setNewPassword(password);
         /* Clear the recovery flag on the in-memory profile so the App
@@ -391,12 +392,12 @@ function Login({ role = "client", go, initialMode = "signin" }) {
   const submitLabel  =
     mode === "signup"   ? "Create account"
     : mode === "forgot"  ? "Send reset link"
-    : mode === "recovery" ? "Set new password"
+    : mode === "recovery" ? "Save new password"
     : "Sign in";
   const heading =
     mode === "signup"   ? "Create your account"
     : mode === "forgot"  ? "Reset your password"
-    : mode === "recovery" ? "Set a new password"
+    : mode === "recovery" ? "Choose a new password"
     : (isTeam ? "La Mesa creative team" : "Sign in to your brand workspace");
 
   return (
@@ -408,7 +409,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
         <div className="auth-story__copy">
           <div className="auth-story__eyebrow">BrandOS</div>
           <h2 className="auth-story__head">Your brand,<br />made certifiable.</h2>
-          <p className="auth-story__sub">Brandolph reads your brand into a living, human-certified Brand Core, assembles the crew, and lands the work on a canvas — with optional human finishing when the work needs it.</p>
+          <p className="auth-story__sub">{t("auth.storySub")}</p>
           <div className="auth-story__dots"><span className="is-active" /><span /><span /><span /></div>
         </div>
       </aside>
@@ -419,11 +420,11 @@ function Login({ role = "client", go, initialMode = "signin" }) {
           <div className="auth-mark">
             <span style={{fontFamily:"'Instrument Sans', system-ui, sans-serif", fontSize: 22, fontWeight: 600, letterSpacing: "-0.04em", color: "var(--c-ink)"}}>BrandOS</span>
           </div>
-          <h1 className="auth-title">{showToggle ? (isTeam ? "La Mesa creative team" : "Let’s build your brand.") : heading}</h1>
-          {!showToggle && <p className="auth-sub">{mode === "forgot" ? "We’ll email you a reset link." : "Choose a new password."}</p>}
+          <h1 className="auth-title">{showToggle ? (isTeam ? "La Mesa creative team" : "Let's build your brand.") : heading}</h1>
+          {!showToggle && <p className="auth-sub">{mode === "forgot" ? "We'll email you a link to reset it." : "Choose a new password."}</p>}
 
           {showToggle && (
-            <div className="auth-toggle" role="tablist" aria-label="Sign in or sign up">
+            <div className="auth-toggle" role="tablist" aria-label="Sign in or create an account">
               <button type="button" role="tab" aria-selected={mode === "signin"} className={"auth-toggle__opt" + (mode === "signin" ? " is-active" : "")} onClick={() => switchMode("signin")}>Sign In</button>
               <button type="button" role="tab" aria-selected={mode === "signup"} className={"auth-toggle__opt" + (mode === "signup" ? " is-active" : "")} onClick={() => switchMode("signup")}>Sign Up</button>
             </div>
@@ -546,7 +547,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
             By continuing you agree to our <a href="#/terms">Terms</a> &amp; <a href="#/privacy">Privacy</a>.
           </div>
           <div className="auth-foot auth-foot--alt">
-            {isTeam ? "Not on the team?" : "BrandOS team member?"}{" "}
+            {isTeam ? "Not on the team?" : "Part of the BrandOS by Caastor team?"}{" "}
             <a className="btn btn--link" style={{ fontSize: 12 }} href={isTeam ? "#/login" : "#/team/login"}>
               {isTeam ? "Client sign-in" : "Team sign-in"} →
             </a>

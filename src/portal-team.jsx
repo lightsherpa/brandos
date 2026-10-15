@@ -6,6 +6,7 @@ import {canEnterCertify,certifyJobPath} from "./lib/certify-routing.js";
 import {ReviewOutputPreview} from "./lib/review-output-preview.jsx";
 import { withUploadType } from "./lib/upload-type.js";
 import { useLocale } from "./lib/i18n.js";
+import { certaintyWord, humanFieldLabel, sourceLine } from "./lib/provenance-copy.js";
 import { apiFetch } from "./lib/supabase-browser.js";
 import { useCertThread, ClientThread, AnswerEvidence, FOUNDATION_FIELDS } from "./certify/ClientThread.jsx";
 const { BrandolphDot, Confidence, Counter, Icon, ModelChip, PageHeader, SlaHeat, StatusPill } = window;
@@ -81,7 +82,14 @@ function mergePayloadPatch(base, patch) {
   return apply(next, patch);
 }
 
+function spoken(t, value) {
+  if (typeof value !== "string" || !value.startsWith("provenance.")) return value || "";
+  const line = t(value);
+  return line === value ? "" : line;
+}
+
 function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
+  const { t } = useLocale();
   const caseFile = copilot?.caseFile;
   const suggestions = (copilot?.suggestions || []).filter((s) => !dismissed?.has(s.id));
   if (!caseFile) return null;
@@ -111,7 +119,7 @@ function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
       </div>
       {(caseFile.risks || []).slice(0, 3).map((risk) => (
         <div key={`${risk.field}-${risk.reason}`} style={{fontSize: 11.5, color:"var(--c-dim)", lineHeight: 1.4, marginBottom: 6}}>
-          <strong style={{color: risk.severity === "high" ? "var(--pink-500)" : "var(--c-ink)"}}>{risk.label}</strong> · {risk.action}
+          <strong style={{color: risk.severity === "high" ? "var(--pink-500)" : "var(--c-ink)"}}>{spoken(t, risk.label) || risk.label}</strong>{spoken(t, risk.action) ? ` · ${spoken(t, risk.action)}` : ""}
         </div>
       ))}
       {suggestions.length > 0 && (
@@ -626,7 +634,7 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
    rubric, and submits — the engine computes the decision (approve /
    approve_with_conditions / return_changes / reject). May patch the BIO first. */
 function TeamJob({ id, go }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const session = window.useSession();
   const openCertify = certifyReviewEnabled() && canEnterCertify(session);
   const { job, sources, you, focus, rubric, autoSignals, copilot, certify, error, loading, reload } = useStewardJob(id);
@@ -917,28 +925,44 @@ function TeamJob({ id, go }) {
             <div style={{display:"flex", flexDirection:"column", gap: 8}}>
               {focus.map((f, i) => {
                 const isMissing = f.status === "missing";
+                const label = (f.labelKey && t(f.labelKey) !== f.labelKey && t(f.labelKey)) || humanFieldLabel(f.field, t) || (f.label && !String(f.label).includes(".") ? f.label : "");
+                if (!label) return null;
                 const pillBg  = isMissing ? "var(--pink-50, rgba(244,143,177,0.16))" : "var(--yellow-50, rgba(212,175,55,0.16))";
                 const pillCol = isMissing ? "var(--pink-500)" : "var(--yellow-800)";
                 const highStakes = typeof f.importance === "number" && f.importance >= 1.0;
+                const kinds = f.sourceKinds || [];
+                const from = kinds.length ? sourceLine(kinds, t) : "";
+                const sure = certaintyWord({ conf: f.conf, sourceKinds: kinds, missing: isMissing }, t);
+                const why = spoken(t, f.whyKey || f.why);
+                const actionName = f.actionKey || f.action;
+                const action = (actionName === "provenance.focusEmpty" || actionName === "provenance.focusGuess")
+                  ? (() => {
+                      const line = t(actionName, { label: locale === "en" ? label.toLowerCase() : label });
+                      return line === actionName ? "" : line;
+                    })()
+                  : spoken(t, actionName);
                 return (
                   <div key={f.field || i} className="card card--inset" style={{padding:"9px 11px"}}>
                     <div style={{display:"flex", alignItems:"center", gap: 6, flexWrap:"wrap", marginBottom: 4}}>
-                      <span style={{fontSize: 12.5, color:"var(--c-ink)", fontWeight: 500}}>{f.label || f.field}</span>
+                      <span style={{fontSize: 12.5, color:"var(--c-ink)", fontWeight: 500}}>{label}</span>
                       <span className="pill" style={{height: 18, padding:"0 7px", fontSize: 9.5, letterSpacing:"0.03em", background: pillBg, color: pillCol}}>
                         {isMissing ? t("team.statusMissing") : t("team.statusLowConf")}
                       </span>
-                      {typeof f.conf === "number" && (
-                        <span style={{fontSize: 10.5, color:"var(--c-dim)", fontFamily:"var(--font-mono)"}}>{f.conf}%</span>
+                      {sure && (
+                        <span aria-label={t("provenance.howSure")} style={{fontSize: 10.5, color:"var(--c-dim)"}}>● {sure}</span>
                       )}
                       {highStakes && (
                         <span className="pill" style={{height: 18, padding:"0 7px", fontSize: 9.5, letterSpacing:"0.03em", background:"var(--neutral-50)", color:"var(--c-dim)"}}>{t("team.highStakes")}</span>
                       )}
                     </div>
-                    {f.source && (
-                      <div style={{fontSize: 10.5, color:"var(--c-faint)", fontFamily:"var(--font-mono)", marginBottom: 3, wordBreak:"break-word"}}>{f.source}</div>
+                    {why && (
+                      <div style={{fontSize: 11, color:"var(--c-faint)", marginBottom: 3}}>{why}</div>
                     )}
-                    {f.action && (
-                      <div style={{fontSize: 11.5, color:"var(--c-dim)", lineHeight: 1.4}}>{f.action}</div>
+                    {from && from !== sure && (
+                      <div style={{fontSize: 10.5, color:"var(--c-faint)", marginBottom: 3, wordBreak:"break-word"}}>{from}</div>
+                    )}
+                    {action && (
+                      <div style={{fontSize: 11.5, color:"var(--c-dim)", lineHeight: 1.4}}>{action}</div>
                     )}
                     {thread.enabled && f.field && (() => {
                       const claim = thread.claims.get(f.field);
@@ -948,7 +972,7 @@ function TeamJob({ id, go }) {
                           {claim?.state === "asked" && <div style={{fontSize: 11, color:"var(--c-dim)"}}><span aria-hidden="true" style={{color:"var(--yellow-800)"}}>●</span> Asked</div>}
                           {!claim && (
                             <button type="button" className="btn btn--link" style={{fontSize: 11, padding: 0}}
-                              onClick={() => thread.addDraft([f.field], `Can you confirm ${String(f.label || f.field).toLowerCase()}? ${f.action || ""}`.trim()).catch(() => {})}>
+                              onClick={() => thread.addDraft([f.field], `Can you confirm ${label.toLowerCase()}? ${action || ""}`.trim()).catch(() => {})}>
                               Ask client
                             </button>
                           )}

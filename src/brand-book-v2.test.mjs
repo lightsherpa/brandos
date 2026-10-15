@@ -17,7 +17,7 @@ test('only loaded brand font is described as a live specimen with H1–H6 and bo
  const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());const {BookFontSpecimen}=await vite.ssrLoadModule('/src/brand-book-v2.jsx');
  const html=renderToStaticMarkup(React.createElement(BookFontSpecimen,{font:{family:'Commercial Cake',kind:'Both',weight:600},loadedFamily:'BrandFont-commercial',scale:{h1:58}}));
  for(const level of ['H1','H2','H3','H4','H5','H6','BODY'])assert.ok(html.includes(level));assert.match(html,/BrandFont-commercial/);assert.match(html,/--book-specimen-family/);assert.match(html,/font-family:inherit/);assert.equal((html.match(/The quick brown fox/g)||[]).length,7);assert.match(html,/font-size:58px/);
- const unavailable=renderToStaticMarkup(React.createElement(BookFontSpecimen,{font:{family:'Unloaded Cake'}}));assert.match(unavailable,/Font preview unavailable/);assert.doesNotMatch(unavailable,/The quick brown fox/);
+ const unavailable=renderToStaticMarkup(React.createElement(BookFontSpecimen,{font:{family:'Unloaded Cake'}}));assert.match(unavailable,/Font preview not available/);assert.doesNotMatch(unavailable,/The quick brown fox/);
 });
 test('book copy translates all controls into Spanish and Arabic while keeping Brand Core',async t=>{
  const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());const {BrandBookV2,bookCopy}=await vite.ssrLoadModule('/src/brand-book-v2.jsx');
@@ -30,5 +30,5 @@ test('owner confirmation is an obvious primary action before section content, wi
  const vite=await createServer({define:{'import.meta.env.VITE_CERTIFY_UX':'"1"'},server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());
  const {CertificationDialog}=await vite.ssrLoadModule('/src/bio-self-certification.jsx');
  const html=renderToStaticMarkup(React.createElement(CertificationDialog,{embedded:true,brandId:'cake',brandName:'Cake Me',bio:{id:'bio',version:3,payload:fixture.payload},renderSection:()=>React.createElement('p',null,'SECTION CONTENT'),onClose:()=>{}}));
- assert.match(html,/bio-cert-section-action/);assert.match(html,/Confirm &amp; review next section/);assert.ok(html.indexOf('Confirm &amp; review next section')<html.indexOf('SECTION CONTENT'));assert.match(html,/bio-cert-primary-footer/);assert.match(html,/Continue to final confirmation/);assert.doesNotMatch(html,/<input type="checkbox"/);
+ assert.match(html,/bio-cert-section-action/);assert.match(html,/Looks right, next section/);assert.ok(html.indexOf('Looks right, next section')<html.indexOf('SECTION CONTENT'));assert.match(html,/bio-cert-primary-footer/);assert.match(html,/Continue to confirm/);assert.doesNotMatch(html,/<input type="checkbox"/);
 });

@@ -17,6 +17,9 @@ import "./discovery-intake.css";
 import {DiscoverySourceReferences} from "./discovery-source-references.jsx";
 import {CompetitiveRecords,BioCompetitive} from "./bio-competitive.jsx";
 import { useLocale, t as tr } from "./lib/i18n.js";
+import { canonicalFieldPath } from "../server/src/lib/field-labels.js";
+import { KNOWN_FIELD_PATHS, normalizeMissingReason, normalizeSourceKinds } from "../server/src/lib/source-kind.js";
+import { certaintyWord, humanFieldLabel, missingReasonLine, sourceLine } from "./lib/provenance-copy.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_BIO_STATE, FIXTURE_SOURCES, publishReadProgress } from "./lib/ui-fixture.js";
 import { BrandolphLine } from "./portal-shared.jsx";
@@ -57,7 +60,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         brand = data;
       }
       if (wantedId && !brand) {
-        commit((s) => ({ ...s, brandId: wantedId, brandName:null, brandUrl:null, review:null, diff:[], reviewPending:false, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
+        commit((s) => ({ ...s, brandId: wantedId, brandName:null, brandUrl:null, review:null, diff:[], reviewPending:false, bio: null, cert: null, loading: false, error: "This brand isn't in your workspace" }));
         return;
       }
       if (!brand) {
@@ -66,7 +69,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         if (bErr) throw bErr;
         brand = brands?.[0];
       }
-      if (!brand) { commit((s) => ({ ...s, brandId: null, bio: null, cert: null, loading: false, error: "No brand in workspace" })); return; }
+      if (!brand) { commit((s) => ({ ...s, brandId: null, bio: null, cert: null, loading: false, error: "No brands in this workspace yet" })); return; }
       const res = await apiFetch(`/api/bios/${brand.id}`);
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -74,7 +77,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         return;
       }
       const { bio, reviewPending, focusCount, review, diff } = await res.json();
-      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"The Brand Core does not match the selected brand"} : bioIntegrityError(bio, brand));
+      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"This Brand Core belongs to a different brand"} : bioIntegrityError(bio, brand));
       if (mismatch) throw new Error(mismatch.error);
       let certInfo = null;
       if (bio?.certified) {
@@ -164,7 +167,7 @@ function BucketDropZone({ bucket, files, onAdd, onRemove, statuses = {}, purpose
             <label>{t("discovery.visualIntake.fontLicence")}<select value={meta.licenseType||"commercial"} onChange={e=>setMeta({licenseType:e.target.value})}>{[["commercial","commercial"],["open_source","openSource"],["custom","custom"],["system","system"]].map(([v,k])=><option key={v} value={v}>{t("discovery.visualIntake."+k)}</option>)}</select></label>
             <label>{t("discovery.visualIntake.licenceReference")}<input value={meta.licenseReference||""} onChange={e=>setMeta({licenseReference:e.target.value})}/></label>
           </>:<label>{t("discovery.visualIntake.referenceRole")}<select value={meta.assetRole||"inspiration"} onChange={e=>setMeta({assetRole:e.target.value})}>{["canonical","inspiration","logo"].map(v=><option key={v} value={v}>{v === "logo" ? "Logo" : t("discovery.visualIntake."+v)}</option>)}</select></label>}
-          {meta.assetRole === "logo" && <label>Logo variant<select value={meta.logoVariant || "light"} onChange={e=>setMeta({logoVariant:e.target.value})}><option value="light">Light logo (dark backgrounds)</option><option value="dark">Dark logo (light backgrounds)</option></select></label>}
+          {meta.assetRole === "logo" && <label>Logo variant<select value={meta.logoVariant || "light"} onChange={e=>setMeta({logoVariant:e.target.value})}><option value="light">Light logo (for dark backgrounds)</option><option value="dark">Dark logo (for light backgrounds)</option></select></label>}
           <label className="discovery-rights"><input type="checkbox" checked={!!meta.rightsConfirmed} onChange={e=>setMeta({rightsConfirmed:e.target.checked})}/>{t("discovery.visualIntake.rightsConfirm")}</label>
         </div>}
       </li>;
@@ -260,15 +263,15 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
         if (brandErr) throw brandErr;
         brandId = brands?.[0]?.id;
       }
-      if (!brandId) throw new Error("No brand is available for Discovery.");
+      if (!brandId) throw new Error("Add a brand to get started.");
 
       const {data: selectedBrand, error: selectedError} = await supabase.from("brands").select("id,name,url").eq("id",brandId).maybeSingle();
-      if(selectedError || !selectedBrand)throw new Error("The selected brand is unavailable");
+      if(selectedError || !selectedBrand)throw new Error("This brand isn't available");
       const mismatch = discoveryWebsiteError(selectedBrand,targetUrl);
       if(mismatch)throw new Error(mismatch.error);
       let baselineVersion = 0;
       const baselineRes = await apiFetch(`/api/bios/${brandId}`);
-      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "The Brand Core could not be checked before uploading sources");}
+      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "We couldn't check your Brand Core. Try uploading again.");}
       if (baselineRes.ok) {
         const baseline = await baselineRes.json();
         baselineVersion = Number(baseline.bio?.version) || 0;
@@ -322,7 +325,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
       }
       const { discoveryId, eventId } = await res.json();
       const runId = discoveryId || eventId;
-      if (!runId) throw new Error("Discovery started without a correlation id. Please retry.");
+      if (!runId) throw new Error("Something went wrong starting up. Please try again.");
       console.log("[Discovery] fired", { discoveryId: runId, brandId, url: targetUrl });
       onNext({ discoveryId: runId, eventId, brandId, baselineVersion });
     } catch (err) {
@@ -419,7 +422,7 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
         setElapsed(Math.floor((Date.now() - startedAt) / 1000));
         if(runContext?.discoveryId){
           const progress=await apiFetch(`/api/discovery/${runContext.discoveryId}/status`);
-          if(!progress.ok)throw new Error("Progress temporarily unavailable");
+          if(!progress.ok)throw new Error("We can't show progress right now");
           if(progress.ok){
             const {run}=await progress.json();
             if(run?.stage){
@@ -682,12 +685,17 @@ function DiscoFieldRow({ field, chapterKey, value, meta, mark, onChange, onMark,
     return field.italic ? <em style={{fontStyle:"italic"}}>{value}</em> : <span>{value}</span>;
   };
 
+  const questionKey = `discovery.question.${chapterKey}.${field.key}`;
+  const asked = t(questionKey);
+  const placeholder = asked && asked !== questionKey ? asked : t("discovery.field.editPlaceholder");
+  const from = (meta?.source_kind || meta?.source) ? sourceLine(meta.source_kind || meta.source, t) : "";
+
   const renderEditor = () => {
     if (["competitors","differences"].includes(field.list)) return <CompetitiveRecords kind={field.list} items={value || []} editing onChange={onChange} />;
     if (field.list === "palette") return <DiscoPaletteEdit items={value || []} onChange={onChange} />;
     if (field.list === "type") return <DiscoTypeEdit items={value || []} onChange={onChange} />;
     if (field.multi) return <ChipEditor items={value || []} onChange={onChange} />;
-    return <EditInput area={field.area} value={value || ""} onChange={onChange} placeholder={t("discovery.field.editPlaceholder")} />;
+    return <EditInput area={field.area} value={value || ""} onChange={onChange} placeholder={placeholder} />;
   };
 
   return (
@@ -695,7 +703,7 @@ function DiscoFieldRow({ field, chapterKey, value, meta, mark, onChange, onMark,
       <div style={{display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:12, marginBottom:8}}>
         <div>
           <span style={{fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-faint)", letterSpacing:"0.06em", textTransform:"uppercase"}}>{fieldLabel(chapterKey, field)}</span>
-          {meta && meta.source && <span style={{fontSize:11, color:"var(--c-faint)", fontStyle:"italic", marginLeft:10}}>{t("discovery.field.from", { source: meta.source })}</span>}
+          {from && <span style={{fontSize:11, color:"var(--c-faint)", fontStyle:"italic", marginLeft:10}}>{from}</span>}
         </div>
         <span className="pill" style={{background:"transparent", border:`1px solid ${st.color}`, color:st.color, fontSize:10.5, whiteSpace:"nowrap"}}>{t("discovery.fieldStatus." + st.kind)}</span>
       </div>
@@ -1150,60 +1158,67 @@ function payloadToFields(payload) {
   const fieldMeta = p.fieldMeta || {};
   const cf = (section, key) => cmap[`${section}.${key}`] || {};
   const field = (section, key, label, extra = {}) => {
-    const { conf, source } = cf(section, key);
+    const { conf, source, source_kind: sourceKind } = cf(section, key);
     const meta = fieldMeta?.[section]?.[key] || {};
-    return { key, label: meta.label || label, conf, source, ...extra, ...(typeof meta.multi === "boolean" ? { multi: meta.multi } : {}) };
+    return { key, label: meta.label || label, conf, source, sourceKind, ...extra, ...(typeof meta.multi === "boolean" ? { multi: meta.multi } : {}) };
   };
-  const humanize = (key) => String(key)
-    .replace(/^custom_/, "")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/[_-]+/g, " ")
-    .replace(/^./, (c) => c.toUpperCase());
-  const customFields = (section, known) => Object.entries(p[section] || {})
-    .filter(([key]) => !known.includes(key))
-    .map(([key, value]) => ({
-      ...field(section, key, humanize(key), { multi: Array.isArray(value) }),
-      value,
-    }));
+  const foldSection = (section, obj) => {
+    const next = { ...(obj || {}) };
+    for (const key of Object.keys(obj || {})) {
+      const path = canonicalFieldPath(`${section}.${key}`) || canonicalFieldPath(key);
+      if (!path || !path.startsWith(`${section}.`)) {
+        console.warn("Dropped unlabeled Brand Core field", `${section}.${key}`);
+        delete next[key];
+        continue;
+      }
+      const leaf = path.slice(section.length + 1);
+      if (leaf !== key) {
+        const current = next[leaf];
+        const empty = current == null || current === "" || (Array.isArray(current) && current.length === 0);
+        if (empty) next[leaf] = next[key];
+        delete next[key];
+      }
+    }
+    return next;
+  };
+  const identity = foldSection("identity", p.identity);
+  const audience = foldSection("audience", p.audience);
+  const voice = foldSection("voice", p.voice);
+  const goals = foldSection("goals", p.goals);
+  const customFields = () => [];
   return {
     identity: [
-      { ...field("identity", "positioning", "Positioning", { italic: true }), value: p.identity?.positioning || "" },
-      { ...field("identity", "category", "Category"), value: p.identity?.category || "" },
-      { ...field("identity", "founded", "Founded"),   value: p.identity?.founded || "" },
-      { ...field("identity", "pillars", "Pillars", { multi: true }), value: p.identity?.pillars || [] },
-      ...customFields("identity", ["positioning", "category", "founded", "pillars"]),
+      { ...field("identity", "positioning", "What makes you different", { italic: true }), value: identity.positioning || "" },
+      { ...field("identity", "category", "What you do"), value: identity.category || "" },
+      { ...field("identity", "founded", "When you started"),   value: identity.founded || "" },
+      { ...field("identity", "pillars", "What you stand for", { multi: true }), value: identity.pillars || [] },
+      ...customFields(),
     ],
     positioning: p.positioning || {},
     audience: [
-      { ...field("audience", "primary", "Primary"),     value: p.audience?.primary || "" },
-      { ...field("audience", "secondary", "Secondary"), value: p.audience?.secondary || "" },
-      { ...field("audience", "tertiary", "Tertiary"),   value: p.audience?.tertiary || "" },
-      { ...field("audience", "jtbd", "Jobs to be done", { multi: true }), value: p.audience?.jtbd || [] },
-      ...customFields("audience", ["primary", "secondary", "tertiary", "jtbd"]),
+      { ...field("audience", "primary", "Main customers"),     value: audience.primary || "" },
+      { ...field("audience", "secondary", "Other customers"), value: audience.secondary || "" },
+      { ...field("audience", "tertiary", "Others you want to reach"),   value: audience.tertiary || "" },
+      { ...field("audience", "jtbd", "What customers need", { multi: true }), value: audience.jtbd || [] },
+      ...customFields(),
     ],
     voice: [
-      { ...field("voice", "register", "Register"),    value: p.voice?.register || "" },
-      { ...field("voice", "forbidden", "Forbidden", { multi: true }), value: p.voice?.forbidden || [] },
-      { ...field("voice", "rhythm", "Rhythm"),        value: p.voice?.rhythm || "" },
-      { ...field("voice", "signatures", "Signatures", { multi: true }), value: p.voice?.signatures || [] },
-      ...customFields("voice", ["register", "forbidden", "rhythm", "signatures"]),
+      { ...field("voice", "register", "How you sound"),    value: voice.register || "" },
+      { ...field("voice", "forbidden", "Words to avoid", { multi: true }), value: voice.forbidden || [] },
+      { ...field("voice", "rhythm", "How you write"),        value: voice.rhythm || "" },
+      { ...field("voice", "signatures", "Phrases that sound like you", { multi: true }), value: voice.signatures || [] },
+      ...customFields(),
     ],
     goals: [
-      { ...field("goals", "northStar", "North star"), value: p.goals?.northStar || "" },
-      { ...field("goals", "q2", "This quarter"),      value: p.goals?.q2 || "" },
-      { ...field("goals", "q3", "Next quarter"),      value: p.goals?.q3 || "" },
-      ...customFields("goals", ["northStar", "q2", "q3"]),
+      { ...field("goals", "northStar", "What drives you"), value: goals.northStar || "" },
+      { ...field("goals", "q2", "This quarter's priority"),      value: goals.q2 || "" },
+      { ...field("goals", "q3", "Next quarter's priority"),      value: goals.q3 || "" },
+      ...customFields(),
     ],
     strategic: {
       watchouts: p.strategic?.watchouts || [],
       notList:   p.strategic?.notList || [],
-      /* Gaps now come from the live payload's `missing` list (each
-         { field, why }). The Gaps list + StringListEditor render plain
-         strings, so flatten each entry to "field — why". Old BIOs have no
-         `missing` → empty → UI hides it. Tolerate plain strings too. */
-      gaps:      (p.missing || []).map(m =>
-                   typeof m === "string" ? m
-                   : [m?.field, m?.why].filter(Boolean).join(" — ")),
+      gaps: gapEntries(p.missing),
       diagnosis: p.strategic?.diagnosis || "",
     },
     /* Visual tab consumes these arrays directly. */
@@ -1213,6 +1228,24 @@ function payloadToFields(payload) {
     avoid:   p.visual?.avoid || [],
     grade:   p.visual?.grade || "",
   };
+}
+
+function gapEntries(missing) {
+  const rows = Array.isArray(missing) ? missing : [];
+  const out = [];
+  const seen = new Set();
+  for (const row of rows) {
+    const rawField = typeof row === "string" ? row.split(" — ")[0] : row?.field;
+    const rawReason = typeof row === "string" ? row.split(" — ").slice(1).join(" — ") : (row?.reason || row?.why);
+    const field = canonicalFieldPath(rawField);
+    if (!field || seen.has(field)) {
+      if (rawField) console.warn("Dropped unlabeled Brand Core field", rawField);
+      continue;
+    }
+    seen.add(field);
+    out.push({ field, reason: normalizeMissingReason(rawReason) });
+  }
+  return out;
 }
 
 function fieldsToPayload(bio, prevPayload) {
@@ -1226,14 +1259,11 @@ function fieldsToPayload(bio, prevPayload) {
     fieldMeta[section] = {};
     for (const f of fields || []) {
       const parsedConfidence = Number(f.conf);
-      if (Number.isFinite(parsedConfidence)) confidence[`${section}.${f.key}`] = { conf: parsedConfidence, source: f.source || "manual entry" };
+      if (Number.isFinite(parsedConfidence)) confidence[`${section}.${f.key}`] = { conf: parsedConfidence, source: f.source || "manual entry", ...(f.sourceKind ? { source_kind: f.sourceKind } : {}) };
       fieldMeta[section][f.key] = { label: f.label || f.key, multi: !!f.multi };
     }
   }
-  const missing = (bio.strategic?.gaps || []).filter(Boolean).map((entry) => {
-    const [field, ...why] = String(entry).split(" — ");
-    return { field: why.length ? field : "manual", why: why.length ? why.join(" — ") : field };
-  });
+  const missing = gapEntries(bio.strategic?.gaps).map(({ field, reason }) => ({ field, reason }));
   return {
     ...(prevPayload || {}),
     confidence,
@@ -1402,10 +1432,19 @@ function StewardDiffPanel({ diff }) {
    translates it for DISPLAY only. Labels not in the map (user-added fields)
    render as-is. */
 const BIO_FIELD_LABEL_KEYS = {
-  "Positioning": "positioning", "Category": "category", "Founded": "founded", "Pillars": "pillars",
-  "Primary": "primary", "Secondary": "secondary", "Tertiary": "tertiary", "Jobs to be done": "jtbd",
-  "Register": "register", "Forbidden": "forbidden", "Rhythm": "rhythm", "Signatures": "signatures",
-  "North star": "northStar", "This quarter": "thisQuarter", "Next quarter": "nextQuarter",
+  "Positioning": "positioning", "What makes you different": "positioning",
+  "Category": "category", "What you do": "category",
+  "Founded": "founded", "When you started": "founded", "Pillars": "pillars", "What you stand for": "pillars",
+  "Primary": "primary", "Main customers": "primary",
+  "Secondary": "secondary", "Other customers": "secondary",
+  "Tertiary": "tertiary", "Others you want to reach": "tertiary",
+  "Jobs to be done": "jtbd", "What customers need": "jtbd",
+  "Register": "register", "How you sound": "register",
+  "Forbidden": "forbidden", "Words to avoid": "forbidden",
+  "Rhythm": "rhythm", "How you write": "rhythm", "Signatures": "signatures", "Phrases that sound like you": "signatures",
+  "North star": "northStar", "What drives you": "northStar",
+  "This quarter": "thisQuarter", "This quarter's priority": "thisQuarter",
+  "Next quarter": "nextQuarter", "Next quarter's priority": "nextQuarter",
 };
 const bioFieldLabel = (label) => {
   const key = BIO_FIELD_LABEL_KEYS[label];
@@ -1505,7 +1544,7 @@ function BioViewer({ go, bioScore = 91 }) {
   const requestReview = async () => {
     if (!live.brandId || reviewBusy) return;
     if (hasUnappliedSourceChanges) {
-      flash("Update the Brand Core with pending evidence before requesting review");
+      flash("Update your Brand Core with your new sources before you ask for a review");
       return;
     }
     setReviewBusy(true);
@@ -1615,7 +1654,7 @@ function BioViewer({ go, bioScore = 91 }) {
         const payload={...live.bio.payload,visual};
         if(uiFixtureEnabled){saveFixtureFoundation(payload);return;}
         const res=await apiFetch(`/api/bios/${live.brandId}`,{method:'PATCH',body:JSON.stringify({payload})});
-        const json=await res.json();if(!res.ok)throw Error(json.error || 'Foundation save failed');
+        const json=await res.json();if(!res.ok)throw Error(json.error || "We couldn't save your brand basics. Try again.");
         await live.refresh();
       }}/>}
 
@@ -1694,7 +1733,7 @@ function BioViewer({ go, bioScore = 91 }) {
       )}
       {hasUnappliedSourceChanges && (
         <div className="card" style={{padding:"10px 14px", marginBottom:14, borderLeft:"3px solid var(--yellow-500)", display:"flex", justifyContent:"space-between", alignItems:"center", gap:12}}>
-          <span style={{fontSize:13}}>Review the changes before requesting certification.</span>
+          <span style={{fontSize:13}}>Check your changes before you ask for a review.</span>
           <button className="btn btn--ghost" onClick={() => go("discovery")}>Update Brand Core</button>
         </div>
       )}
@@ -1702,7 +1741,7 @@ function BioViewer({ go, bioScore = 91 }) {
         <div className="card" style={{padding:"10px 14px", marginBottom: 14, borderLeft:"3px solid var(--pink-500)", color:"var(--c-ink)", fontSize: 13}}>{saveErr}</div>
       )}
 
-      {live.error && <div className="card" role="alert" style={{padding:24,marginBottom:20}}><strong>{live.brandName || "Selected brand"}</strong><p>{live.error}</p></div>}
+      {live.error && <div className="card" role="alert" style={{padding:24,marginBottom:20}}><strong>{live.brandName || "Current brand"}</strong><p>{live.error}</p></div>}
       {/* Empty state — no BIO extracted yet */}
       {!live.loading && !live.bio && live.brandId && (
         <div className="card" style={{padding:"56px 32px", textAlign:"center", maxWidth: 580, margin:"40px auto"}}>
@@ -1819,14 +1858,14 @@ function EditableField({ f, editing, onChange, onRemove }) {
       <div className="bio-field-row" style={{display:"grid", gridTemplateColumns: "180px 1fr 110px", gap: 18, padding:"14px 0", borderBottom:"1px solid var(--c-line)", alignItems:"start"}}>
         <div>
           <div style={{fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-faint)", letterSpacing:"0.06em", textTransform:"uppercase"}}>{bioFieldLabel(f.label)}</div>
-          {f.source && <div style={{fontSize: 11, color:"var(--c-faint)", marginTop: 4, fontStyle:"italic"}}>{t("discovery.field.from", { source: f.source === "steward edit" ? "Creative Director" : f.source })}</div>}
+          {(f.source || f.sourceKind) && <div style={{fontSize: 11, color:"var(--c-faint)", marginTop: 4}}>{sourceLine(f.sourceKind || f.source, t)}</div>}
         </div>
         <div style={{fontSize: 14, color:"var(--c-ink)", lineHeight: 1.55}}>
           {f.multi
             ? (["jtbd","signatures"].includes(f.key)?<ul style={{paddingInlineStart:18,margin:0}}>{(f.value||[]).map((v,i)=><li key={i} style={{marginBottom:8}}>{v}</li>)}</ul>:<div style={{display:"flex", flexWrap:"wrap", gap: 6}}>{(f.value || []).map((v, i) => <span key={i} className="pill">{v}</span>)}</div>)
             : (f.value==null||f.value===""?<span style={{color:"var(--c-dim)"}}>{t("discovery.certification.missing")}</span>:f.italic ? <em style={{fontStyle:"italic"}}>{f.value}</em> : f.value)}
         </div>
-        <div style={{textAlign:"right"}}>{typeof f.conf==='number'&&<Confidence value={f.conf} />}</div>
+        <div style={{textAlign:"right"}}>{typeof f.conf==='number'&&<span aria-label={t("provenance.howSure")}>● {certaintyWord({conf:f.conf,sourceKinds:(f.source||f.sourceKind)?normalizeSourceKinds(f.sourceKind||f.source):[]},t)}</span>}</div>
       </div>
     );
   }
@@ -2052,8 +2091,34 @@ function BioVisual({ bio, patch, editing, brandId }) {
   );
 }
 
+function GapEditor({ items, onChange }) {
+  const { t } = useLocale();
+  const used = new Set(items.map((item) => item.field));
+  const add = () => {
+    const field = KNOWN_FIELD_PATHS.find((path) => !used.has(path)) || KNOWN_FIELD_PATHS[0];
+    onChange([...items, { field, reason: "not_found" }]);
+  };
+  return (
+    <ul style={{margin:0, padding:0, listStyle:"none", display:"flex", flexDirection:"column", gap:8}}>
+      {items.map((item, i) => (
+        <li key={`${item.field}-${i}`} style={{display:"flex", gap:8, alignItems:"center"}}>
+          <select aria-label={humanFieldLabel(item.field, t) || item.field} value={item.field} onChange={(e) => onChange(items.map((row, j) => j === i ? { ...row, field: e.target.value } : row))} style={{flex:1, height:34}}>
+            {KNOWN_FIELD_PATHS.map((path) => <option key={path} value={path}>{humanFieldLabel(path, t) || path}</option>)}
+          </select>
+          <select aria-label={missingReasonLine(item.reason, t)} value={item.reason} onChange={(e) => onChange(items.map((row, j) => j === i ? { ...row, reason: e.target.value } : row))} style={{height:34}}>
+            {["not_found", "unclear", "conflicting"].map((reason) => <option key={reason} value={reason}>{missingReasonLine(reason, t)}</option>)}
+          </select>
+          <button onClick={() => onChange(items.filter((_, j) => j !== i))} style={{...CHIP_X, lineHeight:"34px"}} title={t("discovery.common.remove")}>×</button>
+        </li>
+      ))}
+      <li><button type="button" className="btn btn--ghost btn--sm" onClick={add}><Icon name="plus" size={12} /> {t("discovery.editPrimitive.addItem")}</button></li>
+    </ul>
+  );
+}
+
 function BioStrategic({ strat, patchStrategic, editing }) {
   const { t } = useLocale();
+  const gaps = Array.isArray(strat.gaps) ? strat.gaps : [];
   return (
     <div style={{display:"grid", gridTemplateColumns: "1fr 1fr", gap: 18}}>
       <div className="card" style={{padding: 18}}>
@@ -2067,9 +2132,13 @@ function BioStrategic({ strat, patchStrategic, editing }) {
       <div className="card" style={{padding: 18}}>
         <div className="eyebrow" style={{color:"var(--orange-600)", marginBottom: 8}}>{t("discovery.strategic.gaps")}</div>
         {editing
-          ? <StringListEditor items={strat.gaps} onChange={(v) => patchStrategic("gaps", v)} />
+          ? <GapEditor items={gaps} onChange={(v) => patchStrategic("gaps", v)} />
           : <ul style={{margin:0, paddingLeft: 0, listStyle:"none", display:"flex", flexDirection:"column", gap: 10}}>
-              {strat.gaps.map((x, i) => <li key={i} style={{fontSize: 13.5, color:"var(--c-ink)"}}>{x}</li>)}
+              {gaps.map((item) => {
+                const label = humanFieldLabel(item.field, t);
+                if (!label) return null;
+                return <li key={item.field} style={{fontSize: 13.5, color:"var(--c-ink)"}}>{label}. {missingReasonLine(item.reason, t)}</li>;
+              })}
             </ul>}
       </div>
       <div className="card" style={{padding: 18, gridColumn: "1 / -1"}}>

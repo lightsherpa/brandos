@@ -4,6 +4,7 @@ import { computeFocus } from './bio-focus.js';
 import { claimId } from './claim-id.js';
 import { readField } from './claim-review.js';
 import { isBrandEvidenceSource, sameBrandHost } from './bio-source-policy.js';
+import { cleanQuote, normalizeSourceKinds, normalizeSourcePage } from './source-kind.js';
 export const certifierS1Enabled = () => ['1', 'true'].includes(String(process.env.CERTIFIER_V2_S1 || '').toLowerCase());
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const empty = v => v == null || v === '' || (Array.isArray(v) && !v.length);
@@ -21,7 +22,8 @@ function confidenceLevel({ value, confidence, firstParty, conflict, missing }) {
   if (conflict) return 'conflicting';
   const conf = Number(confidence.conf);
   const defaults = Array.isArray(value) && value.some(c => c?.role === 'primary' && ['#000', '#fff', '#000000', '#ffffff', '#161616'].includes(c.hex?.toLowerCase()));
-  if (conf < 50 || /inferred|llm|model|framework/i.test(confidence.source || '') || defaults) return 'guessed';
+  const kinds = normalizeSourceKinds(confidence.source_kind || confidence.source);
+  if (conf < 50 || kinds.includes('guess') || defaults) return 'guessed';
   if (conf >= 85 && firstParty) return 'high';
   if (conf >= 70 || firstParty) return 'medium';
   return 'low';
@@ -51,18 +53,30 @@ export function buildClaimLedger({ brandId, bioVersion, payload = {}, sources = 
         || (s.signals?.claim_ids?.includes(id) && s.signals?.bio_version === bioVersion)
         || (s.src && reference.toLowerCase().includes(String(s.src).toLowerCase()));
     }).sort((a,b) => String(a.id).localeCompare(String(b.id)));
-    const evidence = matches.map(s => ({ source_id: s.id, label: s.src, kind: s.kind,
-      quote: answers.find(a => a.source_id === s.id)?.body || s.signals?.quote || s.signals?.snippet || quote || (s.kind === 'client_answer' ? s.src : null),
-      url: safeEvidenceUrl(s.src), asset_url: safeEvidenceUrl(s.evidence_url),
-      screenshot: safeEvidenceUrl(s.signals?.screenshotUrl || s.signals?.screenshot_url),
-      page: s.signals?.page || rawEvidence?.page || null,
-      mime: s.signals?.mime || '', first_party: ['file_upload', 'client_answer'].includes(s.kind) || sameBrandHost(brandUrl, s.src),
-    }));
-    // Retain the recorded excerpt even when no durable source row was stored.
-    if (!evidence.length && (quote || conf?.source)) {
+    const kindFromRow = (s) => s.kind === 'client_answer' ? 'your_answers' : s.kind === 'file_upload' ? 'brand_deck' : normalizeSourceKinds(s.src || s.kind)[0];
+    const distinctQuote = (excerpt, ...same) => {
+      const cleaned = cleanQuote(typeof excerpt === 'string' ? excerpt : '');
+      if (!cleaned) return null;
+      return same.some((item) => item && cleaned === String(item).trim()) ? null : cleaned;
+    };
+    const evidence = matches.map(s => {
+      const kinds = [kindFromRow(s)];
+      const excerpt = answers.find(a => a.source_id === s.id)?.body || s.signals?.quote || s.signals?.snippet || quote || null;
+      return { source_id: s.id, source_kind: kinds, source_page: normalizeSourcePage(s.signals?.page || rawEvidence?.page), label: kinds[0], kind: s.kind,
+        quote: distinctQuote(excerpt, s.src, conf?.source, quote && quote === conf?.source ? quote : null),
+        url: safeEvidenceUrl(s.src), asset_url: safeEvidenceUrl(s.evidence_url),
+        screenshot: safeEvidenceUrl(s.signals?.screenshotUrl || s.signals?.screenshot_url),
+        page: s.signals?.page || rawEvidence?.page || null,
+        mime: s.signals?.mime || '', first_party: ['file_upload', 'client_answer'].includes(s.kind) || sameBrandHost(brandUrl, s.src),
+      };
+    });
+    // Keep one provenance label. A quote is only the excerpt, never a copy of the label.
+    if (!evidence.length && (quote || conf?.source || conf?.source_kind)) {
+      const kinds = normalizeSourceKinds(conf?.source_kind || conf?.source);
       const url = safeEvidenceUrl(String(conf?.source || '').match(/https?:\/\/[^\s)\]]+/)?.[0]);
-      evidence.push({ label: conf?.source || 'Recorded evidence', quote: quote || conf?.source,
-        url, asset_url: null, first_party: /steward edit|brand pdf|upload/i.test(conf?.source || '') || sameBrandHost(brandUrl, url) });
+      evidence.push({ source_kind: kinds, source_page: normalizeSourcePage(conf?.source_page), label: kinds[0],
+        quote: distinctQuote(quote, conf?.source),
+        url, asset_url: null, first_party: kinds.some((kind) => ['brand_deck', 'your_answers', 'cd_edit'].includes(kind)) || sameBrandHost(brandUrl, url) });
     }
     const candidates = Array.isArray(value) ? value : [];
     const conflict = ['visual.palette', 'visual.type'].includes(path) && candidates.some((a,i) => candidates.some((b,j) => i !== j && (a.source || a.sourceId) && (b.source || b.sourceId) && (a.source || a.sourceId) !== (b.source || b.sourceId)
@@ -75,7 +89,7 @@ export function buildClaimLedger({ brandId, bioVersion, payload = {}, sources = 
     return { claim_id: id, bio_version: bioVersion, field_path: path, section, kind: field.kind, value,
       level: confidenceLevel({ value, confidence: effectiveConf, firstParty: evidence.some(e => e.first_party), conflict, missing: item?.status === 'missing' || !evidence.length }),
       importance: ['visual.logo', 'visual.palette', 'visual.type'].includes(path) ? 1.1 : priority?.importance ?? 0.3,
-      why: priority?.why || item?.why || (path.startsWith('visual.') ? 'This is part of the brand’s visual foundation.' : 'Specialists use this to stay true to the brand.'),
+      why: item?.status === 'missing' ? 'provenance.missingNotFound' : normalizeSourceKinds(effectiveConf?.source_kind || effectiveConf?.source).includes('guess') ? 'provenance.guessCheck' : 'provenance.where',
       open_questions: messages.filter(m => m.bio_version === bioVersion && m.claim_ids?.includes(id) && m.author_role === 'cd' && !answers.some(a => a.reply_to === m.id)).length,
       evidence, evidence_token: hash([id, value, conf || null, rawEvidence || null, matches.map(s => [s.id, s.signals, s.src]), answers.map(a => [a.id, a.body, a.source_id])]),
     };

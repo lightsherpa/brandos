@@ -9,11 +9,11 @@ import { PixelOffice } from "./pixel-office/PixelOffice.jsx";
 
 const COPY = {
   en: {
-    office: "Agency office", canvas: "Canvas", floor: "The agency floor", live: "Your crew, at work.",
-    preview: "Interactive preview", previewNote: "Simulated project · no AI calls or credits", previewTitle: "A little launch. A whole agency.",
+    office: "Studio view", canvas: "Canvas", floor: "Your team", live: "Your team, at work.",
+    preview: "Preview", previewNote: "Example project · uses no credits", previewTitle: "A small launch. A whole team.",
     briefTitle: "Launch a new coffee ritual", briefBody: "Create three social posts for a small specialty coffee brand. Warm, unhurried, and quietly confident. Pair each post with a visual direction.",
-    start: "Play the project", pause: "Pause", resume: "Resume", reset: "Reset", newBrief: "Create a real brief", inspect: "Click a teammate to see their assignment.",
-    crew: "On this project", outputs: "Output shelf", empty: "Finished work will land here.", brief: "Project brief", orchestrator: "Orchestrator", coordinating: "Coordinating the crew", ready: "Crew ready", running: "Work in progress", complete: "Generation complete · needs review", review: "Needs review", failed: "Needs attention", waiting: "Waiting for assignment", done: "Complete", approved: "Approved", flagged: "Needs review", queued: "Queued", stopped: "Failed", task: "Current assignment", open: "Open work", selected: "Selected teammate", zoomIn: "Zoom in", zoomOut: "Zoom out", fit: "Fit", motion: "Reduce motion", all: "All", noCrew: "No teammates in this room yet.", status: "Project status", closed: "Close", rooms: ["Strategy & research", "Concept studio", "Copy room", "Visual studio", "Web & motion", "Review desk"],
+    start: "Play the example", pause: "Pause", resume: "Resume", reset: "Reset", newBrief: "Write a real brief", inspect: "Click someone on the team to see what they're doing.",
+    crew: "On this project", outputs: "Finished work", empty: "Finished work will appear here.", brief: "Project brief", orchestrator: "Orchestrator", coordinating: "Organising the team", ready: "Crew ready", running: "Work in progress", complete: "Done · ready for your review", review: "Needs review", failed: "Needs attention", waiting: "Waiting for a task", done: "Complete", approved: "Approved", flagged: "Needs review", queued: "Queued", stopped: "Failed", task: "Current task", open: "Open work", selected: "Selected team member", zoomIn: "Zoom in", zoomOut: "Zoom out", fit: "Fit", motion: "Reduce motion", all: "All", noCrew: "No one in this room yet.", status: "Project status", closed: "Close", rooms: ["Strategy and research", "Concept studio", "Copy room", "Visual studio", "Web and motion", "Review desk"],
   },
   es: {
     office: "Oficina de agencia", canvas: "Lienzo", floor: "La agencia", live: "Tu equipo, en acción.",

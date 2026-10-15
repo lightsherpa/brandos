@@ -22,7 +22,7 @@ export function BoutiqueOffice({crew,selectedId,onSelect,onBrief,reduced,copy,sc
   lastEdit.current={group,time:now};configRef.current=next;setConfig(next);
  };
  const move=(id,x,y)=>{const piece=piecesRef.current.find(p=>p.id===id);if(piece)update(moveOfficePiece(configRef.current,piece,x,y,assets,piecesRef.current),'move-'+id);};
- useEffect(()=>{setSaveStatus('Saving…');const timer=setTimeout(()=>{try{window.localStorage.setItem(officeStorageKey(scope),JSON.stringify(config));setSaveStatus('Saved on this browser');}catch{setSaveStatus('Could not save in this browser');}},400);return()=>clearTimeout(timer);},[config,scope]);
+ useEffect(()=>{setSaveStatus('Saving…');const timer=setTimeout(()=>{try{window.localStorage.setItem(officeStorageKey(scope),JSON.stringify(config));setSaveStatus('Saved on this browser');}catch{setSaveStatus("We couldn't save in this browser");}},400);return()=>clearTimeout(timer);},[config,scope]);
  const positionFor=(agent,current)=>{
   const base=studioPosition(agent,current),station=OFFICE_STATIONS.find(s=>s.id===agent.room);
   if(station){const desk=piecesRef.current.find(p=>p.id===station.id+'-desk');if(desk)return [base[0]+desk.x-station.x,base[1]+desk.y-station.y];}
