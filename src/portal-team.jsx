@@ -626,6 +626,9 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
 function TeamJob({ id, go }) {
   const { t } = useLocale();
   const { job, sources, you, focus, rubric, autoSignals, copilot, certify, error, loading, reload } = useStewardJob(id);
+  useTEffect(() => {
+    if (certifyReviewEnabled() && job?.bio) go(`certify/${id}`);
+  }, [id, job?.bio?.id]);
   const thread = useCertThread(id);                         /* S3 client thread — inert when CERTIFIER_V2_S3 is off */
   const [notes, setNotes] = useTState("");
   const [edited, setEdited] = useTState(null);                /* edited BIO payload — null until job loads */
@@ -788,6 +791,7 @@ function TeamJob({ id, go }) {
     }
   };
 
+  if (certifyReviewEnabled() && job?.bio) return null;
   if (loading) {
     return <div style={{padding: 40, textAlign:"center", color:"var(--c-faint)"}}>{t("team.loading")}</div>;
   }

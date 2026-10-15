@@ -1,13 +1,15 @@
+import {localTestDatabase} from '../../../scripts/lib/local-test-database.mjs';
 // Self-owned disposable PostgreSQL only: no existing stack or DB URL accepted.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
-const name=`output-qa-test-${process.pid}`;
+const local=localTestDatabase('output');
+const name=local?.container || `output-qa-test-${process.pid}`;
 function command(args,input){return new Promise((resolve,reject)=>{const p=spawn('docker',args);let out='',err='';p.stdout.on('data',b=>out+=b);p.stderr.on('data',b=>err+=b);p.on('error',reject);p.on('close',code=>code?reject(Error(err)):resolve(out.trim()));p.stdin.end(input);});}
-const sql=text=>command(['exec','-i',name,'psql','-h','127.0.0.1','-U','postgres','-X','-qAt','-v','ON_ERROR_STOP=1'],text);
+const sql=text=>command(['exec','-i',name,'psql','-h','127.0.0.1','-U','postgres',...(local?['-d',local.database]:[]),'-X','-qAt','-v','ON_ERROR_STOP=1'],text);
 test('qa_passed migration preserves real human decisions and changes only automatic task approval',async()=>{
- await command(['run','--rm','-d','--name',name,'-e','POSTGRES_HOST_AUTH_METHOD=trust','postgres:17-alpine']);
+ if(local)local.create();else await command(['run','--rm','-d','--name',name,'-e','POSTGRES_HOST_AUTH_METHOD=trust','postgres:17-alpine']);
  try {
   for(let attempt=0;;attempt++){try{await sql('select 1;');break;}catch(error){if(attempt>=40)throw error;await new Promise(r=>setTimeout(r,200));}}
   await sql(`create table outputs(id text primary key,kind text,status text not null constraint outputs_status_check check(status in ('pending','approved','flagged','rejected','needs_review')),workflow_status text,internal_reviewed_by uuid,internal_reviewed_at timestamptz,client_reviewed_by uuid,client_reviewed_at timestamptz);
@@ -19,5 +21,5 @@ test('qa_passed migration preserves real human decisions and changes only automa
   const statuses=Object.fromEntries((await sql('select id||\':\'||status from outputs order by id;')).split('\n').map(line=>line.split(':')));
   assert.deepEqual(statuses,{auto:'qa_passed',client:'approved',forged:'qa_passed',human:'approved',legacy:'approved',rerun:'qa_passed',returned:'qa_passed',waiting:'approved'});
   await sql("insert into outputs(id,kind,status) values('new','task','qa_passed');");
- }finally{await command(['rm','-f',name]);}
+ }finally{if(local)local.drop();else await command(['rm','-f',name]);}
 });
