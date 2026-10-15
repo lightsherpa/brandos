@@ -1,6 +1,6 @@
 -- Draft-only review state, never certification authority. Apply to local/dev;
--- production rollout requires approval and CERTIFY_FRICTION remains default off.
-create table public.certify_review_progress (
+-- production rollout requires approval and CERTIFY_SIMPLIFY remains default off.
+create table if not exists public.certify_review_progress (
  job_id uuid not null references public.steward_jobs(id) on delete cascade,
  actor_user_id uuid not null references public.users(id) on delete cascade,
  bio_version integer not null check(bio_version>0),
@@ -9,7 +9,7 @@ create table public.certify_review_progress (
  updated_at timestamptz not null default now(),
  primary key(job_id,actor_user_id,bio_version)
 );
-create table public.certify_review_progress_requests (
+create table if not exists public.certify_review_progress_requests (
  job_id uuid not null references public.steward_jobs(id) on delete cascade,
  actor_user_id uuid not null references public.users(id) on delete cascade,
  bio_version integer not null check(bio_version>0),
@@ -24,7 +24,7 @@ alter table public.certify_review_progress_requests enable row level security;
 revoke all on public.certify_review_progress,public.certify_review_progress_requests from public,anon,authenticated,service_role;
 grant select on public.certify_review_progress to service_role;
 
-create function public.save_certify_review_progress(
+create or replace function public.save_certify_review_progress(
  p_job_id uuid,p_actor_user_id uuid,p_bio_version integer,p_expected_revision integer,
  p_request_id uuid,p_request_hash text,p_state jsonb
 ) returns jsonb language plpgsql security definer set search_path=public,pg_temp as $$

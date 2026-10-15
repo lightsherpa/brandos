@@ -1,4 +1,6 @@
 import{test}from'node:test';import assert from'node:assert/strict';import React from'react';import{renderToStaticMarkup}from'react-dom/server';import{createServer}from'vite';import{displayText,previewValue}from'./display-text.js';import{simplifyCopy}from'./simplify-copy.js';
+// Placeholder only — Vite bakes these into the browser client. No request is made.
+process.env.VITE_SUPABASE_URL||='http://127.0.0.1:54321';process.env.VITE_SUPABASE_ANON_KEY||='test';
 const secret='https://local.test/storage/v1/object/sign/brand/font.woff2?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0In0.c2lnbmF0dXJl';
 const unsafe=/https?:|eyJ|\/storage\/|raw_ref|sourceId|abcdef0123456789abcdef0123456789/;
 test('display boundary removes signed URLs, JWTs, storage paths and identifiers while preserving human content',()=>{for(const value of [secret,'workspace/brands/fonts/file.woff2','eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0In0.c2lnbmF0dXJl','abcdef0123456789abcdef0123456789'])assert.doesNotMatch(displayText(value),unsafe);assert.equal(previewValue([{family:'Meaty Nineties',kind:'Display',license:'commercial',url:secret,sourceId:'private'}]),'Meaty Nineties · Display · commercial');assert.equal(previewValue([{name:'Fresh bakery',raw_ref:secret,id:'private'}]),'Fresh bakery');});

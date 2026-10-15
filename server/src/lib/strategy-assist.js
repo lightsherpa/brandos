@@ -5,6 +5,7 @@ import {isBrandEvidenceSource} from './bio-source-policy.js';
 import {diffBio} from './bio-diff.js';
 
 export const certifyFrictionEnabled=()=>['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||process.env.CERTIFY_FRICTION||'').toLowerCase());
+const simplifyEnabled=()=>['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||'').toLowerCase());
 const LOCALES=['en','es','ar'];
 const localized=fn=>Object.fromEntries(LOCALES.map(locale=>[locale,fn(locale)]));
 const clip=(value,size=220)=>String(value||'').replace(/\s+/g,' ').trim().slice(0,size);
@@ -171,7 +172,7 @@ function citationsFor(claim,sources){
   const source=rows.get(evidence.source_id);
   if(!source||!isBrandEvidenceSource(source)||source.signals?.purpose==='aspiration')return [];
   const quote=clip(evidence.quote||source.signals?.quote||source.signals?.snippet,600);
-  const visualAsset=['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||'').toLowerCase())&&/^visual\./.test(claim.field_path)&&safeEvidenceUrl(evidence.asset_url||source.evidence_url);
+  const visualAsset=simplifyEnabled()&&/^visual\./.test(claim.field_path)&&safeEvidenceUrl(evidence.asset_url||source.evidence_url);
   if(!quote&&!visualAsset)return [];
   return [{claim_id:claim.claim_id,source_id:source.id,label:clip(source.src||evidence.label||source.kind),quote,
    url:safeEvidenceUrl(source.src),asset_url:safeEvidenceUrl(source.evidence_url),page:evidence.page||null}];
@@ -190,11 +191,11 @@ function reasonFor(claim,payload,citations){
 
 export function buildStrategyAssist({job,bio,claims=[],sources=[],previousBio=null}={}){
  const payload=bio?.payload||{},changes=new Set(previousBio?diffBio(previousBio.payload||{},payload).map(change=>change.field):[]);
- const items=claims.filter(claim=>['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||'').toLowerCase())||!/^visual\.|^voice\./.test(claim.field_path||'')).map(claim=>{
+ const items=claims.filter(claim=>simplifyEnabled()||!/^visual\.|^voice\./.test(claim.field_path||'')).map(claim=>{
   const citations=citationsFor(claim,sources),reasonCode=reasonFor(claim,payload,citations),value=recordedValue(claim.value),lens=LENSES[claim.field_path]||DEFAULT_LENS;
   const recommendation=['conflict','unsupported'].includes(reasonCode)?'flag':reasonCode==='supported'?'accept':'ask';
   return {claim_id:claim.claim_id,field_path:claim.field_path,recommendation,reasonCode,changed:changes.has(claim.field_path),openQuestions:Math.max(0,Number(claim.open_questions)||0),citations,
-   assessment:localized(locale=>{const i=LOCALES.indexOf(locale);return ['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||'').toLowerCase())?`${STATUS[reasonCode][locale]} ${lens[i]}`:`${value?'“'+value+'” · ':''}${STATUS[reasonCode][locale]} ${lens[i]}`;}),
+   assessment:localized(locale=>{const i=LOCALES.indexOf(locale);return simplifyEnabled()?`${STATUS[reasonCode][locale]} ${lens[i]}`:`${value?'“'+value+'” · ':''}${STATUS[reasonCode][locale]} ${lens[i]}`;}),
    question:localized(locale=>{const i=LOCALES.indexOf(locale),recorded=value?`“${value}”`: 'Brand Core';
     const question=(QUESTIONS[claim.field_path]||DEFAULT_QUESTION)[i];
     return locale==='es'?`Sobre ${recorded}: ${question}`:locale==='ar'?`بخصوص ${recorded}: ${question}`:`About ${recorded}: ${question}`;})};
