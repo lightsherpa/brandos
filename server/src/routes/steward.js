@@ -34,6 +34,7 @@ import { prepareStewardBioPatchPayload } from "../lib/bio-evidence.js";
 import { notify, brandOwnerUserId } from "../lib/notify.js";
 import { buildStewardCopilot } from "../lib/steward-copilot.js";
 import { canEnterCertify } from "../lib/certify-access.js";
+import {buildStrategyAssist,certifyFrictionEnabled} from "../lib/strategy-assist.js";
 
 const app = new Hono();
 const CERT_TTL_DAYS = Number(process.env.CERT_TTL_DAYS || 180);
@@ -184,6 +185,7 @@ app.get("/jobs/:id", requireAuth, requireSteward, async (c) => {
           messages: await claimMessages(job.brand_id, job.id) }) };
     } catch (err) { return c.json({ error: err.message }, err.status || 503); }
   }
+  if(certifyFrictionEnabled()&&certify)copilot.strategyAssist=buildStrategyAssist({job,bio:job.bio,claims:certify.claims,sources:reviewableSources,previousBio});
   return c.json({
     ...(certify ? { certify } : {}),
     job,
