@@ -10,7 +10,7 @@ import { claimState, confirmSection, eligibleForBulk, reviewGate, reviewPatch, w
 import { evaluateCertification } from '../../server/src/lib/evaluate-certification.js';
 import { scoreBioBreakdown } from '../../server/src/lib/score-bio.js';
 import './certify.css';
-const LABEL = { to_confirm: 'To confirm', conflicting: 'Conflicting', guessed: 'Guessed', low: 'Low', medium: 'Medium', high: 'High', confirmed: 'Confirmed', fixed: 'Fixed', asked: 'Asked', new_evidence: 'New evidence' };
+const LABEL = { to_confirm: 'Likely', conflicting: 'Conflicting', guessed: 'Our best guess', low: 'Needs your input', medium: 'Medium', high: 'High', confirmed: 'Confirmed', fixed: 'Fixed', asked: 'Asked', new_evidence: 'New evidence' };
 const SECTION = { foundation: 'Foundation', guidelines: 'Guidelines', strategy: 'Strategy' };
 const display = value => value == null || value === '' || (Array.isArray(value) && !value.length) ? 'No value recorded' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 const sourceAsset = (sources, id) => sources.find(s => s.id === id)?.evidence_url;
@@ -83,7 +83,7 @@ function BrandIntro({ data, onStart }) {
     <div className="eyebrow">Brand in 60 seconds</div><h1>{job.brand?.name || 'Brand Core'}</h1>
     <p className="certify-positioning">{job.bio.payload.identity?.positioning || 'Positioning to confirm'}</p>
     <div className="certify-intro-foundation">{logo ? <img className="certify-logo" src={logo} alt="Brand logo" /> : <p>● Logo to confirm</p>}<ClaimValue claim={{field_path:'visual.palette'}} value={COLOUR_ROLES.map(role => visual.palette?.find(c => c.role === role) || {role,hex:'—'})} sources={sources} /><ClaimValue claim={{field_path:'visual.type'}} value={visual.type || []} sources={sources} /></div>
-    <p>{certify.claims.length} claims · {certify.claims.filter(c => c.level === 'to_confirm').length} to confirm · {certify.claims.filter(c => c.level === 'conflicting').length} conflicting</p>
+    <p>{certify.claims.length} claims · {certify.claims.filter(c => c.level === 'to_confirm').length} likely · {certify.claims.filter(c => c.level === 'conflicting').length} conflicting</p>
     <div className="certify-source-thumbs">{sources.slice(0,3).map(s => <a key={s.id} href={s.evidence_url || (/^https?:/.test(s.src) ? s.src : undefined)} target="_blank" rel="noreferrer">{s.signals?.screenshotUrl ? <img src={s.signals.screenshotUrl} alt="Source screenshot" /> : s.signals?.mime?.startsWith('image/') && s.evidence_url ? <img src={s.evidence_url} alt="Source thumbnail" /> : <span>{s.kind === 'file_upload' ? 'File' : 'Website'}</span>}<small>{s.src}</small></a>)}</div>
     <button className="btn btn--primary" onClick={onStart}>Start review</button>
   </div>;

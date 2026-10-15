@@ -38,8 +38,8 @@ function whyKey(f) {
 }
 
 function actionKey(status, sourceKinds) {
-  if (status === "missing") return "provenance.missingNotFound";
-  if (sourceKinds.includes("guess")) return "provenance.guessCheck";
+  if (status === "missing") return "provenance.focusEmpty";
+  if (sourceKinds.includes("guess")) return "provenance.focusGuess";
   return null;
 }
 

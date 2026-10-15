@@ -50,7 +50,7 @@
     "inReview": "In review",
     "yoursOpen": "Yours · open",
     "capacityOverrides": "Capacity overrides",
-    "stewardQueue": "Steward queue",
+    "stewardQueue": "Brands to review",
     "filterAll": "All",
     "filterPendingLead": "Pending Lead",
     "unassigned": "Unassigned",
@@ -63,9 +63,9 @@
     "queueEmpty": "No jobs match this filter. Fire a Discovery run to create one:",
     "you": "You",
     "assigned": "Assigned",
-    "notSteward": "Not a Steward — run ",
+    "notSteward": "You're not a creative director on this brand — run ",
     "aboutJobs": "About these jobs",
-    "aboutJobsBody": "Each row is a brand awaiting Brand Core certification — a senior human review before any specialist run reads from it. The moat: every output ships ",
+    "aboutJobsBody": "Each row is a brand waiting for certification: a senior creative director checks its Brand Core before any work uses it. That's our promise: everything we deliver is built on a checked brand.",
     "certifiedByName": "certified by {name}",
     "addGeneric": "+ Add",
     "removeItem": "Remove {item}",
@@ -82,7 +82,7 @@
     "bucketOther": "Other",
     "pasteUrl": "Paste a URL…",
     "addUrl": "Add URL",
-    "fileHint": "Max 50MB · PDF, image, .doc, .txt, .md",
+    "fileHint": "Up to 50 MB · PDF, image, Word, text",
     "typography": "Typography",
     "typeKindPlaceholder": "Kind (e.g. Display)",
     "typeFamilyPlaceholder": "Family (e.g. Söhne Breit)",
@@ -96,21 +96,21 @@
     "confLow": "Low",
     "confMed": "Med",
     "confHigh": "High",
-    "rubricScore": "Rubric · score each criterion",
-    "autoPct": "auto · {pct}%",
+    "rubricScore": "Score each point",
+    "autoPct": "suggested · {pct}%",
     "gateFloor": "gate ≥{floor}",
     "notScored": "not scored",
-    "confidence": "confidence",
+    "confidence": "how sure we are",
     "scoreEveryCriterion": "Score every criterion: {list}",
     "gateSuffix": " · gate: {ids}",
-    "submittedForLead": "Submitted for Lead review — proposed {decision}, {composite}/100{gate}.",
+    "submittedForLead": "Sent to a lead creative director: you suggested {decision}, score {composite}/100{gate}.",
     "decisionResult": "Decision: {decision} · {composite}/100 ({band}){gate}{cal}",
-    "calibrationSuffix": " · low-confidence → calibration",
+    "calibrationSuffix": " · unsure, sent for a second look",
     "cancelled": "Cancelled",
     "decertified": "Decertified · v{version}. Production paused; a re-review was queued.",
     "approvedAsLead": "Approved as Lead · v{version} now live.",
-    "sentBackRevision": "Sent back to the Steward for revision.",
-    "confirmDecertify": "Decertify this Brand Core? Production pauses until it is re-certified. Briefing stays available and running jobs finish.",
+    "sentBackRevision": "Sent back to the creative director to revise.",
+    "confirmDecertify": "Remove certification from this Brand Core? New work pauses until it's certified again. Briefs stay open and work in progress finishes.",
     "loading": "Loading…",
     "jobNotFound": "Job not found.",
     "brandFallback": "(brand)",
@@ -128,35 +128,35 @@
     "fldPrimaryAudience": "Main customers",
     "fldSecondaryAudience": "Other customers",
     "fldJtbd": "What customers need",
-    "addJtbd": "+ Add JTBD",
+    "addJtbd": "+ Add a customer need",
     "fldVoiceRegister": "How you sound",
-    "fldRhythm": "Rhythm",
+    "fldRhythm": "How you write",
     "fldSignatureMoves": "Phrases that sound like you",
     "addSignature": "+ Add signature",
     "fldForbiddenWords": "Words to avoid",
     "addForbidden": "+ Add forbidden",
     "fldNorthStar": "What drives you",
-    "fldThisQuarter": "This quarter",
-    "fldNextQuarter": "Next quarter",
+    "fldThisQuarter": "This quarter's priority",
+    "fldNextQuarter": "Next quarter's priority",
     "fldWatchouts": "Things to watch",
     "addWatchout": "+ Add watchout",
     "fldNotList": "What you're not",
     "addNotList": "+ Add not-list item",
-    "fldImagery": "Imagery direction",
+    "fldImagery": "Your photo style",
     "addImagery": "+ Add imagery cue",
-    "fldVisualAvoid": "Visual avoid",
+    "fldVisualAvoid": "Visual no-gos",
     "addVisualAvoid": "+ Add visual avoid",
-    "bioEditHint": "Edit any field — changes are tracked locally and sent as a `bioPatch` when you certify (creates a new Brand Core version). Visual fields will be auto-filled by the vision pass in P5; you can populate them by hand here for now.",
+    "bioEditHint": "Edit any field. Your changes are saved when you certify, as a new Brand Core version. You can fill in visuals by hand for now.",
     "focusFirst": "Start here",
     "nothingFlagged": "Nothing flagged — every field reads through.",
-    "statusMissing": "missing",
-    "statusLowConf": "low conf",
+    "statusMissing": "Needs your input",
+    "statusLowConf": "Likely",
     "highStakes": "high-stakes",
     "sourcesRead": "Sources read",
     "charsScraped": "{chars} chars scraped",
     "pendingLeadReview": "Pending Lead review",
-    "pendingLeadIsLead": "You're a Lead — approve to finalize the cert, or send it back to the original Steward.",
-    "pendingLeadNotLead": "A Lead Steward will approve this cert before it lands.",
+    "pendingLeadIsLead": "You're a lead. Approve to finish certification, or send it back to the creative director.",
+    "pendingLeadNotLead": "A lead creative director approves this before it goes live.",
     "leadNotesPrivate": "Lead notes (private)",
     "certNotesClient": "Cert notes (visible to client)",
     "notesPlaceholderLead": "Optional. If sending back, explain what needs revision.",
@@ -164,25 +164,25 @@
     "conditionsLabel": "Conditions / required changes (one per line)",
     "conditionsPlaceholder": "Used when the decision is approve-with-conditions or return-for-changes.\ne.g. Replace the placeholder logo before Visual runs.",
     "rejectReasonLabel": "Reject reason code (only if rejecting)",
-    "rejectReasonPlaceholder": "e.g. unverifiable_authority",
+    "rejectReasonPlaceholder": "e.g. We can't confirm this claim",
     "approveAsLead": "Approve as Lead",
-    "confirmSendBack": "Send this back to the Steward for revision?",
+    "confirmSendBack": "Send this back to the creative director to revise?",
     "sendBack": "Send back",
-    "awaitingLead": "Awaiting Lead Steward approval — you submitted this cert; a Lead will finalize.",
+    "awaitingLead": "Waiting for a lead creative director. You sent this; a lead will finish it.",
     "alreadyReviewed": "Already reviewed",
     "saveEditsSubmit": "Save edits & submit review",
     "submitReview": "Submit review",
-    "confirmCancelJob": "Cancel this certification job?",
+    "confirmCancelJob": "Cancel this review?",
     "cancel": "Cancel",
-    "scoreAllToSubmit": "Score every rubric criterion above to submit.",
+    "scoreAllToSubmit": "Score every point above to send.",
     "leadHelpA1": "Approving finalizes the cert and writes ",
-    "leadHelpA2": ". The original Steward stays as ",
+    "leadHelpA2": ". The original creative director stays as ",
     "leadHelpA3": " (four-eyes: you can't approve your own).",
-    "rubricHelpB1": "The rubric decides the outcome from your scores; every decision is recorded to ",
+    "rubricHelpB1": "Your scores decide the outcome, and every decision is saved to ",
     "rubricHelpB2": " for defensibility. Under calibration a Lead approves before an approval finalizes.",
     "decertify": "Decertify",
     "decertifyThisBio": "Decertify this Brand Core",
-    "decertifyHint": "Pulls certification. New/queued production blocks immediately; running jobs finish; completed outputs keep their chip; briefing stays up. A re-review is queued.",
+    "decertifyHint": "Removes certification. New work stops now; work in progress finishes; delivered work keeps its badge; briefs stay open. A new review is added to the queue.",
     "dayMon": "Mon",
     "dayTue": "Tue",
     "dayWed": "Wed",
@@ -261,7 +261,7 @@
       "saved": "Saved.",
       "runtimeGaps": "Runtime gaps",
       "runtimeGapsDesc": "Keys the app requested in the active language but had no translation for, collected as the team browses.",
-      "noGaps": "No runtime gaps recorded yet.",
+      "noGaps": "No missing translations found yet.",
       "governance": "Governance",
       "governanceDesc": "Choose which languages this workspace offers and which one is the default. English is always available.",
       "enabledLocales": "Enabled languages",
@@ -284,11 +284,11 @@
     "addBrand": "Add brand"
   },
   "sidebar": {
-    "bioScore": "Brand Core {score}%",
+    "bioScore": "Brand Core {score}% complete",
     "seniorDesigner": "Senior designer",
     "active": "Active",
     "brandolphReading": "Reading your Brand Core. Watching your latest brief through review.",
-    "viewLedger": "View ledger →",
+    "viewLedger": "See history →",
     "thisWeek": "This week",
     "jobsDelivered": "Jobs delivered",
     "creditsEarned": "Credits earned"
@@ -313,8 +313,8 @@
   "title": {
     "discovery": "Discovery",
     "brief": "Brief",
-    "specialistsOnShift": "Specialists · {count} on shift",
-    "specialistNew": "New specialist",
+    "specialistsOnShift": "Experts · {count} available",
+    "specialistNew": "New expert",
     "canvas": "Canvas",
     "plans": "Plans",
     "activeJob": "Active job",
@@ -345,13 +345,13 @@
     "talkToUs": "Talk to us",
     "starting": "Starting…",
     "upgrade": "Upgrade",
-    "note03": "Reach your BrandOS team to set up The Colony 🐜.",
-    "noteFail": "Couldn't start the upgrade just now — please try again or contact your BrandOS team.",
+    "note03": "Contact the BrandOS by Caastor team to set up The Colony.",
+    "noteFail": "We couldn't start the upgrade. Try again or contact the BrandOS by Caastor team.",
     "included": "Included",
     "backToCreate": "← Back to Create",
     "blurb": {
       "00": "One brand, Brandolph and our full team of experts, and your approved Brand Core.",
-      "01": "Run two brands side by side with shared specialist memory.",
+      "01": "Run two brands side by side. Our experts remember both.",
       "02": "Three brands plus priority human craft polish.",
       "03": "Unlimited brands for studios running the whole roster."
     }
@@ -360,7 +360,7 @@
     "language": {
       "nav": "Language",
       "title": "Language",
-      "desc": "Choose the language BrandOS speaks to you in. It applies across every surface and is saved to your account.",
+      "desc": "Choose the language BrandOS by Caastor uses with you. It applies everywhere and is saved to your account.",
       "saveError": "We couldn't save this to your account, but the switch applied here."
     }
   },
@@ -393,8 +393,8 @@
     "assemblyReady": "Assembly · ready to run",
     "specialists": {
       "plural": {
-        "one": "{count} specialist",
-        "other": "{count} specialists"
+        "one": "{count} expert",
+        "other": "{count} experts"
       }
     },
     "creditsCount": {
@@ -419,10 +419,10 @@
     "flagged": "flagged",
     "failed": "failed",
     "composedBy": "Composed by",
-    "certified": "certified",
+    "certified": "approved",
     "uncertified": "uncertified",
     "creditsThisCycle": "Credits this cycle",
-    "ledger": "Ledger",
+    "ledger": "History",
     "creditsMeter": "/ {monthly} · {days}d left",
     "campaigns": "Campaigns",
     "allBriefs": "All briefs",
@@ -444,7 +444,7 @@
     "checkingBrand": "Checking the selected brand and Brand Core…",
     "bioStatusUnavailable": "Brand Core status unavailable · {error}",
     "brandBioReady": "{name} · Brand Core {score}/100 · v{version} · ready to sharpen",
-    "brandNoBio": "{name} · No certified Brand Core yet · finish Discovery before briefing",
+    "brandNoBio": "{name} · Your Brand Core isn't ready yet. Finish setting it up to start a brief.",
     "selectBrand": "Select a brand before creating a brief",
     "brandChangedError": "The active brand changed. Start again so this brief uses the correct Brand Core.",
     "balanceLoading": "balance loading…",
@@ -465,23 +465,23 @@
       "all": "All",
       "approved": "Approved",
       "flagged": "Flagged",
-      "allSpecialists": "All specialists"
+      "allSpecialists": "All experts"
     },
     "mode": {
-      "auto": "auto"
+      "auto": "Automatic"
     },
     "common": {
       "close": "Close"
     },
     "spec": {
-      "eyebrow": "L2 · 33 senior specialists",
+      "eyebrow": "33 senior experts",
       "title": "The department, on shift.",
       "sub": "You tell Brandolph what you need. Our experts do the work, each using the tool best suited to the job. You see every step and pay from one credit balance.",
       "liveCount": "{live} live · {soon} coming soon",
-      "newSpecialist": "New specialist",
-      "pinned": "★ Pinned · your preferred specialists",
+      "newSpecialist": "New expert",
+      "pinned": "★ Your favourite experts",
       "mostUsedFor": "Most used for",
-      "searchPlaceholder": "Search specialists, departments, capabilities…",
+      "searchPlaceholder": "Search experts and skills…",
       "sortDepartment": "Department",
       "sortCredits": "Credits",
       "sortMostUsed": "Most used",
@@ -494,32 +494,32 @@
           "other": "{count} results"
         }
       },
-      "deptCount": "{specialists} specialists · {live} live",
-      "noMatch": "No specialists match “{query}”.",
+      "deptCount": "{specialists} experts · {live} available",
+      "noMatch": "No experts match “{query}”.",
       "soon": "Soon"
     },
     "lib": {
       "eyebrow": "Workspace",
       "eyebrowBrand": "Workspace · {name}",
       "title": "Briefs",
-      "sub": "Every specialist run on this brand — auditable against the certified Brand Core. {runs} on record · {credits} cr spent.",
+      "sub": "Everything made for this brand, checked against your Brand Core. {runs} so far · {credits} credits used.",
       "reload": "Reload",
       "newBrief": "New brief",
-      "runSpecialist": "Run a specialist",
+      "runSpecialist": "Ask an expert",
       "searchPlaceholder": "Search briefs…",
       "countOf": "{shown} of {total}",
       "emptyTitle": "No briefs on the table yet.",
       "emptyBody": "Brandolph is ready for your first brief. Write what you need, even one sentence. He'll sharpen it and pick the smallest team for the job.",
       "startFirst": "Start the first brief",
-      "browseSpecialists": "Browse specialists",
+      "browseSpecialists": "Browse experts",
       "noMatch": "No briefs match the current filters."
     },
     "detail": {
       "allBriefs": "All briefs",
       "specialistsCount": {
         "plural": {
-          "one": "{count} specialist",
-          "other": "{count} specialists"
+          "one": "{count} expert",
+          "other": "{count} experts"
         }
       },
       "tabOverview": "Overview",
@@ -566,9 +566,9 @@
       "ran": "Ran",
       "run": "Run",
       "composedBy": "Composed by",
-      "certified": "certified",
+      "certified": "approved",
       "uncertified": "uncertified",
-      "voiceQa": "Voice QA",
+      "voiceQa": "Voice check",
       "passed": "passed",
       "flagged": "flagged"
     },
@@ -595,7 +595,7 @@
       "creditsSpent": "Credits spent",
       "successRate": "Success rate",
       "exampleOutputs": "Example outputs · for",
-      "noOutputs": "You haven't used this specialist yet."
+      "noOutputs": "You haven't worked with this expert yet."
     },
     "canvas": {
       "zoomOut": "Zoom out",
@@ -634,13 +634,13 @@
       "print": "Print / Save PDF",
       "pass": "Pass",
       "flag": "Flag",
-      "trailEyebrow": "Certification",
+      "trailEyebrow": "Approval history",
       "trailTitle": "Audit trail",
       "trailBio": "Brand Core v{version} · {state}",
-      "certified": "Certified",
-      "selfCertified": "Self-certified",
-      "uncertified": "Not yet certified",
-      "trailEmpty": "No certification decisions recorded yet.",
+      "certified": "Approved",
+      "selfCertified": "Confirmed by you",
+      "uncertified": "Not approved yet",
+      "trailEmpty": "No approvals yet.",
       "openBio": "Open the Brand Core"
     },
     "run": {
@@ -665,7 +665,7 @@
       "subRendering": "rendering…",
       "subRenderingImages": "rendering images…",
       "helperRunning": "Running the crew… each card streams its progress. Click any to open the full output.",
-      "helperComplete": "Run complete · {cr} cr spent. Click any specialist to verify, edit, or copy its output.",
+      "helperComplete": "Done · {cr} credits used. Click any piece to check, edit or copy it.",
       "helperAssembled": "Crew assembled. Hit Run when you're ready.",
       "runComplete": "Run complete",
       "openLibrary": "Open Library",
@@ -714,11 +714,11 @@
       "saved": "Saved",
       "theBrief": "The brief",
       "sharpened": "Sharpened (a02)",
-      "brandQa": "Brand QA",
-      "voiceQa": "Voice QA",
+      "brandQa": "Brand check",
+      "voiceQa": "Voice check",
       "output": "Output",
       "outputImage": "· image",
-      "outputEditable": "· editable",
+      "outputEditable": "· you can edit this",
       "unsaved": "· unsaved",
       "chars": "{count} chars",
       "rerunWith": "Re-run with…",
@@ -735,7 +735,7 @@
       "dismiss": "Dismiss",
       "calling": "Calling…",
       "empty": "(empty)",
-      "certifiedBy": "certified by"
+      "certifiedBy": "approved by"
     },
     "rerun": {
       "noteOpus": "Premium — deepest reasoning",
@@ -758,9 +758,9 @@
           "other": "{count} images"
         }
       },
-      "certifiedByName": "Certified by {name}",
-      "certifiedCanon": "Certified canon",
-      "helper": "{runs} on this brief. Click any specialist to verify, edit, or copy its output.",
+      "certifiedByName": "Approved by {name}",
+      "certifiedCanon": "Your approved Brand Core",
+      "helper": "{runs} on this brief. Click any piece to check, edit or copy it.",
       "briefsBack": "← Briefs"
     },
     "board": {
@@ -771,12 +771,12 @@
       "theBriefL1": "The brief · from Brandolph",
       "askedFirst": "Brandolph asked you first",
       "sourceCanonShort": "Source · canon",
-      "specialistPrefix": "Specialist",
+      "specialistPrefix": "Expert",
       "whyRoutes": "Why Brandolph chooses this expert",
       "theOutput": "The output",
       "whyChoiceShort": "Why this choice",
-      "addSpecialist": "Add specialist",
-      "dropSpecialist": "Drop a specialist, then connect it",
+      "addSpecialist": "Add expert",
+      "dropSpecialist": "Drag an expert here, then connect it",
       "export": "Export",
       "connectingFromA": "Connecting from",
       "connectingFromB": "— click a node to link.",
@@ -805,7 +805,7 @@
         }
       },
       "emptyTitle": "The Library is waiting.",
-      "emptyBody": "Every output your crew produces lands here — filed under the brief that asked for it, the Brand Core version it was judged against, and the Steward who signed the canon. Run a brief and watch the shelves fill.",
+      "emptyBody": "Everything your team makes lands here, filed by brief and Brand Core version, with who approved it. Start a brief to fill these shelves.",
       "startBrief": "Start a brief",
       "deleted": "Deleted",
       "deleteFailed": "Delete failed",
@@ -818,7 +818,7 @@
       "visualDirection": "Visual direction",
       "noDirection": "(no direction)",
       "editedSuffix": "· edited",
-      "qaNotes": "QA notes",
+      "qaNotes": "Check notes",
       "reuse": "Reuse",
       "copyPrompt": "Copy prompt",
       "confirmDelete": "Delete this asset?",
@@ -830,10 +830,10 @@
     },
     "author": {
       "eyebrow": "Capabilities · admin",
-      "title": "New specialist",
-      "sub": "Define an L2 specialist. The prompt on the right is the real composed brief — PLATFORM + the live Brand Core + this spec + the task — assembled as you type.",
+      "title": "New expert",
+      "sub": "Create a new expert. On the right you see exactly what they'll receive: your Brand Core, this description and the task.",
       "saved": "Saved ✓",
-      "saveSpecialist": "Save specialist",
+      "saveSpecialist": "Save expert",
       "identity": "Identity",
       "name": "Name",
       "namePlaceholder": "e.g. The Wholesale Closer",
@@ -843,7 +843,7 @@
       "statusSoon": "Coming soon",
       "statusDraft": "Draft",
       "jobLabel": "The job · one-liner",
-      "jobPlaceholder": "What this specialist does, in one line.",
+      "jobPlaceholder": "What this expert does, in one line.",
       "promptSpec": "Prompt spec",
       "prefillFrom": "Prefill from {dept} template",
       "role": "Role",
@@ -851,7 +851,7 @@
       "objective": "Objective",
       "objectivePlaceholder": "What a good run produces.",
       "methodSteps": "Method · steps",
-      "methodPlaceholder": "A step the specialist follows",
+      "methodPlaceholder": "A step this expert follows",
       "outputContract": "Output contract",
       "outputContractPlaceholder": "Shape / length / format it must return.",
       "voice": "Voice",
@@ -859,13 +859,13 @@
       "tools": "Tools",
       "toolsPlaceholder": "e.g. Exa search, image generation",
       "refusalsLabel": "Refusals · won't do (on top of brand rules)",
-      "refusalsPlaceholder": "A hard rule this specialist won't break",
-      "routingCost": "Routing & cost",
+      "refusalsPlaceholder": "A rule this expert never breaks",
+      "routingCost": "Tools and cost",
       "model": "Model",
       "creditsPerRun": "Credits / run",
       "livePrompt": "Live composed prompt",
-      "testTab": "Test · dry run + QA gate",
-      "tabPrompt": "Prompt",
+      "testTab": "Test · try it and run the brand check",
+      "tabPrompt": "Instructions",
       "tabTest": "Test",
       "refusalsInherit": {
         "plural": {
@@ -877,11 +877,11 @@
       "sampleBriefDefault": "Write the annual pricing announcement email for wholesale buyers.",
       "dryRun": "Dry run",
       "draftOutput": "Draft output · editable",
-      "qaGate": "Brand QA gate",
+      "qaGate": "Brand check",
       "blocking": "{count} blocking",
       "pass": "Pass",
       "notReady": "Not ready.",
-      "notReadyBody": "Fix the flagged rule before setting this specialist live.",
+      "notReadyBody": "Fix the flagged rule before making this expert available.",
       "clearsGate": "Clears the gate.",
       "clearsGateBody": "Safe to set status “Live”.",
       "remove": "Remove",
@@ -895,8 +895,8 @@
     "misc": {
       "untitled": "(untitled)",
       "untitledBrief": "(untitled brief)",
-      "yourSteward": "your Steward",
-      "yourBrandSteward": "your Brand Steward"
+      "yourSteward": "your creative director",
+      "yourBrandSteward": "your creative director"
     }
   },
   "discovery": {
@@ -910,7 +910,7 @@
       "foundations": {
         "label": "Brand foundations",
         "help": "Brand book, decks, manifestos, “about us” docs",
-        "readBy": "All specialists"
+        "readBy": "All experts"
       },
       "visual": {
         "label": "Visual references",
@@ -963,13 +963,13 @@
       "brandNameLabel": "Brand name",
       "brandNamePlaceholder": "e.g. Your brand",
       "urlLabel": "Primary website URL",
-      "urlPlaceholder": "brand.com",
+      "urlPlaceholder": "yourbrand.com",
       "igLabel": "Instagram handle",
       "igOptional": "· optional",
-      "igPlaceholder": "@handle",
+      "igPlaceholder": "@yourbrand",
       "sourcesLabel": "Sources",
       "sourcesOptional": "· optional — drag in or click to upload",
-      "timing": "Sources save to your Brand Core ledger · Processing time varies",
+      "timing": "We save everything you share to your Brand Core · This can take a few minutes",
       "filesReady": {
         "plural": {
           "one": " · {count} file ready",
@@ -986,7 +986,7 @@
       "reading1": "Brandolph is reading every page of your website",
       "reading2": "The design crew is mapping your palette and typography",
       "reading3": "Brandolph is turning what he read into your Brand Core",
-      "reading4": "Filing the draft for your Brand Steward to certify",
+      "reading4": "Sending the draft to a creative director to approve",
       "compiledTitle": "Brandolph has your Brand Core ready",
       "readingTitle": "Brandolph is reading your brand",
       "extraction": "EXTRACTION",
@@ -1026,31 +1026,33 @@
       "identity": {
         "positioning": "What makes you different",
         "category": "What you do",
-        "founded": "Founded",
+        "founded": "When you started",
         "pillars": "What you stand for"
       },
       "audience": {
         "primary": "Main customers",
         "secondary": "Other customers",
-        "tertiary": "Other customers",
+        "tertiary": "Others you want to reach",
         "jtbd": "What customers need"
       },
       "voice": {
         "register": "How you sound",
-        "rhythm": "Sentence rhythm",
+        "rhythm": "How you write",
         "forbidden": "Words to avoid",
         "signatures": "Phrases that sound like you"
       },
       "visual": {
-        "palette": "Palette",
-        "type": "Typography",
-        "imagery": "Shoot this",
-        "avoid": "Never this"
+        "palette": "Your colours",
+        "type": "Your fonts",
+        "imagery": "Your photo style",
+        "avoid": "Visual no-gos",
+        "logo": "Your logo",
+        "typeScale": "Text sizes"
       },
       "goals": {
         "northStar": "What drives you",
-        "q2": "This quarter",
-        "q3": "Next quarter"
+        "q2": "This quarter's priority",
+        "q3": "Next quarter's priority"
       },
       "strategic": {
         "watchouts": "Things to watch",
@@ -1068,17 +1070,22 @@
       "leaveBlank": "Leave blank",
       "positioning": {
         "frameOfReference": "Who you're compared with",
-        "competitors": "Competitors and alternatives",
+        "competitors": "Competitors",
         "pointsOfDifference": "Why choose you",
         "pointsOfParity": "What you match them on",
-        "researchGaps": "Questions to research"
+        "researchGaps": "What we still need to know"
+      },
+      "aspirations": {
+        "direction": "Where you're heading",
+        "notYetTrue": "What you're working towards",
+        "references": "Brands you admire"
       }
     },
     "fieldStatus": {
-      "missing": "Not provided",
+      "missing": "Needs your input",
       "accurate": "confirmed accurate",
       "aspirational": "aspirational",
-      "inferred": "Needs your input",
+      "inferred": "Our best guess",
       "stated": "your words",
       "review": "Needs review"
     },
@@ -1092,11 +1099,11 @@
       "aspirational": "aspirational"
     },
     "attestError": {
-      "statements": "Confirm all three statements to attest.",
-      "gaps": "A few important fields still need answers{fields}. Fill or mark them, then attest.",
+      "statements": "Tick all three to confirm.",
+      "gaps": "A few important questions still need an answer{fields}. Answer them or skip them, then confirm.",
       "belowScore": "Your Brand Core is at {score}/100{below}. Confirm more fields or add sources to raise it.",
       "belowNeeded": ", below the {minScore} needed",
-      "default": "Couldn't attest just yet — try again."
+      "default": "We couldn't save your confirmation. Try again."
     },
     "palette": {
       "namePlaceholder": "Colour name"
@@ -1114,7 +1121,7 @@
     "delegate": {
       "title": "Delegate this chapter",
       "desc": "Hand {chapter} to a teammate who knows it best. They get a link to fill just this section.",
-      "emailPlaceholder": "teammate@brand.com",
+      "emailPlaceholder": "teammate@yourbrand.com",
       "notePlaceholder": "Note (optional)",
       "sending": "Sending…",
       "sendInvite": "Send invite",
@@ -1132,8 +1139,8 @@
       "noBrand": "Couldn't find a brand to review.",
       "startDiscovery": "Start discovery",
       "loading": "Loading your draft…",
-      "certifiedBy": "Certified by",
-      "certPending": "A senior Brand Steward certifies this Brand Core within 24h. Confirm the draft below to unlock briefing now.",
+      "certifiedBy": "Approved by",
+      "certPending": "A senior creative director will approve this Brand Core within 24 hours. Confirm the draft below to start briefing now.",
       "draftEyebrow": "Draft Brand Core · review before you sign",
       "yourBrand": "Your brand",
       "completion": "Completion"
@@ -1155,7 +1162,7 @@
       "fieldsConfirmed": "fields confirmed",
       "inferredToConfirm": "awaiting review",
       "gapsWord": "gaps",
-      "confirmAttest": "Confirm & attest"
+      "confirmAttest": "Confirm"
     },
     "chapterView": {
       "allChapters": "← All chapters",
@@ -1165,12 +1172,12 @@
     "attest": {
       "back": "← Back to chapters",
       "title": "Confirm & sign your Brand Core",
-      "desc": "Signing promotes this draft to a certified Brand Core version and unlocks briefing. A senior Brand Steward still reviews it before production.",
+      "desc": "Confirming saves this version of your Brand Core and lets you start briefing. A senior creative director still reviews it before work goes out.",
       "confirmed": "Confirmed",
       "inferredToConfirm": "awaiting review",
       "gaps": "Gaps",
       "stillOpen": "Still open ({count})",
-      "attestation": "Attestation",
+      "attestation": "Your confirmation",
       "signing": "Signing…",
       "signActivate": "Sign & activate brand space",
       "confirmAllThree": "Confirm all three statements to continue."
@@ -1185,54 +1192,54 @@
       "openBrandolph": "Open Brandolph"
     },
     "selfCert": {
-      "attestedBold": "Self-attested",
-      "attestedRest": "briefing is unlocked. Production stays gated until your Brand Steward certifies.",
-      "fillBefore": "Fill these before self-certifying: {fields}",
+      "attestedBold": "Confirmed by you",
+      "attestedRest": "you can start briefing. Work goes out once a creative director approves it.",
+      "fillBefore": "Answer these before you confirm: {fields}",
       "belowScore": "Brand Core score {score} is below the {minScore} needed — add sources to raise it.",
-      "eyebrow": "Self-certify to start briefing",
-      "desc": "Confirm the Brand Core is accurate enough to brief against. This unlocks briefing now; a senior Brand Steward still certifies before production.",
+      "eyebrow": "Confirm your Brand Core to start briefing",
+      "desc": "Check that your Brand Core is right enough to work from. You can start briefing straight away. A senior creative director still approves it before work goes out.",
       "submitting": "Submitting…",
-      "submit": "Self-certify & unlock briefing"
+      "submit": "Confirm and start briefing"
     },
     "reasonCode": {
-      "insufficient_evidence": "Not enough evidence to certify",
+      "insufficient_evidence": "We need more from you before we can approve this",
       "out_of_scope": "Out of scope for this brand",
       "brand_mismatch": "Doesn't match the brand as we understand it",
       "inaccurate": "Contains inaccuracies",
-      "incomplete": "Too incomplete to certify",
-      "low_quality": "Not yet at certification quality",
-      "aspirational_unmarked": "Aspirational claims not separated from fact",
+      "incomplete": "Some important parts are still missing",
+      "low_quality": "It needs a bit more work before we can approve it",
+      "aspirational_unmarked": "Some goals read as facts. Mark which ones are still goals.",
       "needs_sources": "Needs more sources",
       "duplicate": "Duplicate of an existing Brand Core"
     },
     "steward": {
-      "defaultName": "your Brand Steward",
-      "fromSteward": "From your Steward",
-      "returnHeading": "Your Steward needs a few changes",
+      "defaultName": "your creative director",
+      "fromSteward": "From your creative director",
+      "returnHeading": "Your creative director asked for a few changes",
       "returnCta": "Make these changes",
-      "rejectHeading": "Your Steward returned this Brand Core",
+      "rejectHeading": "Your creative director sent this Brand Core back",
       "rejectCta": "Edit & resubmit",
-      "conditionsHeading": "Certified with conditions"
+      "conditionsHeading": "Approved, with a few notes"
     },
     "diff": {
       "title": {
         "plural": {
-          "one": "What your Steward changed · {count} field",
-          "other": "What your Steward changed · {count} fields"
+          "one": "What your creative director changed · {count} item",
+          "other": "What your creative director changed · {count} items"
         }
       },
       "hide": "Hide",
       "show": "Show"
     },
     "bio": {
-      "savedVersion": "Saved · Brand Core v{version}. Steward will re-certify.",
+      "savedVersion": "Saved as Brand Core v{version}. Your creative director will review it again.",
       "reviewInProgress": "A human review is already in progress.",
-      "sentForReview": "Sent to your Brand Steward for review.",
+      "sentForReview": "Sent to your creative director.",
       "couldntRequestReview": "Couldn't request review: {error}",
       "added": "Added “{ref}”. Brandolph will read it next time he updates your Brand Core.",
       "couldntAdd": "Couldn't add: {error}",
-      "reviewingThis": "Your Brand Steward is reviewing this Brand Core",
-      "awaitingCert": "Awaiting certification by your Brand Steward",
+      "reviewingThis": "Your creative director is reviewing this Brand Core",
+      "awaitingCert": "Waiting for your creative director's approval",
       "noBioYet": "No Brand Core yet — type a URL on Discovery to extract one",
       "versionScore": "Version {version} · score {score}/100",
       "flaggedAreas": {
@@ -1246,10 +1253,10 @@
       "eyebrow": "Brand Core",
       "of100": "of 100",
       "certify": "Certify brand",
-      "openBook": "Open brand book",
+      "openBook": "Open Brand Book",
       "editProfile": "Edit profile",
       "addSources": "Add sources",
-      "certifiedDate": "Certified {date}",
+      "certifiedDate": "Approved {date}",
       "uncertified": "Uncertified",
       "versionTitle": "Brand Core version {version}",
       "feedBrandolph": "Give Brandolph more",
@@ -1258,11 +1265,11 @@
       "saveChanges": "Save changes",
       "rerunDiscovery": "Re-run discovery",
       "reviewInProgressTitle": "A human review is already in progress",
-      "requestReviewTitle": "Send this Brand Core to your Brand Steward for a human review — no edit required",
+      "requestReviewTitle": "Ask your creative director to review this Brand Core. No changes needed.",
       "inReviewShort": "In review…",
       "sending": "Sending…",
       "requestHumanReview": "Request human review",
-      "editingBanner": "Editing the Brand Core — saving creates a new version your Brand Steward will re-certify.",
+      "editingBanner": "You're editing your Brand Core. Saving creates a new version for your creative director to review.",
       "noCanon": "No canon yet.",
       "noCanonDesc": "Your Brand Core is the reference for everything we make. Share your website or paste what you have. Brandolph drafts it in about a minute, and a senior creative director approves it.",
       "startDiscovery": "Start Discovery"
@@ -1299,7 +1306,7 @@
       "lowHigh": "low → high"
     },
     "competitive": {
-      "placeholder": "Competitive map comes from a32 (Competitor Map specialist) — wired in a later phase. The Brand Core Compiler doesn't extract competitors today."
+      "placeholder": "Competitors will appear here soon."
     },
     "editPrimitive": {
       "chipAdd": "+ add",
@@ -1314,19 +1321,19 @@
     "bioField": {
       "positioning": "What makes you different",
       "category": "What you do",
-      "founded": "Founded",
+      "founded": "When you started",
       "pillars": "What you stand for",
       "primary": "Main customers",
       "secondary": "Other customers",
-      "tertiary": "Other customers",
+      "tertiary": "Others you want to reach",
       "jtbd": "What customers need",
       "register": "How you sound",
       "forbidden": "Words to avoid",
-      "rhythm": "Rhythm",
+      "rhythm": "How you write",
       "signatures": "Phrases that sound like you",
       "northStar": "What drives you",
-      "thisQuarter": "This quarter",
-      "nextQuarter": "Next quarter"
+      "thisQuarter": "This quarter's priority",
+      "nextQuarter": "Next quarter's priority"
     },
     "visual": {
       "paletteHead": "Colour palette",
@@ -1336,8 +1343,8 @@
       "imageryHead": "Imagery",
       "imagerySource": "image analysis · 90 posts",
       "namePlaceholder": "Name",
-      "wcagPlaceholder": "WCAG",
-      "wcag": "WCAG {value}",
+      "wcagPlaceholder": "Contrast",
+      "wcag": "Contrast {value}",
       "removeColour": "Remove colour",
       "familyPlaceholder": "Family",
       "sizePlaceholder": "Size",
@@ -1371,7 +1378,7 @@
       "repullSocial": "Re-pull social",
       "addCompetitor": "Add competitor",
       "ledger": "{sources} sources · {signals} signals learned",
-      "competitorLedger": "Competitor references · not brand evidence · {count}",
+      "competitorLedger": "Competitors you mentioned · {count}",
       "competitorTag": "Competitor",
       "compounds": "Every source compounds the Brand Core.",
       "signals": "{count} signals",
@@ -1380,40 +1387,40 @@
       "reExtract": "Re-extract"
     },
     "certification": {
-      "open": "Review & self-certify",
-      "pending": "Save edits and incorporate new sources before certification.",
-      "kicker": "CLIENT ATTESTATION",
+      "open": "Review and confirm",
+      "pending": "Save your changes and add your new sources before you confirm.",
+      "kicker": "Your confirmation",
       "review": "Review this Brand Core",
-      "confirm": "Confirm your attestation",
+      "confirm": "Confirm",
       "reviewStep": "Review",
       "confirmStep": "Confirm",
-      "reviewText": "Read each section, including its sources and confidence. Confirm that you reviewed it. Missing facts stay explicit; add evidence before proceeding if a required fact is absent.",
-      "confirmText": "You are confirming this exact Brand Core version as the basis for briefing. Check each declaration yourself.",
+      "reviewText": "Read each section and where it came from. Tick each one once you've checked it. If something important is missing, add it before you go on.",
+      "confirmText": "You're confirming this version of your Brand Core as the base for your briefs. Please check each point yourself.",
       "sections": "Brand Core sections",
       "reviewed": "I have reviewed {section}, including its sources and uncertainties.",
       "issues": "{count} items need attention",
-      "issuesText": "These are gaps or lower-confidence interpretations, not verified facts. Review them before confirming. Required gaps prevent certification.",
-      "missing": "Missing evidence",
+      "issuesText": "These are gaps or our best guesses, not confirmed facts. Check them before you confirm. You can't confirm until the required ones are answered.",
+      "missing": "Needs your input",
       "verify": "Verify against sources",
-      "account": "Recorded under your account",
+      "account": "Saved to your account",
       "signedIn": "Signed-in user",
       "reviewCount": "{count} of {total} sections reviewed",
       "declarations": "Your declarations",
-      "consequence": "This records your confirmation and unlocks briefing for this version. Production still requires Brand Steward certification. Editing the Brand Core creates a new version that needs a new confirmation.",
+      "consequence": "This saves your confirmation and lets you brief from this version. A creative director approves it before work goes out. If you edit your Brand Core later, you'll confirm the new version.",
       "continue": "Continue - {count}/{total} reviewed",
       "submit": "Confirm Brand Core & unlock briefing",
       "stale": "The Brand Core changed while you were reviewing it. Close this dialog and refresh to review the latest version.",
-      "success": "Attestation recorded",
-      "successText": "This Brand Core version is now ready for briefing. Brand Steward certification is still required before production.",
-      "recorded": "Recorded at",
+      "success": "Confirmed",
+      "successText": "You can now brief from this version of your Brand Core. A creative director approves it before work goes out.",
+      "recorded": "Confirmed on",
       "done": "Return to Brand Core",
-      "close": "Close certification",
+      "close": "Close",
       "acceptChanges": "Review Creative Director changes",
-      "acceptedText": "The Creative Director’s changes are accepted for this Brand Core version. Production can continue while its certification remains valid.",
+      "acceptedText": "We've accepted the creative director's changes to this version. Work can carry on.",
       "acceptConsequence": "Accepting records your approval of the Creative Director’s changes to this exact Brand Core version.",
       "queuePending": "Your approval was saved. Creative Director assignment is pending; production remains locked.",
-      "scoreLine": "Score {score} of 100. Self-certification requires {minScore}.",
-      "belowFloor": "Self-certification is closed below {minScore}. This Brand Core scores {score}.",
+      "scoreLine": "Your Brand Core is {score}% complete. You can confirm it from {minScore}%.",
+      "belowFloor": "Your Brand Core is {score}% complete. Add a bit more to reach {minScore}% and confirm it.",
       "dragHeading": "These sections are holding the score down.",
       "sectionLift": "{section} · about {points} points if you complete it",
       "addAnswers": "Add an answer and a source for {fields}.",
@@ -1427,8 +1434,8 @@
       "pointsOfDifference": "Differences and proof",
       "pointsOfParity": "Category expectations",
       "researchGaps": "Questions to research",
-      "emptyCompetitors": "No competitors recorded yet. Add the names or alternatives customers actually consider; leave unknown details blank.",
-      "emptyDifferences": "No supported differences recorded yet. Name a specific claim and the proof needed to use it.",
+      "emptyCompetitors": "No competitors yet. Add the names or options your customers really weigh up. Leave blank what you don't know.",
+      "emptyDifferences": "No differences yet. Write what sets you apart and how you can prove it.",
       "newCompetitor": "New competitor or alternative",
       "newDifference": "New difference",
       "remove": "Remove entry",
@@ -1441,11 +1448,11 @@
       "difference": "Our relevant difference",
       "source": "Source URL or document reference",
       "sourceDate": "Date checked",
-      "claim": "Specific claim",
-      "proof": "Proof or supporting evidence",
+      "claim": "What you say",
+      "proof": "How you can prove it",
       "rationale": "Why it matters to the customer",
       "notProvided": "Not provided",
-      "clientInput": "Working context. A reference does not mean it has been read or independently verified. Review the evidence before using a comparative claim.",
+      "clientInput": "For context only. We haven't checked these yet, so check them before you compare yourself with anyone.",
       "needsProof": "Proof is missing. This difference must not be presented as an established fact.",
       "marketPrompt": "Which market and buying decision are we comparing?",
       "onePerLine": "One item per line",
@@ -1454,10 +1461,10 @@
       "status_quo": "Current approach / doing nothing",
       "unknown": "Not categorized",
       "intakeTitle": "Competitors and alternatives (optional)",
-      "intakeHelp": "Who do customers compare you with? Include indirect options or doing nothing. You can add evidence during review.",
+      "intakeHelp": "Who do customers compare you with? Include other options, or doing nothing. You can add proof later.",
       "manualResume": "Start or resume a manual draft",
       "type": "Alternative type",
-      "draftNotice": "This is a working draft. Changes are not part of the certified Brand Core until reviewed and promoted.",
+      "draftNotice": "This is a draft. Your changes go into your Brand Core once they're reviewed.",
       "unspecified": "Type not specified"
     },
     "sourcesIntake": {
@@ -1478,7 +1485,7 @@
     "intake": {
       "kicker": "Brand discovery",
       "title": "Start with the source.",
-      "lead": "Share your brand’s website and the references that matter. We’ll read the evidence, build the Brand Core and bring it back for your review.",
+      "lead": "Share your website and anything else that matters. We'll read it, build your Brand Core and bring it back for you to check.",
       "brand": "Your brand",
       "brandHelp": "A website is a useful starting point. Documents work too.",
       "namePlaceholder": "Brand name",
@@ -1503,15 +1510,15 @@
       "outputTitle": "Your Brand Core will bring together",
       "outputBrand": "Positioning, audience and voice",
       "outputVisual": "Visual identity and desired direction",
-      "outputMarket": "Competitive context and evidence gaps",
+      "outputMarket": "Competitors and what's still missing",
       "currentHelp": "Your own pages, guidelines and examples of work.",
       "aspirationHelp": "References you admire. Tell us what to learn from them.",
       "testDetails": "Local test details",
       "visualRead": "visual reading"
     },
     "tour": {
-      "viewerText": "This section was generated from your sources. Read its evidence and confidence, and keep missing facts explicit. To resolve a gap, add evidence in Sources and update the Brand Core; you do not need to write it from scratch.",
-      "sourceText": "Add a public reference link or upload a brand document. An upload error appears beside this control. New evidence must be incorporated through Update Brand Core before requesting human review.",
+      "viewerText": "We built this section from what you shared. Each item shows where it came from. If something's missing, add a source and we'll update it. You don't need to write it yourself.",
+      "sourceText": "Add a link or upload a brand document. Then press Update Brand Core before you ask for a review.",
       "label": "Discovery guide",
       "help": "Show the walkthrough",
       "step": "Step {current} of {total}",
@@ -1520,7 +1527,7 @@
       "next": "Next",
       "done": "Got it",
       "brandTitle": "Start with your brand sources",
-      "brandText": "Add your website, or use documents if there is no site. For a new brand, enter its name. You are supplying evidence, not writing the Brand Core yourself.",
+      "brandText": "Add your website, or documents if you don't have one. For a new brand, just type its name. You share, we write.",
       "referencesTitle": "Give each reference a role",
       "referencesText": "Add a link, choose current brand, desired direction or competitive context, then explain what matters: typography, photography, tone or positioning. Reference brands never become your current brand facts.",
       "filesTitle": "Add supporting files",
@@ -1528,8 +1535,8 @@
       "generateTitle": "Generate, then review",
       "generateText": "Select Generate Brand Core once your sources are ready. We upload files first and start discovery only after uploads succeed. Generation can take several minutes. You will review the result before confirming it.",
       "reviewTitle": "Review your generated Brand Core",
-      "reviewText": "Open each section to inspect the interpretation and its evidence. Correct mistakes or add a source for missing information. Unknown facts should stay unknown.",
-      "chapterText": "Review the generated values against your sources. Correct an interpretation only when you have evidence; leave gaps explicit. Use Mark accurate for supported facts and Mark aspirational for desired directions. Return to all chapters when finished.",
+      "reviewText": "Open each section to see what we found and where it came from. Fix anything wrong, or add a source for what's missing. If you don't know something, leave it blank.",
+      "chapterText": "Check what we wrote against what you know. Mark facts as Right and plans as A goal. Leave unknowns blank. Go back to all sections when you're done.",
       "confirmTitle": "Confirm only what you can support",
       "confirmText": "Review the confirmation statements. Confirm the Brand Core only if you are authorized, it represents the brand, and desired directions are marked separately. You can save and return later."
     },
@@ -1544,8 +1551,8 @@
       "reconnecting": "Unable to check the result right now. Reconnecting automatically; your sources are still saved.",
       "stage": {
         "scrape": "Read brand sources",
-        "visual": "Read visual evidence",
-        "read": "Organise the evidence",
+        "visual": "Looking at your visuals",
+        "read": "Sorting what we found",
         "research": "Research competitive context",
         "synthesize": "Interpret and build the Brand Core",
         "save": "Save the review candidate"
@@ -1560,22 +1567,71 @@
     },
     "integrity": {
       "unavailable": "Brand Core unavailable",
-      "preserved": "No Brand Core content or certification actions are shown until the brand and source identity are resolved.",
+      "preserved": "We'll show your Brand Core once we've matched it to the right brand.",
       "retry": "Check again",
       "sourcesFor": "Sources for {name}. A different brand needs its own record."
     },
     "reviewGate": {
       "waiting": "Waiting on: {reasons}",
-      "score": "Confidence: {score}/{minScore}. Creative Director review will queue automatically when these checks pass.",
+      "score": "Your Brand Core is {score}% complete ({minScore}% needed). We'll send it to a creative director automatically once it's ready.",
       "LOGO_RIGHTS_UNCONFIRMED": "confirm logo rights",
       "LOGO_REQUIRED": "add an approved logo",
       "PRIMARY_COLOUR_REQUIRED": "choose a primary colour",
       "DISPLAY_FONT_REQUIRED": "add a licensed display font",
-      "BELOW_MIN_SCORE": "raise confidence to {minScore}"
+      "BELOW_MIN_SCORE": "reach {minScore}% complete"
     },
     "foundation": {
       "needsRights": "Foundation incomplete · confirm rights to use the logo",
-      "incomplete": "Foundation incomplete · add logo, primary colour and display font"
+      "incomplete": "Add your logo, main colour and headline font to finish your brand basics"
+    },
+    "question": {
+      "identity": {
+        "positioning": "What makes you different, in one sentence?",
+        "category": "What kind of business are you?",
+        "founded": "When did you start?",
+        "pillars": "What three things do you always stand for?"
+      },
+      "audience": {
+        "primary": "Who is your main customer?",
+        "secondary": "Who else buys from you?",
+        "tertiary": "Is there anyone else you want to reach?",
+        "jtbd": "What are customers trying to get done when they choose you?"
+      },
+      "voice": {
+        "register": "How should you sound? For example warm, formal or playful.",
+        "forbidden": "Which words should we never use?",
+        "rhythm": "Short and punchy, or long and flowing?",
+        "signatures": "Which phrases sound like you?"
+      },
+      "goals": {
+        "northStar": "What is your biggest long-term goal?",
+        "q2": "What matters most this quarter?",
+        "q3": "And next quarter?"
+      },
+      "strategic": {
+        "watchouts": "What should we be careful about?",
+        "notList": "What are you definitely not?"
+      },
+      "aspirations": {
+        "direction": "Where do you want the brand to go?",
+        "notYetTrue": "What do you want to be true that isn't yet?",
+        "references": "Which brands do you admire, and why?"
+      },
+      "positioning": {
+        "frameOfReference": "Who do customers compare you with?",
+        "competitors": "Who are your competitors?",
+        "pointsOfDifference": "Why do customers choose you over them?",
+        "pointsOfParity": "What must you be as good at as they are?",
+        "researchGaps": "What don't we know yet about your market?"
+      },
+      "visual": {
+        "logo": "Upload your logo.",
+        "typeScale": "How big are your headings and text?",
+        "palette": "What are your brand colours?",
+        "type": "Which fonts do you use?",
+        "imagery": "What do your photos and images look like?",
+        "avoid": "What should your visuals never look like?"
+      }
     }
   },
   "floater": {
@@ -1619,11 +1675,11 @@
   },
   "ui": {
     "brandolphThinking": "Brandolph is thinking…",
-    "specialist": "Specialist",
+    "specialist": "Expert",
     "comingSoon": "Coming soon",
     "composedBy": "Composed by",
     "bioVersion": "Brand Core v{version}",
-    "certifiedBy": "certified by",
+    "certifiedBy": "approved by",
     "routedVia": "routed via",
     "run": "run",
     "debugAttribution": "Debug attribution",
@@ -1650,19 +1706,19 @@
     "loading": "Reading the Brand Core…",
     "noBio": "Generate your Brand Core from sources to see the Brand Book.",
     "startDiscovery": "Start Discovery",
-    "certified": "Certified by {name} · Brand Core v{version}",
-    "director": "Creative Director",
-    "pending": "Inferred — pending review",
-    "certifiedLabel": "Certified",
+    "certified": "Approved by {name} · Brand Core v{version}",
+    "director": "Creative director",
+    "pending": "Our best guess · please check",
+    "certifiedLabel": "Approved",
     "back": "Back to Brand Core",
     "sections": "Brand Book sections",
-    "provenance": "Evidence sources",
-    "sourceGap": "Source evidence needs review",
+    "provenance": "Where this comes from",
+    "sourceGap": "Please check where this came from",
     "replayUnavailable": "This stored replay is unavailable.",
     "replayLabel": "Stored run · read-only replay",
     "tourTitle": "Read the brand as a whole",
-    "tourText": "Each section is a view of the same Brand Core. Evidence appears beneath each block; missing or uncertified material still needs review.",
-    "visualTourTitle": "Check the visual evidence",
+    "tourText": "Each section shows a part of your Brand Core. Under each one you'll see where it came from. Anything not yet approved is marked.",
+    "visualTourTitle": "Check your visuals",
     "visualTourText": "Colors and fonts come from source declarations. Palette roles and imagery descriptions require human review.",
     "section": {
       "identity": "Essence",
@@ -1744,6 +1800,19 @@
       "other": "Other"
     },
     "startHere": "Start here",
-    "brandBasics": "Brand basics"
-  }
+    "brandBasics": "Brand basics",
+    "focusGuess": "Check {label}. This is our best guess.",
+    "focusEmpty": "{label} is empty. Add it before you approve.",
+    "whyHigh": "Used in all work.",
+    "whyMid": "Used in a lot of work.",
+    "whyLow": "Used in some work. Quick check."
+  },
+  "strategic": {
+    "gaps": "Who is your main customer? We couldn't find this yet."
+  },
+  "evidence": "Where this came from",
+  "confidence": {
+    "source": "From your answers / Changed by your creative director"
+  },
+  "reviewFieldLabel": "What customers need / What drives you / How you sound / What you match competitors on"
 }

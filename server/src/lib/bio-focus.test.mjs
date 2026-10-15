@@ -66,7 +66,7 @@ test("low_conf items carry conf, value, source, and a templated action", () => {
   assert.equal(ap.source, null);
   assert.deepEqual(ap.sourceKinds, ["guess"]);
   assert.equal(ap.label, "Main customers");
-  assert.equal(ap.actionKey, "provenance.guessCheck");
+  assert.equal(ap.actionKey, "provenance.focusGuess");
   assert.doesNotMatch(ap.action, /inferred/);
 });
 

@@ -19,7 +19,7 @@ import { reviewCopy, sectionExplanation, reviewFieldLabels, reviewText, reviewFi
 import { sendQuestionNow } from './cert-chat-model.js';
 import { certifyUxEnabled } from './ux-flags.js';
 import { CertifyReview as LegacyCertifyReview } from './LegacyCertifyView.jsx';
-const LABEL = { to_confirm: 'To confirm', conflicting: 'Conflicting', guessed: 'Guessed', low: 'Low', medium: 'Medium', high: 'High', confirmed: 'Confirmed', fixed: 'Fixed', asked: 'Asked', new_evidence: 'New evidence' };
+const LABEL = { to_confirm: 'Likely', conflicting: 'Conflicting', guessed: 'Our best guess', low: 'Needs your input', medium: 'Medium', high: 'High', confirmed: 'Confirmed', fixed: 'Fixed', asked: 'Asked', new_evidence: 'New evidence' };
 const SECTION = { foundation: 'Foundation', guidelines: 'Guidelines', strategy: 'Strategy' };
 const display = value => value == null || value === '' || (Array.isArray(value) && !value.length) ? 'No value recorded' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 const sourceAsset = (sources, id) => sources.find(s => s.id === id)?.evidence_url;

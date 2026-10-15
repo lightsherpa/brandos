@@ -94,7 +94,7 @@ function specialistName(id) {
 /* Strip generic-AI artifacts from a body of text for human-readable
    display in the Library. Render-time cleanup — body.text is preserved
    for audit. Handles markdown headings, **bold**, hedging openers,
-   "FLAG BEFORE I X / Pausing before I draft" tics, list bullets that
+   "Before I start, a quick question" tics, list bullets that
    should be prose, trailing AI sign-offs. */
 function humanize(raw) {
   if (!raw) return "";
@@ -2727,7 +2727,7 @@ function buildInitialRunNodes(ctx) {
 
   const nodes = [
     { id: "bio",   x: cols.bio,   y: midY - 52, w: 260, kind: "bio",   eyebrow: "Brand Core",
-      title: "Brand Core", sub: "Certified canon · the source for every output" },
+      title: "Brand Core", sub: "Your approved Brand Core · the reference for everything we make" },
     { id: "brief", x: cols.brief, y: midY - 52, w: 280, kind: "brief", eyebrow: "BRIEF",
       title: shorten(ctx.title || humanize(ctx.sharpenedBrief || "") || humanize(ctx.rawBrief || "") || "Brief", 90),
       sub: ctx.tension ? `Tension · ${ctx.tension.slice(0, 70)}` : "L1 · Brandolph" },
@@ -2779,7 +2779,7 @@ function PlexCanvasPrototype({ go }) {
   const nodeLabel = selected?.title || "Q3 Campaign Launch Brief";
   return (
     <div className="plex-canvas-workspace">
-      <section className="plex-canvas-main" aria-label="Canvas workspace">
+      <section className="plex-canvas-main" aria-label="Canvas">
         <div className="plex-canvas-toolbar">
           <div className="plex-canvas-toolset">
             <button className="plex-canvas-tool plex-canvas-tool--active" aria-label="Select"><Icon name="arrow" size={15} /></button>
@@ -2807,7 +2807,7 @@ function PlexCanvasPrototype({ go }) {
           </div>
         </div>
         <div className="plex-canvas-library">
-          <div className="plex-canvas-library__heading"><strong>Library</strong><span>{assets.length} assets</span><button onClick={() => go && go("library")}>View all in Library ↗</button></div>
+          <div className="plex-canvas-library__heading"><strong>Library</strong><span>{assets.length} assets</span><button onClick={() => go && go("library")}>See all in Library ↗</button></div>
           <div className="plex-canvas-assets">
             {assets.map(asset => <button key={asset.label} className="plex-canvas-asset" onClick={() => go && go("library")}>
               <span className={`plex-canvas-asset__thumb plex-canvas-asset__thumb--${asset.tone}`} aria-hidden="true">{asset.tone === "portrait" ? <img src="caastor/assets/profile-1.jpg" alt="" /> : asset.tone === "palette" ? <><i /><i /><i /><i /></> : null}</span>
@@ -2817,7 +2817,7 @@ function PlexCanvasPrototype({ go }) {
         </div>
       </section>
 
-      <aside className="plex-canvas-inspector" aria-label="Canvas inspector">
+      <aside className="plex-canvas-inspector" aria-label="Details">
         <div className="plex-inspector-tabs">
           {[['brief','Brief'],['review','Review'],['account','Account']].map(([id, label]) => <button key={id} className={tab === id ? "is-active" : ""} onClick={() => setTab(id)}>{label}</button>)}
         </div>
@@ -2836,8 +2836,8 @@ function PlexCanvasPrototype({ go }) {
           <div className="plex-inspector-rule" />
           <div className="plex-inspector-section"><h3>Brand &amp; Account</h3><p><span>Brand</span><strong>Brandolph <b>●</b></strong></p><p><span>Plan</span><strong>Enterprise</strong></p><p><span>API credits</span><strong>12,540 / 25,000</strong></p><p><span>Billing</span><strong className="is-live">● Active</strong></p></div>
         </>}
-        {tab === "review" && <div className="plex-inspector-tabcopy"><div className="plex-inspector-kicker"><span className="plex-inspector-icon"><Icon name="check" size={14} /></span><span>REVIEW</span></div><h2>Review &amp; Decide</h2><p>Review the selected brief, compare specialist outputs, and send the work back for revision.</p><button className="btn btn--primary" onClick={() => setTab("brief")}>Back to brief</button></div>}
-        {tab === "account" && <div className="plex-inspector-tabcopy"><div className="plex-inspector-kicker"><span className="plex-inspector-icon"><Icon name="settings" size={14} /></span><span>ACCOUNT</span></div><h2>Workspace settings</h2><p>Manage your workspace, plan, credits, palette, and typography from Account.</p><button className="btn btn--primary" onClick={() => go && go("settings")}>Open Account</button></div>}
+        {tab === "review" && <div className="plex-inspector-tabcopy"><div className="plex-inspector-kicker"><span className="plex-inspector-icon"><Icon name="check" size={14} /></span><span>REVIEW</span></div><h2>Review &amp; Decide</h2><p>Review the brief, compare the work and send anything back for changes.</p><button className="btn btn--primary" onClick={() => setTab("brief")}>Back to brief</button></div>}
+        {tab === "account" && <div className="plex-inspector-tabcopy"><div className="plex-inspector-kicker"><span className="plex-inspector-icon"><Icon name="settings" size={14} /></span><span>ACCOUNT</span></div><h2>Workspace settings</h2><p>Manage your workspace, plan, credits, colours and fonts in Account.</p><button className="btn btn--primary" onClick={() => go && go("settings")}>Open Account</button></div>}
       </aside>
     </div>
   );
@@ -3252,7 +3252,7 @@ function buildBriefGraph(brief, outputs) {
 function outputRationale(o, specialist) {
   if (o && o.rationale) return o.rationale;
   const spec = specialist ? specialistSpec(specialist) : {};
-  const who = specialist ? specialist.name : "The specialist";
+  const who = specialist ? specialist.name : "The expert";
   if (spec.voice) return `${who} wrote to the brand voice — ${spec.voice.toLowerCase()} — and shaped it to: ${spec.outputContract || "the brief"}.`;
   return `${who} read the Brand Core first, then ${spec.objective ? spec.objective.toLowerCase() : "produced the deliverable to the brief"}`;
 }
@@ -3273,7 +3273,7 @@ function BriefDelivery({ brief, outputs }) {
   let title = "", eyebrow = "", body = null;
   if (ref.type === "bio") {
     eyebrow = t("briefs.board.sourceCanon"); title = "Brand Core";
-    body = <p style={{fontSize:14.5, color:"var(--c-ink)", lineHeight:1.55}}>Everything downstream is judged against the Brand Core. <em className="b-voice">{window.CI_BRAND.tagline}</em> · {window.CI_BRAND.bioCompleteness}% complete.</p>;
+    body = <p style={{fontSize:14.5, color:"var(--c-ink)", lineHeight:1.55}}>Everything we make is checked against your Brand Core. <em className="b-voice">{window.CI_BRAND.tagline}</em> · {window.CI_BRAND.bioCompleteness}% complete.</p>;
   } else if (ref.type === "brief") {
     eyebrow = "L1 · Brandolph"; title = brief.title;
     body = <><p style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize:17, lineHeight:1.5, color:"var(--c-ink)", marginBottom:12}}>"{brief.smp}"</p><p style={{fontSize:13.5, color:"var(--c-dim)", lineHeight:1.5}}>{brief.objective}</p></>;
@@ -3394,7 +3394,7 @@ function BriefBoard({ id, go }) {
 
   const ConnectHandle = ({ nid }) => (
     <button onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setConnectFrom(nid); }}
-      title="Connect to another node"
+      title="Connect to another step"
       style={{position:"absolute", right:-9, top:"calc(50% - 9px)", width:18, height:18, borderRadius:"50%",
         border:"1px solid var(--c-line)", background:"var(--c-card)", color:"var(--c-faint)", cursor:"crosshair",
         display:"flex", alignItems:"center", justifyContent:"center", boxShadow:"var(--shadow-sm)", zIndex:4}}>
@@ -4116,7 +4116,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
   };
 
   const saveBlob = (blob, name) => { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
-  const downloadPng = async () => { try { const res = await apiFetch(`/api/task-exports/${o.outputId}/items/${o.itemIndex}/png`); if (!res.ok) { const data = await res.json().catch(() => ({})); throw new Error(data.error || "PNG export unavailable"); } saveBlob(await res.blob(), `${safeName(briefTitle(o.brief))}-${o.itemIndex + 1}.png`); } catch(e) { flash(e.message); } };
+  const downloadPng = async () => { try { const res = await apiFetch(`/api/task-exports/${o.outputId}/items/${o.itemIndex}/png`); if (!res.ok) { const data = await res.json().catch(() => ({})); throw new Error(data.error || "We can't export a PNG right now"); } saveBlob(await res.blob(), `${safeName(briefTitle(o.brief))}-${o.itemIndex + 1}.png`); } catch(e) { flash(e.message); } };
   const download = () => {
     const base = `${safeName(briefTitle(o.brief))}-${o.kind}`;
     if (o.html) { saveBlob(new Blob([o.html], {type:"text/html"}), base + `-${o.itemIndex + 1}.html`); return; }

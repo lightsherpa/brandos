@@ -11,7 +11,7 @@ const { useState, useEffect, useRef } = React;
 const STAGES = ["Planning", "Writing", "Imaging", "Checking", "Fixing", "Ready"];
 const TYPES = {
   social_post: { label: "Social post", hint: "3 Instagram posts, 1 image each", writer: "a16 Social Captions", skills: "a37 Headlines", reviewer: "a18 Voice QA + a24 Brand Consistency" },
-  email_sequence: { label: "Email sequence", hint: "3 branded HTML emails", writer: "a13 Email Sequence", skills: "a14 Subject Lines, a12 Conversion Copy", reviewer: "a18 Voice QA" },
+  email_sequence: { label: "Email series", hint: "3 branded HTML emails", writer: "a13 Email Sequence", skills: "a14 Subject Lines, a12 Conversion Copy", reviewer: "a18 Voice QA" },
 };
 const STATUS_DOT = { queued: "#a8a29e", writing: "#a16207", imaging: "#a16207", checking: "#a16207", fixing: "#b45309", ready: "#15803d", flagged: "#b91c1c" };
 const STATUS_WORD = { queued: "Queued", writing: "Writing", imaging: "Designing", checking: "Checking", fixing: "Fixing", ready: "Needs review", flagged: "Needs review", approved: "Approved", needs_review: "Needs review", failed: "Failed" };
@@ -108,14 +108,14 @@ function ItemCard({ type, item, taskId, onItem }) {
     setErr(null);
     const res = await apiFetch(`/api/tasks/${taskId}/rules`, { method: "POST", body: JSON.stringify({ ...body, index: item.index }) });
     const j = await res.json();
-    if (!res.ok) return setErr(j.error || "Could not save the rule");
+    if (!res.ok) return setErr(j.error || "We couldn't save the rule. Try again.");
     setSaved(j.rule); setRule(null);
   };
   const rerun = async () => {
     setBusy(true); setErr(null);
     const res = await apiFetch(`/api/tasks/${taskId}/items/${item.index}/rerun`, { method: "POST", body: JSON.stringify({ ruleIds: saved ? [saved.id] : undefined }) });
     const j = await res.json(); setBusy(false);
-    if (!res.ok) { if (j.code === "RERUN_LIMIT") setRerunsLeft(0); return setErr(res.status === 402 ? `Not enough credits (needs ${j.credits_required ?? "?"}). Nothing was charged.` : (j.error || "Re-run failed")); }
+    if (!res.ok) { if (j.code === "RERUN_LIMIT") setRerunsLeft(0); return setErr(res.status === 402 ? `Not enough credits (needs ${j.credits_required ?? "?"}). Nothing was charged.` : (j.error || "We couldn't redo it. Try again.")); }
     if (typeof j.reruns_left === "number") setRerunsLeft(j.reruns_left);
     onItem(j.item, j.metrics);
   };
@@ -141,7 +141,7 @@ function ItemCard({ type, item, taskId, onItem }) {
     {rule && <RuleForm check={rule} onCancel={() => setRule(null)} onSave={save} />}
     {saved && <div style={{ padding: "10px 14px", borderTop: "1px solid #e7e5e4", fontSize: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
       <span><span style={{ color: "#15803d" }}>●</span> Saved to Brand Core: {saved.kind === "banned_word" ? `never use “${saved.value}”` : saved.value}</span>
-      <button style={css.primary} disabled={busy || rerunsLeft <= 0} onClick={rerun}>{busy ? "Rewriting…" : rerunsLeft <= 0 ? "Re-run limit reached" : `Re-run this copy (${rerunsLeft} left)`}</button>
+      <button style={css.primary} disabled={busy || rerunsLeft <= 0} onClick={rerun}>{busy ? "Rewriting…" : rerunsLeft <= 0 ? "You've reached the limit of redos for this piece" : `Re-run this copy (${rerunsLeft} left)`}</button>
     </div>}
     {err && <div style={{ padding: "6px 14px", fontSize: 12, color: "#b91c1c" }}>{err}</div>}
   </article>;
@@ -186,7 +186,7 @@ export function TaskPipelineView({ go }) {
       if (res.status === 404) { localStorage.removeItem(storageKey(brandId)); setTaskId(null); setTask(null); return; }
       const j = await res.json();
       if (stop || currentBrand.current !== brandId) return;
-      if (!res.ok) { setError(j.error || "Could not load saved task"); return; }
+      if (!res.ok) { setError(j.error || "We couldn't open this task. Try again."); return; }
       setTask(j); setType(j.type);
       setStartedAt(Date.parse(j.created_at));
       if (j.status === "running") timer = setTimeout(poll, 1500);
@@ -203,7 +203,7 @@ export function TaskPipelineView({ go }) {
     const res = await apiFetch("/api/tasks", { method: "POST", body: JSON.stringify({ brandId, type, brief, heroes }) });
     const j = await res.json();
     if (currentBrand.current !== requestedBrand) return;
-    if (!res.ok) return setError(res.status === 402 ? `Not enough credits (this task needs ${j.credits_required ?? "?"}, balance ${j.balance ?? "?"}). Nothing was charged.` : (j.error || "Could not start the task"));
+    if (!res.ok) return setError(res.status === 402 ? `Not enough credits (this task needs ${j.credits_required ?? "?"}, balance ${j.balance ?? "?"}). Nothing was charged.` : (j.error || "We couldn't start this task. Try again."));
     localStorage.setItem(storageKey(brandId), j.id);
     setStartedAt(Date.now()); setTaskId(j.id);
     setTask({ id: j.id, type, status: "running", stage: j.stage, eta_s: j.eta_s, items: [], notices: [] });
@@ -220,12 +220,12 @@ export function TaskPipelineView({ go }) {
     <style>{"@keyframes tpPulse{0%,100%{opacity:1}50%{opacity:.55}}"}</style>
     <h1 style={css.h1}>Tasks</h1>
     <p style={{ ...css.dim, fontSize: 14, marginTop: 0 }}>{t("taskOutput.taskIntro")}</p>
-    {!brandId && <p>Select a brand first.</p>}
+    {!brandId && <p>Choose a brand first.</p>}
     <section style={{ ...css.card, padding: 16, display: "grid", gap: 12, marginTop: 16 }}>
       <div style={{ display: "flex", gap: 8 }}>
         {Object.entries(TYPES).map(([id, t]) => <button key={id} onClick={() => setType(id)} disabled={running} style={{ flex: 1, textAlign: "left", padding: 12, borderRadius: 8, cursor: "pointer", background: type === id ? "#1c1917" : "#fff", color: type === id ? "#fff" : "#1c1917", border: "1px solid #d6d3d1" }}><div style={{ fontWeight: 600 }}>{t.label}</div><div style={{ fontSize: 12, opacity: 0.75 }}>{t.hint}</div></button>)}
       </div>
-      <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={4} placeholder="What should this deliverable achieve? Audience, key message, call to action." style={{ padding: 10, border: "1px solid #d6d3d1", borderRadius: 8, font: "inherit" }} />
+      <textarea value={brief} onChange={(e) => setBrief(e.target.value)} rows={4} placeholder="What should this achieve? Who is it for, what's the message, what should people do?" style={{ padding: 10, border: "1px solid #d6d3d1", borderRadius: 8, font: "inherit" }} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {type === "email_sequence" ? <label style={{ fontSize: 13 }}><input type="checkbox" checked={heroes} onChange={(e) => setHeroes(e.target.checked)} /> Add a hero image to each email</label> : <span />}
         <button style={css.primary} disabled={!brandId || running || brief.trim().length < 10} onClick={run}>Run</button>

@@ -60,7 +60,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         brand = data;
       }
       if (wantedId && !brand) {
-        commit((s) => ({ ...s, brandId: wantedId, brandName:null, brandUrl:null, review:null, diff:[], reviewPending:false, bio: null, cert: null, loading: false, error: "Brand is not available in this workspace" }));
+        commit((s) => ({ ...s, brandId: wantedId, brandName:null, brandUrl:null, review:null, diff:[], reviewPending:false, bio: null, cert: null, loading: false, error: "This brand isn't in your workspace" }));
         return;
       }
       if (!brand) {
@@ -69,7 +69,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         if (bErr) throw bErr;
         brand = brands?.[0];
       }
-      if (!brand) { commit((s) => ({ ...s, brandId: null, bio: null, cert: null, loading: false, error: "No brand in workspace" })); return; }
+      if (!brand) { commit((s) => ({ ...s, brandId: null, bio: null, cert: null, loading: false, error: "No brands in this workspace yet" })); return; }
       const res = await apiFetch(`/api/bios/${brand.id}`);
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -77,7 +77,7 @@ function useLiveBio({ pollMs = 6000, brandId: fixedBrandId = null, enabled = tru
         return;
       }
       const { bio, reviewPending, focusCount, review, diff } = await res.json();
-      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"The Brand Core does not match the selected brand"} : bioIntegrityError(bio, brand));
+      const mismatch = bio && (bio.brand_id !== brand.id ? {error:"This Brand Core belongs to a different brand"} : bioIntegrityError(bio, brand));
       if (mismatch) throw new Error(mismatch.error);
       let certInfo = null;
       if (bio?.certified) {
@@ -167,7 +167,7 @@ function BucketDropZone({ bucket, files, onAdd, onRemove, statuses = {}, purpose
             <label>{t("discovery.visualIntake.fontLicence")}<select value={meta.licenseType||"commercial"} onChange={e=>setMeta({licenseType:e.target.value})}>{[["commercial","commercial"],["open_source","openSource"],["custom","custom"],["system","system"]].map(([v,k])=><option key={v} value={v}>{t("discovery.visualIntake."+k)}</option>)}</select></label>
             <label>{t("discovery.visualIntake.licenceReference")}<input value={meta.licenseReference||""} onChange={e=>setMeta({licenseReference:e.target.value})}/></label>
           </>:<label>{t("discovery.visualIntake.referenceRole")}<select value={meta.assetRole||"inspiration"} onChange={e=>setMeta({assetRole:e.target.value})}>{["canonical","inspiration","logo"].map(v=><option key={v} value={v}>{v === "logo" ? "Logo" : t("discovery.visualIntake."+v)}</option>)}</select></label>}
-          {meta.assetRole === "logo" && <label>Logo variant<select value={meta.logoVariant || "light"} onChange={e=>setMeta({logoVariant:e.target.value})}><option value="light">Light logo (dark backgrounds)</option><option value="dark">Dark logo (light backgrounds)</option></select></label>}
+          {meta.assetRole === "logo" && <label>Logo variant<select value={meta.logoVariant || "light"} onChange={e=>setMeta({logoVariant:e.target.value})}><option value="light">Light logo (for dark backgrounds)</option><option value="dark">Dark logo (for light backgrounds)</option></select></label>}
           <label className="discovery-rights"><input type="checkbox" checked={!!meta.rightsConfirmed} onChange={e=>setMeta({rightsConfirmed:e.target.checked})}/>{t("discovery.visualIntake.rightsConfirm")}</label>
         </div>}
       </li>;
@@ -263,15 +263,15 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
         if (brandErr) throw brandErr;
         brandId = brands?.[0]?.id;
       }
-      if (!brandId) throw new Error("No brand is available for Discovery.");
+      if (!brandId) throw new Error("Add a brand to get started.");
 
       const {data: selectedBrand, error: selectedError} = await supabase.from("brands").select("id,name,url").eq("id",brandId).maybeSingle();
-      if(selectedError || !selectedBrand)throw new Error("The selected brand is unavailable");
+      if(selectedError || !selectedBrand)throw new Error("This brand isn't available");
       const mismatch = discoveryWebsiteError(selectedBrand,targetUrl);
       if(mismatch)throw new Error(mismatch.error);
       let baselineVersion = 0;
       const baselineRes = await apiFetch(`/api/bios/${brandId}`);
-      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "The Brand Core could not be checked before uploading sources");}
+      if (!baselineRes.ok) {const failure=await baselineRes.json().catch(()=>({}));throw new Error(failure.error || "We couldn't check your Brand Core. Try uploading again.");}
       if (baselineRes.ok) {
         const baseline = await baselineRes.json();
         baselineVersion = Number(baseline.bio?.version) || 0;
@@ -325,7 +325,7 @@ function DiscoveryStep1({ onNext, onReview, newBrand = false }) {
       }
       const { discoveryId, eventId } = await res.json();
       const runId = discoveryId || eventId;
-      if (!runId) throw new Error("Discovery started without a correlation id. Please retry.");
+      if (!runId) throw new Error("Something went wrong starting up. Please try again.");
       console.log("[Discovery] fired", { discoveryId: runId, brandId, url: targetUrl });
       onNext({ discoveryId: runId, eventId, brandId, baselineVersion });
     } catch (err) {
@@ -422,7 +422,7 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
         setElapsed(Math.floor((Date.now() - startedAt) / 1000));
         if(runContext?.discoveryId){
           const progress=await apiFetch(`/api/discovery/${runContext.discoveryId}/status`);
-          if(!progress.ok)throw new Error("Progress temporarily unavailable");
+          if(!progress.ok)throw new Error("We can't show progress right now");
           if(progress.ok){
             const {run}=await progress.json();
             if(run?.stage){
@@ -685,12 +685,17 @@ function DiscoFieldRow({ field, chapterKey, value, meta, mark, onChange, onMark,
     return field.italic ? <em style={{fontStyle:"italic"}}>{value}</em> : <span>{value}</span>;
   };
 
+  const questionKey = `discovery.question.${chapterKey}.${field.key}`;
+  const asked = t(questionKey);
+  const placeholder = asked && asked !== questionKey ? asked : t("discovery.field.editPlaceholder");
+  const from = (meta?.source_kind || meta?.source) ? sourceLine(meta.source_kind || meta.source, t) : "";
+
   const renderEditor = () => {
     if (["competitors","differences"].includes(field.list)) return <CompetitiveRecords kind={field.list} items={value || []} editing onChange={onChange} />;
     if (field.list === "palette") return <DiscoPaletteEdit items={value || []} onChange={onChange} />;
     if (field.list === "type") return <DiscoTypeEdit items={value || []} onChange={onChange} />;
     if (field.multi) return <ChipEditor items={value || []} onChange={onChange} />;
-    return <EditInput area={field.area} value={value || ""} onChange={onChange} placeholder={t("discovery.field.editPlaceholder")} />;
+    return <EditInput area={field.area} value={value || ""} onChange={onChange} placeholder={placeholder} />;
   };
 
   return (
@@ -698,7 +703,7 @@ function DiscoFieldRow({ field, chapterKey, value, meta, mark, onChange, onMark,
       <div style={{display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:12, marginBottom:8}}>
         <div>
           <span style={{fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-faint)", letterSpacing:"0.06em", textTransform:"uppercase"}}>{fieldLabel(chapterKey, field)}</span>
-          {meta && meta.source && <span style={{fontSize:11, color:"var(--c-faint)", fontStyle:"italic", marginLeft:10}}>{t("discovery.field.from", { source: meta.source })}</span>}
+          {from && <span style={{fontSize:11, color:"var(--c-faint)", fontStyle:"italic", marginLeft:10}}>{from}</span>}
         </div>
         <span className="pill" style={{background:"transparent", border:`1px solid ${st.color}`, color:st.color, fontSize:10.5, whiteSpace:"nowrap"}}>{t("discovery.fieldStatus." + st.kind)}</span>
       </div>
@@ -1185,7 +1190,7 @@ function payloadToFields(payload) {
     identity: [
       { ...field("identity", "positioning", "What makes you different", { italic: true }), value: identity.positioning || "" },
       { ...field("identity", "category", "What you do"), value: identity.category || "" },
-      { ...field("identity", "founded", "Founded"),   value: identity.founded || "" },
+      { ...field("identity", "founded", "When you started"),   value: identity.founded || "" },
       { ...field("identity", "pillars", "What you stand for", { multi: true }), value: identity.pillars || [] },
       ...customFields(),
     ],
@@ -1193,21 +1198,21 @@ function payloadToFields(payload) {
     audience: [
       { ...field("audience", "primary", "Main customers"),     value: audience.primary || "" },
       { ...field("audience", "secondary", "Other customers"), value: audience.secondary || "" },
-      { ...field("audience", "tertiary", "Other customers"),   value: audience.tertiary || "" },
+      { ...field("audience", "tertiary", "Others you want to reach"),   value: audience.tertiary || "" },
       { ...field("audience", "jtbd", "What customers need", { multi: true }), value: audience.jtbd || [] },
       ...customFields(),
     ],
     voice: [
       { ...field("voice", "register", "How you sound"),    value: voice.register || "" },
       { ...field("voice", "forbidden", "Words to avoid", { multi: true }), value: voice.forbidden || [] },
-      { ...field("voice", "rhythm", "Rhythm"),        value: voice.rhythm || "" },
+      { ...field("voice", "rhythm", "How you write"),        value: voice.rhythm || "" },
       { ...field("voice", "signatures", "Phrases that sound like you", { multi: true }), value: voice.signatures || [] },
       ...customFields(),
     ],
     goals: [
       { ...field("goals", "northStar", "What drives you"), value: goals.northStar || "" },
-      { ...field("goals", "q2", "This quarter"),      value: goals.q2 || "" },
-      { ...field("goals", "q3", "Next quarter"),      value: goals.q3 || "" },
+      { ...field("goals", "q2", "This quarter's priority"),      value: goals.q2 || "" },
+      { ...field("goals", "q3", "Next quarter's priority"),      value: goals.q3 || "" },
       ...customFields(),
     ],
     strategic: {
@@ -1429,15 +1434,17 @@ function StewardDiffPanel({ diff }) {
 const BIO_FIELD_LABEL_KEYS = {
   "Positioning": "positioning", "What makes you different": "positioning",
   "Category": "category", "What you do": "category",
-  "Founded": "founded", "Pillars": "pillars", "What you stand for": "pillars",
+  "Founded": "founded", "When you started": "founded", "Pillars": "pillars", "What you stand for": "pillars",
   "Primary": "primary", "Main customers": "primary",
   "Secondary": "secondary", "Other customers": "secondary",
-  "Tertiary": "tertiary", "Jobs to be done": "jtbd", "What customers need": "jtbd",
+  "Tertiary": "tertiary", "Others you want to reach": "tertiary",
+  "Jobs to be done": "jtbd", "What customers need": "jtbd",
   "Register": "register", "How you sound": "register",
   "Forbidden": "forbidden", "Words to avoid": "forbidden",
-  "Rhythm": "rhythm", "Signatures": "signatures", "Phrases that sound like you": "signatures",
+  "Rhythm": "rhythm", "How you write": "rhythm", "Signatures": "signatures", "Phrases that sound like you": "signatures",
   "North star": "northStar", "What drives you": "northStar",
-  "This quarter": "thisQuarter", "Next quarter": "nextQuarter",
+  "This quarter": "thisQuarter", "This quarter's priority": "thisQuarter",
+  "Next quarter": "nextQuarter", "Next quarter's priority": "nextQuarter",
 };
 const bioFieldLabel = (label) => {
   const key = BIO_FIELD_LABEL_KEYS[label];
@@ -1537,7 +1544,7 @@ function BioViewer({ go, bioScore = 91 }) {
   const requestReview = async () => {
     if (!live.brandId || reviewBusy) return;
     if (hasUnappliedSourceChanges) {
-      flash("Update the Brand Core with pending evidence before requesting review");
+      flash("Update your Brand Core with your new sources before you ask for a review");
       return;
     }
     setReviewBusy(true);
@@ -1647,7 +1654,7 @@ function BioViewer({ go, bioScore = 91 }) {
         const payload={...live.bio.payload,visual};
         if(uiFixtureEnabled){saveFixtureFoundation(payload);return;}
         const res=await apiFetch(`/api/bios/${live.brandId}`,{method:'PATCH',body:JSON.stringify({payload})});
-        const json=await res.json();if(!res.ok)throw Error(json.error || 'Foundation save failed');
+        const json=await res.json();if(!res.ok)throw Error(json.error || "We couldn't save your brand basics. Try again.");
         await live.refresh();
       }}/>}
 
@@ -1726,7 +1733,7 @@ function BioViewer({ go, bioScore = 91 }) {
       )}
       {hasUnappliedSourceChanges && (
         <div className="card" style={{padding:"10px 14px", marginBottom:14, borderLeft:"3px solid var(--yellow-500)", display:"flex", justifyContent:"space-between", alignItems:"center", gap:12}}>
-          <span style={{fontSize:13}}>Review the changes before requesting certification.</span>
+          <span style={{fontSize:13}}>Check your changes before you ask for a review.</span>
           <button className="btn btn--ghost" onClick={() => go("discovery")}>Update Brand Core</button>
         </div>
       )}
@@ -1734,7 +1741,7 @@ function BioViewer({ go, bioScore = 91 }) {
         <div className="card" style={{padding:"10px 14px", marginBottom: 14, borderLeft:"3px solid var(--pink-500)", color:"var(--c-ink)", fontSize: 13}}>{saveErr}</div>
       )}
 
-      {live.error && <div className="card" role="alert" style={{padding:24,marginBottom:20}}><strong>{live.brandName || "Selected brand"}</strong><p>{live.error}</p></div>}
+      {live.error && <div className="card" role="alert" style={{padding:24,marginBottom:20}}><strong>{live.brandName || "Current brand"}</strong><p>{live.error}</p></div>}
       {/* Empty state — no BIO extracted yet */}
       {!live.loading && !live.bio && live.brandId && (
         <div className="card" style={{padding:"56px 32px", textAlign:"center", maxWidth: 580, margin:"40px auto"}}>

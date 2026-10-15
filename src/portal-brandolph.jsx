@@ -336,7 +336,7 @@ function HomeCreate({ tweaks, go }) {
     { eyebrow:"Conversion",    text:"Launch a Q1 product drop with the pricing page", est: 42 },
     { eyebrow:"Repositioning", text:"Reposition the brand for a younger audience",    est: 68 },
     { eyebrow:"Seasonal",      text:"A holiday social campaign that doesn't feel like every other one", est: 36 },
-    { eyebrow:"Acquisition",   text:"Landing page that converts cold traffic",         est: 28 },
+    { eyebrow:"Acquisition",   text:"A landing page that turns new visitors into customers",         est: 28 },
   ];
 
   const handleStart = async () => {

@@ -59,9 +59,9 @@ test("pending evidence must be incorporated before human review", async () => {
   const source = await readFile(discoveryUrl, "utf8");
 
   assert.match(source, /hasUnappliedSourceChanges/);
-  assert.match(source, /Update the Brand Core with pending evidence before requesting review/);
+  assert.match(source, /Update your Brand Core with your new sources before you ask for a review/);
   assert.match(source, /Update Brand Core/);
-  assert.match(source, /Review the changes before requesting certification/);
+  assert.match(source, /Check your changes before you ask for a review/);
 });
 
 test("visual intake requires declared roles, rights, and licensed font metadata", async () => {
@@ -89,7 +89,7 @@ test('competitive BIO renders safely and round trips evidence; unreviewed draft 
  const payload={identity:{positioning:'Studio'},positioning};
  assert.deepEqual(fieldsToPayload(payloadToFields(payload),payload).positioning,positioning);
  const markup=renderToStaticMarkup(React.createElement(BioCompetitive,{value:positioning,editing:false}));
- assert.match(markup,/&lt;script&gt;/);assert.doesNotMatch(markup,/href="javascript:/);assert.match(markup,/independently verified/);assert.match(markup,/Verify competitor service terms/);assert.equal(safeCompetitiveUrl('javascript:alert(1)'),null);
+ assert.match(markup,/&lt;script&gt;/);assert.doesNotMatch(markup,/href="javascript:/);assert.match(markup,/checked these yet/);assert.match(markup,/Verify competitor service terms/);assert.equal(safeCompetitiveUrl('javascript:alert(1)'),null);
  assert.equal(discoFieldStatus({value:[{id:'empty',type:'direct',name:''}]}).kind,'missing');
  assert.equal(discoFieldStatus({value:positioning.competitors}).kind,'review');
  assert.equal(discoFieldStatus({value:positioning.competitors,mark:'accurate'}).kind,'accurate');
@@ -100,7 +100,7 @@ test('gated review shows actionable waiting reasons and score until checks pass'
  const {ReviewGateNotice}=await vite.ssrLoadModule('/src/discovery-review-gate.jsx');
  const gate={status:'gated',score:79,min_score:80,reasons:[{code:'LOGO_RIGHTS_UNCONFIRMED'}]};
  const markup=renderToStaticMarkup(React.createElement(ReviewGateNotice,{gate}));
- assert.match(markup,/Waiting on: confirm logo rights/);assert.match(markup,/79\/80/);assert.match(markup,/automatically/);assert.match(markup,/role="status"/);
+ assert.match(markup,/Waiting on: confirm logo rights/);assert.match(markup,/79% complete \(80% needed\)/);assert.match(markup,/automatically/);assert.match(markup,/role="status"/);
  assert.equal(renderToStaticMarkup(React.createElement(ReviewGateNotice,{gate:{...gate,status:'queued'}})),'');
  const source=await readFile(discoveryUrl,'utf8');assert.equal((source.match(/<ReviewGateNotice gate=\{live\.bio\?\.reviewGate\}/g)||[]).length,2);
  assert.match(source,/runFinished=\["completed","gated"\]/);

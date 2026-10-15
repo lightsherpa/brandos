@@ -634,7 +634,7 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
    rubric, and submits — the engine computes the decision (approve /
    approve_with_conditions / return_changes / reject). May patch the BIO first. */
 function TeamJob({ id, go }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const session = window.useSession();
   const openCertify = certifyReviewEnabled() && canEnterCertify(session);
   const { job, sources, you, focus, rubric, autoSignals, copilot, certify, error, loading, reload } = useStewardJob(id);
@@ -931,9 +931,16 @@ function TeamJob({ id, go }) {
                 const pillCol = isMissing ? "var(--pink-500)" : "var(--yellow-800)";
                 const highStakes = typeof f.importance === "number" && f.importance >= 1.0;
                 const kinds = f.sourceKinds || [];
-                const from = sourceLine(kinds, t);
+                const from = kinds.length ? sourceLine(kinds, t) : "";
                 const sure = certaintyWord({ conf: f.conf, sourceKinds: kinds, missing: isMissing }, t);
-                const action = spoken(t, f.actionKey || f.action);
+                const why = spoken(t, f.whyKey || f.why);
+                const actionName = f.actionKey || f.action;
+                const action = (actionName === "provenance.focusEmpty" || actionName === "provenance.focusGuess")
+                  ? (() => {
+                      const line = t(actionName, { label: locale === "en" ? label.toLowerCase() : label });
+                      return line === actionName ? "" : line;
+                    })()
+                  : spoken(t, actionName);
                 return (
                   <div key={f.field || i} className="card card--inset" style={{padding:"9px 11px"}}>
                     <div style={{display:"flex", alignItems:"center", gap: 6, flexWrap:"wrap", marginBottom: 4}}>
@@ -948,6 +955,9 @@ function TeamJob({ id, go }) {
                         <span className="pill" style={{height: 18, padding:"0 7px", fontSize: 9.5, letterSpacing:"0.03em", background:"var(--neutral-50)", color:"var(--c-dim)"}}>{t("team.highStakes")}</span>
                       )}
                     </div>
+                    {why && (
+                      <div style={{fontSize: 11, color:"var(--c-faint)", marginBottom: 3}}>{why}</div>
+                    )}
                     {from && from !== sure && (
                       <div style={{fontSize: 10.5, color:"var(--c-faint)", marginBottom: 3, wordBreak:"break-word"}}>{from}</div>
                     )}

@@ -56,7 +56,7 @@
     "inReview": "قيد المراجعة",
     "yoursOpen": "لك · مفتوحة",
     "capacityOverrides": "تجاوزات السعة",
-    "stewardQueue": "قائمة المُراجِع",
+    "stewardQueue": "علامات بانتظار المراجعة",
     "filterAll": "الكل",
     "filterPendingLead": "بانتظار المُراجِع الرئيسي",
     "unassigned": "غير مُسنَدة",
@@ -69,10 +69,10 @@
     "queueEmpty": "لا توجد مهام تطابق هذا الفلتر. شغّل عملية استكشاف لإنشاء واحدة:",
     "you": "أنت",
     "assigned": "مُسنَدة",
-    "notSteward": "لست مُراجِعًا — نفّذ ",
+    "notSteward": "لست مديرًا إبداعيًا لهذه العلامة — شغّل ",
     "aboutJobs": "حول هذه المهام",
-    "aboutJobsBody": "كل صف هو علامة تجارية تنتظر اعتماد Brand Core — مراجعة بشرية خبيرة قبل أن يقرأ منها أي متخصص. الميزة الدفاعية: كل مُخرَج يصدر ",
-    "certifiedByName": "معتمَد من {name}",
+    "aboutJobsBody": "كل صف هو علامة بانتظار الاعتماد: يراجع مدير إبداعي متمرّس Brand Core الخاص بها قبل استخدامه في أي عمل. هذا وعدنا: كل ما نسلّمه مبني على علامة مُراجَعة.",
+    "certifiedByName": "اعتمده {name}",
     "addGeneric": "+ إضافة",
     "removeItem": "إزالة {item}",
     "palette": "لوحة الألوان",
@@ -88,7 +88,7 @@
     "bucketOther": "أخرى",
     "pasteUrl": "الصق رابطًا…",
     "addUrl": "إضافة رابط",
-    "fileHint": "بحد أقصى 50 ميجابايت · PDF، صورة، .doc، .txt، .md",
+    "fileHint": "حتى 50 ميغابايت · PDF، صورة، Word، نص",
     "typography": "الطباعة",
     "typeKindPlaceholder": "النوع (مثل: عرض)",
     "typeFamilyPlaceholder": "العائلة (مثل: Söhne Breit)",
@@ -102,67 +102,67 @@
     "confLow": "منخفضة",
     "confMed": "متوسطة",
     "confHigh": "عالية",
-    "rubricScore": "المعيار · قيّم كل بند",
-    "autoPct": "تلقائي · {pct}%",
+    "rubricScore": "قيّم كل نقطة",
+    "autoPct": "مقترح · {pct}%",
     "gateFloor": "الحد ≥{floor}",
     "notScored": "بدون تقييم",
-    "confidence": "الثقة",
+    "confidence": "مدى التأكّد",
     "scoreEveryCriterion": "قيّم كل البنود: {list}",
     "gateSuffix": " · الحد: {ids}",
-    "submittedForLead": "أُرسِل لمراجعة المُراجِع الرئيسي — المقترح {decision}، {composite}/100{gate}.",
+    "submittedForLead": "أُرسل إلى مدير إبداعي رئيسي: اقترحت {decision}، والنتيجة {composite}/100{gate}.",
     "decisionResult": "القرار: {decision} · {composite}/100 ({band}){gate}{cal}",
-    "calibrationSuffix": " · ثقة منخفضة → معايرة",
+    "calibrationSuffix": " · غير مؤكَّد، أُرسل لمراجعة ثانية",
     "cancelled": "أُلغيت",
     "decertified": "أُلغي الاعتماد · الإصدار {version}. توقّف الإنتاج؛ وأُضيفت مراجعة جديدة إلى القائمة.",
     "approvedAsLead": "تمت الموافقة كمُراجِع رئيسي · الإصدار {version} أصبح مباشرًا الآن.",
-    "sentBackRevision": "أُعيد إلى المُراجِع للتعديل.",
-    "confirmDecertify": "إلغاء اعتماد هذا Brand Core؟ سيتوقّف الإنتاج حتى إعادة الاعتماد. يبقى الموجز متاحًا وتكتمل المهام الجارية.",
+    "sentBackRevision": "أُعيد إلى المدير الإبداعي للمراجعة.",
+    "confirmDecertify": "هل تريد سحب اعتماد Brand Core هذا؟ يتوقّف العمل الجديد حتى يُعتمد مجددًا. تبقى الموجزات مفتوحة ويكتمل العمل الجاري.",
     "loading": "جارٍ التحميل…",
     "jobNotFound": "لم يُعثر على المهمة.",
     "brandFallback": "(علامة)",
-    "certifiedV": "معتمَد v{version}",
+    "certifiedV": "معتمَد الإصدار {version}",
     "queuedRel": "في القائمة {rel}",
-    "bioV": "Brand Core v{version}",
+    "bioV": "Brand Core الإصدار {version}",
     "candidateBio": "Brand Core مُرشَّح · v{version}",
     "editedTag": "· مُعدَّل",
     "resetEdits": "التراجع عن التعديلات",
-    "fldPositioning": "التموضع",
+    "fldPositioning": "ما يميّزك",
     "phPositioning": "جملة واحدة — ما هي العلامة حقًا",
-    "fldCategory": "الفئة",
-    "fldPillars": "الركائز",
+    "fldCategory": "ما تعمله",
+    "fldPillars": "ما تؤمن به",
     "addPillar": "+ إضافة ركيزة",
-    "fldPrimaryAudience": "الجمهور الأساسي",
-    "fldSecondaryAudience": "الجمهور الثانوي",
-    "fldJtbd": "المهام المطلوب إنجازها",
-    "addJtbd": "+ إضافة JTBD",
-    "fldVoiceRegister": "نبرة الصوت",
-    "fldRhythm": "الإيقاع",
-    "fldSignatureMoves": "اللمسات المميّزة",
+    "fldPrimaryAudience": "العملاء الرئيسيون",
+    "fldSecondaryAudience": "عملاء آخرون",
+    "fldJtbd": "ما يحتاجه عملاؤك",
+    "addJtbd": "+ أضف حاجة للعميل",
+    "fldVoiceRegister": "كيف تبدو",
+    "fldRhythm": "طريقة كتابتك",
+    "fldSignatureMoves": "عبارات تشبهك",
     "addSignature": "+ إضافة لمسة",
-    "fldForbiddenWords": "الكلمات الممنوعة",
+    "fldForbiddenWords": "كلمات يجب تجنّبها",
     "addForbidden": "+ إضافة ممنوعة",
-    "fldNorthStar": "النجم الهادي",
-    "fldThisQuarter": "هذا الربع",
-    "fldNextQuarter": "الربع القادم",
-    "fldWatchouts": "التنبيهات الاستراتيجية",
+    "fldNorthStar": "ما يحرّكك",
+    "fldThisQuarter": "أولوية هذا الربع",
+    "fldNextQuarter": "أولوية الربع القادم",
+    "fldWatchouts": "أمور يجب الانتباه لها",
     "addWatchout": "+ إضافة تنبيه",
-    "fldNotList": "ما ليست عليه العلامة",
+    "fldNotList": "ما لست عليه",
     "addNotList": "+ إضافة عنصر",
-    "fldImagery": "توجيه الصور",
+    "fldImagery": "أسلوب صورك",
     "addImagery": "+ إضافة إشارة بصرية",
     "fldVisualAvoid": "ما يجب تجنّبه بصريًا",
     "addVisualAvoid": "+ إضافة عنصر لتجنّبه",
-    "bioEditHint": "عدّل أي حقل — تُسجَّل التغييرات محليًا وتُرسَل كـ `bioPatch` عند الاعتماد (يُنشئ إصدارًا جديدًا من Brand Core). ستُملأ الحقول المرئية تلقائيًا عبر تمريرة الرؤية في P5؛ ويمكنك ملؤها يدويًا هنا في الوقت الحالي.",
+    "bioEditHint": "عدّل أي حقل. تُحفظ تغييراتك عند الاعتماد كإصدار جديد من Brand Core. يمكنك ملء العناصر البصرية يدويًا الآن.",
     "focusFirst": "ركّز أولًا",
     "nothingFlagged": "لا شيء مُعلَّم — كل الحقول مقروءة بوضوح.",
-    "statusMissing": "مفقود",
-    "statusLowConf": "ثقة منخفضة",
+    "statusMissing": "يحتاج إلى مدخلاتك",
+    "statusLowConf": "مرجَّح",
     "highStakes": "عالي الأهمية",
     "sourcesRead": "المصادر المقروءة",
     "charsScraped": "{chars} حرفًا مُستخرَجًا",
     "pendingLeadReview": "بانتظار مراجعة المُراجِع الرئيسي",
-    "pendingLeadIsLead": "أنت مُراجِع رئيسي — وافق لإتمام الاعتماد، أو أعِده إلى المُراجِع الأصلي.",
-    "pendingLeadNotLead": "سيوافق مُراجِع رئيسي على هذا الاعتماد قبل أن يُعتمَد.",
+    "pendingLeadIsLead": "أنت المسؤول. اعتمد لإنهاء الاعتماد، أو أعده إلى المدير الإبداعي.",
+    "pendingLeadNotLead": "يعتمد مدير إبداعي رئيسي هذا قبل نشره.",
     "leadNotesPrivate": "ملاحظات المُراجِع الرئيسي (خاصة)",
     "certNotesClient": "ملاحظات الاعتماد (مرئية للعميل)",
     "notesPlaceholderLead": "اختياري. إذا كنت ستعيده، فوضّح ما يحتاج إلى تعديل.",
@@ -170,25 +170,25 @@
     "conditionsLabel": "الشروط / التغييرات المطلوبة (واحد في كل سطر)",
     "conditionsPlaceholder": "يُستخدَم عندما يكون القرار موافقة-بشروط أو إعادة-للتعديل.\nمثال: استبدل الشعار المؤقت قبل تشغيل قسم المرئيات.",
     "rejectReasonLabel": "رمز سبب الرفض (فقط عند الرفض)",
-    "rejectReasonPlaceholder": "مثال: unverifiable_authority",
+    "rejectReasonPlaceholder": "مثلًا: لا يمكننا تأكيد هذا الادعاء",
     "approveAsLead": "الموافقة كمُراجِع رئيسي",
-    "confirmSendBack": "إعادة هذا إلى المُراجِع للتعديل؟",
+    "confirmSendBack": "هل تريد إعادته إلى المدير الإبداعي للمراجعة؟",
     "sendBack": "إعادة",
-    "awaitingLead": "بانتظار موافقة المُراجِع الرئيسي — لقد أرسلت هذا الاعتماد؛ وسيتولّى مُراجِع رئيسي إتمامه.",
+    "awaitingLead": "بانتظار مدير إبداعي رئيسي. أنت أرسلته، وسيُنهيه المسؤول.",
     "alreadyReviewed": "تمت مراجعته",
     "saveEditsSubmit": "حفظ التعديلات وإرسال المراجعة",
     "submitReview": "إرسال المراجعة",
-    "confirmCancelJob": "إلغاء مهمة الاعتماد هذه؟",
+    "confirmCancelJob": "هل تريد إلغاء هذه المراجعة؟",
     "cancel": "إلغاء",
-    "scoreAllToSubmit": "قيّم كل بنود المعيار أعلاه لتتمكّن من الإرسال.",
+    "scoreAllToSubmit": "قيّم كل النقاط أعلاه للإرسال.",
     "leadHelpA1": "الموافقة تُتِمّ الاعتماد وتكتب ",
-    "leadHelpA2": ". يبقى المُراجِع الأصلي بصفته ",
+    "leadHelpA2": ". يبقى المدير الإبداعي الأصلي بصفته ",
     "leadHelpA3": " (مبدأ الأربع أعين: لا يمكنك اعتماد عملك).",
-    "rubricHelpB1": "يحدّد المعيار النتيجة من تقييماتك؛ وتُسجَّل كل قرار في ",
+    "rubricHelpB1": "تحدّد درجاتك النتيجة، وكل قرار يُحفظ في ",
     "rubricHelpB2": " لضمان قابلية التبرير. أثناء المعايرة، يوافق مُراجِع رئيسي قبل إتمام أي موافقة.",
     "decertify": "إلغاء الاعتماد",
     "decertifyThisBio": "إلغاء اعتماد هذا Brand Core",
-    "decertifyHint": "يسحب الاعتماد. يُحظَر الإنتاج الجديد أو المنتظِر فورًا؛ وتكتمل المهام الجارية؛ وتحتفظ المخرجات المكتملة بشارتها؛ ويبقى الموجز نشطًا. وتُضاف مراجعة جديدة إلى القائمة.",
+    "decertifyHint": "يسحب الاعتماد. يتوقّف العمل الجديد فورًا، ويكتمل العمل الجاري، ويحتفظ العمل المُسلَّم بشارته، وتبقى الموجزات مفتوحة. تُضاف مراجعة جديدة إلى قائمة الانتظار.",
     "dayMon": "الإثنين",
     "dayTue": "الثلاثاء",
     "dayWed": "الأربعاء",
@@ -271,7 +271,7 @@
       "saved": "تم الحفظ.",
       "runtimeGaps": "الفجوات أثناء التشغيل",
       "runtimeGapsDesc": "المفاتيح التي طلبها التطبيق باللغة النشطة دون توفّر ترجمة لها، تُجمع أثناء تصفّح الفريق.",
-      "noGaps": "لم تُسجَّل أي فجوات أثناء التشغيل بعد.",
+      "noGaps": "لم نعثر بعد على ترجمات ناقصة.",
       "governance": "الحوكمة",
       "governanceDesc": "اختر اللغات التي توفّرها مساحة العمل هذه وأيّها الافتراضية. الإنجليزية متاحة دائمًا.",
       "enabledLocales": "اللغات المُفعّلة",
@@ -294,7 +294,7 @@
     "addBrand": "إضافة علامة"
   },
   "sidebar": {
-    "bioScore": "Brand Core {score}٪",
+    "bioScore": "اكتمال Brand Core بنسبة {score}%",
     "seniorDesigner": "مصمِّمة أولى",
     "active": "نشط",
     "brandolphReading": "يقرأ Brand Core الخاص بك، ويتابع أحدث موجز لك خلال المراجعة.",
@@ -327,8 +327,8 @@
   "title": {
     "discovery": "الاكتشاف",
     "brief": "موجز",
-    "specialistsOnShift": "المتخصصون · {count} في الوردية",
-    "specialistNew": "متخصص جديد",
+    "specialistsOnShift": "الخبراء · {count} متاح",
+    "specialistNew": "خبير جديد",
     "canvas": "اللوحة",
     "plans": "الخطط",
     "activeJob": "المهمة النشطة",
@@ -363,13 +363,13 @@
     "talkToUs": "تواصل معنا",
     "starting": "جارٍ البدء…",
     "upgrade": "ترقية",
-    "note03": "تواصل مع فريق BrandOS لإعداد The Colony 🐜.",
-    "noteFail": "تعذّر بدء الترقية الآن — يُرجى المحاولة مجددًا أو التواصل مع فريق BrandOS.",
+    "note03": "تواصل مع فريق BrandOS by Caastor لإعداد The Colony.",
+    "noteFail": "تعذّر بدء الترقية. حاول مرة أخرى أو تواصل مع فريق BrandOS by Caastor.",
     "included": "مُضمَّن",
     "backToCreate": "→ العودة إلى الإنشاء",
     "blurb": {
       "00": "علامة واحدة، وBrandolph وفريق خبرائنا الكامل، وBrand Core المعتمد الخاص بك.",
-      "01": "شغّل علامتين جنبًا إلى جنب مع ذاكرة متخصصين مشتركة.",
+      "01": "أدِر علامتين جنبًا إلى جنب. يتذكّرهما خبراؤنا كلتيهما.",
       "02": "ثلاث علامات إضافةً إلى صقل يدوي بشري ذي أولوية.",
       "03": "علامات غير محدودة للاستوديوهات التي تدير الطاقم بالكامل."
     }
@@ -378,7 +378,7 @@
     "language": {
       "nav": "اللغة",
       "title": "اللغة",
-      "desc": "اختر اللغة التي يخاطبك بها BrandOS. تُطبَّق على جميع الشاشات وتُحفظ في حسابك.",
+      "desc": "اختر اللغة التي يخاطبك بها BrandOS by Caastor. تُطبَّق في كل مكان وتُحفظ في حسابك.",
       "saveError": "تعذّر حفظ ذلك في حسابك، لكن تم تطبيق التبديل هنا."
     }
   },
@@ -412,11 +412,11 @@
     "specialists": {
       "plural": {
         "zero": "{count} أخصائي",
-        "one": "أخصائي واحد",
+        "one": "{count} خبير",
         "two": "أخصائيان",
         "few": "{count} أخصائيين",
         "many": "{count} أخصائيًا",
-        "other": "{count} أخصائي"
+        "other": "{count} خبراء"
       }
     },
     "creditsCount": {
@@ -430,7 +430,7 @@
       }
     },
     "newBrief": "موجز جديد",
-    "total": "الإجمالي",
+    "total": "المجموع",
     "remainingAfter": "{n} متبقٍ بعد ذلك",
     "runCredits": {
       "plural": {
@@ -449,7 +449,7 @@
     "flagged": "مُعلَّم",
     "failed": "فشل",
     "composedBy": "أنشأه",
-    "certified": "مُصدَّق",
+    "certified": "معتمَد",
     "uncertified": "غير مُصدَّق",
     "creditsThisCycle": "رصيد هذه الدورة",
     "ledger": "السجل",
@@ -474,7 +474,7 @@
     "checkingBrand": "جارٍ التحقق من العلامة المحددة و Brand Core…",
     "bioStatusUnavailable": "حالة Brand Core غير متاحة · {error}",
     "brandBioReady": "{name} · Brand Core {score}/100 · الإصدار {version} · جاهز للصقل",
-    "brandNoBio": "{name} · لا يوجد Brand Core معتمد بعد · أكمِل Discovery قبل إعداد الموجز",
+    "brandNoBio": "{name} · Brand Core الخاص بك ليس جاهزًا بعد. أكمل إعداده لبدء موجز.",
     "selectBrand": "اختر علامة قبل إنشاء موجز",
     "brandChangedError": "تغيّرت العلامة النشطة. ابدأ من جديد حتى يستخدم هذا الموجز Brand Core الصحيح.",
     "balanceLoading": "جارٍ تحميل الرصيد…",
@@ -499,7 +499,7 @@
       "all": "الكل",
       "approved": "معتمدة",
       "flagged": "معلَّمة",
-      "allSpecialists": "كل المتخصصين"
+      "allSpecialists": "كل الخبراء"
     },
     "mode": {
       "auto": "تلقائي"
@@ -508,14 +508,14 @@
       "close": "إغلاق"
     },
     "spec": {
-      "eyebrow": "L2 · 33 متخصصًا كبيرًا",
+      "eyebrow": "33 خبيرًا متمرّسًا",
       "title": "القسم، في المناوبة.",
       "sub": "تخبر Brandolph بما تحتاج إليه، وخبراؤنا ينفّذون العمل، كلٌّ بالأداة الأنسب للمهمة. ترى كل خطوة وتدفع من رصيد واحد.",
       "liveCount": "{live} نشط · {soon} قريبًا",
-      "newSpecialist": "متخصص جديد",
-      "pinned": "★ مثبَّت · متخصصوك المفضّلون",
+      "newSpecialist": "خبير جديد",
+      "pinned": "★ خبراؤك المفضّلون",
       "mostUsedFor": "الأكثر استخدامًا لـ",
-      "searchPlaceholder": "ابحث عن المتخصصين والأقسام والقدرات…",
+      "searchPlaceholder": "ابحث عن الخبراء والمهارات…",
       "sortDepartment": "القسم",
       "sortCredits": "الأرصدة",
       "sortMostUsed": "الأكثر استخدامًا",
@@ -532,35 +532,36 @@
           "other": "{count} نتيجة"
         }
       },
-      "deptCount": "{specialists} متخصصين · {live} نشط",
-      "noMatch": "لا يوجد متخصص يطابق “{query}”.",
+      "deptCount": "{specialists} خبيرًا · {live} متاح",
+      "noMatch": "لا يوجد خبراء يطابقون «{query}».",
       "soon": "قريبًا"
     },
     "lib": {
       "eyebrow": "مساحة العمل",
       "eyebrowBrand": "مساحة العمل · {name}",
       "title": "الموجزات",
-      "sub": "كل تشغيل متخصص على هذه العلامة — قابل للتدقيق مقابل Brand Core المعتمد. {runs} في السجل · {credits} cr مُنفقة.",
+      "sub": "كل ما أُنجز لهذه العلامة، مُراجَعًا وفق Brand Core. {runs} حتى الآن · {credits} رصيدًا مستخدمًا.",
       "reload": "إعادة التحميل",
-      "runSpecialist": "تشغيل متخصص",
+      "runSpecialist": "اطلب من خبير",
       "searchPlaceholder": "ابحث في الموجزات…",
       "countOf": "{shown} من {total}",
       "emptyTitle": "لا توجد موجزات على الطاولة بعد.",
       "emptyBody": "Brandolph جاهز لموجزك الأول. اكتب ما تحتاج إليه، ولو جملة واحدة. سيحسّنه ويختار أصغر فريق مناسب للعمل.",
       "startFirst": "ابدأ أوّل موجز",
-      "browseSpecialists": "تصفّح المتخصصين",
-      "noMatch": "لا توجد موجزات تطابق عوامل التصفية الحالية."
+      "browseSpecialists": "تصفّح الخبراء",
+      "noMatch": "لا توجد موجزات تطابق عوامل التصفية الحالية.",
+      "newBrief": "موجز جديد"
     },
     "detail": {
       "allBriefs": "كل الموجزات",
       "specialistsCount": {
         "plural": {
           "zero": "{count} متخصص",
-          "one": "متخصص واحد",
+          "one": "{count} خبير",
           "two": "متخصصان",
           "few": "{count} متخصصين",
           "many": "{count} متخصصًا",
-          "other": "{count} متخصص"
+          "other": "{count} خبراء"
         }
       },
       "tabOverview": "نظرة عامة",
@@ -615,9 +616,9 @@
       "ran": "تم التشغيل",
       "run": "تشغيل",
       "composedBy": "أنشأه",
-      "certified": "معتمد",
+      "certified": "معتمَد",
       "uncertified": "غير معتمد",
-      "voiceQa": "فحص جودة الصوت",
+      "voiceQa": "مراجعة الأسلوب",
       "passed": "ناجح",
       "flagged": "معلَّم"
     },
@@ -644,7 +645,7 @@
       "creditsSpent": "الأرصدة المُنفقة",
       "successRate": "معدل النجاح",
       "exampleOutputs": "أمثلة على المُخرَجات · لـ",
-      "noOutputs": "لم تستخدم هذا المتخصص بعد."
+      "noOutputs": "لم تعمل مع هذا الخبير بعد."
     },
     "canvas": {
       "zoomOut": "تصغير",
@@ -677,19 +678,19 @@
       "headline": "العنوان المشترك",
       "updating": "جارٍ تحديث الثلاثة…",
       "headlineHelp": "هذا السطر هو عنوان البريد وبطل الصفحة وشريحة العنوان.",
-      "email": "البريد",
+      "email": "البريد الإلكتروني",
       "landing": "صفحة الهبوط",
       "deck": "الشرائح",
       "print": "طباعة / حفظ PDF",
       "pass": "مطابق",
       "flag": "مُعلَّم",
-      "trailEyebrow": "الاعتماد",
+      "trailEyebrow": "سجلّ الاعتماد",
       "trailTitle": "سجل التدقيق",
-      "trailBio": "Brand Core v{version} · {state}",
-      "certified": "معتمد",
-      "selfCertified": "اعتماد ذاتي",
-      "uncertified": "غير معتمد بعد",
-      "trailEmpty": "لا توجد قرارات اعتماد مسجّلة بعد.",
+      "trailBio": "Brand Core الإصدار {version} · {state}",
+      "certified": "معتمَد",
+      "selfCertified": "أكّدتَه بنفسك",
+      "uncertified": "لم يُعتمد بعد",
+      "trailEmpty": "لا توجد اعتمادات بعد.",
       "openBio": "فتح Brand Core"
     },
     "run": {
@@ -718,7 +719,7 @@
       "subRendering": "قيد التصيير…",
       "subRenderingImages": "تصيير الصور…",
       "helperRunning": "يجري تشغيل الفريق… كل بطاقة تبثّ تقدّمها. انقر على أي منها لفتح المُخرَج الكامل.",
-      "helperComplete": "اكتمل التشغيل · أُنفق {cr} cr. انقر على أي متخصص للتحقق من مُخرَجه أو تحريره أو نسخه.",
+      "helperComplete": "تمّ · استُخدم {cr} رصيدًا. انقر على أي عمل لمراجعته أو تعديله أو نسخه.",
       "helperAssembled": "تم تجميع الفريق. اضغط تشغيل عندما تكون جاهزًا.",
       "runComplete": "اكتمل التشغيل",
       "openLibrary": "فتح المكتبة",
@@ -767,11 +768,11 @@
       "saved": "محفوظ",
       "theBrief": "الموجز",
       "sharpened": "المصقول (a02)",
-      "brandQa": "فحص جودة العلامة",
-      "voiceQa": "فحص جودة الصوت",
+      "brandQa": "مراجعة العلامة التجارية",
+      "voiceQa": "مراجعة الأسلوب",
       "output": "المُخرَج",
       "outputImage": "· صورة",
-      "outputEditable": "· قابل للتحرير",
+      "outputEditable": "· يمكنك تعديله",
       "unsaved": "· غير محفوظ",
       "chars": "{count} حرفًا",
       "rerunWith": "إعادة التشغيل باستخدام…",
@@ -788,7 +789,7 @@
       "dismiss": "تجاهل",
       "calling": "جارٍ الاستدعاء…",
       "empty": "(فارغ)",
-      "certifiedBy": "معتمد من"
+      "certifiedBy": "اعتمده"
     },
     "rerun": {
       "noteOpus": "Premium — أعمق استدلال",
@@ -815,10 +816,10 @@
           "other": "{count} صورة"
         }
       },
-      "certifiedByName": "معتمد من {name}",
-      "certifiedCanon": "مرجع معتمد",
-      "helper": "{runs} على هذا الموجز. انقر على أي متخصص للتحقق من مُخرَجه أو تحريره أو نسخه.",
-      "briefsBack": "← الموجزات"
+      "certifiedByName": "اعتمده {name}",
+      "certifiedCanon": "Brand Core المعتمد الخاص بك",
+      "helper": "{runs} في هذا الموجز. انقر على أي عمل لمراجعته أو تعديله أو نسخه.",
+      "briefsBack": "→ الموجزات"
     },
     "board": {
       "sourceCanon": "المصدر · المرجع",
@@ -828,12 +829,12 @@
       "theBriefL1": "الموجز · من Brandolph",
       "askedFirst": "سألك Brandolph أولًا",
       "sourceCanonShort": "المصدر · المرجع",
-      "specialistPrefix": "متخصص",
+      "specialistPrefix": "الخبير",
       "whyRoutes": "لماذا يختار Brandolph هذا الخبير",
       "theOutput": "المُخرَج",
       "whyChoiceShort": "لماذا هذا الخيار",
-      "addSpecialist": "إضافة متخصص",
-      "dropSpecialist": "أسقِط متخصصًا ثم اربطه",
+      "addSpecialist": "أضف خبيرًا",
+      "dropSpecialist": "اسحب خبيرًا إلى هنا ثم اربطه",
       "export": "تصدير",
       "connectingFromA": "يجري الربط من",
       "connectingFromB": "— انقر على عُقدة للربط.",
@@ -874,7 +875,7 @@
         }
       },
       "emptyTitle": "المكتبة في الانتظار.",
-      "emptyBody": "كل مُخرَج يُنتجه فريقك يستقرّ هنا — مُرتَّبًا تحت الموجز الذي طلبه، وإصدار Brand Core الذي جرى تقييمه مقابله، والـ Steward الذي وقّع المرجع. شغّل موجزًا وشاهد الرفوف تمتلئ.",
+      "emptyBody": "كل ما ينجزه فريقك يصل إلى هنا، مرتّبًا حسب الموجز وإصدار Brand Core، مع اسم من اعتمده. ابدأ موجزًا لملء هذه الرفوف.",
       "startBrief": "ابدأ موجزًا",
       "deleted": "تم الحذف",
       "deleteFailed": "فشل الحذف",
@@ -887,7 +888,7 @@
       "visualDirection": "التوجيه البصري",
       "noDirection": "(بلا توجيه)",
       "editedSuffix": "· مُحرَّر",
-      "qaNotes": "ملاحظات الفحص",
+      "qaNotes": "ملاحظات المراجعة",
       "reuse": "إعادة الاستخدام",
       "copyPrompt": "نسخ الموجّه",
       "confirmDelete": "حذف هذا الأصل؟",
@@ -899,10 +900,10 @@
     },
     "author": {
       "eyebrow": "القدرات · المشرف",
-      "title": "متخصص جديد",
-      "sub": "عرّف متخصص L2. الموجّه على اليمين هو الموجز المُركَّب الحقيقي — PLATFORM + Brand Core الحيّ + هذه المواصفة + المهمة — يُجمَّع أثناء كتابتك.",
+      "title": "خبير جديد",
+      "sub": "أنشئ خبيرًا جديدًا. ترى على اليمين ما سيتلقّاه بالضبط: Brand Core الخاص بك وهذا الوصف والمهمة.",
       "saved": "تم الحفظ ✓",
-      "saveSpecialist": "حفظ المتخصص",
+      "saveSpecialist": "احفظ الخبير",
       "identity": "الهوية",
       "name": "الاسم",
       "namePlaceholder": "مثل: مُغلِق مبيعات الجملة",
@@ -912,7 +913,7 @@
       "statusSoon": "قريبًا",
       "statusDraft": "مسودة",
       "jobLabel": "المهمة · سطر واحد",
-      "jobPlaceholder": "ما يفعله هذا المتخصص، في سطر واحد.",
+      "jobPlaceholder": "ما يفعله هذا الخبير، في سطر واحد.",
       "promptSpec": "مواصفة الموجّه",
       "prefillFrom": "التعبئة من قالب {dept}",
       "role": "الدور",
@@ -920,7 +921,7 @@
       "objective": "الهدف",
       "objectivePlaceholder": "ما يُنتجه التشغيل الجيد.",
       "methodSteps": "المنهج · خطوات",
-      "methodPlaceholder": "خطوة يتّبعها المتخصص",
+      "methodPlaceholder": "خطوة يتّبعها هذا الخبير",
       "outputContract": "عقد المُخرَج",
       "outputContractPlaceholder": "الشكل / الطول / التنسيق الذي يجب أن يُعيده.",
       "voice": "النبرة",
@@ -928,13 +929,13 @@
       "tools": "الأدوات",
       "toolsPlaceholder": "مثل: بحث Exa، توليد الصور",
       "refusalsLabel": "الرفض · لن يفعل (فوق قواعد العلامة)",
-      "refusalsPlaceholder": "قاعدة صارمة لن يخالفها هذا المتخصص",
-      "routingCost": "التوجيه والتكلفة",
+      "refusalsPlaceholder": "قاعدة لا يخالفها هذا الخبير أبدًا",
+      "routingCost": "الأدوات والتكلفة",
       "model": "النموذج",
       "creditsPerRun": "الأرصدة / تشغيل",
       "livePrompt": "الموجّه المُركَّب الحيّ",
-      "testTab": "اختبار · تشغيل تجريبي + بوابة الفحص",
-      "tabPrompt": "الموجّه",
+      "testTab": "اختبار · جرّبه وشغّل مراجعة العلامة",
+      "tabPrompt": "التعليمات",
       "tabTest": "اختبار",
       "refusalsInherit": {
         "plural": {
@@ -950,11 +951,11 @@
       "sampleBriefDefault": "اكتب بريد إعلان الأسعار السنوي لمشتري الجملة.",
       "dryRun": "تشغيل تجريبي",
       "draftOutput": "مسودة المُخرَج · قابلة للتحرير",
-      "qaGate": "بوابة فحص جودة العلامة",
+      "qaGate": "مراجعة العلامة التجارية",
       "blocking": "{count} حاجب",
       "pass": "ناجح",
       "notReady": "غير جاهز.",
-      "notReadyBody": "أصلح القاعدة المُعلَّمة قبل تفعيل هذا المتخصص.",
+      "notReadyBody": "صحّح القاعدة المُشار إليها قبل إتاحة هذا الخبير.",
       "clearsGate": "يجتاز البوابة.",
       "clearsGateBody": "من الآمن ضبط الحالة على ”نشط“.",
       "remove": "إزالة",
@@ -968,8 +969,8 @@
     "misc": {
       "untitled": "(بلا عنوان)",
       "untitledBrief": "(موجز بلا عنوان)",
-      "yourSteward": "الـ Steward الخاص بك",
-      "yourBrandSteward": "الـ Brand Steward الخاص بك"
+      "yourSteward": "مديرك الإبداعي",
+      "yourBrandSteward": "مديرك الإبداعي"
     }
   },
   "discovery": {
@@ -983,7 +984,7 @@
       "foundations": {
         "label": "أسس العلامة",
         "help": "كتيّب العلامة، العروض، البيانات التعريفية، مستندات «من نحن»",
-        "readBy": "كل الاختصاصيين"
+        "readBy": "كل الخبراء"
       },
       "visual": {
         "label": "مراجع بصرية",
@@ -1036,13 +1037,13 @@
       "brandNameLabel": "اسم العلامة",
       "brandNamePlaceholder": "مثال: Your brand",
       "urlLabel": "رابط الموقع الرئيسي",
-      "urlPlaceholder": "brand.com",
+      "urlPlaceholder": "yourbrand.com",
       "igLabel": "معرّف إنستغرام",
       "igOptional": "· اختياري",
-      "igPlaceholder": "@handle",
+      "igPlaceholder": "@yourbrand",
       "sourcesLabel": "المصادر",
       "sourcesOptional": "· اختياري — اسحب أو انقر للرفع",
-      "timing": "تُحفظ المصادر في Brand Core · تختلف مدة المعالجة",
+      "timing": "نحفظ كل ما تشاركه في Brand Core الخاص بك · قد يستغرق ذلك بضع دقائق",
       "filesReady": {
         "plural": {
           "zero": " · {count} ملف جاهز",
@@ -1063,7 +1064,7 @@
       "reading1": "يقرأ Brandolph كل صفحة في موقعك الإلكتروني",
       "reading2": "يرسم فريق التصميم لوحة ألوانك وخطوطك",
       "reading3": "يحوّل Brandolph ما قرأه إلى Brand Core الخاص بك",
-      "reading4": "يودِع المسودّة ليعتمدها مشرف علامتك",
+      "reading4": "نرسل المسودة إلى مدير إبداعي لاعتمادها",
       "compiledTitle": "جهّز Brandolph ملف Brand Core الخاص بك",
       "readingTitle": "يقرأ Brandolph علامتك التجارية",
       "extraction": "الاستخلاص",
@@ -1083,7 +1084,7 @@
         "blurb": "كيف تبدو نبرتك."
       },
       "visual": {
-        "label": "البصري",
+        "label": "المرئيات",
         "blurb": "كيف تبدو."
       },
       "goals": {
@@ -1101,37 +1102,39 @@
     },
     "field": {
       "identity": {
-        "positioning": "التموضع",
-        "category": "الفئة",
-        "founded": "التأسيس",
-        "pillars": "الركائز"
+        "positioning": "ما يميّزك",
+        "category": "ما تعمله",
+        "founded": "متى بدأت",
+        "pillars": "ما تؤمن به"
       },
       "audience": {
-        "primary": "الجمهور الأساسي",
-        "secondary": "الجمهور الثانوي",
-        "tertiary": "الجمهور الثالث",
-        "jtbd": "المهام المطلوب إنجازها"
+        "primary": "العملاء الرئيسيون",
+        "secondary": "عملاء آخرون",
+        "tertiary": "آخرون تريد الوصول إليهم",
+        "jtbd": "ما يحتاجه عملاؤك"
       },
       "voice": {
-        "register": "المستوى اللغوي",
-        "rhythm": "إيقاع الجُمل",
-        "forbidden": "كلمات ممنوعة",
-        "signatures": "لمسات مميّزة"
+        "register": "كيف تبدو",
+        "rhythm": "طريقة كتابتك",
+        "forbidden": "كلمات يجب تجنّبها",
+        "signatures": "عبارات تشبهك"
       },
       "visual": {
-        "palette": "لوحة الألوان",
-        "type": "الخطوط",
-        "imagery": "صوّر هذا",
-        "avoid": "لا هذا أبدًا"
+        "palette": "ألوانك",
+        "type": "خطوطك",
+        "imagery": "أسلوب صورك",
+        "avoid": "ما يجب تجنّبه بصريًا",
+        "logo": "شعارك",
+        "typeScale": "أحجام النص"
       },
       "goals": {
-        "northStar": "النجم القطبي",
-        "q2": "هذا الربع",
-        "q3": "الربع القادم"
+        "northStar": "ما يحرّكك",
+        "q2": "أولوية هذا الربع",
+        "q3": "أولوية الربع القادم"
       },
       "strategic": {
-        "watchouts": "نقاط انتباه",
-        "notList": "ما لستَ عليه"
+        "watchouts": "أمور يجب الانتباه لها",
+        "notList": "ما لست عليه"
       },
       "from": "من {source}",
       "emptyState": "غير متوفر. أضف ما تعرفه أو اتركه فارغاً.",
@@ -1144,18 +1147,23 @@
       "edit": "تحرير",
       "leaveBlank": "اتركه فارغًا",
       "positioning": {
-        "frameOfReference": "السوق والفئة",
-        "competitors": "المنافسون والبدائل",
-        "pointsOfDifference": "الفروق والأدلة",
-        "pointsOfParity": "توقعات الفئة",
-        "researchGaps": "أسئلة للبحث"
+        "frameOfReference": "بمن يقارنونك",
+        "competitors": "المنافسون",
+        "pointsOfDifference": "لماذا يختارونك",
+        "pointsOfParity": "ما تتساوى فيه معهم",
+        "researchGaps": "ما نحتاج إلى معرفته بعد"
+      },
+      "aspirations": {
+        "direction": "إلى أين تتّجه",
+        "notYetTrue": "ما تسعى إليه",
+        "references": "علامات تُعجبك"
       }
     },
     "fieldStatus": {
-      "missing": "غير متوفر",
+      "missing": "يحتاج إلى مدخلاتك",
       "accurate": "مؤكَّد كدقيق",
       "aspirational": "طموح",
-      "inferred": "يحتاج إلى مدخلاتك",
+      "inferred": "أفضل تخمين لدينا",
       "stated": "كلماتك",
       "review": "بحاجة إلى مراجعة"
     },
@@ -1169,11 +1177,11 @@
       "aspirational": "طموح"
     },
     "attestError": {
-      "statements": "أكِّد الإقرارات الثلاثة لتشهد.",
-      "gaps": "لا تزال بعض الحقول المهمّة بحاجة إلى إجابات{fields}. أكمِلها أو علِّمها، ثم اشهد.",
+      "statements": "حدّد الخانات الثلاث للتأكيد.",
+      "gaps": "لا تزال بعض الأسئلة المهمة بحاجة إلى إجابة{fields}. أجب عنها أو تخطَّها، ثم أكّد.",
       "belowScore": "Brand Core الخاص بك عند {score}/100{below}. أكِّد مزيدًا من الحقول أو أضِف مصادر لرفعه.",
       "belowNeeded": "، أقل من الـ{minScore} المطلوبة",
-      "default": "تعذّرت الشهادة الآن — حاول مجددًا."
+      "default": "تعذّر حفظ تأكيدك. حاول مرة أخرى."
     },
     "palette": {
       "namePlaceholder": "اسم اللون"
@@ -1191,7 +1199,7 @@
     "delegate": {
       "title": "تفويض هذا الفصل",
       "desc": "سلّم {chapter} إلى زميل يعرفه أكثر. سيحصل على رابط لتعبئة هذا القسم فقط.",
-      "emailPlaceholder": "teammate@brand.com",
+      "emailPlaceholder": "teammate@yourbrand.com",
       "notePlaceholder": "ملاحظة (اختياري)",
       "sending": "جارٍ الإرسال…",
       "sendInvite": "إرسال الدعوة",
@@ -1209,8 +1217,8 @@
       "noBrand": "لم نجد علامة لمراجعتها.",
       "startDiscovery": "ابدأ الاكتشاف",
       "loading": "جارٍ تحميل مسودّتك…",
-      "certifiedBy": "معتمَد من",
-      "certPending": "يعتمد مشرف علامة كبير هذا Brand Core خلال 24 ساعة. أكِّد المسودّة أدناه لفتح الإحاطة الآن.",
+      "certifiedBy": "اعتمده",
+      "certPending": "سيعتمد مدير إبداعي متمرّس Brand Core هذا خلال 24 ساعة. أكّد المسودة أدناه لتبدأ كتابة الموجزات الآن.",
       "draftEyebrow": "مسودّة Brand Core · راجِعها قبل التوقيع",
       "yourBrand": "علامتك",
       "completion": "الاكتمال"
@@ -1236,7 +1244,7 @@
       "fieldsConfirmed": "حقول مؤكَّدة",
       "inferredToConfirm": "بانتظار المراجعة",
       "gapsWord": "فجوات",
-      "confirmAttest": "أكِّد واشهد"
+      "confirmAttest": "تأكيد"
     },
     "chapterView": {
       "allChapters": "كل الفصول →",
@@ -1246,12 +1254,12 @@
     "attest": {
       "back": "العودة إلى الفصول →",
       "title": "أكِّد ووقِّع Brand Core الخاص بك",
-      "desc": "التوقيع يرقّي هذه المسودّة إلى نسخة Brand Core معتمَدة ويفتح الإحاطة. لا يزال مشرف علامة كبير يراجعها قبل الإنتاج.",
+      "desc": "يحفظ التأكيد هذا الإصدار من Brand Core ويتيح لك بدء الموجزات. ويراجعه مدير إبداعي متمرّس قبل تسليم أي عمل.",
       "confirmed": "مؤكَّدة",
       "inferredToConfirm": "بانتظار المراجعة",
       "gaps": "فجوات",
       "stillOpen": "ما زال مفتوحًا ({count})",
-      "attestation": "الإقرار",
+      "attestation": "تأكيدك",
       "signing": "جارٍ التوقيع…",
       "signActivate": "وقِّع وفعِّل مساحة العلامة",
       "confirmAllThree": "أكِّد الإقرارات الثلاثة للمتابعة."
@@ -1266,58 +1274,58 @@
       "openBrandolph": "افتح Brandolph"
     },
     "selfCert": {
-      "attestedBold": "مُقَرّ ذاتيًا",
-      "attestedRest": "الإحاطة مفتوحة. يبقى الإنتاج مُقفلًا حتى يعتمد مشرف علامتك.",
-      "fillBefore": "أكمِل هذه قبل الاعتماد الذاتي: {fields}",
+      "attestedBold": "أكّدتَه بنفسك",
+      "attestedRest": "يمكنك الآن بدء الموجزات. يُسلَّم العمل بعد أن يعتمده مدير إبداعي.",
+      "fillBefore": "أجب عن هذه قبل التأكيد: {fields}",
       "belowScore": "درجة Brand Core {score} أقل من الـ{minScore} المطلوبة — أضِف مصادر لرفعها.",
-      "eyebrow": "اعتمِد ذاتيًا لبدء الإحاطة",
-      "desc": "أكِّد أن Brand Core دقيق بما يكفي للإحاطة عليه. هذا يفتح الإحاطة الآن؛ ولا يزال مشرف علامة كبير يعتمد قبل الإنتاج.",
+      "eyebrow": "أكّد Brand Core لتبدأ الموجزات",
+      "desc": "تأكّد من أن Brand Core دقيق بما يكفي للعمل عليه. يمكنك بدء الموجزات فورًا، ويعتمده مدير إبداعي متمرّس قبل تسليم أي عمل.",
       "submitting": "جارٍ الإرسال…",
-      "submit": "اعتمِد ذاتيًا وافتح الإحاطة"
+      "submit": "أكّد وابدأ"
     },
     "reasonCode": {
-      "insufficient_evidence": "لا توجد أدلّة كافية للاعتماد",
+      "insufficient_evidence": "نحتاج إلى مزيد من المعلومات قبل الاعتماد",
       "out_of_scope": "خارج نطاق هذه العلامة",
       "brand_mismatch": "لا يطابق العلامة كما نفهمها",
       "inaccurate": "يحتوي على أخطاء",
-      "incomplete": "ناقص جدًا للاعتماد",
-      "low_quality": "لم يبلغ بعد جودة الاعتماد",
-      "aspirational_unmarked": "ادّعاءات طموحة غير مفصولة عن الحقائق",
+      "incomplete": "لا تزال أجزاء مهمة ناقصة",
+      "low_quality": "يحتاج إلى بعض العمل قبل اعتماده",
+      "aspirational_unmarked": "بعض الأهداف تبدو كأنها حقائق. حدّد ما لا يزال منها هدفًا.",
       "needs_sources": "يحتاج مزيدًا من المصادر",
       "duplicate": "نسخة مكرّرة من Brand Core موجود"
     },
     "steward": {
-      "defaultName": "مشرف علامتك",
-      "fromSteward": "من مشرفك",
-      "returnHeading": "يحتاج مشرفك بعض التغييرات",
+      "defaultName": "مديرك الإبداعي",
+      "fromSteward": "من مديرك الإبداعي",
+      "returnHeading": "طلب مديرك الإبداعي بعض التعديلات",
       "returnCta": "أجرِ هذه التغييرات",
-      "rejectHeading": "أعاد مشرفك هذا Brand Core",
+      "rejectHeading": "أعاد مديرك الإبداعي Brand Core هذا",
       "rejectCta": "حرِّر وأعِد الإرسال",
-      "conditionsHeading": "معتمَد بشروط"
+      "conditionsHeading": "معتمَد مع بعض الملاحظات"
     },
     "diff": {
       "title": {
         "plural": {
           "zero": "ما غيّره مشرفك · {count} حقل",
-          "one": "ما غيّره مشرفك · حقل واحد",
+          "one": "ما غيّره مديرك الإبداعي · {count} عنصر",
           "two": "ما غيّره مشرفك · حقلان",
           "few": "ما غيّره مشرفك · {count} حقول",
           "many": "ما غيّره مشرفك · {count} حقلًا",
-          "other": "ما غيّره مشرفك · {count} حقل"
+          "other": "ما غيّره مديرك الإبداعي · {count} عناصر"
         }
       },
       "hide": "إخفاء",
       "show": "عرض"
     },
     "bio": {
-      "savedVersion": "حُفظ · Brand Core v{version}. سيعيد المشرف الاعتماد.",
+      "savedVersion": "حُفظ بصفته Brand Core الإصدار {version}. سيراجعه مديرك الإبداعي مجددًا.",
       "reviewInProgress": "هناك مراجعة بشرية جارية بالفعل.",
-      "sentForReview": "أُرسل إلى مشرف علامتك للمراجعة.",
+      "sentForReview": "أُرسل إلى مديرك الإبداعي.",
       "couldntRequestReview": "تعذّر طلب المراجعة: {error}",
       "added": "أضفنا «{ref}». سيقرؤه Brandolph في المرة القادمة التي يحدّث فيها Brand Core.",
       "couldntAdd": "تعذّرت الإضافة: {error}",
-      "reviewingThis": "يراجع مشرف علامتك هذا Brand Core",
-      "awaitingCert": "بانتظار الاعتماد من مشرف علامتك",
+      "reviewingThis": "يراجع مديرك الإبداعي Brand Core هذا",
+      "awaitingCert": "بانتظار اعتماد مديرك الإبداعي",
       "noBioYet": "لا يوجد Brand Core بعد — اكتب رابطًا في الاكتشاف لاستخلاص واحد",
       "versionScore": "Brand Core v{version} · الدرجة {score}/100",
       "flaggedAreas": {
@@ -1334,7 +1342,7 @@
       "within24h": "خلال 24 ساعة",
       "eyebrow": "Brand Core",
       "of100": "من 100",
-      "certifiedDate": "معتمَد {date}",
+      "certifiedDate": "اعتُمد في {date}",
       "uncertified": "غير معتمَد",
       "versionTitle": "نسخة Brand Core {version}",
       "feedBrandolph": "أعطِ Brandolph المزيد",
@@ -1343,21 +1351,25 @@
       "saveChanges": "حفظ التغييرات",
       "rerunDiscovery": "إعادة تشغيل الاكتشاف",
       "reviewInProgressTitle": "هناك مراجعة بشرية جارية بالفعل",
-      "requestReviewTitle": "أرسِل هذا Brand Core إلى مشرف علامتك لمراجعة بشرية — دون الحاجة إلى تحرير",
+      "requestReviewTitle": "اطلب من مديرك الإبداعي مراجعة Brand Core هذا. لا حاجة إلى أي تعديل.",
       "inReviewShort": "قيد المراجعة…",
       "sending": "جارٍ الإرسال…",
       "requestHumanReview": "طلب مراجعة بشرية",
-      "editingBanner": "تحرير Brand Core — الحفظ ينشئ نسخة جديدة سيعيد مشرف علامتك اعتمادها.",
+      "editingBanner": "أنت تعدّل Brand Core. يُنشئ الحفظ إصدارًا جديدًا يراجعه مديرك الإبداعي.",
       "noCanon": "لا مرجعية بعد.",
       "noCanonDesc": "Brand Core هو المرجع لكل ما نصنعه. شارك موقعك الإلكتروني أو الصق ما لديك. يكتب Brandolph المسودة في دقيقة تقريبًا، ثم يعتمدها مدير إبداعي متمرّس.",
-      "startDiscovery": "ابدأ الاكتشاف"
+      "startDiscovery": "ابدأ الاكتشاف",
+      "openBook": "افتح دليل العلامة (Brand Book)",
+      "editProfile": "تعديل الملف",
+      "addSources": "أضف مصادر",
+      "certify": "اعتماد العلامة"
     },
     "tab": {
       "identity": "الهوية",
       "audience": "الجمهور",
       "competitive": "المنافسة",
       "voice": "الصوت",
-      "visual": "البصري",
+      "visual": "المرئيات",
       "goals": "الأهداف",
       "strategic": "الاستراتيجي",
       "sources": "المصادر"
@@ -1379,12 +1391,12 @@
     "table": {
       "field": "الحقل",
       "whatWeKnow": "ما نعرفه",
-      "confidence": "الثقة",
+      "confidence": "مدى تأكّدنا",
       "confidenceTitle": "مدى تأكّد Brandolph. مؤكَّد: أخبرته أو ورد بوضوح. مرجَّح: استنتجه. يحتاج إلى مدخلاتك: لم يجده.",
       "lowHigh": "منخفضة → عالية"
     },
     "competitive": {
-      "placeholder": "تأتي خريطة المنافسة من a32 (اختصاصي خريطة المنافسين) — تُوصَل في مرحلة لاحقة. لا يستخلص مجمِّع Brand Core المنافسين اليوم."
+      "placeholder": "سيظهر منافسوك هنا قريبًا."
     },
     "editPrimitive": {
       "chipAdd": "+ إضافة",
@@ -1397,21 +1409,21 @@
       "addListField": "إضافة حقل قائمة"
     },
     "bioField": {
-      "positioning": "التموضع",
-      "category": "الفئة",
-      "founded": "التأسيس",
-      "pillars": "الركائز",
-      "primary": "الأساسي",
-      "secondary": "الثانوي",
-      "tertiary": "الثالث",
-      "jtbd": "المهام المطلوب إنجازها",
-      "register": "المستوى اللغوي",
-      "forbidden": "ممنوعة",
-      "rhythm": "الإيقاع",
-      "signatures": "التوقيعات",
-      "northStar": "النجم القطبي",
-      "thisQuarter": "هذا الربع",
-      "nextQuarter": "الربع القادم"
+      "positioning": "ما يميّزك",
+      "category": "ما تعمله",
+      "founded": "متى بدأت",
+      "pillars": "ما تؤمن به",
+      "primary": "العملاء الرئيسيون",
+      "secondary": "عملاء آخرون",
+      "tertiary": "آخرون تريد الوصول إليهم",
+      "jtbd": "ما يحتاجه عملاؤك",
+      "register": "كيف تبدو",
+      "forbidden": "كلمات يجب تجنّبها",
+      "rhythm": "طريقة كتابتك",
+      "signatures": "عبارات تشبهك",
+      "northStar": "ما يحرّكك",
+      "thisQuarter": "أولوية هذا الربع",
+      "nextQuarter": "أولوية الربع القادم"
     },
     "visual": {
       "paletteHead": "لوحة الألوان",
@@ -1421,8 +1433,8 @@
       "imageryHead": "الصور",
       "imagerySource": "تحليل الصور · 90 منشورًا",
       "namePlaceholder": "الاسم",
-      "wcagPlaceholder": "WCAG",
-      "wcag": "WCAG {value}",
+      "wcagPlaceholder": "التباين",
+      "wcag": "التباين {value}",
       "removeColour": "إزالة اللون",
       "familyPlaceholder": "العائلة",
       "sizePlaceholder": "الحجم",
@@ -1456,7 +1468,7 @@
       "repullSocial": "إعادة سحب الشبكات",
       "addCompetitor": "إضافة منافس",
       "ledger": "{sources} مصادر · {signals} إشارة مُتعلَّمة",
-      "competitorLedger": "مراجع المنافسين · ليست أدلة على العلامة · {count}",
+      "competitorLedger": "المنافسون الذين ذكرتهم · {count}",
       "competitorTag": "منافس",
       "compounds": "كل مصدر يراكم Brand Core.",
       "signals": "{count} إشارة",
@@ -1465,40 +1477,40 @@
       "reExtract": "إعادة الاستخلاص"
     },
     "certification": {
-      "open": "مراجعة وتأكيد Brand Core",
-      "pending": "احفظ التعديلات وادمج المصادر الجديدة قبل التأكيد.",
-      "kicker": "إقرار العميل",
+      "open": "راجِع وأكّد",
+      "pending": "احفظ تغييراتك وأضف المصادر الجديدة قبل التأكيد.",
+      "kicker": "تأكيدك",
       "review": "راجع Brand Core",
-      "confirm": "أكد إقرارك",
+      "confirm": "تأكيد",
       "reviewStep": "مراجعة",
       "confirmStep": "تأكيد",
-      "reviewText": "اقرأ كل قسم ومصادره ومستوى الثقة وأكد مراجعته. اترك الحقائق المجهولة واضحة وأضف أدلة للمعلومات المطلوبة الناقصة.",
-      "confirmText": "أنت تؤكد هذه النسخة المحددة كأساس للموجزات. أكد كل إقرار بنفسك.",
+      "reviewText": "اقرأ كل قسم ومصدره. حدّده بعد مراجعته. وإذا كان هناك شيء مهم ناقص، فأضفه قبل المتابعة.",
+      "confirmText": "أنت تؤكّد هذا الإصدار من Brand Core أساسًا لموجزاتك. يُرجى التحقق من كل نقطة بنفسك.",
       "sections": "أقسام Brand Core",
       "reviewed": "راجعت {section} بما يشمل المصادر والمعلومات غير المؤكدة.",
       "issues": "{count} عناصر تتطلب الانتباه",
-      "issuesText": "هذه نواقص أو تفسيرات منخفضة الثقة وليست حقائق مؤكدة. راجعها قبل التأكيد. النواقص المطلوبة تمنع التأكيد.",
-      "missing": "أدلة ناقصة",
+      "issuesText": "هذه فجوات أو أفضل تخميناتنا، لا حقائق مؤكَّدة. راجعها قبل التأكيد. لن تتمكّن من التأكيد قبل الإجابة عن المطلوب منها.",
+      "missing": "يحتاج إلى مدخلاتك",
       "verify": "تحقق من المصادر",
-      "account": "مسجل بحسابك",
+      "account": "حُفظ في حسابك",
       "signedIn": "المستخدم المتصل",
       "reviewCount": "تمت مراجعة {count} من {total} أقسام",
       "declarations": "إقراراتك",
-      "consequence": "يسجل تأكيدك ويفتح الموجزات لهذه النسخة. يبقى الإنتاج بحاجة إلى اعتماد Brand Steward. يؤدي تعديل Brand Core إلى نسخة جديدة تتطلب تأكيداً جديداً.",
+      "consequence": "يحفظ هذا تأكيدك ويتيح لك الموجزات من هذا الإصدار. يعتمده مدير إبداعي قبل تسليم أي عمل. وإذا عدّلت Brand Core لاحقًا، فستؤكّد الإصدار الجديد.",
       "continue": "متابعة · {count}/{total}",
       "submit": "تأكيد Brand Core وفتح الموجزات",
       "stale": "تغير Brand Core أثناء المراجعة. أغلق الحوار وحدّث الصفحة لمراجعة أحدث نسخة.",
-      "success": "تم تسجيل الإقرار",
-      "successText": "هذه النسخة جاهزة للموجزات. ما زال الإنتاج يتطلب اعتماد Brand Steward.",
-      "recorded": "وقت التسجيل",
+      "success": "تمّ التأكيد",
+      "successText": "يمكنك الآن بدء الموجزات من هذا الإصدار من Brand Core. يعتمده مدير إبداعي قبل تسليم أي عمل.",
+      "recorded": "أُكّد في",
       "done": "العودة إلى Brand Core",
-      "close": "إغلاق التأكيد",
+      "close": "إغلاق",
       "acceptChanges": "مراجعة تغييرات المدير الإبداعي",
-      "acceptedText": "تم قبول تعديلات المدير الإبداعي لهذه النسخة من Brand Core. يمكن متابعة الإنتاج ما دامت الشهادة سارية.",
+      "acceptedText": "قبلنا تغييرات المدير الإبداعي على هذا الإصدار. يمكن مواصلة العمل.",
       "acceptConsequence": "يسجّل القبول موافقتك على تعديلات المدير الإبداعي لهذه النسخة المحددة من Brand Core.",
       "queuePending": "تم حفظ موافقتك. تعيين المدير الإبداعي قيد الانتظار؛ يظل الإنتاج مقفلاً.",
-      "scoreLine": "الدرجة {score} من 100. يتطلب التصديق الذاتي {minScore}.",
-      "belowFloor": "التصديق الذاتي مغلق تحت {minScore}. درجة هذا Brand Core هي {score}.",
+      "scoreLine": "اكتمل Brand Core بنسبة {score}%. يمكنك تأكيده بدءًا من {minScore}%.",
+      "belowFloor": "اكتمل Brand Core بنسبة {score}%. أضف المزيد لتصل إلى {minScore}% وتؤكّده.",
       "dragHeading": "هذه الأقسام تخفض الدرجة.",
       "sectionLift": "{section} · حوالي {points} نقطة إذا أكملته",
       "addAnswers": "أضف إجابة ومصدرًا لـ {fields}.",
@@ -1512,8 +1524,8 @@
       "pointsOfDifference": "الفروق والأدلة",
       "pointsOfParity": "توقعات الفئة",
       "researchGaps": "أسئلة للبحث",
-      "emptyCompetitors": "لم تُسجّل منافسين بعد. أضف الأسماء أو البدائل التي يفكر فيها العملاء فعلاً؛ واترك التفاصيل المجهولة فارغة.",
-      "emptyDifferences": "لم تُسجّل فروق مدعومة بعد. حدّد ادعاءً واضحًا والدليل اللازم لاستخدامه.",
+      "emptyCompetitors": "لا يوجد منافسون بعد. أضف الأسماء أو الخيارات التي يقارن بينها عملاؤك فعلًا. اترك فارغًا ما لا تعرفه.",
+      "emptyDifferences": "لا توجد اختلافات بعد. اكتب ما يميّزك وكيف يمكنك إثباته.",
       "newCompetitor": "منافس أو بديل جديد",
       "newDifference": "فرق جديد",
       "remove": "إزالة الإدخال",
@@ -1526,11 +1538,11 @@
       "difference": "فرقنا ذي الصلة",
       "source": "رابط المصدر أو مرجع المستند",
       "sourceDate": "تاريخ المراجعة",
-      "claim": "الادعاء المحدد",
-      "proof": "الدليل أو الأدلة الداعمة",
+      "claim": "ما تقوله",
+      "proof": "كيف يمكنك إثباته",
       "rationale": "لماذا يهم العميل",
       "notProvided": "غير مذكور",
-      "clientInput": "سياق عمل. لا يعني وجود مرجع أنه قد قُرئ أو تم التحقق منه بشكل مستقل. راجع الأدلة قبل استخدام ادعاء مقارن.",
+      "clientInput": "للسياق فقط. لم نتحقّق منها بعد، فتحقّق منها قبل أن تقارن نفسك بأحد.",
       "needsProof": "الدليل مفقود. يجب ألا يُقدّم هذا الفرق كحقيقة ثابتة.",
       "marketPrompt": "ما السوق وقرار الشراء اللذان نقارنهما؟",
       "onePerLine": "عنصر واحد في كل سطر",
@@ -1539,10 +1551,10 @@
       "status_quo": "النهج الحالي / عدم اتخاذ إجراء",
       "unknown": "غير مصنّف",
       "intakeTitle": "المنافسون والبدائل (اختياري)",
-      "intakeHelp": "مع من يقارنك العملاء؟ أضف البدائل غير المباشرة أو عدم اتخاذ إجراء. يمكنك إضافة الأدلة أثناء المراجعة.",
+      "intakeHelp": "بمن يقارنك العملاء؟ أضف الخيارات الأخرى، أو عدم فعل أي شيء. يمكنك إضافة الإثبات لاحقًا.",
       "manualResume": "بدء مسودة يدوية أو استئنافها",
       "type": "نوع البديل",
-      "draftNotice": "هذه مسودة عمل. التغييرات ليست جزءاً من Brand Core المعتمد حتى تتم مراجعتها وترقيتها.",
+      "draftNotice": "هذه مسودة. تدخل تغييراتك في Brand Core بعد مراجعتها.",
       "unspecified": "نوع غير محدد"
     },
     "sourcesIntake": {
@@ -1563,7 +1575,7 @@
     "intake": {
       "kicker": "اكتشاف العلامة",
       "title": "ابدأ بالمصادر.",
-      "lead": "شارك موقع علامتك والمراجع المهمة. سنقرأ الأدلة ونبني Brand Core ثم نعرضه عليك للمراجعة.",
+      "lead": "شارك موقعك الإلكتروني وكل ما يهمّ. سنقرؤه ونبني Brand Core ونعيده إليك لتراجعه.",
       "brand": "علامتك",
       "brandHelp": "الموقع نقطة بداية مفيدة. يمكنك أيضاً استخدام المستندات.",
       "namePlaceholder": "اسم العلامة",
@@ -1588,15 +1600,15 @@
       "outputTitle": "سيجمع Brand Core",
       "outputBrand": "التموضع والجمهور والصوت",
       "outputVisual": "الهوية البصرية والاتجاه المطلوب",
-      "outputMarket": "السياق التنافسي ونواقص الأدلة",
+      "outputMarket": "المنافسون وما لا يزال ناقصًا",
       "currentHelp": "صفحاتك وإرشاداتك وأمثلة أعمالك.",
       "aspirationHelp": "مراجع تعجبك. أخبرنا بما نتعلمه منها.",
       "testDetails": "تفاصيل التجربة المحلية",
       "visualRead": "القراءة البصرية"
     },
     "tour": {
-      "viewerText": "تم إنشاء هذا القسم من مصادرك. راجع الأدلة والثقة واترك المعلومات الناقصة واضحة. لحل النواقص أضف أدلة في المصادر وحدّث Brand Core؛ لا تحتاج إلى كتابته من الصفر.",
-      "sourceText": "أضف رابطاً عاماً أو ارفع وثيقة للعلامة. يظهر خطأ الرفع بجانب هذا التحكم. يجب دمج الأدلة الجديدة عبر تحديث Brand Core قبل طلب المراجعة البشرية.",
+      "viewerText": "بنينا هذا القسم مما شاركته. يُظهر كل عنصر مصدره. إذا كان هناك شيء ناقص، فأضف مصدرًا وسنحدّثه. لا تحتاج إلى كتابته بنفسك.",
+      "sourceText": "أضف رابطًا أو ارفع مستندًا للعلامة. ثم اضغط «تحديث Brand Core» قبل طلب المراجعة.",
       "label": "دليل الاكتشاف",
       "help": "عرض الدليل",
       "step": "الخطوة {current} من {total}",
@@ -1605,7 +1617,7 @@
       "next": "التالي",
       "done": "فهمت",
       "brandTitle": "ابدأ بمصادر علامتك",
-      "brandText": "أضف الموقع أو المستندات إذا لم يوجد موقع. أدخل اسم العلامة الجديدة. أنت تقدم الأدلة والنظام يبني Brand Core.",
+      "brandText": "أضف موقعك الإلكتروني، أو مستندات إن لم يكن لديك موقع. لعلامة جديدة، اكتب اسمها فقط. أنت تشارك ونحن نكتب.",
       "referencesTitle": "حدّد دور كل مرجع",
       "referencesText": "أضف رابطاً واختر العلامة الحالية أو الاتجاه المطلوب أو السياق التنافسي. اشرح ما يهم: الخطوط أو الصور أو النبرة أو التموضع. لا تصبح حقائق العلامات المرجعية حقائق علامتك.",
       "filesTitle": "أضف الملفات الداعمة",
@@ -1613,8 +1625,8 @@
       "generateTitle": "أنشئ ثم راجع",
       "generateText": "اختر إنشاء Brand Core بعد تجهيز المصادر. تُرفع الملفات أولاً ولا يبدأ الاكتشاف حتى ينجح الرفع. قد يستغرق عدة دقائق. ستراجع النتيجة قبل تأكيدها.",
       "reviewTitle": "راجع Brand Core الذي تم إنشاؤه",
-      "reviewText": "افتح كل قسم لفحص التفسير والأدلة. صحّح الأخطاء أو أضف مصدراً للمعلومات الناقصة. اترك الحقائق غير المعروفة واضحة.",
-      "chapterText": "راجع القيم مع المصادر. صحّح التفسير فقط بالدليل واترك النواقص واضحة. علّم الحقائق المدعومة كدقيقة والتوجهات المطلوبة كطموحة. عد إلى الفصول عند الانتهاء.",
+      "reviewText": "افتح كل قسم لترى ما وجدناه ومصدره. صحّح أي خطأ، أو أضف مصدرًا لما هو ناقص. وإن كنت لا تعرف شيئًا، فاتركه فارغًا.",
+      "chapterText": "قارن ما كتبناه بما تعرفه. حدّد الحقائق بـ«صحيح» والخطط بـ«هدف». اترك المجهول فارغًا. عُد إلى كل الأقسام عند الانتهاء.",
       "confirmTitle": "أكد ما تستطيع دعمه فقط",
       "confirmText": "راجع الإقرارات. أكد Brand Core إذا كنت مخوّلاً ويمثل العلامة ويفصل التوجهات المطلوبة. يمكنك الحفظ والعودة لاحقاً."
     },
@@ -1629,8 +1641,8 @@
       "reconnecting": "تعذّر التحقق من النتيجة الآن. نعيد الاتصال تلقائياً؛ مصادرك ما زالت محفوظة.",
       "stage": {
         "scrape": "قراءة مصادر العلامة",
-        "visual": "قراءة الأدلة البصرية",
-        "read": "تنظيم الأدلة",
+        "visual": "نطّلع على عناصرك البصرية",
+        "read": "نرتّب ما وجدناه",
         "research": "بحث السياق التنافسي",
         "synthesize": "تفسير وإنشاء Brand Core",
         "save": "حفظ النسخة للمراجعة"
@@ -1645,18 +1657,70 @@
     },
     "integrity": {
       "unavailable": "Brand Core غير متاح",
-      "preserved": "لن يُعرض محتوى Brand Core أو إجراءات التصديق حتى يتم التحقق من هوية العلامة ومصادرها.",
+      "preserved": "سنعرض Brand Core بعد مطابقته مع العلامة الصحيحة.",
       "retry": "تحقق مجددًا",
       "sourcesFor": "مصادر {name}. تحتاج العلامة الأخرى إلى سجل خاص بها."
     },
     "reviewGate": {
       "waiting": "بانتظار: {reasons}",
-      "score": "الثقة: {score}/{minScore}. ستُطلب مراجعة المدير الإبداعي تلقائياً عند اجتياز هذه الفحوصات.",
+      "score": "اكتمل Brand Core بنسبة {score}% (المطلوب {minScore}%). سنرسله تلقائيًا إلى مدير إبداعي عندما يصبح جاهزًا.",
       "LOGO_RIGHTS_UNCONFIRMED": "تأكيد حقوق استخدام الشعار",
       "LOGO_REQUIRED": "إضافة شعار معتمد",
       "PRIMARY_COLOUR_REQUIRED": "اختيار لون أساسي",
       "DISPLAY_FONT_REQUIRED": "إضافة خط عناوين مرخص",
-      "BELOW_MIN_SCORE": "رفع الثقة إلى {minScore}"
+      "BELOW_MIN_SCORE": "الوصول إلى {minScore}%"
+    },
+    "question": {
+      "identity": {
+        "positioning": "ما الذي يميّزك، في جملة واحدة؟",
+        "category": "ما نوع نشاطك التجاري؟",
+        "founded": "متى بدأت؟",
+        "pillars": "ما الأمور الثلاثة التي تتمسّك بها دائمًا؟"
+      },
+      "audience": {
+        "primary": "من هو عميلك الرئيسي؟",
+        "secondary": "من يشتري منك أيضًا؟",
+        "tertiary": "هل هناك من تريد الوصول إليه أيضًا؟",
+        "jtbd": "ما الذي يسعى عملاؤك إلى تحقيقه حين يختارونك؟"
+      },
+      "voice": {
+        "register": "كيف تريد أن تبدو؟ مثلًا: دافئ أو رسمي أو مرح.",
+        "forbidden": "ما الكلمات التي يجب ألا نستخدمها أبدًا؟",
+        "rhythm": "جمل قصيرة ومباشرة، أم طويلة ومتدفّقة؟",
+        "signatures": "ما العبارات التي تشبهك؟"
+      },
+      "goals": {
+        "northStar": "ما هدفك الأكبر على المدى الطويل؟",
+        "q2": "ما الأهم هذا الربع؟",
+        "q3": "وماذا عن الربع القادم؟"
+      },
+      "strategic": {
+        "watchouts": "ما الذي يجب أن نحذر منه؟",
+        "notList": "ما الذي لست عليه بالتأكيد؟"
+      },
+      "aspirations": {
+        "direction": "إلى أين تريد أن تأخذ علامتك؟",
+        "notYetTrue": "ما الذي تريده أن يتحقّق ولم يتحقّق بعد؟",
+        "references": "ما العلامات التي تُعجبك، ولماذا؟"
+      },
+      "positioning": {
+        "frameOfReference": "بمن يقارنك العملاء؟",
+        "competitors": "من هم منافسوك؟",
+        "pointsOfDifference": "لماذا يختارك العملاء بدلًا منهم؟",
+        "pointsOfParity": "في ماذا يجب أن تكون بمستواهم؟",
+        "researchGaps": "ما الذي لا نعرفه بعد عن سوقك؟"
+      },
+      "visual": {
+        "logo": "ارفع شعارك.",
+        "typeScale": "ما أحجام عناوينك ونصوصك؟",
+        "palette": "ما ألوان علامتك؟",
+        "type": "ما الخطوط التي تستخدمها؟",
+        "imagery": "كيف تبدو صورك ورسوماتك؟",
+        "avoid": "كيف يجب ألا تبدو عناصرك البصرية أبدًا؟"
+      }
+    },
+    "foundation": {
+      "incomplete": "أضف شعارك ولونك الرئيسي وخط العناوين لإكمال أساسيات علامتك التجارية"
     }
   },
   "floater": {
@@ -1700,11 +1764,11 @@
   },
   "ui": {
     "brandolphThinking": "يفكّر Brandolph…",
-    "specialist": "مختص",
+    "specialist": "الخبير",
     "comingSoon": "قريباً",
     "composedBy": "من إنشاء",
     "bioVersion": "Brand Core الإصدار {version}",
-    "certifiedBy": "معتمد من",
+    "certifiedBy": "اعتمده",
     "routedVia": "موجَّه عبر",
     "run": "تشغيل",
     "debugAttribution": "إسناد التصحيح",
@@ -1727,23 +1791,23 @@
     }
   },
   "brandBook": {
-    "title": "دليل العلامة",
+    "title": "دليل العلامة (Brand Book)",
     "loading": "جارٍ قراءة Brand Core…",
     "noBio": "أنشئ Brand Core من المصادر لعرض دليل العلامة.",
     "startDiscovery": "بدء الاكتشاف",
-    "certified": "معتمد بواسطة {name} · Brand Core v{version}",
+    "certified": "اعتمده {name} · Brand Core الإصدار {version}",
     "director": "المدير الإبداعي",
-    "pending": "مستنتج — بانتظار المراجعة",
-    "certifiedLabel": "معتمد",
+    "pending": "أفضل تخمين لدينا · يُرجى التحقق",
+    "certifiedLabel": "معتمَد",
     "back": "العودة إلى Brand Core",
     "sections": "أقسام دليل العلامة",
-    "provenance": "مصادر الأدلة",
-    "sourceGap": "الأدلة تحتاج إلى مراجعة",
+    "provenance": "من أين جاء هذا",
+    "sourceGap": "يُرجى التحقق من مصدر هذا",
     "replayUnavailable": "هذا العرض المحفوظ غير متاح.",
     "replayLabel": "تشغيل محفوظ · للقراءة فقط",
     "tourTitle": "اقرأ العلامة ككل",
-    "tourText": "يعرض كل قسم نفس Brand Core. تظهر المصادر أسفل كل جزء، والمحتوى غير المعتمد يحتاج إلى مراجعة.",
-    "visualTourTitle": "تحقق من الأدلة البصرية",
+    "tourText": "يعرض كل قسم جزءًا من Brand Core. ترى تحت كل قسم مصدره. وكل ما لم يُعتمد بعد يظهر بعلامة.",
+    "visualTourTitle": "راجِع عناصرك البصرية",
     "visualTourText": "الألوان والخطوط مأخوذة من المصادر. أدوار الألوان ووصف الصور تحتاج إلى مراجعة بشرية.",
     "section": {
       "identity": "الجوهر",
@@ -1796,6 +1860,19 @@
     "cd_edit": "غيّره مديرك الإبداعي",
     "confirmed": "مؤكَّد",
     "likely": "مرجَّح",
-    "needsInput": "يحتاج إلى مدخلاتك"
-  }
+    "needsInput": "يحتاج إلى مدخلاتك",
+    "focusGuess": "تحقّق من {label}. هذا أفضل تخمين لدينا.",
+    "focusEmpty": "{label} فارغ. أضفه قبل الاعتماد.",
+    "whyHigh": "يُستخدم في كل الأعمال.",
+    "whyMid": "يُستخدم في كثير من الأعمال.",
+    "whyLow": "يُستخدم في بعض الأعمال. مراجعة سريعة."
+  },
+  "strategic": {
+    "gaps": "من هو عميلك الرئيسي؟ لم نجد هذا بعد."
+  },
+  "evidence": "من أين جاء هذا",
+  "confidence": {
+    "source": "من إجاباتك / غيّره مديرك الإبداعي"
+  },
+  "reviewFieldLabel": "ما يحتاجه عملاؤك / ما يحرّكك / كيف تبدو / ما تتساوى فيه مع المنافسين"
 }

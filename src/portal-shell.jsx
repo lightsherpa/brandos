@@ -61,7 +61,7 @@ const TEAM_ACCOUNT_ROUTE = { id:"team-account", labelKey:"nav.account", icon:"se
 /* Admin-only routes appended below the client nav for users with
    role:'admin'. Keeps the admin's client view intact; adds tools. */
 const ADMIN_ROUTES = [
-  { id:"admin-access",    labelKey:"People & access",       icon:"team",     sectionKey:"section.admin" },
+  { id:"admin-access",    labelKey:"People and access",       icon:"team",     sectionKey:"section.admin" },
   { id:"admin-specs",     labelKey:"admin.specs",           icon:"settings", sectionKey:"section.admin" },
   { id:"admin-languages", labelKey:"admin.languages",       icon:"settings", sectionKey:"section.admin" },
   { id:"admin-brandolph", labelKey:"admin.brandolphMemory", icon:"sparkles", sectionKey:"section.admin" },
@@ -72,7 +72,7 @@ const SUPER_ADMIN_ROUTES = [
 const ROUTE_PERMISSION = { "admin-access":"platform.people.manage", "admin-specs":"platform.specs.manage", "admin-languages":"platform.languages.manage", "admin-brandolph":"platform.memory.read", "admin-opex":"opex.read" };
 const ADMIN_ACCOUNT_ROUTE = { id:"admin-account", labelKey:"nav.account", icon:"settings", sectionKey:null };
 const ADMIN_ACCOUNT_SECTIONS = [
-  { id:"access", routeId:"admin-access", label:"People & access", icon:"team" },
+  { id:"access", routeId:"admin-access", label:"People and access", icon:"team" },
   { id:"specs", routeId:"admin-specs", labelKey:"admin.specs", icon:"settings" },
   { id:"languages", routeId:"admin-languages", labelKey:"admin.languages", icon:"settings" },
   { id:"brandolph", routeId:"admin-brandolph", labelKey:"admin.brandolphMemory", icon:"sparkles" },
@@ -198,7 +198,7 @@ function useBrandList() {
 }
 
 /* Workspace tier — drives the brand allowance gate on the switcher's
-   "Add brand" action and the highlighted "Current plan" on the upgrade
+   "Add brand" action and the highlighted "Your plan" on the upgrade
    page. Fetched once; defaults to "00" (Creek) when absent. */
 function useWorkspaceTier() {
   const [tier, setTier] = useShellState("00");
@@ -623,7 +623,7 @@ function TopBar({ portal, route, brandName, go }) {
     "team-review":[reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : "Review desk",      t("section.teamPortal")],
     team:        [t("team.jobQueue"),   t("section.teamPortal")],
     "team-craft":[t("team.craftPolish"), t("section.teamPortal")],
-    "certify": ["Certify", "Creative Director"],
+    "certify": ["Certify", "Creative director"],
     "team-job":  [t("title.activeJob"), t("section.teamPortal")],
     "team-capacity":[t("title.capacitySla"), t("section.teamPortal")],
     "team-clients":[t("title.clientRoster"), t("section.teamPortal")],

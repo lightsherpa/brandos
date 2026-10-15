@@ -26,7 +26,7 @@ function CraftMarketplace({ go, tier }) {
     <div style={{padding:"24px 36px 60px"}}>
       <PageHeader
         eyebrow="L3 · The human creative team"
-        title="Hand the work that needs hands."
+        title="Hand over the work that needs a human touch."
         sub={t("craft.headerSub")}
         right={<>
           <span style={{fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-dim)", letterSpacing:"0.06em"}}>
@@ -68,7 +68,7 @@ function CraftMarketplace({ go, tier }) {
           <span style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 24, color:"var(--c-faint)"}}>—</span>
           <div style={{fontSize: 13, color:"var(--c-ink)", fontWeight: 500}}>Quote on request</div>
           <div style={{fontSize: 12, color:"var(--c-dim)", textAlign:"center", lineHeight: 1.4}}>{t("craft.customBody")}</div>
-          <button className="btn btn--link" style={{fontSize: 12}}>Start a custom request →</button>
+          <button className="btn btn--link" style={{fontSize: 12}}>Ask for something custom →</button>
         </div>
       </div>
 
@@ -157,7 +157,7 @@ function CraftModal({ pack, onClose }) {
       <div style={{padding: 14, background:"var(--yellow-50)", borderRadius: 10, border:"1px solid var(--yellow-200)", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
         <div>
           <div style={{fontSize: 13, color:"var(--c-ink)", fontWeight: 500}}>Total · {pack.cr} cr</div>
-          <div style={{fontSize: 12, color:"var(--c-dim)"}}>Deducted on submit · refundable until job accepted by team</div>
+          <div style={{fontSize: 12, color:"var(--c-dim)"}}>Taken from your credits when you send it. Refunded if you cancel before the team starts.</div>
         </div>
         <span className="credit credit--pending" style={{fontSize: 16}}>−{pack.cr} cr</span>
       </div>
@@ -203,7 +203,7 @@ function CreditsLedger() {
       <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap: 28, marginBottom: 30, alignItems:"start"}}>
         {/* Big balance */}
         <div>
-          <div className="eyebrow" style={{marginBottom: 10}}>Available credits · this cycle</div>
+          <div className="eyebrow" style={{marginBottom: 10}}>Credits available this month</div>
           <div style={{display:"flex", alignItems:"baseline", gap: 14}}>
             <span style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontWeight: 500, fontSize: 112, lineHeight: 1, color:"var(--c-ink)", letterSpacing:"-0.02em"}}>
               <Counter to={c.balance} />
@@ -222,7 +222,7 @@ function CreditsLedger() {
 
         {/* Split */}
         <div className="card" style={{padding: 22}}>
-          <div className="eyebrow" style={{marginBottom: 14}}>Spent this cycle · by layer</div>
+          <div className="eyebrow" style={{marginBottom: 14}}>Used this month, by type</div>
           <div style={{display:"flex", height: 16, borderRadius: 4, overflow:"hidden", border:"1px solid var(--c-line)", marginBottom: 16}}>
             {c.split.filter(s => s.credits > 0).map((s, i) => (
               <div key={i} style={{flex: s.pct || 1, background: s.color}} title={`${s.kind} · ${s.credits}cr`} />
@@ -304,12 +304,12 @@ function CreditsLedger() {
       <div style={{marginTop: 30, paddingTop: 24, borderTop: "1px solid var(--c-line)", display:"grid", gridTemplateColumns:"1fr 1fr", gap: 20}}>
         <div>
           <div className="eyebrow" style={{marginBottom: 6}}>Invoices · Stripe</div>
-          <p style={{fontSize: 13, color:"var(--c-dim)", margin: 0, marginBottom: 8, lineHeight: 1.5}}>Your invoices live in Stripe. We'll email a copy each cycle.</p>
-          <button className="btn btn--link" style={{fontSize: 12}}>Open Stripe portal →</button>
+          <p style={{fontSize: 13, color:"var(--c-dim)", margin: 0, marginBottom: 8, lineHeight: 1.5}}>Your invoices are in Stripe. We'll email you a copy every month.</p>
+          <button className="btn btn--link" style={{fontSize: 12}}>Open invoices →</button>
         </div>
         <div>
           <div className="eyebrow" style={{marginBottom: 6}}>Downgrade · cancel</div>
-          <p style={{fontSize: 13, color:"var(--c-dim)", margin: 0, marginBottom: 8, lineHeight: 1.5}}>If Brandolph isn't right for you, this is here. We'd rather you stay, but the door isn't locked.</p>
+          <p style={{fontSize: 13, color:"var(--c-dim)", margin: 0, marginBottom: 8, lineHeight: 1.5}}>If BrandOS by Caastor isn't right for you, you can leave here. We'd love you to stay, but it's your call.</p>
           <button className="btn btn--link" style={{fontSize: 12, color:"var(--c-faint)"}}>Manage plan →</button>
         </div>
       </div>
@@ -366,8 +366,8 @@ function NotificationPrefs() {
       <p style={{fontSize:13, color:"var(--c-dim)", margin:"0 0 12px", lineHeight:1.5}}>
         How you hear about craft handoffs, Brand Core certifications, and completed work. Turn a channel off to stop receiving it there.
       </p>
-      <NotifToggleRow label="In-app" desc="A bell notification inside BrandOS." on={prefs.in_app} onChange={(v) => set("in_app", v)} />
-      <NotifToggleRow label="Email"  desc="A message to your account email."      on={prefs.email}  onChange={(v) => set("email", v)} />
+      <NotifToggleRow label="In-app" desc="A notification inside BrandOS by Caastor." on={prefs.in_app} onChange={(v) => set("in_app", v)} />
+      <NotifToggleRow label="Email"  desc="An email to your account address."      on={prefs.email}  onChange={(v) => set("email", v)} />
       {!loaded && <div style={{fontSize:12, color:"var(--c-faint)", marginTop:10}}>Loading…</div>}
     </div>
   );
@@ -450,9 +450,9 @@ function useAccountData() {
         ]);
         const credits = creditsResponse.ok ? await creditsResponse.json() : null;
         if (!alive) return;
-        setState({ loading:false, error:creditsResponse.ok ? null : "Credit usage is unavailable right now.", workspace:membership, brands:brandsResponse.data || [], credits });
+        setState({ loading:false, error:creditsResponse.ok ? null : "We can't show your credit use right now.", workspace:membership, brands:brandsResponse.data || [], credits });
       } catch (error) {
-        if (alive) setState((current) => ({ ...current, loading:false, error:"Account data could not be loaded." }));
+        if (alive) setState((current) => ({ ...current, loading:false, error:"We couldn't load your account. Try again." }));
       }
     })();
     return () => { alive = false; };
@@ -470,14 +470,14 @@ function WorkspaceSettings({ data }) {
   const tier = data.credits?.tier || workspace?.tier || "00";
   const session = window.CI_AUTH?.getSession?.();
   return <div>
-    <SettingsPanelHeader title="Workspace" description="The shared space that owns your brands, members, briefs, and credit balance." />
+    <SettingsPanelHeader title="Workspace" description="Where your brands, people, briefs and credits live." />
     <dl className="settings-facts">
       <div><dt>Workspace name</dt><dd>{name}</dd></div>
       <div><dt>Your access</dt><dd>{workspace?.role?.replaceAll("_", " ") || "Member"}</dd></div>
       <div><dt>Current tier</dt><dd>{TIER_LABELS[tier]} · Tier {tier}</dd></div>
       <div><dt>Account email</dt><dd>{session?.email || "—"}</dd></div>
     </dl>
-    <p className="settings-note">Workspace identity is managed from the account owner profile. Brand names and people are managed in their own sections.</p>
+    <p className="settings-note">The account owner manages the workspace details. Brands and people have their own sections.</p>
   </div>;
 }
 
@@ -486,17 +486,17 @@ function BrandsSettings({ data, go, canManage = true }) {
   const limit = BRAND_LIMITS[tier] ?? 1;
   const atLimit = limit !== Infinity && data.brands.length >= limit;
   return <div>
-    <SettingsPanelHeader title="Brands" description="Every brand has its own Brand Core, briefs, library, and memory inside this workspace."
+    <SettingsPanelHeader title="Brands" description="Each brand has its own Brand Core, briefs, library and history."
       action={canManage ? <button className="btn btn--primary btn--sm" onClick={() => go?.("discovery/new")} disabled={atLimit}>Add brand</button> : null} />
     <div className="settings-allowance"><strong>{data.brands.length}</strong><span>of {limit === Infinity ? "unlimited" : limit} brands used on {TIER_LABELS[tier]}</span></div>
     <div className="settings-list">
       {data.loading ? <div className="settings-empty">Loading brands…</div> : data.brands.length ? data.brands.map((brand) => <div className="settings-list__row" key={brand.id}>
         <span className="settings-brandmark" aria-hidden="true">{(brand.name || "B")[0].toUpperCase()}</span>
-        <div><strong>{brand.name}</strong><small>{brand.url || "No source URL saved"}</small></div>
+        <div><strong>{brand.name}</strong><small>{brand.url || "No website saved"}</small></div>
         <span className="pill">Brand</span>
-      </div>) : <div className="settings-empty">No brands have been added yet.</div>}
+      </div>) : <div className="settings-empty">No brands yet.</div>}
     </div>
-    {atLimit && <div className="settings-note">This tier’s brand allowance is full. Change plan to add another brand.</div>}
+    {atLimit && <div className="settings-note">Your plan is full. Change plan to add another brand.</div>}
   </div>;
 }
 
@@ -508,70 +508,71 @@ function BillingSettings({ data, go }) {
   const remaining = Number(credits?.balance || 0);
   const pct = monthly > 0 ? Math.min(100, Math.round((spent / monthly) * 100)) : 0;
   return <div>
-    <SettingsPanelHeader title="Plan & billing" description="Your tier, monthly credit allowance, and the controls that change your plan."
+    <SettingsPanelHeader title="Plan and billing" description="Your plan, your monthly credits and how to change them."
       action={<button className="btn btn--primary btn--sm" onClick={() => go?.("upgrade")}>Change plan</button>} />
     {data.error && <div className="ops-alert">{data.error}</div>}
     <div className="settings-plan">
       <div><span>Current plan</span><strong>{TIER_LABELS[tier]}</strong><small>Tier {tier}</small></div>
       <div><span>Available now</span><strong>{remaining.toLocaleString()} cr</strong><small>Workspace balance</small></div>
-      <div><span>Used this month</span><strong>{spent.toLocaleString()} cr</strong><small>{monthly > 0 ? `of ${monthly.toLocaleString()} included` : "Unlimited tier"}</small></div>
+      <div><span>Used this month</span><strong>{spent.toLocaleString()} cr</strong><small>{monthly > 0 ? `of ${monthly.toLocaleString()} included` : "Unlimited plan"}</small></div>
     </div>
     {monthly > 0 && <div className="settings-meter" aria-label={`${pct}% of monthly credits used`}><span style={{width:`${pct}%`}} /></div>}
-    <div className="settings-note">Invoices and payment-method management will appear here when the billing portal is connected. No placeholder invoice data is shown.</div>
+    <div className="settings-note">Your invoices and payment details will appear here soon.</div>
   </div>;
 }
 
 const USAGE_COLORS = { "Specialist work":"var(--yellow-500)", "Human craft":"var(--mint-500)", "Brand intelligence":"var(--purple-300)", "Other usage":"var(--neutral-400)", "Refunds":"var(--green-400)", "Credits added":"var(--blue-300)" };
+const USAGE_LABELS = { "Specialist work": "Expert work", "Brand intelligence": "Brand Core updates" };
 function CreditUsageSettings({ data }) {
   const credits = data.credits;
   const categories = credits?.usage?.categories || [];
   const recent = credits?.usage?.recent || [];
   const positiveTotal = categories.reduce((sum, item) => sum + Math.max(0, Number(item.credits) || 0), 0);
   return <div>
-    <SettingsPanelHeader title="Credit usage" description="See exactly where this workspace used credits during the current billing month." />
+    <SettingsPanelHeader title="Credit use" description="See where your credits went this month." />
     {data.loading ? <div className="settings-empty">Loading credit activity…</div> : data.error ? <div className="ops-alert">{data.error}</div> : <>
       <div className="settings-usage-summary">
         <div><span>Available</span><strong>{Number(credits?.balance || 0).toLocaleString()} cr</strong></div>
         <div><span>Used this month</span><strong>{Number(credits?.monthlyDebited || 0).toLocaleString()} cr</strong></div>
       </div>
-      <div className="settings-breakdown" aria-label="Credits used by category">
+      <div className="settings-breakdown" aria-label="Credits used, by type">
         {categories.filter((item) => Number(item.credits) > 0).map((item) => <div key={item.category}>
-          <div><span><i style={{background:USAGE_COLORS[item.category]}} />{item.category}</span><strong>{Number(item.credits).toLocaleString()} cr</strong></div>
+          <div><span><i style={{background:USAGE_COLORS[item.category]}} />{USAGE_LABELS[item.category] || item.category}</span><strong>{Number(item.credits).toLocaleString()} cr</strong></div>
           <div className="settings-breakdown__bar"><span style={{width:`${positiveTotal ? Math.round((item.credits / positiveTotal) * 100) : 0}%`, background:USAGE_COLORS[item.category]}} /></div>
         </div>)}
-        {!categories.length && <div className="settings-empty">No credits have been used this month.</div>}
+        {!categories.length && <div className="settings-empty">No credits used this month.</div>}
       </div>
-      <h3 className="settings-subheading">Recent credit activity</h3>
+      <h3 className="settings-subheading">Recent activity</h3>
       <div className="settings-activity">
         {recent.length ? recent.map((entry) => <div className="settings-activity__row" key={entry.id}>
           <div><strong>{entry.description}</strong><small>{entry.brand ? `${entry.brand} · ` : ""}{new Date(entry.createdAt).toLocaleString()}</small></div>
           <span className={entry.credits > 0 ? "is-spent" : "is-added"}>{entry.credits > 0 ? "−" : "+"}{Math.abs(entry.credits).toLocaleString()} cr</span>
-        </div>) : <div className="settings-empty">No ledger entries in this billing month.</div>}
+        </div>) : <div className="settings-empty">Nothing to show this month.</div>}
       </div>
     </>}
   </div>;
 }
 
 function BrandRulesSettings({ go }) {
-  return <div><SettingsPanelHeader title="Brand rules" description="Voice, positioning, constraints, and evidence are governed per brand—not as hidden workspace-wide form fields." />
-    <div className="settings-callout"><div><strong>The Brand Core is the source of truth</strong><p>Open the active brand’s Brand Core to review and update the rules every specialist reads before working.</p></div><button className="btn btn--primary btn--sm" onClick={() => go?.("bio")}>Open Brand Core</button></div>
+  return <div><SettingsPanelHeader title="Brand rules" description="Each brand has its own voice, positioning and rules." />
+    <div className="settings-callout"><div><strong>Your Brand Core sets the rules</strong><p>Open your Brand Core to check and update the rules our experts follow.</p></div><button className="btn btn--primary btn--sm" onClick={() => go?.("bio")}>Open Brand Core</button></div>
   </div>;
 }
 
 function ConnectionsSettings({ developer = false }) {
-  const items = developer ? [{name:"API access",desc:"Programmatic access for approved Colony workspaces."},{name:"MCP connection",desc:"Connect BrandOS to supported AI tools."}] : [
-    {name:"Slack",desc:"Workspace notifications and approvals"},{name:"Klaviyo",desc:"Campaign handoff and sequence sync"},{name:"Stripo",desc:"Email build handoff"},{name:"Gamma",desc:"Presentation export"},
+  const items = developer ? [{name:"API access",desc:"For developers on The Colony plan."},{name:"Connect AI tools",desc:"Use BrandOS by Caastor inside the AI tools you already use."}] : [
+    {name:"Slack",desc:"Notifications and approvals"},{name:"Klaviyo",desc:"Send campaigns to your email tool"},{name:"Stripo",desc:"Send emails to be built"},{name:"Gamma",desc:"Export presentations"},
   ];
-  return <div><SettingsPanelHeader title={developer ? "API & MCP" : "Integrations"} description={developer ? "Developer access and external tool connections." : "Services that can receive work or notifications from this workspace."} />
+  return <div><SettingsPanelHeader title={developer ? "API & MCP" : "Integrations"} description={developer ? "For developers and other tools." : "Services that can receive work or notifications from you."} />
     <div className="settings-list">{items.map((item) => <div className="settings-list__row" key={item.name}><div><strong>{item.name}</strong><small>{item.desc}</small></div><span className="pill">Not configured</span></div>)}</div>
-    <div className="settings-note">Connections are shown as unavailable until a real authorization flow is configured.</div>
+    <div className="settings-note">Coming soon</div>
   </div>;
 }
 
 function SecurityDataSettings() {
-  return <div><SettingsPanelHeader title="Security & data" description="Workspace ownership, exports, and destructive actions live together here." />
-    <div className="settings-security-row"><div><strong>Export workspace data</strong><p>Export will become available when the workspace archive endpoint is connected.</p></div><button className="btn btn--ghost" disabled>Export unavailable</button></div>
-    <div className="settings-security-row settings-security-row--danger"><div><strong>Delete workspace</strong><p>Deletion remains unavailable here until owner verification and MFA are fully connected.</p></div><button className="btn btn--danger" disabled>Delete unavailable</button></div>
+  return <div><SettingsPanelHeader title="Security and data" description="Ownership, exports and deleting your workspace." />
+    <div className="settings-security-row"><div><strong>Export your data</strong><p>Coming soon. Contact us if you need your data now.</p></div><button className="btn btn--ghost" disabled>Export unavailable</button></div>
+    <div className="settings-security-row settings-security-row--danger"><div><strong>Delete workspace</strong><p>Coming soon. Contact us if you want to delete your workspace.</p></div><button className="btn btn--danger" disabled>Delete unavailable</button></div>
   </div>;
 }
 
@@ -589,9 +590,9 @@ function PersonalAccountSettings({ session }) {
     try {
       const response = await apiFetch("/api/me/profile", { method: "PATCH", body: JSON.stringify({ name }) });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Could not save your name.");
+      if (!response.ok) throw new Error(result.error || "We couldn't save your name. Try again.");
       setName(result.name); setStatus("Name saved");
-    } catch (error) { setStatus(error.message || "Could not save your name."); }
+    } catch (error) { setStatus(error.message || "We couldn't save your name. Try again."); }
     finally { setSaving(false); }
   };
 
@@ -604,37 +605,37 @@ function PersonalAccountSettings({ session }) {
       const form = new FormData(); form.append("avatar", file);
       const response = await apiFetch("/api/me/avatar", { method: "POST", body: form });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Could not upload your avatar.");
-      setAvatarUrl(result.avatarUrl); setStatus("Avatar updated");
-    } catch (error) { setStatus(error.message || "Could not upload your avatar."); }
+      if (!response.ok) throw new Error(result.error || "We couldn't upload your photo. Try again.");
+      setAvatarUrl(result.avatarUrl); setStatus("Photo updated");
+    } catch (error) { setStatus(error.message || "We couldn't upload your photo. Try again."); }
     finally { setSaving(false); }
   };
 
-  return <div><SettingsPanelHeader title="Your profile" description="The identity people see when you collaborate in BrandOS." />
-    <section className="settings-profile" aria-label="Your profile details">
+  return <div><SettingsPanelHeader title="Your profile" description="How people see you in BrandOS by Caastor." />
+    <section className="settings-profile" aria-label="Your details">
       <div className="settings-profile__avatar">
         {avatarUrl ? <img src={avatarUrl} alt="Your avatar" /> : <span aria-hidden="true">{initial}</span>}
-        <div><strong>Profile photo</strong><small>JPG, PNG, or WebP. Up to 2 MB.</small><label className="btn btn--ghost btn--sm" htmlFor="personal-avatar">{avatarUrl ? "Replace photo" : "Upload photo"}</label><input id="personal-avatar" className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadAvatar} disabled={saving} /></div>
+        <div><strong>Profile photo</strong><small>JPG, PNG or WebP. Up to 2 MB.</small><label className="btn btn--ghost btn--sm" htmlFor="personal-avatar">{avatarUrl ? "Change photo" : "Upload photo"}</label><input id="personal-avatar" className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadAvatar} disabled={saving} /></div>
       </div>
       <div className="settings-profile__field"><label htmlFor="personal-name">Name</label><div><input id="personal-name" value={name} maxLength="80" onChange={(event) => setName(event.target.value)} autoComplete="name" /><button className="btn btn--primary btn--sm" onClick={saveName} disabled={saving || name.trim().length < 2}>{saving ? "Saving…" : "Save"}</button></div></div>
       {status && <p className="settings-profile__status" role="status">{status}</p>}
     </section>
     <dl className="settings-facts"><div><dt>Email</dt><dd>{session?.email || "—"}</dd></div><div><dt>Role</dt><dd>{String(session?.persona || session?.role || "member").replaceAll("_", " ")}</dd></div><div><dt>Portal</dt><dd>{session?.portal || session?.role || "client"}</dd></div><div><dt>Account status</dt><dd>Active</dd></div></dl>
-    <p className="settings-note">Email changes require verification and are kept out of this quick profile flow.</p>
+    <p className="settings-note">To change your email, contact us so we can verify it.</p>
   </div>;
 }
 
 function AssignedClientsSettings({ session }) {
   const assignments = session?.assignments || [];
-  return <div><SettingsPanelHeader title="Assigned clients" description="The client workspaces currently included in your operational scope." />
-    <div className="settings-list">{assignments.length ? assignments.map((workspace) => <div className="settings-list__row" key={workspace.id}><span className="settings-brandmark" aria-hidden="true">{(workspace.name || "W")[0].toUpperCase()}</span><div><strong>{workspace.name || "Client workspace"}</strong><small>Tier {workspace.tier || "—"} · assigned workspace</small></div><span className="pill">Active</span></div>) : <div className="settings-empty">No client workspaces are assigned.</div>}</div>
+  return <div><SettingsPanelHeader title="Your clients" description="The client workspaces you work on." />
+    <div className="settings-list">{assignments.length ? assignments.map((workspace) => <div className="settings-list__row" key={workspace.id}><span className="settings-brandmark" aria-hidden="true">{(workspace.name || "W")[0].toUpperCase()}</span><div><strong>{workspace.name || "Client workspace"}</strong><small>Tier {workspace.tier || "—"} · assigned workspace</small></div><span className="pill">Active</span></div>) : <div className="settings-empty">No clients assigned to you yet.</div>}</div>
   </div>;
 }
 
 function SessionSettings({ session }) {
-  return <div><SettingsPanelHeader title="Sessions" description="Your current authenticated session and security posture." />
+  return <div><SettingsPanelHeader title="Sessions" description="How you're signed in." />
     <dl className="settings-facts"><div><dt>Signed in as</dt><dd>{session?.email || "—"}</dd></div><div><dt>Assurance level</dt><dd>{String(session?.assuranceLevel || "aal1").toUpperCase()}</dd></div></dl>
-    <p className="settings-note">Sensitive mutations can request stronger verification without blocking normal Account access.</p>
+    <p className="settings-note">Some sensitive changes may ask you to confirm it's you.</p>
   </div>;
 }
 
@@ -647,24 +648,24 @@ function SettingsView({ section = null, go = null, accountBase = "settings", onL
   const permissions = new Set(session?.permissions || []);
   const teamAccount = portal === "team";
   const administration = [
-    ["access","People & access","team"],
+    ["access","People and access","team"],
     ["specs","Agent specs","settings"],
-    ["languages","Platform languages","settings"],
+    ["languages","Languages","settings"],
     ["brandolph", t("admin.brandolphMemory"), "sparkles"],
     ...(portal === "super_admin" ? [["opex","Usage & OPEX","credit"]] : []),
   ];
   const groups = teamAccount ? [
-    { label:"My account", items:[["profile","Profile","settings"],["assignments","Assigned clients","team"],...(persona === "creative_director" ? [["invite-designers","Invite designers","team"]] : [])] },
+    { label:"My account", items:[["profile","Profile","settings"],["assignments","Your clients","team"],...(persona === "creative_director" ? [["invite-designers","Invite designers","team"]] : [])] },
     { label:"Credits", items:[["usage",persona === "creative_director" ? "Team usage" : "Workspace usage","timer"]] },
     { label:"Preferences", items:[["notifications","Notifications","bell"],["language",t("settings.language.nav"),"settings"]] },
     { label:"Security", items:[["sessions","Sessions","check"]] },
   ] : [
     { label:"Account", items:[["profile","Your profile","settings"],["workspace","Workspace","settings"],...(permissions.has("workspace.members.manage") || includeAdministration ? [["members","Members","team"]] : []),["brands","Brands","files"]] },
-    { label:"Billing & usage", items:[...(permissions.has("workspace.billing.manage") || includeAdministration ? [["billing","Plan & billing","credit"]] : []),["usage","Credit usage","timer"]] },
-    { label:"Brand & product", items:[["rules","Brand rules","bio"],...(permissions.has("workspace.billing.manage") || includeAdministration ? [["integrations","Integrations","sparkles"]] : [])] },
+    { label:"Billing and usage", items:[...(permissions.has("workspace.billing.manage") || includeAdministration ? [["billing","Plan and billing","credit"]] : []),["usage","Credit use","timer"]] },
+    { label:"Brand and product", items:[["rules","Brand rules","bio"],...(permissions.has("workspace.billing.manage") || includeAdministration ? [["integrations","Integrations","sparkles"]] : [])] },
     { label:"Preferences", items:[["notifications","Notifications","bell"],["language",t("settings.language.nav"),"settings"]] },
     ...(permissions.has("workspace.billing.manage") || includeAdministration ? [{ label:"Developer", items:[["api","API & MCP","code"]] }] : []),
-    ...(permissions.has("workspace.delete") || includeAdministration ? [{ label:"Security & data", items:[["security","Export & deletion","check"]] }] : []),
+    ...(permissions.has("workspace.delete") || includeAdministration ? [{ label:"Security and data", items:[["security","Export and delete","check"]] }] : []),
     ...(includeAdministration && administration.length ? [{ label:"Administration", items:administration }] : []),
   ];
   const valid = new Set(groups.flatMap((group) => group.items.map(([id]) => id)));
@@ -687,7 +688,7 @@ function SettingsView({ section = null, go = null, accountBase = "settings", onL
     : tab === "usage" ? <CreditUsageSettings data={data} />
     : tab === "rules" ? <BrandRulesSettings go={go} />
     : tab === "integrations" ? <ConnectionsSettings />
-    : tab === "notifications" ? <><SettingsPanelHeader title="Notifications" description="Choose how BrandOS contacts you about work and approvals." /><NotificationPrefs /></>
+    : tab === "notifications" ? <><SettingsPanelHeader title="Notifications" description="Choose how we contact you about work and approvals." /><NotificationPrefs /></>
     : tab === "language" ? <><SettingsPanelHeader title={t("settings.language.title")} description={t("settings.language.desc")} /><LanguagePrefs /></>
     : tab === "api" ? <ConnectionsSettings developer />
     : tab === "access" ? React.createElement(window.AdminAccess)
@@ -702,12 +703,12 @@ function SettingsView({ section = null, go = null, accountBase = "settings", onL
     : <SecurityDataSettings />;
 
   return <div className="settings-page">
-    <div className="settings-dialog" role="region" aria-label={teamAccount ? "My account settings" : "Workspace account settings"}>
+    <div className="settings-dialog" role="region" aria-label={teamAccount ? "My account settings" : "Workspace settings"}>
       <aside className="settings-dialog__sidebar">
-        <button type="button" className="settings-dialog__close" onClick={closeAccount} aria-label="Close account settings"><Icon name="close" size={20}/></button>
+        <button type="button" className="settings-dialog__close" onClick={closeAccount} aria-label="Close settings"><Icon name="close" size={20}/></button>
         <label className="settings-search">
           <Icon name="search" size={16}/>
-          <span className="sr-only">Search account settings</span>
+          <span className="sr-only">Search settings</span>
           <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search settings" autoComplete="off" />
         </label>
         <nav className="settings-nav" aria-label="Account settings">

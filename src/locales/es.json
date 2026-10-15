@@ -55,7 +55,7 @@
     "inReview": "En revisión",
     "yoursOpen": "Tuyos · abiertos",
     "capacityOverrides": "Excepciones de capacidad",
-    "stewardQueue": "Cola del Steward",
+    "stewardQueue": "Marcas por revisar",
     "filterAll": "Todos",
     "filterPendingLead": "Pendiente de Lead",
     "unassigned": "Sin asignar",
@@ -68,9 +68,9 @@
     "queueEmpty": "Ningún trabajo coincide con este filtro. Lanza una ejecución de Discovery para crear uno:",
     "you": "Tú",
     "assigned": "Asignado",
-    "notSteward": "No eres Steward — ejecuta ",
+    "notSteward": "No eres director creativo de esta marca: ejecuta ",
     "aboutJobs": "Sobre estos trabajos",
-    "aboutJobsBody": "Cada fila es una marca a la espera de la certificación del Brand Core — una revisión humana sénior antes de que cualquier especialista lea de él. El foso: cada resultado sale ",
+    "aboutJobsBody": "Cada fila es una marca pendiente de certificación: un director creativo sénior revisa su Brand Core antes de que se use en ningún trabajo. Es nuestra promesa: todo lo que entregamos parte de una marca revisada.",
     "certifiedByName": "certificado por {name}",
     "addGeneric": "+ Añadir",
     "removeItem": "Eliminar {item}",
@@ -87,7 +87,7 @@
     "bucketOther": "Otros",
     "pasteUrl": "Pega una URL…",
     "addUrl": "Añadir URL",
-    "fileHint": "Máx. 50 MB · PDF, imagen, .doc, .txt, .md",
+    "fileHint": "Hasta 50 MB · PDF, imagen, Word, texto",
     "typography": "Tipografía",
     "typeKindPlaceholder": "Tipo (p. ej. Display)",
     "typeFamilyPlaceholder": "Familia (p. ej. Söhne Breit)",
@@ -101,21 +101,21 @@
     "confLow": "Baja",
     "confMed": "Media",
     "confHigh": "Alta",
-    "rubricScore": "Rúbrica · puntúa cada criterio",
-    "autoPct": "auto · {pct}%",
+    "rubricScore": "Puntúa cada punto",
+    "autoPct": "sugerido · {pct}%",
     "gateFloor": "umbral ≥{floor}",
     "notScored": "sin puntuar",
-    "confidence": "confianza",
+    "confidence": "seguridad",
     "scoreEveryCriterion": "Puntúa todos los criterios: {list}",
     "gateSuffix": " · umbral: {ids}",
-    "submittedForLead": "Enviado a revisión de Lead — propuesto {decision}, {composite}/100{gate}.",
+    "submittedForLead": "Enviado a un director creativo principal: propusiste {decision}, puntuación {composite}/100{gate}.",
     "decisionResult": "Decisión: {decision} · {composite}/100 ({band}){gate}{cal}",
-    "calibrationSuffix": " · baja confianza → calibración",
+    "calibrationSuffix": " · dudoso, enviado a una segunda revisión",
     "cancelled": "Cancelado",
     "decertified": "Descertificado · v{version}. Producción en pausa; se ha puesto en cola una nueva revisión.",
     "approvedAsLead": "Aprobado como Lead · v{version} ya activo.",
-    "sentBackRevision": "Devuelto al Steward para revisión.",
-    "confirmDecertify": "¿Descertificar este Brand Core? La producción se pausa hasta que se vuelva a certificar. El briefing sigue disponible y los trabajos en curso finalizan.",
+    "sentBackRevision": "Devuelto al director creativo para revisarlo.",
+    "confirmDecertify": "¿Retirar la certificación de este Brand Core? El trabajo nuevo se pausa hasta que se certifique de nuevo. Los briefs siguen abiertos y el trabajo en curso termina.",
     "loading": "Cargando…",
     "jobNotFound": "Trabajo no encontrado.",
     "brandFallback": "(marca)",
@@ -127,41 +127,41 @@
     "resetEdits": "Descartar cambios",
     "fldPositioning": "Lo que te hace distinto",
     "phPositioning": "Una frase — lo que la marca realmente es",
-    "fldCategory": "Categoría",
-    "fldPillars": "Pilares",
+    "fldCategory": "A qué te dedicas",
+    "fldPillars": "Lo que defiendes",
     "addPillar": "+ Añadir pilar",
-    "fldPrimaryAudience": "Audiencia principal",
-    "fldSecondaryAudience": "Audiencia secundaria",
-    "fldJtbd": "Trabajos por hacer",
-    "addJtbd": "+ Añadir JTBD",
+    "fldPrimaryAudience": "Clientes principales",
+    "fldSecondaryAudience": "Otros clientes",
+    "fldJtbd": "Lo que necesitan tus clientes",
+    "addJtbd": "+ Añadir una necesidad del cliente",
     "fldVoiceRegister": "Cómo suenas",
-    "fldRhythm": "Ritmo",
-    "fldSignatureMoves": "Gestos distintivos",
+    "fldRhythm": "Cómo escribes",
+    "fldSignatureMoves": "Frases que suenan a ti",
     "addSignature": "+ Añadir gesto",
-    "fldForbiddenWords": "Palabras prohibidas",
+    "fldForbiddenWords": "Palabras que evitar",
     "addForbidden": "+ Añadir prohibida",
     "fldNorthStar": "Lo que te mueve",
-    "fldThisQuarter": "Este trimestre",
-    "fldNextQuarter": "Próximo trimestre",
-    "fldWatchouts": "Alertas estratégicas",
+    "fldThisQuarter": "Prioridad de este trimestre",
+    "fldNextQuarter": "Prioridad del próximo trimestre",
+    "fldWatchouts": "Lo que hay que vigilar",
     "addWatchout": "+ Añadir alerta",
-    "fldNotList": "Lo que la marca NO es",
+    "fldNotList": "Lo que no eres",
     "addNotList": "+ Añadir elemento",
-    "fldImagery": "Dirección de imágenes",
+    "fldImagery": "Tu estilo de fotos",
     "addImagery": "+ Añadir referencia visual",
-    "fldVisualAvoid": "Evitar en lo visual",
+    "fldVisualAvoid": "Lo que evitar visualmente",
     "addVisualAvoid": "+ Añadir a evitar",
-    "bioEditHint": "Edita cualquier campo — los cambios se registran localmente y se envían como `bioPatch` al certificar (crea una nueva versión del Brand Core). Los campos visuales se autocompletarán con el pase de visión en P5; por ahora puedes rellenarlos a mano aquí.",
+    "bioEditHint": "Edita cualquier campo. Tus cambios se guardan al certificar, como una versión nueva del Brand Core. De momento puedes rellenar los visuales a mano.",
     "focusFirst": "Empieza aquí",
     "nothingFlagged": "Nada señalado — todos los campos se leen bien.",
-    "statusMissing": "falta",
-    "statusLowConf": "baja conf.",
+    "statusMissing": "Necesita tu ayuda",
+    "statusLowConf": "Probable",
     "highStakes": "alto riesgo",
     "sourcesRead": "Fuentes leídas",
     "charsScraped": "{chars} caracteres extraídos",
     "pendingLeadReview": "Pendiente de revisión de Lead",
-    "pendingLeadIsLead": "Eres Lead — aprueba para finalizar la certificación o devuélvela al Steward original.",
-    "pendingLeadNotLead": "Un Lead Steward aprobará esta certificación antes de que se aplique.",
+    "pendingLeadIsLead": "Eres responsable. Aprueba para cerrar la certificación o devuélvela al director creativo.",
+    "pendingLeadNotLead": "Un director creativo principal lo aprueba antes de publicarlo.",
     "leadNotesPrivate": "Notas del Lead (privadas)",
     "certNotesClient": "Notas de certificación (visibles para el cliente)",
     "notesPlaceholderLead": "Opcional. Si lo devuelves, explica qué necesita revisión.",
@@ -169,25 +169,25 @@
     "conditionsLabel": "Condiciones / cambios requeridos (uno por línea)",
     "conditionsPlaceholder": "Se usa cuando la decisión es aprobar-con-condiciones o devolver-para-cambios.\np. ej. Sustituye el logo provisional antes de ejecutar Visual.",
     "rejectReasonLabel": "Código de motivo de rechazo (solo si se rechaza)",
-    "rejectReasonPlaceholder": "p. ej. unverifiable_authority",
+    "rejectReasonPlaceholder": "p. ej. No podemos confirmar esta afirmación",
     "approveAsLead": "Aprobar como Lead",
-    "confirmSendBack": "¿Devolver esto al Steward para revisión?",
+    "confirmSendBack": "¿Devolverlo al director creativo para revisarlo?",
     "sendBack": "Devolver",
-    "awaitingLead": "A la espera de la aprobación del Lead Steward — enviaste esta certificación; un Lead la finalizará.",
+    "awaitingLead": "Pendiente de un director creativo principal. Tú lo enviaste; un responsable lo cerrará.",
     "alreadyReviewed": "Ya revisado",
     "saveEditsSubmit": "Guardar cambios y enviar revisión",
     "submitReview": "Enviar revisión",
-    "confirmCancelJob": "¿Cancelar este trabajo de certificación?",
+    "confirmCancelJob": "¿Cancelar esta revisión?",
     "cancel": "Cancelar",
-    "scoreAllToSubmit": "Puntúa todos los criterios de la rúbrica de arriba para enviar.",
+    "scoreAllToSubmit": "Puntúa todos los puntos para enviar.",
     "leadHelpA1": "Aprobar finaliza la certificación y escribe ",
-    "leadHelpA2": ". El Steward original permanece como ",
+    "leadHelpA2": ". El director creativo original sigue como ",
     "leadHelpA3": " (doble control: no puedes aprobar la tuya).",
-    "rubricHelpB1": "La rúbrica decide el resultado a partir de tus puntuaciones; cada decisión se registra en ",
+    "rubricHelpB1": "Tus puntuaciones deciden el resultado, y cada decisión se guarda en ",
     "rubricHelpB2": " para poder justificarlo. En calibración, un Lead aprueba antes de que una aprobación se finalice.",
     "decertify": "Descertificar",
     "decertifyThisBio": "Descertificar este Brand Core",
-    "decertifyHint": "Retira la certificación. La producción nueva o en cola se bloquea de inmediato; los trabajos en curso finalizan; los resultados completados conservan su sello; el briefing sigue activo. Se pone en cola una nueva revisión.",
+    "decertifyHint": "Retira la certificación. El trabajo nuevo se detiene; el que está en curso termina; lo entregado conserva su sello; los briefs siguen abiertos. Se añade una nueva revisión a la cola.",
     "dayMon": "Lun",
     "dayTue": "Mar",
     "dayWed": "Mié",
@@ -266,7 +266,7 @@
       "saved": "Guardado.",
       "runtimeGaps": "Huecos en tiempo de ejecución",
       "runtimeGapsDesc": "Claves que la app pidió en el idioma activo sin traducción disponible, recopiladas mientras el equipo navega.",
-      "noGaps": "Aún no se han registrado huecos en tiempo de ejecución.",
+      "noGaps": "Aún no se han encontrado traducciones pendientes.",
       "governance": "Gobernanza",
       "governanceDesc": "Elige qué idiomas ofrece este espacio de trabajo y cuál es el predeterminado. El inglés siempre está disponible.",
       "enabledLocales": "Idiomas habilitados",
@@ -289,11 +289,11 @@
     "addBrand": "Añadir marca"
   },
   "sidebar": {
-    "bioScore": "Brand Core {score}%",
+    "bioScore": "Brand Core completo al {score}%",
     "seniorDesigner": "Diseñadora sénior",
     "active": "Activo",
     "brandolphReading": "Leyendo tu Brand Core. Siguiendo tu último brief durante la revisión.",
-    "viewLedger": "Ver el registro →",
+    "viewLedger": "Ver historial →",
     "thisWeek": "Esta semana",
     "jobsDelivered": "Trabajos entregados",
     "creditsEarned": "Créditos ganados"
@@ -318,8 +318,8 @@
   "title": {
     "discovery": "Descubrimiento",
     "brief": "Brief",
-    "specialistsOnShift": "Especialistas · {count} en turno",
-    "specialistNew": "Nuevo especialista",
+    "specialistsOnShift": "Expertos · {count} disponibles",
+    "specialistNew": "Nuevo experto",
     "canvas": "Lienzo",
     "plans": "Planes",
     "activeJob": "Trabajo activo",
@@ -350,13 +350,13 @@
     "talkToUs": "Habla con nosotros",
     "starting": "Iniciando…",
     "upgrade": "Mejorar plan",
-    "note03": "Contacta con tu equipo de BrandOS para configurar The Colony 🐜.",
-    "noteFail": "No se pudo iniciar la mejora ahora mismo: inténtalo de nuevo o contacta con tu equipo de BrandOS.",
+    "note03": "Escribe al equipo de BrandOS by Caastor para activar The Colony.",
+    "noteFail": "No hemos podido iniciar el cambio de plan. Inténtalo de nuevo o escribe al equipo de BrandOS by Caastor.",
     "included": "Incluido",
     "backToCreate": "← Volver a Crear",
     "blurb": {
       "00": "Una marca, Brandolph y nuestro equipo completo de expertos, y tu Brand Core aprobado.",
-      "01": "Gestiona dos marcas en paralelo con memoria de especialistas compartida.",
+      "01": "Gestiona dos marcas a la vez. Nuestros expertos recuerdan ambas.",
       "02": "Tres marcas más pulido artesanal humano prioritario.",
       "03": "Marcas ilimitadas para estudios que gestionan toda la plantilla."
     }
@@ -365,7 +365,7 @@
     "language": {
       "nav": "Idioma",
       "title": "Idioma",
-      "desc": "Elige el idioma en el que BrandOS te habla. Se aplica en todas las pantallas y se guarda en tu cuenta.",
+      "desc": "Elige el idioma en que te habla BrandOS by Caastor. Se aplica en todas partes y se guarda en tu cuenta.",
       "saveError": "No pudimos guardarlo en tu cuenta, pero el cambio se aplicó aquí."
     }
   },
@@ -398,8 +398,8 @@
     "assemblyReady": "Ensamblaje · listo para ejecutar",
     "specialists": {
       "plural": {
-        "one": "{count} especialista",
-        "other": "{count} especialistas"
+        "one": "{count} experto",
+        "other": "{count} expertos"
       }
     },
     "creditsCount": {
@@ -424,10 +424,10 @@
     "flagged": "marcado",
     "failed": "falló",
     "composedBy": "Compuesto por",
-    "certified": "certificado",
+    "certified": "aprobado",
     "uncertified": "sin certificar",
     "creditsThisCycle": "Créditos de este ciclo",
-    "ledger": "Registro",
+    "ledger": "Historial",
     "creditsMeter": "/ {monthly} · quedan {days} d",
     "campaigns": "Campañas",
     "allBriefs": "Todos los briefs",
@@ -449,7 +449,7 @@
     "checkingBrand": "Comprobando la marca seleccionada y el Brand Core…",
     "bioStatusUnavailable": "Estado del Brand Core no disponible · {error}",
     "brandBioReady": "{name} · Brand Core {score}/100 · v{version} · listo para afinar",
-    "brandNoBio": "{name} · Aún sin Brand Core certificado · completa Discovery antes de redactar el brief",
+    "brandNoBio": "{name} · Tu Brand Core aún no está listo. Termina de configurarlo para empezar un brief.",
     "selectBrand": "Selecciona una marca antes de crear un brief",
     "brandChangedError": "La marca activa cambió. Empieza de nuevo para que este brief use el Brand Core correcto.",
     "balanceLoading": "cargando saldo…",
@@ -470,23 +470,23 @@
       "all": "Todos",
       "approved": "Aprobados",
       "flagged": "Marcados",
-      "allSpecialists": "Todos los especialistas"
+      "allSpecialists": "Todos los expertos"
     },
     "mode": {
-      "auto": "auto"
+      "auto": "Automático"
     },
     "common": {
       "close": "Cerrar"
     },
     "spec": {
-      "eyebrow": "L2 · 33 especialistas sénior",
+      "eyebrow": "33 expertos sénior",
       "title": "El departamento, en turno.",
       "sub": "Le cuentas a Brandolph lo que necesitas. Nuestros expertos hacen el trabajo, cada uno con la herramienta más adecuada. Ves cada paso y pagas con un solo saldo de créditos.",
       "liveCount": "{live} activos · {soon} próximamente",
-      "newSpecialist": "Nuevo especialista",
-      "pinned": "★ Fijados · tus especialistas preferidos",
+      "newSpecialist": "Nuevo experto",
+      "pinned": "★ Tus expertos favoritos",
       "mostUsedFor": "Más usados para",
-      "searchPlaceholder": "Buscar especialistas, departamentos, capacidades…",
+      "searchPlaceholder": "Busca expertos y habilidades…",
       "sortDepartment": "Departamento",
       "sortCredits": "Créditos",
       "sortMostUsed": "Más usados",
@@ -499,31 +499,32 @@
           "other": "{count} resultados"
         }
       },
-      "deptCount": "{specialists} especialistas · {live} activos",
-      "noMatch": "Ningún especialista coincide con “{query}”.",
+      "deptCount": "{specialists} expertos · {live} disponibles",
+      "noMatch": "Ningún experto coincide con «{query}».",
       "soon": "Próximo"
     },
     "lib": {
       "eyebrow": "Espacio de trabajo",
       "eyebrowBrand": "Espacio de trabajo · {name}",
       "title": "Briefs",
-      "sub": "Cada ejecución de especialista en esta marca — auditable frente al Brand Core certificado. {runs} en el registro · {credits} cr gastados.",
+      "sub": "Todo lo creado para esta marca, revisado con tu Brand Core. {runs} hasta ahora · {credits} créditos usados.",
       "reload": "Recargar",
-      "runSpecialist": "Ejecutar un especialista",
+      "runSpecialist": "Pídeselo a un experto",
       "searchPlaceholder": "Buscar briefs…",
       "countOf": "{shown} de {total}",
       "emptyTitle": "Aún no hay briefs sobre la mesa.",
       "emptyBody": "Brandolph está listo para tu primer brief. Escribe lo que necesitas, aunque sea una frase. Lo afinará y elegirá el equipo justo para el trabajo.",
       "startFirst": "Comenzar el primer brief",
-      "browseSpecialists": "Explorar especialistas",
-      "noMatch": "Ningún brief coincide con los filtros actuales."
+      "browseSpecialists": "Ver expertos",
+      "noMatch": "Ningún brief coincide con los filtros actuales.",
+      "newBrief": "Nuevo brief"
     },
     "detail": {
       "allBriefs": "Todos los briefs",
       "specialistsCount": {
         "plural": {
-          "one": "{count} especialista",
-          "other": "{count} especialistas"
+          "one": "{count} experto",
+          "other": "{count} expertos"
         }
       },
       "tabOverview": "Resumen",
@@ -570,9 +571,9 @@
       "ran": "Ejecutado",
       "run": "Ejecutar",
       "composedBy": "Compuesto por",
-      "certified": "certificado",
+      "certified": "aprobado",
       "uncertified": "sin certificar",
-      "voiceQa": "QA de voz",
+      "voiceQa": "Revisión del tono",
       "passed": "aprobado",
       "flagged": "marcado"
     },
@@ -599,7 +600,7 @@
       "creditsSpent": "Créditos gastados",
       "successRate": "Tasa de éxito",
       "exampleOutputs": "Ejemplos de salida · para",
-      "noOutputs": "Aún no has usado este especialista."
+      "noOutputs": "Aún no has trabajado con este experto."
     },
     "canvas": {
       "zoomOut": "Alejar",
@@ -638,13 +639,13 @@
       "print": "Imprimir / Guardar PDF",
       "pass": "Aprobado",
       "flag": "Marcado",
-      "trailEyebrow": "Certificación",
+      "trailEyebrow": "Historial de aprobación",
       "trailTitle": "Registro de auditoría",
       "trailBio": "Brand Core v{version} · {state}",
-      "certified": "Certificado",
-      "selfCertified": "Autocertificado",
-      "uncertified": "Aún no certificado",
-      "trailEmpty": "Todavía no hay decisiones de certificación.",
+      "certified": "Aprobado",
+      "selfCertified": "Confirmado por ti",
+      "uncertified": "Aún sin aprobar",
+      "trailEmpty": "Aún no hay aprobaciones.",
       "openBio": "Abrir el Brand Core"
     },
     "run": {
@@ -669,7 +670,7 @@
       "subRendering": "renderizando…",
       "subRenderingImages": "renderizando imágenes…",
       "helperRunning": "Ejecutando el equipo… cada tarjeta transmite su progreso. Haz clic en cualquiera para abrir la salida completa.",
-      "helperComplete": "Ejecución completa · {cr} cr gastados. Haz clic en cualquier especialista para verificar, editar o copiar su salida.",
+      "helperComplete": "Hecho · {cr} créditos usados. Haz clic en cualquier pieza para revisarla, editarla o copiarla.",
       "helperAssembled": "Equipo reunido. Pulsa Ejecutar cuando estés listo.",
       "runComplete": "Ejecución completa",
       "openLibrary": "Abrir biblioteca",
@@ -718,11 +719,11 @@
       "saved": "Guardado",
       "theBrief": "El brief",
       "sharpened": "Afinado (a02)",
-      "brandQa": "QA de marca",
-      "voiceQa": "QA de voz",
+      "brandQa": "Revisión de marca",
+      "voiceQa": "Revisión del tono",
       "output": "Salida",
       "outputImage": "· imagen",
-      "outputEditable": "· editable",
+      "outputEditable": "· puedes editarlo",
       "unsaved": "· sin guardar",
       "chars": "{count} caracteres",
       "rerunWith": "Volver a ejecutar con…",
@@ -739,7 +740,7 @@
       "dismiss": "Descartar",
       "calling": "Llamando…",
       "empty": "(vacío)",
-      "certifiedBy": "certificado por"
+      "certifiedBy": "aprobado por"
     },
     "rerun": {
       "noteOpus": "Premium — el razonamiento más profundo",
@@ -762,10 +763,10 @@
           "other": "{count} imágenes"
         }
       },
-      "certifiedByName": "Certificado por {name}",
-      "certifiedCanon": "Canon certificado",
-      "helper": "{runs} en este brief. Haz clic en cualquier especialista para verificar, editar o copiar su salida.",
-      "briefsBack": "← Briefs"
+      "certifiedByName": "Aprobado por {name}",
+      "certifiedCanon": "Tu Brand Core aprobado",
+      "helper": "{runs} en este brief. Haz clic en cualquier pieza para revisarla, editarla o copiarla.",
+      "briefsBack": "← Encargos"
     },
     "board": {
       "sourceCanon": "Fuente · el canon",
@@ -775,12 +776,12 @@
       "theBriefL1": "El brief · de Brandolph",
       "askedFirst": "Brandolph te preguntó antes",
       "sourceCanonShort": "Fuente · canon",
-      "specialistPrefix": "Especialista",
+      "specialistPrefix": "Experto",
       "whyRoutes": "Por qué Brandolph elige a este experto",
       "theOutput": "La salida",
       "whyChoiceShort": "Por qué esta elección",
-      "addSpecialist": "Añadir especialista",
-      "dropSpecialist": "Suelta un especialista y luego conéctalo",
+      "addSpecialist": "Añadir experto",
+      "dropSpecialist": "Arrastra un experto aquí y conéctalo",
       "export": "Exportar",
       "connectingFromA": "Conectando desde",
       "connectingFromB": "— haz clic en un nodo para enlazar.",
@@ -809,7 +810,7 @@
         }
       },
       "emptyTitle": "La biblioteca está esperando.",
-      "emptyBody": "Cada salida que produce tu equipo aterriza aquí — archivada bajo el brief que la pidió, la versión del Brand Core frente a la que se evaluó y el Steward que firmó el canon. Ejecuta un brief y observa cómo se llenan los estantes.",
+      "emptyBody": "Todo lo que crea tu equipo llega aquí, ordenado por brief y versión del Brand Core, con quién lo aprobó. Empieza un brief para llenar estos estantes.",
       "startBrief": "Comenzar un brief",
       "deleted": "Eliminado",
       "deleteFailed": "Error al eliminar",
@@ -822,7 +823,7 @@
       "visualDirection": "Dirección visual",
       "noDirection": "(sin dirección)",
       "editedSuffix": "· editado",
-      "qaNotes": "Notas de QA",
+      "qaNotes": "Notas de revisión",
       "reuse": "Reutilizar",
       "copyPrompt": "Copiar prompt",
       "confirmDelete": "¿Eliminar este recurso?",
@@ -834,10 +835,10 @@
     },
     "author": {
       "eyebrow": "Capacidades · admin",
-      "title": "Nuevo especialista",
-      "sub": "Define un especialista L2. El prompt de la derecha es el brief compuesto real — PLATFORM + el Brand Core en vivo + esta especificación + la tarea — ensamblado a medida que escribes.",
+      "title": "Nuevo experto",
+      "sub": "Crea un experto nuevo. A la derecha ves exactamente lo que recibirá: tu Brand Core, esta descripción y la tarea.",
       "saved": "Guardado ✓",
-      "saveSpecialist": "Guardar especialista",
+      "saveSpecialist": "Guardar experto",
       "identity": "Identidad",
       "name": "Nombre",
       "namePlaceholder": "p. ej. El Cerrador Mayorista",
@@ -847,7 +848,7 @@
       "statusSoon": "Próximamente",
       "statusDraft": "Borrador",
       "jobLabel": "El trabajo · una línea",
-      "jobPlaceholder": "Lo que hace este especialista, en una línea.",
+      "jobPlaceholder": "Qué hace este experto, en una línea.",
       "promptSpec": "Especificación del prompt",
       "prefillFrom": "Rellenar desde la plantilla de {dept}",
       "role": "Rol",
@@ -855,7 +856,7 @@
       "objective": "Objetivo",
       "objectivePlaceholder": "Lo que produce una buena ejecución.",
       "methodSteps": "Método · pasos",
-      "methodPlaceholder": "Un paso que sigue el especialista",
+      "methodPlaceholder": "Un paso que sigue este experto",
       "outputContract": "Contrato de salida",
       "outputContractPlaceholder": "Forma / longitud / formato que debe devolver.",
       "voice": "Voz",
@@ -863,13 +864,13 @@
       "tools": "Herramientas",
       "toolsPlaceholder": "p. ej. búsqueda Exa, generación de imágenes",
       "refusalsLabel": "Rechazos · no hará (además de las reglas de marca)",
-      "refusalsPlaceholder": "Una regla estricta que este especialista no romperá",
-      "routingCost": "Enrutamiento y coste",
+      "refusalsPlaceholder": "Una regla que este experto nunca rompe",
+      "routingCost": "Herramientas y coste",
       "model": "Modelo",
       "creditsPerRun": "Créditos / ejecución",
       "livePrompt": "Prompt compuesto en vivo",
-      "testTab": "Prueba · ejecución de prueba + control de QA",
-      "tabPrompt": "Prompt",
+      "testTab": "Prueba · ensáyalo y pasa la revisión de marca",
+      "tabPrompt": "Instrucciones",
       "tabTest": "Prueba",
       "refusalsInherit": {
         "plural": {
@@ -881,11 +882,11 @@
       "sampleBriefDefault": "Escribe el correo del anuncio anual de precios para compradores mayoristas.",
       "dryRun": "Ejecución de prueba",
       "draftOutput": "Salida en borrador · editable",
-      "qaGate": "Control de QA de marca",
+      "qaGate": "Revisión de marca",
       "blocking": "{count} bloqueando",
       "pass": "Aprobado",
       "notReady": "No está listo.",
-      "notReadyBody": "Corrige la regla marcada antes de poner este especialista en activo.",
+      "notReadyBody": "Corrige la regla marcada antes de activar este experto.",
       "clearsGate": "Pasa el control.",
       "clearsGateBody": "Seguro para poner el estado en “Activo”.",
       "remove": "Quitar",
@@ -899,8 +900,8 @@
     "misc": {
       "untitled": "(sin título)",
       "untitledBrief": "(brief sin título)",
-      "yourSteward": "tu Steward",
-      "yourBrandSteward": "tu Brand Steward"
+      "yourSteward": "tu director creativo",
+      "yourBrandSteward": "tu director creativo"
     }
   },
   "discovery": {
@@ -914,7 +915,7 @@
       "foundations": {
         "label": "Fundamentos de marca",
         "help": "Manual de marca, presentaciones, manifiestos, documentos «sobre nosotros»",
-        "readBy": "Todos los especialistas"
+        "readBy": "Todos los expertos"
       },
       "visual": {
         "label": "Referencias visuales",
@@ -967,13 +968,13 @@
       "brandNameLabel": "Nombre de la marca",
       "brandNamePlaceholder": "p. ej. Your brand",
       "urlLabel": "URL del sitio web principal",
-      "urlPlaceholder": "marca.com",
+      "urlPlaceholder": "tumarca.com",
       "igLabel": "Usuario de Instagram",
       "igOptional": "· opcional",
-      "igPlaceholder": "@usuario",
+      "igPlaceholder": "@tumarca",
       "sourcesLabel": "Fuentes",
       "sourcesOptional": "· opcional — arrastra o haz clic para subir",
-      "timing": "Las fuentes se guardan en tu Brand Core · El tiempo de procesamiento varía",
+      "timing": "Guardamos todo lo que compartes en tu Brand Core · Puede tardar unos minutos",
       "filesReady": {
         "plural": {
           "one": " · {count} archivo listo",
@@ -990,7 +991,7 @@
       "reading1": "Brandolph está leyendo cada página de tu web",
       "reading2": "El equipo de diseño está mapeando tu paleta y tu tipografía",
       "reading3": "Brandolph está convirtiendo lo que ha leído en tu Brand Core",
-      "reading4": "Archivando el borrador para que tu Steward de marca lo certifique",
+      "reading4": "Enviando el borrador a un director creativo para que lo apruebe",
       "compiledTitle": "Brandolph tiene listo tu Brand Core",
       "readingTitle": "Brandolph está leyendo tu marca",
       "extraction": "EXTRACCIÓN",
@@ -1029,36 +1030,38 @@
     "field": {
       "identity": {
         "positioning": "Lo que te hace distinto",
-        "category": "Categoría",
-        "founded": "Fundación",
-        "pillars": "Pilares"
+        "category": "A qué te dedicas",
+        "founded": "Cuándo empezaste",
+        "pillars": "Lo que defiendes"
       },
       "audience": {
-        "primary": "Audiencia principal",
-        "secondary": "Audiencia secundaria",
-        "tertiary": "Audiencia terciaria",
-        "jtbd": "Tareas por resolver"
+        "primary": "Clientes principales",
+        "secondary": "Otros clientes",
+        "tertiary": "Otros a los que quieres llegar",
+        "jtbd": "Lo que necesitan tus clientes"
       },
       "voice": {
         "register": "Cómo suenas",
-        "rhythm": "Ritmo de las frases",
-        "forbidden": "Palabras prohibidas",
-        "signatures": "Gestos característicos"
+        "rhythm": "Cómo escribes",
+        "forbidden": "Palabras que evitar",
+        "signatures": "Frases que suenan a ti"
       },
       "visual": {
-        "palette": "Paleta",
-        "type": "Tipografía",
-        "imagery": "Fotografía así",
-        "avoid": "Nunca así"
+        "palette": "Tus colores",
+        "type": "Tus tipografías",
+        "imagery": "Tu estilo de fotos",
+        "avoid": "Lo que evitar visualmente",
+        "logo": "Tu logo",
+        "typeScale": "Tamaños de texto"
       },
       "goals": {
         "northStar": "Lo que te mueve",
-        "q2": "Este trimestre",
-        "q3": "Próximo trimestre"
+        "q2": "Prioridad de este trimestre",
+        "q3": "Prioridad del próximo trimestre"
       },
       "strategic": {
-        "watchouts": "Puntos de atención",
-        "notList": "Lo que NO eres"
+        "watchouts": "Lo que hay que vigilar",
+        "notList": "Lo que no eres"
       },
       "from": "de {source}",
       "emptyState": "Sin información. Añade lo que sabes o déjalo en blanco.",
@@ -1071,18 +1074,23 @@
       "edit": "Editar",
       "leaveBlank": "Dejar en blanco",
       "positioning": {
-        "frameOfReference": "Mercado y categoría",
-        "competitors": "Competidores y alternativas",
-        "pointsOfDifference": "Diferencias y pruebas",
-        "pointsOfParity": "Expectativas de la categoría",
-        "researchGaps": "Preguntas por investigar"
+        "frameOfReference": "Con quién te comparan",
+        "competitors": "Competidores",
+        "pointsOfDifference": "Por qué elegirte",
+        "pointsOfParity": "En qué los igualas",
+        "researchGaps": "Lo que aún necesitamos saber"
+      },
+      "aspirations": {
+        "direction": "Hacia dónde vas",
+        "notYetTrue": "Lo que aún persigues",
+        "references": "Marcas que admiras"
       }
     },
     "fieldStatus": {
-      "missing": "Sin información",
+      "missing": "Necesita tu ayuda",
       "accurate": "confirmado como preciso",
       "aspirational": "aspiracional",
-      "inferred": "Necesita tu ayuda",
+      "inferred": "Nuestra suposición",
       "stated": "tus palabras",
       "review": "Pendiente de revisión"
     },
@@ -1096,11 +1104,11 @@
       "aspirational": "aspiracional"
     },
     "attestError": {
-      "statements": "Confirma las tres declaraciones para dar fe.",
-      "gaps": "Todavía faltan respuestas en algunos campos importantes{fields}. Complétalos o márcalos y luego da fe.",
+      "statements": "Marca las tres casillas para confirmar.",
+      "gaps": "Aún faltan respuestas a algunas preguntas importantes{fields}. Respóndelas u omítelas y luego confirma.",
       "belowScore": "Tu Brand Core está en {score}/100{below}. Confirma más campos o añade fuentes para subirlo.",
       "belowNeeded": ", por debajo de los {minScore} necesarios",
-      "default": "No se pudo dar fe todavía — inténtalo de nuevo."
+      "default": "No hemos podido guardar tu confirmación. Inténtalo de nuevo."
     },
     "palette": {
       "namePlaceholder": "Nombre del color"
@@ -1118,7 +1126,7 @@
     "delegate": {
       "title": "Delegar este capítulo",
       "desc": "Entrega {chapter} a un compañero que lo conozca mejor. Recibirá un enlace para completar solo esta sección.",
-      "emailPlaceholder": "companero@marca.com",
+      "emailPlaceholder": "companero@tumarca.com",
       "notePlaceholder": "Nota (opcional)",
       "sending": "Enviando…",
       "sendInvite": "Enviar invitación",
@@ -1136,8 +1144,8 @@
       "noBrand": "No encontramos una marca para revisar.",
       "startDiscovery": "Iniciar descubrimiento",
       "loading": "Cargando tu borrador…",
-      "certifiedBy": "Certificado por",
-      "certPending": "Un Steward de marca sénior certifica este Brand Core en 24 h. Confirma el borrador de abajo para desbloquear el briefing ahora.",
+      "certifiedBy": "Aprobado por",
+      "certPending": "Un director creativo sénior aprobará este Brand Core en 24 horas. Confirma el borrador para empezar a hacer briefs ya.",
       "draftEyebrow": "Borrador del Brand Core · revísalo antes de firmar",
       "yourBrand": "Tu marca",
       "completion": "Progreso"
@@ -1159,7 +1167,7 @@
       "fieldsConfirmed": "campos confirmados",
       "inferredToConfirm": "pendientes de revisión",
       "gapsWord": "vacíos",
-      "confirmAttest": "Confirmar y dar fe"
+      "confirmAttest": "Confirmar"
     },
     "chapterView": {
       "allChapters": "← Todos los capítulos",
@@ -1169,12 +1177,12 @@
     "attest": {
       "back": "← Volver a los capítulos",
       "title": "Confirma y firma tu Brand Core",
-      "desc": "Firmar promueve este borrador a una versión certificada del Brand Core y desbloquea el briefing. Un Steward de marca sénior aún lo revisa antes de la producción.",
+      "desc": "Al confirmar se guarda esta versión de tu Brand Core y puedes empezar a hacer briefs. Un director creativo sénior lo revisa antes de entregar el trabajo.",
       "confirmed": "Confirmados",
       "inferredToConfirm": "pendientes de revisión",
       "gaps": "Vacíos",
       "stillOpen": "Aún abiertos ({count})",
-      "attestation": "Declaración",
+      "attestation": "Tu confirmación",
       "signing": "Firmando…",
       "signActivate": "Firmar y activar el espacio de marca",
       "confirmAllThree": "Confirma las tres declaraciones para continuar."
@@ -1189,54 +1197,54 @@
       "openBrandolph": "Abrir Brandolph"
     },
     "selfCert": {
-      "attestedBold": "Autoatestiguado",
-      "attestedRest": "el briefing está desbloqueado. La producción sigue bloqueada hasta que tu Steward de marca certifique.",
-      "fillBefore": "Completa esto antes de autocertificar: {fields}",
+      "attestedBold": "Confirmado por ti",
+      "attestedRest": "ya puedes hacer briefs. El trabajo se entrega cuando un director creativo lo aprueba.",
+      "fillBefore": "Responde a esto antes de confirmar: {fields}",
       "belowScore": "La puntuación del Brand Core {score} está por debajo de los {minScore} necesarios — añade fuentes para subirla.",
-      "eyebrow": "Autocertifica para empezar el briefing",
-      "desc": "Confirma que el Brand Core es lo bastante preciso para hacer briefing. Esto desbloquea el briefing ahora; un Steward de marca sénior aún certifica antes de la producción.",
+      "eyebrow": "Confirma tu Brand Core para empezar a hacer briefs",
+      "desc": "Comprueba que tu Brand Core está lo bastante bien para trabajar con él. Puedes empezar a hacer briefs ya. Un director creativo sénior lo aprueba antes de entregar el trabajo.",
       "submitting": "Enviando…",
-      "submit": "Autocertificar y desbloquear el briefing"
+      "submit": "Confirmar y empezar"
     },
     "reasonCode": {
-      "insufficient_evidence": "No hay evidencia suficiente para certificar",
+      "insufficient_evidence": "Necesitamos más información antes de aprobarlo",
       "out_of_scope": "Fuera del alcance de esta marca",
       "brand_mismatch": "No coincide con la marca tal como la entendemos",
       "inaccurate": "Contiene inexactitudes",
-      "incomplete": "Demasiado incompleto para certificar",
-      "low_quality": "Todavía no tiene calidad de certificación",
-      "aspirational_unmarked": "Afirmaciones aspiracionales no separadas de los hechos",
+      "incomplete": "Aún faltan partes importantes",
+      "low_quality": "Necesita un poco más de trabajo antes de aprobarlo",
+      "aspirational_unmarked": "Algunos objetivos parecen hechos. Marca cuáles son todavía objetivos.",
       "needs_sources": "Necesita más fuentes",
       "duplicate": "Duplicado de un Brand Core existente"
     },
     "steward": {
-      "defaultName": "tu Steward de marca",
-      "fromSteward": "De tu Steward",
-      "returnHeading": "Tu Steward necesita algunos cambios",
+      "defaultName": "tu director creativo",
+      "fromSteward": "De tu director creativo",
+      "returnHeading": "Tu director creativo te pide algunos cambios",
       "returnCta": "Hacer estos cambios",
-      "rejectHeading": "Tu Steward devolvió este Brand Core",
+      "rejectHeading": "Tu director creativo te ha devuelto este Brand Core",
       "rejectCta": "Editar y reenviar",
-      "conditionsHeading": "Certificado con condiciones"
+      "conditionsHeading": "Aprobado, con algunas notas"
     },
     "diff": {
       "title": {
         "plural": {
-          "one": "Lo que cambió tu Steward · {count} campo",
-          "other": "Lo que cambió tu Steward · {count} campos"
+          "one": "Lo que cambió tu director creativo · {count} punto",
+          "other": "Lo que cambió tu director creativo · {count} puntos"
         }
       },
       "hide": "Ocultar",
       "show": "Mostrar"
     },
     "bio": {
-      "savedVersion": "Guardado · Brand Core v{version}. El Steward volverá a certificar.",
+      "savedVersion": "Guardado como Brand Core v{version}. Tu director creativo lo revisará de nuevo.",
       "reviewInProgress": "Ya hay una revisión humana en curso.",
-      "sentForReview": "Enviado a tu Steward de marca para revisión.",
+      "sentForReview": "Enviado a tu director creativo.",
       "couldntRequestReview": "No se pudo solicitar la revisión: {error}",
       "added": "Hemos añadido «{ref}». Brandolph lo leerá la próxima vez que actualice tu Brand Core.",
       "couldntAdd": "No se pudo añadir: {error}",
-      "reviewingThis": "Tu Steward de marca está revisando este Brand Core",
-      "awaitingCert": "En espera de certificación por tu Steward de marca",
+      "reviewingThis": "Tu director creativo está revisando este Brand Core",
+      "awaitingCert": "Pendiente de la aprobación de tu director creativo",
       "noBioYet": "Aún no hay Brand Core — escribe una URL en Descubrimiento para extraer uno",
       "versionScore": "Brand Core v{version} · puntuación {score}/100",
       "flaggedAreas": {
@@ -1249,7 +1257,7 @@
       "within24h": "en 24 h",
       "eyebrow": "Brand Core",
       "of100": "DE 100",
-      "certifiedDate": "Certificado {date}",
+      "certifiedDate": "Aprobado el {date}",
       "uncertified": "Sin certificar",
       "versionTitle": "Versión del Brand Core {version}",
       "feedBrandolph": "Darle más a Brandolph",
@@ -1258,14 +1266,18 @@
       "saveChanges": "Guardar cambios",
       "rerunDiscovery": "Volver a ejecutar el descubrimiento",
       "reviewInProgressTitle": "Ya hay una revisión humana en curso",
-      "requestReviewTitle": "Envía este Brand Core a tu Steward de marca para una revisión humana — sin necesidad de editar",
+      "requestReviewTitle": "Pide a tu director creativo que revise este Brand Core. No hace falta cambiar nada.",
       "inReviewShort": "En revisión…",
       "sending": "Enviando…",
       "requestHumanReview": "Solicitar revisión humana",
-      "editingBanner": "Editando el Brand Core — al guardar se crea una nueva versión que tu Steward de marca volverá a certificar.",
+      "editingBanner": "Estás editando tu Brand Core. Al guardar se crea una versión nueva que revisará tu director creativo.",
       "noCanon": "Aún no hay canon.",
       "noCanonDesc": "Tu Brand Core es la referencia de todo lo que creamos. Comparte tu web o pega lo que tengas. Brandolph lo redacta en un minuto, más o menos, y un director creativo sénior lo aprueba.",
-      "startDiscovery": "Iniciar descubrimiento"
+      "startDiscovery": "Iniciar descubrimiento",
+      "openBook": "Abrir Brand Book",
+      "editProfile": "Editar perfil",
+      "addSources": "Añadir fuentes",
+      "certify": "Certificar marca"
     },
     "tab": {
       "identity": "Identidad",
@@ -1294,12 +1306,12 @@
     "table": {
       "field": "Campo",
       "whatWeKnow": "Lo que sabemos",
-      "confidence": "Confianza",
+      "confidence": "Seguridad",
       "confidenceTitle": "Lo seguro que está Brandolph. Confirmado: se lo dijiste o está claro. Probable: lo dedujo. Necesita tu ayuda: no lo encontró.",
       "lowHigh": "baja → alta"
     },
     "competitive": {
-      "placeholder": "El mapa competitivo viene de a32 (especialista en Mapa de Competidores) — se conectará en una fase posterior. El Compilador de Brand Core no extrae competidores hoy."
+      "placeholder": "Pronto verás aquí a tus competidores."
     },
     "editPrimitive": {
       "chipAdd": "+ añadir",
@@ -1313,20 +1325,20 @@
     },
     "bioField": {
       "positioning": "Lo que te hace distinto",
-      "category": "Categoría",
-      "founded": "Fundación",
-      "pillars": "Pilares",
-      "primary": "Principal",
-      "secondary": "Secundaria",
-      "tertiary": "Terciaria",
-      "jtbd": "Tareas por resolver",
+      "category": "A qué te dedicas",
+      "founded": "Cuándo empezaste",
+      "pillars": "Lo que defiendes",
+      "primary": "Clientes principales",
+      "secondary": "Otros clientes",
+      "tertiary": "Otros a los que quieres llegar",
+      "jtbd": "Lo que necesitan tus clientes",
       "register": "Cómo suenas",
-      "forbidden": "Prohibidas",
-      "rhythm": "Ritmo",
-      "signatures": "Firmas",
+      "forbidden": "Palabras que evitar",
+      "rhythm": "Cómo escribes",
+      "signatures": "Frases que suenan a ti",
       "northStar": "Lo que te mueve",
-      "thisQuarter": "Este trimestre",
-      "nextQuarter": "Próximo trimestre"
+      "thisQuarter": "Prioridad de este trimestre",
+      "nextQuarter": "Prioridad del próximo trimestre"
     },
     "visual": {
       "paletteHead": "Paleta de colores",
@@ -1336,8 +1348,8 @@
       "imageryHead": "Imágenes",
       "imagerySource": "análisis de imágenes · 90 publicaciones",
       "namePlaceholder": "Nombre",
-      "wcagPlaceholder": "WCAG",
-      "wcag": "WCAG {value}",
+      "wcagPlaceholder": "Contraste",
+      "wcag": "Contraste {value}",
       "removeColour": "Quitar color",
       "familyPlaceholder": "Familia",
       "sizePlaceholder": "Tamaño",
@@ -1371,7 +1383,7 @@
       "repullSocial": "Volver a extraer redes",
       "addCompetitor": "Añadir competidor",
       "ledger": "{sources} fuentes · {signals} señales aprendidas",
-      "competitorLedger": "Referencias de la competencia · no son evidencia de la marca · {count}",
+      "competitorLedger": "Competidores que mencionaste · {count}",
       "competitorTag": "Competidor",
       "compounds": "Cada fuente hace crecer el Brand Core.",
       "signals": "{count} señales",
@@ -1380,40 +1392,40 @@
       "reExtract": "Volver a extraer"
     },
     "certification": {
-      "open": "Revisar y autocertificar",
-      "pending": "Guarda los cambios e incorpora las nuevas fuentes antes de certificar.",
-      "kicker": "DECLARACIÓN DEL CLIENTE",
+      "open": "Revisar y confirmar",
+      "pending": "Guarda tus cambios y añade las nuevas fuentes antes de confirmar.",
+      "kicker": "Tu confirmación",
       "review": "Revisa este Brand Core",
-      "confirm": "Confirma tu declaración",
+      "confirm": "Confirmar",
       "reviewStep": "Revisar",
       "confirmStep": "Confirmar",
-      "reviewText": "Lee cada sección, sus fuentes y su confianza. Confirma que la has revisado. Los datos desconocidos quedan explícitos; añade pruebas si falta un dato obligatorio.",
-      "confirmText": "Confirmas esta versión exacta del Brand Core como base para los briefs. Confirma personalmente cada declaración.",
+      "reviewText": "Lee cada sección y de dónde sale. Márcala cuando la hayas revisado. Si falta algo importante, añádelo antes de seguir.",
+      "confirmText": "Confirmas esta versión de tu Brand Core como base para tus briefs. Revisa cada punto tú mismo.",
       "sections": "Secciones del Brand Core",
       "reviewed": "He revisado {section}, incluidas sus fuentes e incertidumbres.",
       "issues": "{count} puntos requieren atención",
-      "issuesText": "Son lagunas o interpretaciones de menor confianza, no hechos verificados. Revísalos antes de confirmar. Las lagunas obligatorias impiden certificar.",
-      "missing": "Faltan pruebas",
+      "issuesText": "Son huecos o suposiciones nuestras, no hechos confirmados. Revísalos antes de confirmar. No podrás confirmar hasta responder los obligatorios.",
+      "missing": "Necesita tu ayuda",
       "verify": "Contrastar con las fuentes",
-      "account": "Registrado con tu cuenta",
+      "account": "Guardado en tu cuenta",
       "signedIn": "Usuario conectado",
       "reviewCount": "{count} de {total} secciones revisadas",
       "declarations": "Tus declaraciones",
-      "consequence": "Registra tu confirmación y habilita los briefs para esta versión. La producción requiere la certificación del Brand Steward. Editar el Brand Core crea una versión nueva que requiere otra confirmación.",
+      "consequence": "Esto guarda tu confirmación y te permite hacer briefs con esta versión. Un director creativo lo aprueba antes de entregar el trabajo. Si editas tu Brand Core más adelante, confirmarás la nueva versión.",
       "continue": "Continuar · {count}/{total} revisadas",
       "submit": "Confirmar Brand Core y habilitar briefs",
       "stale": "El Brand Core cambió durante tu revisión. Cierra este diálogo y actualiza para revisar la versión actual.",
-      "success": "Declaración registrada",
-      "successText": "Esta versión del Brand Core está lista para los briefs. La producción sigue requiriendo la certificación del Brand Steward.",
-      "recorded": "Fecha de registro",
+      "success": "Confirmado",
+      "successText": "Ya puedes hacer briefs con esta versión de tu Brand Core. Un director creativo lo aprueba antes de entregar el trabajo.",
+      "recorded": "Confirmado el",
       "done": "Volver al Brand Core",
-      "close": "Cerrar certificación",
+      "close": "Cerrar",
       "acceptChanges": "Revisar los cambios del Director Creativo",
-      "acceptedText": "Los cambios del Director Creativo han sido aceptados para esta versión del Brand Core. La producción puede continuar mientras la certificación siga vigente.",
+      "acceptedText": "Hemos aceptado los cambios del director creativo en esta versión. El trabajo puede seguir.",
       "acceptConsequence": "Aceptar registra tu aprobación de los cambios del Director Creativo a esta versión exacta del Brand Core.",
       "queuePending": "Tu aprobación se ha guardado. La asignación del Director Creativo está pendiente; la producción sigue bloqueada.",
-      "scoreLine": "Puntuación {score} de 100. La autocertificación exige {minScore}.",
-      "belowFloor": "La autocertificación está cerrada por debajo de {minScore}. Este Brand Core puntúa {score}.",
+      "scoreLine": "Tu Brand Core está completo al {score}%. Puedes confirmarlo a partir del {minScore}%.",
+      "belowFloor": "Tu Brand Core está completo al {score}%. Añade un poco más hasta llegar al {minScore}% y confirmarlo.",
       "dragHeading": "Estas secciones están bajando la puntuación.",
       "sectionLift": "{section} · unos {points} puntos si la completas",
       "addAnswers": "Añade una respuesta y una fuente para {fields}.",
@@ -1427,8 +1439,8 @@
       "pointsOfDifference": "Diferencias y pruebas",
       "pointsOfParity": "Expectativas de la categoría",
       "researchGaps": "Preguntas por investigar",
-      "emptyCompetitors": "Aún no hay competidores registrados. Añade nombres o alternativas que los clientes realmente consideran; deja en blanco lo desconocido.",
-      "emptyDifferences": "Aún no hay diferencias respaldadas. Define una afirmación concreta y la prueba necesaria para usarla.",
+      "emptyCompetitors": "Aún no hay competidores. Añade los nombres u opciones que tus clientes de verdad comparan. Deja en blanco lo que no sepas.",
+      "emptyDifferences": "Aún no hay diferencias. Escribe qué te hace distinto y cómo puedes demostrarlo.",
       "newCompetitor": "Nuevo competidor o alternativa",
       "newDifference": "Nueva diferencia",
       "remove": "Eliminar entrada",
@@ -1441,11 +1453,11 @@
       "difference": "Nuestra diferencia relevante",
       "source": "URL de la fuente o referencia del documento",
       "sourceDate": "Fecha de revisión",
-      "claim": "Afirmación concreta",
-      "proof": "Prueba o evidencia de apoyo",
+      "claim": "Lo que afirmas",
+      "proof": "Cómo puedes demostrarlo",
       "rationale": "Por qué importa al cliente",
       "notProvided": "No indicado",
-      "clientInput": "Contexto de trabajo. Una referencia no significa que se haya leído o verificado de forma independiente. Revisa la evidencia antes de usar una afirmación comparativa.",
+      "clientInput": "Solo como contexto. Aún no los hemos comprobado, así que revísalos antes de compararte con nadie.",
       "needsProof": "Falta la prueba. Esta diferencia no debe presentarse como un hecho establecido.",
       "marketPrompt": "¿Qué mercado y decisión de compra estamos comparando?",
       "onePerLine": "Un elemento por línea",
@@ -1454,10 +1466,10 @@
       "status_quo": "Método actual / no hacer nada",
       "unknown": "Sin categorizar",
       "intakeTitle": "Competidores y alternativas (opcional)",
-      "intakeHelp": "¿Con quién te comparan los clientes? Incluye alternativas indirectas o no hacer nada. Puedes añadir pruebas durante la revisión.",
+      "intakeHelp": "¿Con quién te comparan tus clientes? Incluye otras opciones, o no hacer nada. Puedes añadir pruebas más tarde.",
       "manualResume": "Empezar o retomar un borrador manual",
       "type": "Tipo de alternativa",
-      "draftNotice": "Este es un borrador. Los cambios no forman parte del Brand Core certificado hasta su revisión y aprobación.",
+      "draftNotice": "Esto es un borrador. Tus cambios entran en tu Brand Core cuando se revisan.",
       "unspecified": "Tipo sin especificar"
     },
     "sourcesIntake": {
@@ -1478,7 +1490,7 @@
     "intake": {
       "kicker": "Descubrimiento de marca",
       "title": "Empieza por las fuentes.",
-      "lead": "Comparte la web de tu marca y las referencias relevantes. Leeremos las fuentes, construiremos el Brand Core y lo traeremos para que lo revises.",
+      "lead": "Comparte tu web y todo lo que importe. Lo leemos, creamos tu Brand Core y te lo traemos para que lo revises.",
       "brand": "Tu marca",
       "brandHelp": "Una web es un buen punto de partida. También puedes usar documentos.",
       "namePlaceholder": "Nombre de la marca",
@@ -1503,15 +1515,15 @@
       "outputTitle": "Tu Brand Core reunirá",
       "outputBrand": "Posicionamiento, audiencia y voz",
       "outputVisual": "Identidad visual y dirección deseada",
-      "outputMarket": "Contexto competitivo y lagunas de información",
+      "outputMarket": "Competidores y lo que aún falta",
       "currentHelp": "Tus páginas, guías y ejemplos de trabajo.",
       "aspirationHelp": "Referencias que admiras. Indica qué aprender de ellas.",
       "testDetails": "Detalles de la prueba local",
       "visualRead": "análisis visual"
     },
     "tour": {
-      "viewerText": "Esta sección se generó a partir de tus fuentes. Revisa las pruebas y la confianza y mantén explícitos los datos que faltan. Para resolver una laguna, añade pruebas en Fuentes y actualiza el Brand Core; no tienes que redactarlo desde cero.",
-      "sourceText": "Añade un enlace público o sube un documento de marca. Los errores aparecen junto a este control. Incorpora las nuevas pruebas con Actualizar Brand Core antes de solicitar revisión humana.",
+      "viewerText": "Hemos creado esta sección con lo que compartiste. Cada punto indica de dónde sale. Si falta algo, añade una fuente y lo actualizamos. No tienes que escribirlo tú.",
+      "sourceText": "Añade un enlace o sube un documento de marca. Después pulsa Actualizar Brand Core antes de pedir una revisión.",
       "label": "Guía de descubrimiento",
       "help": "Mostrar la guía",
       "step": "Paso {current} de {total}",
@@ -1520,7 +1532,7 @@
       "next": "Siguiente",
       "done": "Entendido",
       "brandTitle": "Empieza por las fuentes de tu marca",
-      "brandText": "Añade tu web o documentos si no tienes sitio. Para una marca nueva, indica su nombre. Aportas las fuentes; el sistema construye el Brand Core.",
+      "brandText": "Añade tu web, o documentos si no tienes. Para una marca nueva, escribe su nombre. Tú compartes, nosotros escribimos.",
       "referencesTitle": "Indica el papel de cada referencia",
       "referencesText": "Añade un enlace, elige marca actual, dirección deseada o contexto competitivo y explica qué importa: tipografía, fotografía, tono o posicionamiento. Las marcas de referencia no se convierten en hechos de tu marca.",
       "filesTitle": "Añade archivos de apoyo",
@@ -1528,8 +1540,8 @@
       "generateTitle": "Genera y después revisa",
       "generateText": "Selecciona Generar Brand Core cuando las fuentes estén listas. Primero subimos los archivos; el descubrimiento empieza cuando se han subido correctamente. Puede tardar varios minutos. Revisarás el resultado antes de confirmarlo.",
       "reviewTitle": "Revisa tu Brand Core generado",
-      "reviewText": "Abre cada sección para revisar la interpretación y sus fuentes. Corrige errores o añade una fuente para la información que falta. Los datos desconocidos deben quedar como tales.",
-      "chapterText": "Contrasta los valores generados con las fuentes. Corrige interpretaciones con pruebas y conserva las lagunas explícitas. Usa Marcar correcto para los hechos respaldados y Marcar aspiracional para las direcciones deseadas. Vuelve a los capítulos cuando termines.",
+      "reviewText": "Abre cada sección para ver qué encontramos y de dónde sale. Corrige lo que esté mal o añade una fuente para lo que falte. Si no sabes algo, déjalo en blanco.",
+      "chapterText": "Compara lo que escribimos con lo que sabes. Marca los hechos como Correcto y los planes como Objetivo. Deja en blanco lo que no sepas. Vuelve a todas las secciones cuando termines.",
       "confirmTitle": "Confirma solo lo que puedes respaldar",
       "confirmText": "Revisa las declaraciones. Confirma solo si estás autorizado, el Brand Core representa la marca y las aspiraciones están separadas. Puedes guardar y volver más tarde."
     },
@@ -1544,8 +1556,8 @@
       "reconnecting": "No podemos comprobar el resultado ahora. Reconectamos automáticamente; tus fuentes siguen guardadas.",
       "stage": {
         "scrape": "Leer las fuentes de la marca",
-        "visual": "Leer la evidencia visual",
-        "read": "Organizar la evidencia",
+        "visual": "Mirando tus elementos visuales",
+        "read": "Ordenando lo que encontramos",
         "research": "Investigar el contexto competitivo",
         "synthesize": "Interpretar y construir el Brand Core",
         "save": "Guardar el candidato para revisión"
@@ -1560,18 +1572,70 @@
     },
     "integrity": {
       "unavailable": "Brand Core no disponible",
-      "preserved": "No se muestra contenido del Brand Core ni acciones de certificación hasta resolver la identidad de la marca y sus fuentes.",
+      "preserved": "Te mostraremos tu Brand Core en cuanto lo relacionemos con la marca correcta.",
       "retry": "Volver a comprobar",
       "sourcesFor": "Fuentes para {name}. Otra marca necesita su propio registro."
     },
     "reviewGate": {
       "waiting": "Pendiente: {reasons}",
-      "score": "Confianza: {score}/{minScore}. La revisión del director creativo se solicitará automáticamente cuando se cumplan estas comprobaciones.",
+      "score": "Tu Brand Core está completo al {score}% (se necesita un {minScore}%). Lo enviaremos a un director creativo en cuanto esté listo.",
       "LOGO_RIGHTS_UNCONFIRMED": "confirmar los derechos del logo",
       "LOGO_REQUIRED": "añadir un logo aprobado",
       "PRIMARY_COLOUR_REQUIRED": "elegir un color principal",
       "DISPLAY_FONT_REQUIRED": "añadir una fuente de títulos con licencia",
-      "BELOW_MIN_SCORE": "elevar la confianza a {minScore}"
+      "BELOW_MIN_SCORE": "llegar al {minScore}%"
+    },
+    "question": {
+      "identity": {
+        "positioning": "¿Qué te hace distinto, en una frase?",
+        "category": "¿Qué tipo de negocio eres?",
+        "founded": "¿Cuándo empezaste?",
+        "pillars": "¿Qué tres cosas defiendes siempre?"
+      },
+      "audience": {
+        "primary": "¿Quién es tu cliente principal?",
+        "secondary": "¿Quién más te compra?",
+        "tertiary": "¿Hay alguien más a quien quieras llegar?",
+        "jtbd": "¿Qué quieren conseguir tus clientes cuando te eligen?"
+      },
+      "voice": {
+        "register": "¿Cómo quieres sonar? Por ejemplo, cercano, formal o divertido.",
+        "forbidden": "¿Qué palabras no debemos usar nunca?",
+        "rhythm": "¿Frases cortas y directas, o largas y pausadas?",
+        "signatures": "¿Qué frases suenan a ti?"
+      },
+      "goals": {
+        "northStar": "¿Cuál es tu gran objetivo a largo plazo?",
+        "q2": "¿Qué es lo más importante este trimestre?",
+        "q3": "¿Y el próximo trimestre?"
+      },
+      "strategic": {
+        "watchouts": "¿Con qué debemos tener cuidado?",
+        "notList": "¿Qué es lo que seguro que no eres?"
+      },
+      "aspirations": {
+        "direction": "¿Hacia dónde quieres llevar la marca?",
+        "notYetTrue": "¿Qué quieres que sea verdad y aún no lo es?",
+        "references": "¿Qué marcas admiras y por qué?"
+      },
+      "positioning": {
+        "frameOfReference": "¿Con quién te comparan tus clientes?",
+        "competitors": "¿Quiénes son tus competidores?",
+        "pointsOfDifference": "¿Por qué te eligen a ti y no a ellos?",
+        "pointsOfParity": "¿En qué tienes que estar a su altura?",
+        "researchGaps": "¿Qué aún no sabemos de tu mercado?"
+      },
+      "visual": {
+        "logo": "Sube tu logo.",
+        "typeScale": "¿Qué tamaño tienen tus titulares y textos?",
+        "palette": "¿Cuáles son los colores de tu marca?",
+        "type": "¿Qué tipografías usas?",
+        "imagery": "¿Cómo son tus fotos e imágenes?",
+        "avoid": "¿Cómo no deben verse nunca tus visuales?"
+      }
+    },
+    "foundation": {
+      "incomplete": "Añade tu logo, tu color principal y tu tipografía de titulares para completar lo básico de tu marca"
     }
   },
   "floater": {
@@ -1615,11 +1679,11 @@
   },
   "ui": {
     "brandolphThinking": "Brandolph está pensando…",
-    "specialist": "Especialista",
+    "specialist": "Experto",
     "comingSoon": "Próximamente",
     "composedBy": "Compuesto por",
     "bioVersion": "Brand Core v{version}",
-    "certifiedBy": "certificado por",
+    "certifiedBy": "aprobado por",
     "routedVia": "enrutado vía",
     "run": "ejecución",
     "debugAttribution": "Atribución de depuración",
@@ -1646,19 +1710,19 @@
     "loading": "Leyendo el Brand Core…",
     "noBio": "Genera el Brand Core a partir de fuentes para ver el Brand Book.",
     "startDiscovery": "Iniciar Discovery",
-    "certified": "Certificado por {name} · Brand Core v{version}",
-    "director": "Director Creativo",
-    "pending": "Inferido — pendiente de revisión",
-    "certifiedLabel": "Certificado",
+    "certified": "Aprobado por {name} · Brand Core v{version}",
+    "director": "Director creativo",
+    "pending": "Nuestra suposición · revísalo",
+    "certifiedLabel": "Aprobado",
     "back": "Volver al Brand Core",
     "sections": "Secciones del Brand Book",
-    "provenance": "Fuentes de evidencia",
-    "sourceGap": "La evidencia necesita revisión",
+    "provenance": "De dónde sale",
+    "sourceGap": "Revisa de dónde sale esto",
     "replayUnavailable": "Esta reproducción guardada no está disponible.",
     "replayLabel": "Ejecución guardada · solo lectura",
     "tourTitle": "Lee la marca en conjunto",
-    "tourText": "Cada sección refleja el mismo Brand Core. Las fuentes aparecen bajo cada bloque; el contenido no certificado necesita revisión.",
-    "visualTourTitle": "Comprueba la evidencia visual",
+    "tourText": "Cada sección muestra una parte de tu Brand Core. Debajo verás de dónde sale. Lo que aún no está aprobado aparece marcado.",
+    "visualTourTitle": "Revisa tus elementos visuales",
     "visualTourText": "Los colores y fuentes proceden de las declaraciones originales. Los roles de color y descripciones visuales requieren revisión humana.",
     "section": {
       "identity": "Esencia",
@@ -1721,6 +1785,19 @@
     "likely": "Probable",
     "needsInput": "Necesita tu ayuda",
     "startHere": "Empieza aquí",
-    "brandBasics": "Lo básico de la marca"
-  }
+    "brandBasics": "Lo básico de la marca",
+    "focusGuess": "Revisa {label}. Es nuestra suposición.",
+    "focusEmpty": "{label} está vacío. Complétalo antes de aprobar.",
+    "whyHigh": "Se usa en todo el trabajo.",
+    "whyMid": "Se usa en mucho trabajo.",
+    "whyLow": "Se usa en parte del trabajo. Revisión rápida."
+  },
+  "strategic": {
+    "gaps": "¿Quién es tu cliente principal? Aún no lo hemos encontrado."
+  },
+  "evidence": "De dónde sale",
+  "confidence": {
+    "source": "De tus respuestas / Cambiado por tu director creativo"
+  },
+  "reviewFieldLabel": "Lo que necesitan tus clientes / Lo que te mueve / Cómo suenas / En qué igualas a la competencia"
 }

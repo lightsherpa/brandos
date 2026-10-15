@@ -9,7 +9,7 @@ import {BrandBookV2,brandBookV2Enabled} from './brand-book-v2.jsx';
 function hasPendingFields(payload,section){return !Object.keys(payload.confidence||{}).some(k=>k.startsWith(section+'.'))||(section==='positioning'&&!!payload.positioning?.researchGaps?.length)||(payload.missing||[]).some(m=>m.field?.startsWith(section+'.'))||Object.entries(payload.confidence||{}).some(([key,value])=>key.startsWith(section+'.')&&Number(value?.conf)<85);}
 const SECTIONS=['identity','positioning','audience','voice','visual','strategic'];
 function sourcesFor(payload,section){
- return [...new Set(Object.entries(payload.confidence||{}).filter(([key,value])=>key.startsWith(section+'.')&&value?.source).map(([,value])=>String(value.source).replace(/steward edit/g,'Creative Director')))].slice(0,4);
+ return [...new Set(Object.entries(payload.confidence||{}).filter(([key,value])=>key.startsWith(section+'.')&&value?.source).map(([,value])=>String(value.source).replace(/steward edit/g,"Creative director")))].slice(0,4);
 }
 export function BrandBook({go,param}){
  const replayName=param?.startsWith('replay/')?param.slice(7):null;
