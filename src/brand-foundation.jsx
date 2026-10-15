@@ -26,6 +26,7 @@ async function sourceUrl(brandId,item) {
   if(!res.ok)throw Error('Asset unavailable');return (await res.json()).url;
 }
 export const LOGO_RIGHTS_MESSAGE='Confirm the brand has rights to use this logo before certification';
+// TODO(legal): photo-rights wording is pending Legal sign-off. Do not rewrite this sentence.
 export function foundationIncompleteMessage(status){
   if(status?.logoStatus==='needs_rights'&&status.missing?.length===1)return 'Foundation incomplete · confirm rights to use the logo';
   return 'Foundation incomplete · add logo, primary colour and display font';

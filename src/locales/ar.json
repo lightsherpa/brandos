@@ -342,7 +342,7 @@
   "plans": {
     "eyebrow": "الخطط",
     "headline": "طوّر استوديوك.",
-    "intro": "تشمل كل خطة فريق Brandolph الكامل و Brand Core معتمدًا من خبير أول. اختر عدد العلامات الذي يناسب العمل الذي أمامك.",
+    "intro": "تشمل كل خطة Brandolph وفريق خبرائنا الكامل وBrand Core يعتمده مدير إبداعي متمرّس. اختر عدد العلامات المناسب لعملك.",
     "success": "تم استلام الدفع — يجري تحديث خطتك. قد يستغرق ذلك بضع ثوانٍ.",
     "cancel": "لم تُجرَ أي تغييرات. اختر خطة متى شئت.",
     "currentPlan": "الخطة الحالية",
@@ -368,7 +368,7 @@
     "included": "مُضمَّن",
     "backToCreate": "→ العودة إلى الإنشاء",
     "blurb": {
-      "00": "علامة واحدة، وفريق Brandolph الكامل، و Brand Core المعتمد الخاص بك.",
+      "00": "علامة واحدة، وBrandolph وفريق خبرائنا الكامل، وBrand Core المعتمد الخاص بك.",
       "01": "شغّل علامتين جنبًا إلى جنب مع ذاكرة متخصصين مشتركة.",
       "02": "ثلاث علامات إضافةً إلى صقل يدوي بشري ذي أولوية.",
       "03": "علامات غير محدودة للاستوديوهات التي تدير الطاقم بالكامل."
@@ -388,7 +388,7 @@
   "brandolph": {
     "hero": "ماذا تريد أن {word}؟",
     "heroWord": "تُنشئ",
-    "subcopy": "صِف التغيير الذي تريد إحداثه، لا المُنتَج النهائي. يقرأ Brandolph Brand Core، ويصقل الموجز، ويجمع الفريق، ويعرض لك التكلفة قبل تشغيل أي شيء.",
+    "subcopy": "صِف النتيجة التي تريدها، لا المُخرَج نفسه. يقرأ Brandolph ملف Brand Core الخاص بك، ويحسّن موجزك، ويختار الخبراء المناسبين، ويعرض لك التكلفة قبل أن يبدأ أي شيء.",
     "scope": "النطاق",
     "promptPlaceholder": "مثال: اجعل إطلاق الربيع لا يُفوَّت — ابدأ بالتشكيلة الجديدة، دون خصومات، وارفع تسجيلات الأسبوع الأول.",
     "modeFlow": "التدفق الكامل",
@@ -397,10 +397,10 @@
     "modePolish": "التلميع",
     "start": "ابدأ",
     "reBrief": "إعادة الموجز",
-    "assemblyNote": "Brand Core {score}٪ · سيصقل Brandolph موجزك قبل تجميع الفريق · السؤال مجاني",
-    "sharpeningEyebrow": "Brandolph · يصقل",
+    "assemblyNote": "اكتمال Brand Core بنسبة {score}% · يحسّن Brandolph موجزك أولًا · السؤال مجاني",
+    "sharpeningEyebrow": "يحسّن Brandolph موجزك…",
     "sharpeningLoading": "يقرأ Brand Core الخاص بك. يضغط على الموجز. يختار أصغر فريق.",
-    "sharpeningFailedEyebrow": "Brandolph · فشل الصقل",
+    "sharpeningFailedEyebrow": "تعذّر على Brandolph تحسين موجزك. حاول مرة أخرى.",
     "sharpeningFailedBody": "{error}. تم الاحتفاظ بالمسودة والإجابات السابقة. أعد محاولة التحليل قبل المتابعة.",
     "proceedRaw": "المتابعة بالموجز كما هو",
     "cmoRewrite": "كيف سيكتبها مدير التسويق",
@@ -470,7 +470,7 @@
     "briefKind": "موجز",
     "untitledBrief": "موجز بلا عنوان",
     "composerPlaceholder": "مثال: اجعل حملة الصيف تستعيد فترات الظهيرة الهادئة — التجزئة أولاً، دون خصومات، وارفع الإقبال في أيام الأسبوع بنسبة 18٪.",
-    "composerAria": "صِف الموجز الذي تريد أن يصقله Brandolph",
+    "composerAria": "أخبر Brandolph بما تحتاج إليه",
     "checkingBrand": "جارٍ التحقق من العلامة المحددة و Brand Core…",
     "bioStatusUnavailable": "حالة Brand Core غير متاحة · {error}",
     "brandBioReady": "{name} · Brand Core {score}/100 · الإصدار {version} · جاهز للصقل",
@@ -510,7 +510,7 @@
     "spec": {
       "eyebrow": "L2 · 33 متخصصًا كبيرًا",
       "title": "القسم، في المناوبة.",
-      "sub": "يقرأ براندولف الموجز. المتخصصون ينجزون العمل. يُوجَّه كل واحد إلى النموذج الأنسب للمهمة — واضح وقابل للتدقيق ومدفوع من نفس رصيد الأرصدة.",
+      "sub": "تخبر Brandolph بما تحتاج إليه، وخبراؤنا ينفّذون العمل، كلٌّ بالأداة الأنسب للمهمة. ترى كل خطوة وتدفع من رصيد واحد.",
       "liveCount": "{live} نشط · {soon} قريبًا",
       "newSpecialist": "متخصص جديد",
       "pinned": "★ مثبَّت · متخصصوك المفضّلون",
@@ -546,7 +546,7 @@
       "searchPlaceholder": "ابحث في الموجزات…",
       "countOf": "{shown} من {total}",
       "emptyTitle": "لا توجد موجزات على الطاولة بعد.",
-      "emptyBody": "براندولف بانتظار أوّل موجز. اكتب ما تحتاجه في منصّة الإطلاق — ولو جملة واحدة — وسيصقله، ويحدّد التوتر، ويجمع أصغر فريق يستحقّه.",
+      "emptyBody": "Brandolph جاهز لموجزك الأول. اكتب ما تحتاج إليه، ولو جملة واحدة. سيحسّنه ويختار أصغر فريق مناسب للعمل.",
       "startFirst": "ابدأ أوّل موجز",
       "browseSpecialists": "تصفّح المتخصصين",
       "noMatch": "لا توجد موجزات تطابق عوامل التصفية الحالية."
@@ -567,7 +567,7 @@
       "tabRecommendation": "التوصية",
       "tabDelivery": "التسليم",
       "approve": "اعتماد",
-      "reviseWithBrandolph": "المراجعة مع براندولف",
+      "reviseWithBrandolph": "عدّله مع Brandolph",
       "exportPdf": "تصدير PDF",
       "smpLabel": "الطرح الأحادي",
       "openBoard": "فتح اللوحة",
@@ -626,12 +626,12 @@
       "perRun": "لكل تشغيل",
       "theJob": "المهمة",
       "capabilities": "القدرات",
-      "picksThisFor": "يختاره براندولف لـ",
+      "picksThisFor": "يختار Brandolph هذا الخبير لـ",
       "turnaround": "مدة الإنجاز",
       "unlocksFrom": "يُفتح من",
       "tier": "المستوى",
       "refusals": "الرفض · لن يفعل",
-      "howBriefs": "كيف يوجّه براندولف هذا المتخصص",
+      "howBriefs": "ما يطلبه Brandolph من هذا الخبير",
       "hide": "إخفاء",
       "viewPrompt": "عرض الموجه المُركَّب",
       "briefsFallback": "يقرأ {name} Brand Core قبل الرد، ويتّبع {method}، ويرفض أي شيء يخالف قواعد العلامة. {objective}",
@@ -662,7 +662,7 @@
       "tension": "التوتر",
       "hideBrief": "إخفاء الموجز",
       "showBrief": "عرض الموجز",
-      "sharpenedBrief": "الموجز المصقول من براندولف",
+      "sharpenedBrief": "موجزك بعد أن حسّنه Brandolph",
       "hardRefusals": "الرفض القاطع لهذا الموجز"
     },
     "formats": {
@@ -730,11 +730,11 @@
     "briefDrawer": {
       "titleFallback": "موجز",
       "eyebrow": "BRANDOLPH · الموجز والتوصيات",
-      "tensionNamed": "التوتر الذي حدّده براندولف",
+      "tensionNamed": "التحدي الذي رصده Brandolph",
       "howCmo": "كيف سيكتبها مدير التسويق",
       "yourRequest": "طلبك الأصلي",
-      "recommendations": "توصيات براندولف — ما لن نفعله",
-      "producing": "ما يُنتجه براندولف"
+      "recommendations": "ما يقترح Brandolph ألا نفعله",
+      "producing": "ما يعمل Brandolph على إنجازه"
     },
     "deliverable": {
       "inCraftBadge": "✦ في الصقل اليدوي",
@@ -822,14 +822,14 @@
     },
     "board": {
       "sourceCanon": "المصدر · المرجع",
-      "whyRouted": "لماذا وجّه براندولف هذا هنا",
+      "whyRouted": "لماذا اختار Brandolph هذا الخبير",
       "bestFit": "الأنسب لهذا الجزء من الموجز.",
       "whyChoice": "لماذا هذا الخيار الإبداعي",
-      "theBriefL1": "الموجز · L1 براندولف",
-      "askedFirst": "براندولف سأل أولًا",
+      "theBriefL1": "الموجز · من Brandolph",
+      "askedFirst": "سألك Brandolph أولًا",
       "sourceCanonShort": "المصدر · المرجع",
       "specialistPrefix": "متخصص",
-      "whyRoutes": "لماذا يوجّه براندولف هنا",
+      "whyRoutes": "لماذا يختار Brandolph هذا الخبير",
       "theOutput": "المُخرَج",
       "whyChoiceShort": "لماذا هذا الخيار",
       "addSpecialist": "إضافة متخصص",
@@ -1030,7 +1030,7 @@
       "brandNameRequired": "اسم العلامة مطلوب.",
       "titleAddEm": "أضف علامة.",
       "titlePointEm": "عرّفنا بعلامتك.",
-      "titleAddRest": "سمِّها، ودُلّنا عليها، وسيقرأ Brandolph الباقي.",
+      "titleAddRest": "أخبر Brandolph باسمها وأين يجدها، وسيقرأ الباقي.",
       "titlePointRest": "وإلى أين تريد أن تأخذها.",
       "lead": "شارك الموقع والمستندات والمراجع. افصل العلامة الحالية عن اتجاهها المطلوب. نحلل المصادر وننشئ Brand Core بما فيه السياق التنافسي.",
       "brandNameLabel": "اسم العلامة",
@@ -1060,12 +1060,12 @@
       "clone": "استنساخ مساحة (المستوى 03)"
     },
     "step2": {
-      "reading1": "يقرأ Brandolph كل صفحة في موقعك",
+      "reading1": "يقرأ Brandolph كل صفحة في موقعك الإلكتروني",
       "reading2": "يرسم فريق التصميم لوحة ألوانك وخطوطك",
-      "reading3": "يصقل Brandolph علامتك في Brand Core",
+      "reading3": "يحوّل Brandolph ما قرأه إلى Brand Core الخاص بك",
       "reading4": "يودِع المسودّة ليعتمدها مشرف علامتك",
-      "compiledTitle": "جمّع Brandolph Brand Core الخاص بك",
-      "readingTitle": "يقرأ Brandolph علامتك",
+      "compiledTitle": "جهّز Brandolph ملف Brand Core الخاص بك",
+      "readingTitle": "يقرأ Brandolph علامتك التجارية",
       "extraction": "الاستخلاص",
       "elapsed": "مضى {sec} ث"
     },
@@ -1155,7 +1155,7 @@
       "missing": "غير متوفر",
       "accurate": "مؤكَّد كدقيق",
       "aspirational": "طموح",
-      "inferred": "أكِّد — مستنتَج، غير مُصرَّح به",
+      "inferred": "يحتاج إلى مدخلاتك",
       "stated": "كلماتك",
       "review": "بحاجة إلى مراجعة"
     },
@@ -1314,7 +1314,7 @@
       "reviewInProgress": "هناك مراجعة بشرية جارية بالفعل.",
       "sentForReview": "أُرسل إلى مشرف علامتك للمراجعة.",
       "couldntRequestReview": "تعذّر طلب المراجعة: {error}",
-      "added": "أُضيف \"{ref}\". سيقرأه Brandolph في الاكتشاف التالي.",
+      "added": "أضفنا «{ref}». سيقرؤه Brandolph في المرة القادمة التي يحدّث فيها Brand Core.",
       "couldntAdd": "تعذّرت الإضافة: {error}",
       "reviewingThis": "يراجع مشرف علامتك هذا Brand Core",
       "awaitingCert": "بانتظار الاعتماد من مشرف علامتك",
@@ -1323,11 +1323,11 @@
       "flaggedAreas": {
         "plural": {
           "zero": "أشار Brandolph إلى {count} مجال ليؤكّده مشرفك.",
-          "one": "أشار Brandolph إلى مجال واحد ليؤكّده مشرفك.",
+          "one": "حدّد Brandolph {count} عنصرًا ليراجعه مديرك الإبداعي.",
           "two": "أشار Brandolph إلى مجالين ليؤكّدهما مشرفك.",
           "few": "أشار Brandolph إلى {count} مجالات ليؤكّدها مشرفك.",
           "many": "أشار Brandolph إلى {count} مجالًا ليؤكّدها مشرفك.",
-          "other": "أشار Brandolph إلى {count} مجال ليؤكّده مشرفك."
+          "other": "حدّد Brandolph {count} عناصر ليراجعها مديرك الإبداعي."
         }
       },
       "inReview": "قيد المراجعة",
@@ -1337,7 +1337,7 @@
       "certifiedDate": "معتمَد {date}",
       "uncertified": "غير معتمَد",
       "versionTitle": "نسخة Brand Core {version}",
-      "feedBrandolph": "غذِّ Brandolph",
+      "feedBrandolph": "أعطِ Brandolph المزيد",
       "editBio": "تحرير Brand Core",
       "savingChanges": "جارٍ الحفظ…",
       "saveChanges": "حفظ التغييرات",
@@ -1349,7 +1349,7 @@
       "requestHumanReview": "طلب مراجعة بشرية",
       "editingBanner": "تحرير Brand Core — الحفظ ينشئ نسخة جديدة سيعيد مشرف علامتك اعتمادها.",
       "noCanon": "لا مرجعية بعد.",
-      "noCanonDesc": "Brand Core هو مصدر الحقيقة الذي يُقاس عليه كل مخرَج. وجِّه الاكتشاف إلى رابطك أو الصق ما لديك — وسيجمّع Brandolph المسودّة الأولى في نحو ثلاثين ثانية. يوقّعها مشرف كبير قبل أن تصبح مرجعية.",
+      "noCanonDesc": "Brand Core هو المرجع لكل ما نصنعه. شارك موقعك الإلكتروني أو الصق ما لديك. يكتب Brandolph المسودة في دقيقة تقريبًا، ثم يعتمدها مدير إبداعي متمرّس.",
       "startDiscovery": "ابدأ الاكتشاف"
     },
     "tab": {
@@ -1365,7 +1365,7 @@
     "bioTone": {
       "well": {
         "word": "موثَّق جيدًا",
-        "hint": "لدى Brandolph أدلّة كافية للوثوق بهذا."
+        "hint": "لدى Brandolph ما يكفي هنا."
       },
       "filling": {
         "word": "قيد الاكتمال",
@@ -1373,14 +1373,14 @@
       },
       "needs": {
         "word": "يحتاج مزيدًا من المصادر",
-        "hint": "أعطِ Brandolph مزيدًا من الصفحات أو الملفات لرفع هذا."
+        "hint": "أعطِ Brandolph صفحات أو ملفات أخرى لإكمال هذا."
       }
     },
     "table": {
       "field": "الحقل",
       "whatWeKnow": "ما نعرفه",
       "confidence": "الثقة",
-      "confidenceTitle": "مدى ثقة Brandolph بهذا الحقل بناءً على مصادره. الأحمر = أدلّة ضعيفة، الأخضر = موثَّق جيدًا.",
+      "confidenceTitle": "مدى تأكّد Brandolph. مؤكَّد: أخبرته أو ورد بوضوح. مرجَّح: استنتجه. يحتاج إلى مدخلاتك: لم يجده.",
       "lowHigh": "منخفضة → عالية"
     },
     "competitive": {
@@ -1447,8 +1447,8 @@
       "diagnosis": "تشخيص Brandolph · هذا الأسبوع"
     },
     "sources": {
-      "feedBrandolph": "غذِّ Brandolph",
-      "feedDesc": "أسقِط رابطًا أو مستندًا أو ملاحظة. يقرأه Brandolph ويشدّ Brand Core.",
+      "feedBrandolph": "أعطِ Brandolph المزيد",
+      "feedDesc": "أضف رابطًا أو مستندًا أو ملاحظة. يقرؤه Brandolph ويحدّث Brand Core.",
       "pastePlaceholder": "الصق رابطًا — موقع، مقال، منافس، شبكات…",
       "reading": "جارٍ القراءة…",
       "readIt": "اقرأه",
@@ -1671,7 +1671,7 @@
       "craft": "*عمل يدوي ينبغي أن ينهيه الفريق.* سأطابق حزمة تشطيب مع مهمة إذا وصفتها لي.",
       "credits": "*إنفاق، وليس ميزانية.* اسألني أين ذهب المال، أو ما الذي سيتغير إن ضاعفت الدورة.",
       "settings": "*حوكمة مساحة العمل.* اسألني ما الذي ينبغي أن تكون عليه قائمة المحظورات، أو ما إذا كان حدّ الموافقة التلقائية لديك متساهلاً.",
-      "default": "*أنا Brandolph.* اسألني ما الذي يجري، أو ما هو المتوقف، أو ما العمل التالي. السؤال مجاني — الموجزات تعرض التكلفة."
+      "default": "*أنا Brandolph.* اسألني عمّا يجري، أو ما توقّف، أو ما الخطوة التالية. السؤال مجاني، وسترى التكلفة قبل بدء أي موجز."
     },
     "prompt": {
       "statusEyebrow": "الحالة",
@@ -1687,7 +1687,7 @@
     "headerSub": "مدير التسويق لديك · السؤال مجاني",
     "close": "إغلاق",
     "tryAsking": "جرّب أن تسأل",
-    "reading": "Brandolph يقرأ…",
+    "reading": "يقرأ Brandolph…",
     "placeholder": "اسأل أي شيء — الحالة، الموجز التالي، حالات الرفض…",
     "send": "إرسال",
     "free": "مجاني",
@@ -1699,7 +1699,7 @@
     "pingTitle": "لدى Brandolph اقتراح لك"
   },
   "ui": {
-    "brandolphThinking": "Brandolph يفكّر",
+    "brandolphThinking": "يفكّر Brandolph…",
     "specialist": "مختص",
     "comingSoon": "قريباً",
     "composedBy": "من إنشاء",
@@ -1778,5 +1778,24 @@
     "downloadPng": "تنزيل PNG",
     "savedTasks": "المهام المحفوظة",
     "running": "قيد التنفيذ"
+  },
+  "auth": {
+    "storySub": "يحوّل Brandolph علامتك إلى Brand Core يعتمده مدير إبداعي، ثم يصنع خبراؤنا العمل انطلاقًا منه. ويمكن لمصمّم إنهاء أي شيء يحتاج إلى لمسة بشرية."
+  },
+  "craft": {
+    "headerSub": "يصنع Brandolph النسخة الأولى، ثم يُنهيها فريقنا الإبداعي يدويًا.",
+    "customBody": "لأي عمل غير مدرج هنا. يُعدّ Brandolph الموجز للفريق نيابةً عنك.",
+    "livesInBrandolph": "ستجد هذا في Brandolph."
+  },
+  "provenance": {
+    "website": "من موقعك الإلكتروني",
+    "brand_deck": "من عرض علامتك التجارية",
+    "your_answers": "من إجاباتك",
+    "social": "من حساباتك على وسائل التواصل",
+    "guess": "أفضل تخمين لدينا",
+    "cd_edit": "غيّره مديرك الإبداعي",
+    "confirmed": "مؤكَّد",
+    "likely": "مرجَّح",
+    "needsInput": "يحتاج إلى مدخلاتك"
   }
 }

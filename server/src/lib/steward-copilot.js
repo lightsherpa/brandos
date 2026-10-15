@@ -2,6 +2,7 @@ import { BIO_FIELDS, normalizeBio } from "./bio-schema.js";
 import { computeFocus } from "./bio-focus.js";
 import { diffBio } from "./bio-diff.js";
 import { scoreBioBreakdown } from "./score-bio.js";
+import { fieldLabelEn } from "./field-labels.js";
 
 const STATUS_LABELS = {
   supported: "source-backed",
@@ -31,7 +32,7 @@ const get = (payload, dotted) => dotted.split(".").reduce((obj, key) => obj?.[ke
 const filled = (v) => (Array.isArray(v) ? v.length > 0 : v != null && String(v).trim() !== "");
 
 function labelFor(field) {
-  return field.split(".").map((part) => part.replace(/([A-Z])/g, " $1")).join(" / ");
+  return fieldLabelEn(field) || "";
 }
 
 function normalizeStatus(status, conf, source) {
@@ -146,7 +147,7 @@ export function buildStewardCaseFile({ job, bio, brand, sources = [], previousBi
     ...groups.unsupported.map((claim) => riskFromClaim(claim, "high", "This claim is marked unsupported.", "Remove it or request evidence.")),
     ...groups.missing.filter((claim) => HIGH_IMPACT.has(claim.field)).map((claim) => riskFromClaim(claim, "medium", "High-impact field is empty.", "Ask the client or fill from source evidence.")),
     ...groups.clientStated.filter((claim) => HIGH_IMPACT.has(claim.field)).map((claim) => riskFromClaim(claim, "medium", "Client-stated high-impact claim needs Steward judgment.", "Confirm, edit, or ask for source support.")),
-    ...groups.inferred.filter((claim) => HIGH_IMPACT.has(claim.field)).map((claim) => riskFromClaim(claim, "low", "High-impact claim is inferred.", "Confirm source support or mark as aspirational.")),
+    ...groups.inferred.filter((claim) => HIGH_IMPACT.has(claim.field)).map((claim) => riskFromClaim(claim, "low", "provenance.guessCheck", "provenance.guessDetail")),
   ];
   const readiness = readinessFor({ bio, focus, scoreBreakdown, groups });
 

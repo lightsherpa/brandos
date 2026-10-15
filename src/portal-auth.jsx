@@ -1,7 +1,7 @@
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_SESSION } from "./lib/ui-fixture.js";
-import { setLocale } from "./lib/i18n.js";
+import { setLocale, useLocale } from "./lib/i18n.js";
 import { prepareTotpFactor } from "./lib/mfa.js";
 
 const { Icon, BrandolphAvatar } = window;
@@ -340,6 +340,7 @@ function useSession() {
    forgot   — email only → email reset link
    recovery — new password only → set new password (after email link click) */
 function Login({ role = "client", go, initialMode = "signin" }) {
+  const { t } = useLocale();
   const isTeam = role === "team";
   const [email, setEmail] = useAuthState("");
   const [password, setPassword] = useAuthState("");
@@ -408,7 +409,7 @@ function Login({ role = "client", go, initialMode = "signin" }) {
         <div className="auth-story__copy">
           <div className="auth-story__eyebrow">BrandOS</div>
           <h2 className="auth-story__head">Your brand,<br />made certifiable.</h2>
-          <p className="auth-story__sub">Brandolph reads your brand into a living, human-certified Brand Core, assembles the crew, and lands the work on a canvas — with optional human finishing when the work needs it.</p>
+          <p className="auth-story__sub">{t("auth.storySub")}</p>
           <div className="auth-story__dots"><span className="is-active" /><span /><span /><span /></div>
         </div>
       </aside>

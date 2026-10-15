@@ -125,7 +125,7 @@
     "candidateBio": "Brand Core candidato · v{version}",
     "editedTag": "· editado",
     "resetEdits": "Descartar cambios",
-    "fldPositioning": "Posicionamiento",
+    "fldPositioning": "Lo que te hace distinto",
     "phPositioning": "Una frase — lo que la marca realmente es",
     "fldCategory": "Categoría",
     "fldPillars": "Pilares",
@@ -134,13 +134,13 @@
     "fldSecondaryAudience": "Audiencia secundaria",
     "fldJtbd": "Trabajos por hacer",
     "addJtbd": "+ Añadir JTBD",
-    "fldVoiceRegister": "Registro de voz",
+    "fldVoiceRegister": "Cómo suenas",
     "fldRhythm": "Ritmo",
     "fldSignatureMoves": "Gestos distintivos",
     "addSignature": "+ Añadir gesto",
     "fldForbiddenWords": "Palabras prohibidas",
     "addForbidden": "+ Añadir prohibida",
-    "fldNorthStar": "Estrella polar",
+    "fldNorthStar": "Lo que te mueve",
     "fldThisQuarter": "Este trimestre",
     "fldNextQuarter": "Próximo trimestre",
     "fldWatchouts": "Alertas estratégicas",
@@ -152,7 +152,7 @@
     "fldVisualAvoid": "Evitar en lo visual",
     "addVisualAvoid": "+ Añadir a evitar",
     "bioEditHint": "Edita cualquier campo — los cambios se registran localmente y se envían como `bioPatch` al certificar (crea una nueva versión del Brand Core). Los campos visuales se autocompletarán con el pase de visión en P5; por ahora puedes rellenarlos a mano aquí.",
-    "focusFirst": "Revisa primero",
+    "focusFirst": "Empieza aquí",
     "nothingFlagged": "Nada señalado — todos los campos se leen bien.",
     "statusMissing": "falta",
     "statusLowConf": "baja conf.",
@@ -333,7 +333,7 @@
   "plans": {
     "eyebrow": "Planes",
     "headline": "Haz crecer tu estudio.",
-    "intro": "Cada plan incluye el equipo completo de Brandolph y un Brand Core certificado por un sénior. Elige el número de marcas que se ajuste al trabajo que tienes por delante.",
+    "intro": "Todos los planes incluyen a Brandolph, nuestro equipo completo de expertos y un Brand Core aprobado por un director creativo sénior. Elige el número de marcas que encaje con tu trabajo.",
     "success": "Pago recibido: tu plan se está actualizando. Esto puede tardar unos segundos.",
     "cancel": "No se hicieron cambios. Elige un plan cuando quieras.",
     "currentPlan": "Plan actual",
@@ -355,7 +355,7 @@
     "included": "Incluido",
     "backToCreate": "← Volver a Crear",
     "blurb": {
-      "00": "Una marca, el equipo completo de Brandolph y tu Brand Core certificado.",
+      "00": "Una marca, Brandolph y nuestro equipo completo de expertos, y tu Brand Core aprobado.",
       "01": "Gestiona dos marcas en paralelo con memoria de especialistas compartida.",
       "02": "Tres marcas más pulido artesanal humano prioritario.",
       "03": "Marcas ilimitadas para estudios que gestionan toda la plantilla."
@@ -375,7 +375,7 @@
   "brandolph": {
     "hero": "¿Qué quieres {word}?",
     "heroWord": "crear",
-    "subcopy": "Describe el cambio que quieres lograr, no el entregable. Brandolph lee el Brand Core, afina el brief, reúne al equipo y te muestra el costo antes de que algo se ejecute.",
+    "subcopy": "Describe el resultado que buscas, no el entregable. Brandolph lee tu Brand Core, afina tu brief, elige a los expertos adecuados y te enseña el coste antes de empezar.",
     "scope": "Alcance",
     "promptPlaceholder": "p. ej. Haz que nuestro lanzamiento de primavera sea imperdible — destaca la nueva gama, sin descuentos, sube los registros de la primera semana.",
     "modeFlow": "Flujo completo",
@@ -384,10 +384,10 @@
     "modePolish": "Pulido",
     "start": "Iniciar",
     "reBrief": "Rehacer brief",
-    "assemblyNote": "Brand Core {score}% · Brandolph afinará tu brief antes de reunir al equipo · Preguntar es gratis",
-    "sharpeningEyebrow": "Brandolph · afinando",
+    "assemblyNote": "Brand Core completo al {score}% · Brandolph afina primero tu brief · Preguntar es gratis",
+    "sharpeningEyebrow": "Brandolph está afinando tu brief…",
     "sharpeningLoading": "Leyendo tu Brand Core. Presionando el brief. Eligiendo el equipo más pequeño.",
-    "sharpeningFailedEyebrow": "Brandolph · falló al afinar",
+    "sharpeningFailedEyebrow": "Brandolph no ha podido afinar tu brief. Inténtalo de nuevo.",
     "sharpeningFailedBody": "{error}. El borrador y las respuestas anteriores se conservan. Reintenta el análisis antes de continuar.",
     "proceedRaw": "Continuar con el brief sin afinar",
     "cmoRewrite": "Cómo lo escribiría un CMO",
@@ -445,7 +445,7 @@
     "briefKind": "Brief",
     "untitledBrief": "Brief sin título",
     "composerPlaceholder": "p. ej. Haz que la campaña de verano recupere las tardes tranquilas — primero el retail, sin descuentos, sube el tráfico entre semana un 18 %.",
-    "composerAria": "Describe el brief que quieres que Brandolph afine",
+    "composerAria": "Cuéntale a Brandolph lo que necesitas",
     "checkingBrand": "Comprobando la marca seleccionada y el Brand Core…",
     "bioStatusUnavailable": "Estado del Brand Core no disponible · {error}",
     "brandBioReady": "{name} · Brand Core {score}/100 · v{version} · listo para afinar",
@@ -481,7 +481,7 @@
     "spec": {
       "eyebrow": "L2 · 33 especialistas sénior",
       "title": "El departamento, en turno.",
-      "sub": "Brandolph lee el brief. Los especialistas hacen el trabajo. Cada uno se enruta al modelo más adecuado para la tarea — visible, auditable, pagado del mismo fondo de créditos.",
+      "sub": "Le cuentas a Brandolph lo que necesitas. Nuestros expertos hacen el trabajo, cada uno con la herramienta más adecuada. Ves cada paso y pagas con un solo saldo de créditos.",
       "liveCount": "{live} activos · {soon} próximamente",
       "newSpecialist": "Nuevo especialista",
       "pinned": "★ Fijados · tus especialistas preferidos",
@@ -513,7 +513,7 @@
       "searchPlaceholder": "Buscar briefs…",
       "countOf": "{shown} de {total}",
       "emptyTitle": "Aún no hay briefs sobre la mesa.",
-      "emptyBody": "Brandolph está esperando el primero. Escribe lo que necesitas en la plataforma de lanzamiento — aunque sea una frase — y él lo afinará, nombrará la tensión y reunirá el equipo más pequeño que lo merezca.",
+      "emptyBody": "Brandolph está listo para tu primer brief. Escribe lo que necesitas, aunque sea una frase. Lo afinará y elegirá el equipo justo para el trabajo.",
       "startFirst": "Comenzar el primer brief",
       "browseSpecialists": "Explorar especialistas",
       "noMatch": "Ningún brief coincide con los filtros actuales."
@@ -530,7 +530,7 @@
       "tabRecommendation": "Recomendación",
       "tabDelivery": "Entrega",
       "approve": "Aprobar",
-      "reviseWithBrandolph": "Revisar con Brandolph",
+      "reviseWithBrandolph": "Cambiarlo con Brandolph",
       "exportPdf": "Exportar PDF",
       "smpLabel": "Propuesta única",
       "openBoard": "Abrir el tablero",
@@ -581,12 +581,12 @@
       "perRun": "por ejecución",
       "theJob": "El trabajo",
       "capabilities": "Capacidades",
-      "picksThisFor": "Brandolph lo elige para",
+      "picksThisFor": "Brandolph elige a este experto para",
       "turnaround": "Tiempo de entrega",
       "unlocksFrom": "Se desbloquea desde",
       "tier": "Nivel",
       "refusals": "Rechazos · no hará",
-      "howBriefs": "Cómo Brandolph instruye a este especialista",
+      "howBriefs": "Qué le pide Brandolph a este experto",
       "hide": "Ocultar",
       "viewPrompt": "Ver prompt compuesto",
       "briefsFallback": "{name} lee el Brand Core antes de responder, sigue {method} y rechaza cualquier cosa que rompa las reglas de la marca. {objective}",
@@ -617,7 +617,7 @@
       "tension": "Tensión",
       "hideBrief": "Ocultar brief",
       "showBrief": "Mostrar brief",
-      "sharpenedBrief": "El brief afinado de Brandolph",
+      "sharpenedBrief": "Tu brief, afinado por Brandolph",
       "hardRefusals": "Rechazos absolutos para este brief"
     },
     "formats": {
@@ -681,11 +681,11 @@
     "briefDrawer": {
       "titleFallback": "Brief",
       "eyebrow": "BRANDOLPH · BRIEF Y RECOMENDACIONES",
-      "tensionNamed": "La tensión que nombró Brandolph",
+      "tensionNamed": "El reto que vio Brandolph",
       "howCmo": "Cómo lo escribiría un CMO",
       "yourRequest": "Tu solicitud original",
-      "recommendations": "Recomendaciones de Brandolph — lo que NO haremos",
-      "producing": "Lo que Brandolph está produciendo"
+      "recommendations": "Lo que Brandolph te sugiere no hacer",
+      "producing": "Lo que Brandolph está creando"
     },
     "deliverable": {
       "inCraftBadge": "✦ En artesanía humana",
@@ -769,14 +769,14 @@
     },
     "board": {
       "sourceCanon": "Fuente · el canon",
-      "whyRouted": "Por qué Brandolph lo enrutó aquí",
+      "whyRouted": "Por qué Brandolph eligió a este experto",
       "bestFit": "La mejor opción para esta parte del brief.",
       "whyChoice": "Por qué esta elección creativa",
-      "theBriefL1": "El brief · L1 Brandolph",
-      "askedFirst": "Brandolph preguntó primero",
+      "theBriefL1": "El brief · de Brandolph",
+      "askedFirst": "Brandolph te preguntó antes",
       "sourceCanonShort": "Fuente · canon",
       "specialistPrefix": "Especialista",
-      "whyRoutes": "Por qué Brandolph enruta aquí",
+      "whyRoutes": "Por qué Brandolph elige a este experto",
       "theOutput": "La salida",
       "whyChoiceShort": "Por qué esta elección",
       "addSpecialist": "Añadir especialista",
@@ -961,7 +961,7 @@
       "brandNameRequired": "El nombre de la marca es obligatorio.",
       "titleAddEm": "Añade una marca.",
       "titlePointEm": "Muéstranos tu marca.",
-      "titleAddRest": "Ponle nombre, muéstranosla y Brandolph lee el resto.",
+      "titleAddRest": "Dile a Brandolph su nombre y dónde encontrarla. Él lee el resto.",
       "titlePointRest": "Y hacia dónde quieres llevarla.",
       "lead": "Comparte tu web, documentos y referencias. Separa la marca actual de su dirección deseada. Analizamos las fuentes y generamos tu Brand Core, incluido el contexto competitivo.",
       "brandNameLabel": "Nombre de la marca",
@@ -987,11 +987,11 @@
       "clone": "Clonar un espacio (Nivel 03)"
     },
     "step2": {
-      "reading1": "Brandolph está leyendo cada página de tu sitio",
+      "reading1": "Brandolph está leyendo cada página de tu web",
       "reading2": "El equipo de diseño está mapeando tu paleta y tu tipografía",
-      "reading3": "Brandolph está afinando tu marca en un Brand Core",
+      "reading3": "Brandolph está convirtiendo lo que ha leído en tu Brand Core",
       "reading4": "Archivando el borrador para que tu Steward de marca lo certifique",
-      "compiledTitle": "Brandolph compiló tu Brand Core",
+      "compiledTitle": "Brandolph tiene listo tu Brand Core",
       "readingTitle": "Brandolph está leyendo tu marca",
       "extraction": "EXTRACCIÓN",
       "elapsed": "{sec}s transcurridos"
@@ -1028,7 +1028,7 @@
     },
     "field": {
       "identity": {
-        "positioning": "Posicionamiento",
+        "positioning": "Lo que te hace distinto",
         "category": "Categoría",
         "founded": "Fundación",
         "pillars": "Pilares"
@@ -1040,7 +1040,7 @@
         "jtbd": "Tareas por resolver"
       },
       "voice": {
-        "register": "Registro",
+        "register": "Cómo suenas",
         "rhythm": "Ritmo de las frases",
         "forbidden": "Palabras prohibidas",
         "signatures": "Gestos característicos"
@@ -1052,7 +1052,7 @@
         "avoid": "Nunca así"
       },
       "goals": {
-        "northStar": "Estrella polar",
+        "northStar": "Lo que te mueve",
         "q2": "Este trimestre",
         "q3": "Próximo trimestre"
       },
@@ -1082,7 +1082,7 @@
       "missing": "Sin información",
       "accurate": "confirmado como preciso",
       "aspirational": "aspiracional",
-      "inferred": "confirma — inferido, no declarado",
+      "inferred": "Necesita tu ayuda",
       "stated": "tus palabras",
       "review": "Pendiente de revisión"
     },
@@ -1233,7 +1233,7 @@
       "reviewInProgress": "Ya hay una revisión humana en curso.",
       "sentForReview": "Enviado a tu Steward de marca para revisión.",
       "couldntRequestReview": "No se pudo solicitar la revisión: {error}",
-      "added": "Añadido \"{ref}\". Brandolph lo leerá en el próximo descubrimiento.",
+      "added": "Hemos añadido «{ref}». Brandolph lo leerá la próxima vez que actualice tu Brand Core.",
       "couldntAdd": "No se pudo añadir: {error}",
       "reviewingThis": "Tu Steward de marca está revisando este Brand Core",
       "awaitingCert": "En espera de certificación por tu Steward de marca",
@@ -1241,8 +1241,8 @@
       "versionScore": "Brand Core v{version} · puntuación {score}/100",
       "flaggedAreas": {
         "plural": {
-          "one": "Brandolph marcó {count} área para que tu Steward la confirme.",
-          "other": "Brandolph marcó {count} áreas para que tu Steward las confirme."
+          "one": "Brandolph ha marcado {count} punto para que lo revise tu director creativo.",
+          "other": "Brandolph ha marcado {count} puntos para que los revise tu director creativo."
         }
       },
       "inReview": "en revisión",
@@ -1252,7 +1252,7 @@
       "certifiedDate": "Certificado {date}",
       "uncertified": "Sin certificar",
       "versionTitle": "Versión del Brand Core {version}",
-      "feedBrandolph": "Alimentar a Brandolph",
+      "feedBrandolph": "Darle más a Brandolph",
       "editBio": "Editar Brand Core",
       "savingChanges": "Guardando…",
       "saveChanges": "Guardar cambios",
@@ -1264,7 +1264,7 @@
       "requestHumanReview": "Solicitar revisión humana",
       "editingBanner": "Editando el Brand Core — al guardar se crea una nueva versión que tu Steward de marca volverá a certificar.",
       "noCanon": "Aún no hay canon.",
-      "noCanonDesc": "El Brand Core es la fuente de verdad con la que se juzga cada resultado. Apunta Descubrimiento a tu URL o pega lo que tengas — Brandolph compilará el primer borrador en unos treinta segundos. Un Steward sénior lo firma antes de que se convierta en canon.",
+      "noCanonDesc": "Tu Brand Core es la referencia de todo lo que creamos. Comparte tu web o pega lo que tengas. Brandolph lo redacta en un minuto, más o menos, y un director creativo sénior lo aprueba.",
       "startDiscovery": "Iniciar descubrimiento"
     },
     "tab": {
@@ -1280,7 +1280,7 @@
     "bioTone": {
       "well": {
         "word": "bien documentado",
-        "hint": "Brandolph tiene evidencia suficiente para confiar en esto."
+        "hint": "Brandolph tiene suficiente información aquí."
       },
       "filling": {
         "word": "completándose",
@@ -1288,14 +1288,14 @@
       },
       "needs": {
         "word": "necesita más fuentes",
-        "hint": "Dale a Brandolph más páginas o archivos para subir esto."
+        "hint": "Dale a Brandolph más páginas o archivos para completarlo."
       }
     },
     "table": {
       "field": "Campo",
       "whatWeKnow": "Lo que sabemos",
       "confidence": "Confianza",
-      "confidenceTitle": "Qué tan segura está Brandolph sobre este campo, según sus fuentes. Rojo = evidencia escasa, verde = bien documentado.",
+      "confidenceTitle": "Lo seguro que está Brandolph. Confirmado: se lo dijiste o está claro. Probable: lo dedujo. Necesita tu ayuda: no lo encontró.",
       "lowHigh": "baja → alta"
     },
     "competitive": {
@@ -1312,7 +1312,7 @@
       "addListField": "Añadir campo de lista"
     },
     "bioField": {
-      "positioning": "Posicionamiento",
+      "positioning": "Lo que te hace distinto",
       "category": "Categoría",
       "founded": "Fundación",
       "pillars": "Pilares",
@@ -1320,11 +1320,11 @@
       "secondary": "Secundaria",
       "tertiary": "Terciaria",
       "jtbd": "Tareas por resolver",
-      "register": "Registro",
+      "register": "Cómo suenas",
       "forbidden": "Prohibidas",
       "rhythm": "Ritmo",
       "signatures": "Firmas",
-      "northStar": "Estrella polar",
+      "northStar": "Lo que te mueve",
       "thisQuarter": "Este trimestre",
       "nextQuarter": "Próximo trimestre"
     },
@@ -1362,8 +1362,8 @@
       "diagnosis": "Diagnóstico de Brandolph · esta semana"
     },
     "sources": {
-      "feedBrandolph": "Alimentar a Brandolph",
-      "feedDesc": "Suelta un enlace, un documento o una nota. Brandolph lo lee y afina el Brand Core.",
+      "feedBrandolph": "Darle más a Brandolph",
+      "feedDesc": "Añade un enlace, un documento o una nota. Brandolph lo lee y actualiza tu Brand Core.",
       "pastePlaceholder": "Pega una URL — sitio, artículo, competidor, redes…",
       "reading": "Leyendo…",
       "readIt": "Léelo",
@@ -1586,7 +1586,7 @@
       "craft": "*Trabajo manual que el equipo debería rematar.* Asocio un paquete de acabado a un trabajo si me lo describes.",
       "credits": "*Gasto, no presupuesto.* Pregúntame a dónde fue el dinero, o qué cambiaría si duplicaras el ciclo.",
       "settings": "*Gobernanza del espacio de trabajo.* Pregúntame cuál debería ser la lista de prohibiciones, o si tu umbral de aprobación automática está demasiado holgado.",
-      "default": "*Soy Brandolph.* Pregúntame qué está en marcha, qué está atascado, o qué hacer a continuación. Preguntar es gratis — los briefs muestran el coste."
+      "default": "*Soy Brandolph.* Pregúntame qué está en marcha, qué está parado o qué hacer ahora. Preguntar es gratis. Verás el coste antes de que empiece cualquier brief."
     },
     "prompt": {
       "statusEyebrow": "Estado",
@@ -1614,7 +1614,7 @@
     "pingTitle": "Brandolph tiene una sugerencia para ti"
   },
   "ui": {
-    "brandolphThinking": "Brandolph está pensando",
+    "brandolphThinking": "Brandolph está pensando…",
     "specialist": "Especialista",
     "comingSoon": "Próximamente",
     "composedBy": "Compuesto por",
@@ -1693,5 +1693,34 @@
     "downloadPng": "Descargar PNG",
     "savedTasks": "Tareas guardadas",
     "running": "En curso"
+  },
+  "auth": {
+    "storySub": "Brandolph convierte tu marca en un Brand Core que aprueba un director creativo, y nuestros expertos crean el trabajo a partir de él. Un diseñador puede rematar lo que necesite un toque humano."
+  },
+  "craft": {
+    "headerSub": "Brandolph hace la primera versión. Después, nuestro equipo creativo la remata a mano.",
+    "customBody": "Para todo lo que no aparece aquí. Brandolph prepara el encargo para el equipo.",
+    "livesInBrandolph": "Lo encontrarás en Brandolph."
+  },
+  "provenance": {
+    "website": "De tu web",
+    "brand_deck": "De tu presentación de marca",
+    "your_answers": "De tus respuestas",
+    "social": "De tus redes",
+    "guess": "Nuestra suposición",
+    "cd_edit": "Cambiado por tu director creativo",
+    "noun": {
+      "website": "web",
+      "brand_deck": "presentación de marca",
+      "your_answers": "respuestas",
+      "social": "redes"
+    },
+    "joinTwo": "De tu {a} y tu {b}",
+    "where": "De dónde sale",
+    "confirmed": "Confirmado",
+    "likely": "Probable",
+    "needsInput": "Necesita tu ayuda",
+    "startHere": "Empieza aquí",
+    "brandBasics": "Lo básico de la marca"
   }
 }

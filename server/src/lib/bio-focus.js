@@ -12,7 +12,10 @@
 //   values on  payload.<section>.<key>
 //   gaps on    payload.missing = [{ field: "<dotted.path>", why }]
 //
-// FocusItem = { field, label, status, importance, priority, conf, value, source, why, action }
+// FocusItem = { field, label, labelKey, status, importance, priority, conf, value, sourceKinds, whyKey, actionKey }
+
+import { FIELD_LABELS_EN, canonicalFieldPath, fieldLabelEn } from "./field-labels.js";
+import { normalizeSourceKinds } from "./source-kind.js";
 
 // Importance keyed to downstream blast radius — how many specialists inherit
 // the field. Anything not listed defaults to 0.3 (low impact).
@@ -23,28 +26,21 @@ const IMPORTANCE = {
   "voice.signatures": 0.3, "audience.secondary": 0.3, "goals.q2": 0.3, "goals.q3": 0.3, "identity.founded": 0.3,
 };
 
-const LABELS = {
-  "identity.positioning": "Positioning", "voice.forbidden": "Forbidden words", "audience.primary": "Primary audience",
-  "identity.category": "Category", "identity.pillars": "Pillars", "voice.register": "Voice register",
-  "audience.jtbd": "Jobs-to-be-done", "goals.northStar": "North star", "voice.signatures": "Voice signatures",
-  "audience.secondary": "Secondary audience", "goals.q2": "Q2 priority", "goals.q3": "Q3 priority", "identity.founded": "Founded",
-};
+const LABELS = FIELD_LABELS_EN;
 
 const DROP_CONF = 92;
 
 const imp = (f) => IMPORTANCE[f] ?? 0.3;
 const get = (p, path) => path.split(".").reduce((o, k) => o?.[k], p);
 
-function whyFor(f) {
-  return imp(f) >= 1.0 ? "Every specialist inherits this."
-    : imp(f) >= 0.6 ? "Several specialists draw on it."
-      : "Low downstream impact — quick confirm.";
+function whyKey(f) {
+  return imp(f) >= 1.0 ? "provenance.whyHigh" : imp(f) >= 0.6 ? "provenance.whyMid" : "provenance.whyLow";
 }
 
-function actionFor(field, label, status, source) {
-  if (status === "missing") return `${label} is empty — fill it from a source before certifying.`;
-  if (source && /infer/i.test(source)) return `Confirm ${label.toLowerCase()} — inferred, not stated.`;
-  return `Verify ${label.toLowerCase()}${source ? ` against ${source}` : ""}.`;
+function actionKey(status, sourceKinds) {
+  if (status === "missing") return "provenance.missingNotFound";
+  if (sourceKinds.includes("guess")) return "provenance.guessCheck";
+  return null;
 }
 
 export function computeFocus(payload = {}) {
@@ -53,41 +49,57 @@ export function computeFocus(payload = {}) {
     .map((g) => (typeof g === "string" ? g : g.field))
     .filter(Boolean);
   const items = [];
+  const gapFields = [];
 
-  // 1) Gaps bucket — missing fields always come first.
-  for (const field of gaps) {
+  // 1) Gaps bucket — missing fields always come first. Unknown paths are dropped.
+  for (const raw of gaps) {
+    const field = canonicalFieldPath(raw);
+    const label = fieldLabelEn(raw, (name) => console.warn("Dropped unlabeled Brand Core field", name));
+    if (!field || !label || gapFields.includes(field)) continue;
+    gapFields.push(field);
+    const key = actionKey("missing", []);
     items.push({
       field,
-      label: LABELS[field] || field,
+      label,
+      labelKey: `discovery.field.${field}`,
       status: "missing",
       importance: imp(field),
       priority: imp(field),
       conf: null,
       value: null,
       source: null,
-      why: whyFor(field),
-      action: actionFor(field, LABELS[field] || field, "missing", null),
+      sourceKinds: [],
+      whyKey: whyKey(field),
+      actionKey: key,
+      why: key,
+      action: key,
     });
   }
 
   // 2) Present-but-low-confidence fields, ranked by importance × (1 − conf/100).
-  const gapSet = new Set(gaps);
+  const gapSet = new Set(gapFields);
   for (const field of Object.keys(IMPORTANCE)) {
     if (gapSet.has(field)) continue;
     const c = conf[field]?.conf;
     if (typeof c !== "number" || c >= DROP_CONF) continue;
     const priority = imp(field) * (1 - c / 100);
+    const sourceKinds = normalizeSourceKinds(conf[field]?.source_kind || conf[field]?.source);
+    const key = actionKey("low_conf", sourceKinds);
     items.push({
       field,
-      label: LABELS[field] || field,
+      label: LABELS[field] || fieldLabelEn(field),
+      labelKey: `discovery.field.${field}`,
       status: "low_conf",
       importance: imp(field),
       priority,
       conf: c,
       value: get(payload, field) ?? null,
-      source: conf[field]?.source ?? null,
-      why: whyFor(field),
-      action: actionFor(field, LABELS[field] || field, "low_conf", conf[field]?.source),
+      source: null,
+      sourceKinds,
+      whyKey: whyKey(field),
+      actionKey: key,
+      why: key,
+      action: key,
     });
   }
 

@@ -17,6 +17,9 @@ import "./discovery-intake.css";
 import {DiscoverySourceReferences} from "./discovery-source-references.jsx";
 import {CompetitiveRecords,BioCompetitive} from "./bio-competitive.jsx";
 import { useLocale, t as tr } from "./lib/i18n.js";
+import { canonicalFieldPath } from "../server/src/lib/field-labels.js";
+import { KNOWN_FIELD_PATHS, normalizeMissingReason, normalizeSourceKinds } from "../server/src/lib/source-kind.js";
+import { certaintyWord, humanFieldLabel, missingReasonLine, sourceLine } from "./lib/provenance-copy.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_BIO_STATE, FIXTURE_SOURCES, publishReadProgress } from "./lib/ui-fixture.js";
 import { BrandolphLine } from "./portal-shared.jsx";
@@ -1150,60 +1153,67 @@ function payloadToFields(payload) {
   const fieldMeta = p.fieldMeta || {};
   const cf = (section, key) => cmap[`${section}.${key}`] || {};
   const field = (section, key, label, extra = {}) => {
-    const { conf, source } = cf(section, key);
+    const { conf, source, source_kind: sourceKind } = cf(section, key);
     const meta = fieldMeta?.[section]?.[key] || {};
-    return { key, label: meta.label || label, conf, source, ...extra, ...(typeof meta.multi === "boolean" ? { multi: meta.multi } : {}) };
+    return { key, label: meta.label || label, conf, source, sourceKind, ...extra, ...(typeof meta.multi === "boolean" ? { multi: meta.multi } : {}) };
   };
-  const humanize = (key) => String(key)
-    .replace(/^custom_/, "")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/[_-]+/g, " ")
-    .replace(/^./, (c) => c.toUpperCase());
-  const customFields = (section, known) => Object.entries(p[section] || {})
-    .filter(([key]) => !known.includes(key))
-    .map(([key, value]) => ({
-      ...field(section, key, humanize(key), { multi: Array.isArray(value) }),
-      value,
-    }));
+  const foldSection = (section, obj) => {
+    const next = { ...(obj || {}) };
+    for (const key of Object.keys(obj || {})) {
+      const path = canonicalFieldPath(`${section}.${key}`) || canonicalFieldPath(key);
+      if (!path || !path.startsWith(`${section}.`)) {
+        console.warn("Dropped unlabeled Brand Core field", `${section}.${key}`);
+        delete next[key];
+        continue;
+      }
+      const leaf = path.slice(section.length + 1);
+      if (leaf !== key) {
+        const current = next[leaf];
+        const empty = current == null || current === "" || (Array.isArray(current) && current.length === 0);
+        if (empty) next[leaf] = next[key];
+        delete next[key];
+      }
+    }
+    return next;
+  };
+  const identity = foldSection("identity", p.identity);
+  const audience = foldSection("audience", p.audience);
+  const voice = foldSection("voice", p.voice);
+  const goals = foldSection("goals", p.goals);
+  const customFields = () => [];
   return {
     identity: [
-      { ...field("identity", "positioning", "Positioning", { italic: true }), value: p.identity?.positioning || "" },
-      { ...field("identity", "category", "Category"), value: p.identity?.category || "" },
-      { ...field("identity", "founded", "Founded"),   value: p.identity?.founded || "" },
-      { ...field("identity", "pillars", "Pillars", { multi: true }), value: p.identity?.pillars || [] },
-      ...customFields("identity", ["positioning", "category", "founded", "pillars"]),
+      { ...field("identity", "positioning", "What makes you different", { italic: true }), value: identity.positioning || "" },
+      { ...field("identity", "category", "What you do"), value: identity.category || "" },
+      { ...field("identity", "founded", "Founded"),   value: identity.founded || "" },
+      { ...field("identity", "pillars", "What you stand for", { multi: true }), value: identity.pillars || [] },
+      ...customFields(),
     ],
     positioning: p.positioning || {},
     audience: [
-      { ...field("audience", "primary", "Primary"),     value: p.audience?.primary || "" },
-      { ...field("audience", "secondary", "Secondary"), value: p.audience?.secondary || "" },
-      { ...field("audience", "tertiary", "Tertiary"),   value: p.audience?.tertiary || "" },
-      { ...field("audience", "jtbd", "Jobs to be done", { multi: true }), value: p.audience?.jtbd || [] },
-      ...customFields("audience", ["primary", "secondary", "tertiary", "jtbd"]),
+      { ...field("audience", "primary", "Main customers"),     value: audience.primary || "" },
+      { ...field("audience", "secondary", "Other customers"), value: audience.secondary || "" },
+      { ...field("audience", "tertiary", "Other customers"),   value: audience.tertiary || "" },
+      { ...field("audience", "jtbd", "What customers need", { multi: true }), value: audience.jtbd || [] },
+      ...customFields(),
     ],
     voice: [
-      { ...field("voice", "register", "Register"),    value: p.voice?.register || "" },
-      { ...field("voice", "forbidden", "Forbidden", { multi: true }), value: p.voice?.forbidden || [] },
-      { ...field("voice", "rhythm", "Rhythm"),        value: p.voice?.rhythm || "" },
-      { ...field("voice", "signatures", "Signatures", { multi: true }), value: p.voice?.signatures || [] },
-      ...customFields("voice", ["register", "forbidden", "rhythm", "signatures"]),
+      { ...field("voice", "register", "How you sound"),    value: voice.register || "" },
+      { ...field("voice", "forbidden", "Words to avoid", { multi: true }), value: voice.forbidden || [] },
+      { ...field("voice", "rhythm", "Rhythm"),        value: voice.rhythm || "" },
+      { ...field("voice", "signatures", "Phrases that sound like you", { multi: true }), value: voice.signatures || [] },
+      ...customFields(),
     ],
     goals: [
-      { ...field("goals", "northStar", "North star"), value: p.goals?.northStar || "" },
-      { ...field("goals", "q2", "This quarter"),      value: p.goals?.q2 || "" },
-      { ...field("goals", "q3", "Next quarter"),      value: p.goals?.q3 || "" },
-      ...customFields("goals", ["northStar", "q2", "q3"]),
+      { ...field("goals", "northStar", "What drives you"), value: goals.northStar || "" },
+      { ...field("goals", "q2", "This quarter"),      value: goals.q2 || "" },
+      { ...field("goals", "q3", "Next quarter"),      value: goals.q3 || "" },
+      ...customFields(),
     ],
     strategic: {
       watchouts: p.strategic?.watchouts || [],
       notList:   p.strategic?.notList || [],
-      /* Gaps now come from the live payload's `missing` list (each
-         { field, why }). The Gaps list + StringListEditor render plain
-         strings, so flatten each entry to "field — why". Old BIOs have no
-         `missing` → empty → UI hides it. Tolerate plain strings too. */
-      gaps:      (p.missing || []).map(m =>
-                   typeof m === "string" ? m
-                   : [m?.field, m?.why].filter(Boolean).join(" — ")),
+      gaps: gapEntries(p.missing),
       diagnosis: p.strategic?.diagnosis || "",
     },
     /* Visual tab consumes these arrays directly. */
@@ -1213,6 +1223,24 @@ function payloadToFields(payload) {
     avoid:   p.visual?.avoid || [],
     grade:   p.visual?.grade || "",
   };
+}
+
+function gapEntries(missing) {
+  const rows = Array.isArray(missing) ? missing : [];
+  const out = [];
+  const seen = new Set();
+  for (const row of rows) {
+    const rawField = typeof row === "string" ? row.split(" — ")[0] : row?.field;
+    const rawReason = typeof row === "string" ? row.split(" — ").slice(1).join(" — ") : (row?.reason || row?.why);
+    const field = canonicalFieldPath(rawField);
+    if (!field || seen.has(field)) {
+      if (rawField) console.warn("Dropped unlabeled Brand Core field", rawField);
+      continue;
+    }
+    seen.add(field);
+    out.push({ field, reason: normalizeMissingReason(rawReason) });
+  }
+  return out;
 }
 
 function fieldsToPayload(bio, prevPayload) {
@@ -1226,14 +1254,11 @@ function fieldsToPayload(bio, prevPayload) {
     fieldMeta[section] = {};
     for (const f of fields || []) {
       const parsedConfidence = Number(f.conf);
-      if (Number.isFinite(parsedConfidence)) confidence[`${section}.${f.key}`] = { conf: parsedConfidence, source: f.source || "manual entry" };
+      if (Number.isFinite(parsedConfidence)) confidence[`${section}.${f.key}`] = { conf: parsedConfidence, source: f.source || "manual entry", ...(f.sourceKind ? { source_kind: f.sourceKind } : {}) };
       fieldMeta[section][f.key] = { label: f.label || f.key, multi: !!f.multi };
     }
   }
-  const missing = (bio.strategic?.gaps || []).filter(Boolean).map((entry) => {
-    const [field, ...why] = String(entry).split(" — ");
-    return { field: why.length ? field : "manual", why: why.length ? why.join(" — ") : field };
-  });
+  const missing = gapEntries(bio.strategic?.gaps).map(({ field, reason }) => ({ field, reason }));
   return {
     ...(prevPayload || {}),
     confidence,
@@ -1402,10 +1427,17 @@ function StewardDiffPanel({ diff }) {
    translates it for DISPLAY only. Labels not in the map (user-added fields)
    render as-is. */
 const BIO_FIELD_LABEL_KEYS = {
-  "Positioning": "positioning", "Category": "category", "Founded": "founded", "Pillars": "pillars",
-  "Primary": "primary", "Secondary": "secondary", "Tertiary": "tertiary", "Jobs to be done": "jtbd",
-  "Register": "register", "Forbidden": "forbidden", "Rhythm": "rhythm", "Signatures": "signatures",
-  "North star": "northStar", "This quarter": "thisQuarter", "Next quarter": "nextQuarter",
+  "Positioning": "positioning", "What makes you different": "positioning",
+  "Category": "category", "What you do": "category",
+  "Founded": "founded", "Pillars": "pillars", "What you stand for": "pillars",
+  "Primary": "primary", "Main customers": "primary",
+  "Secondary": "secondary", "Other customers": "secondary",
+  "Tertiary": "tertiary", "Jobs to be done": "jtbd", "What customers need": "jtbd",
+  "Register": "register", "How you sound": "register",
+  "Forbidden": "forbidden", "Words to avoid": "forbidden",
+  "Rhythm": "rhythm", "Signatures": "signatures", "Phrases that sound like you": "signatures",
+  "North star": "northStar", "What drives you": "northStar",
+  "This quarter": "thisQuarter", "Next quarter": "nextQuarter",
 };
 const bioFieldLabel = (label) => {
   const key = BIO_FIELD_LABEL_KEYS[label];
@@ -1819,14 +1851,14 @@ function EditableField({ f, editing, onChange, onRemove }) {
       <div className="bio-field-row" style={{display:"grid", gridTemplateColumns: "180px 1fr 110px", gap: 18, padding:"14px 0", borderBottom:"1px solid var(--c-line)", alignItems:"start"}}>
         <div>
           <div style={{fontFamily:"var(--font-mono)", fontSize:11, color:"var(--c-faint)", letterSpacing:"0.06em", textTransform:"uppercase"}}>{bioFieldLabel(f.label)}</div>
-          {f.source && <div style={{fontSize: 11, color:"var(--c-faint)", marginTop: 4, fontStyle:"italic"}}>{t("discovery.field.from", { source: f.source === "steward edit" ? "Creative Director" : f.source })}</div>}
+          {(f.source || f.sourceKind) && <div style={{fontSize: 11, color:"var(--c-faint)", marginTop: 4}}>{sourceLine(f.sourceKind || f.source, t)}</div>}
         </div>
         <div style={{fontSize: 14, color:"var(--c-ink)", lineHeight: 1.55}}>
           {f.multi
             ? (["jtbd","signatures"].includes(f.key)?<ul style={{paddingInlineStart:18,margin:0}}>{(f.value||[]).map((v,i)=><li key={i} style={{marginBottom:8}}>{v}</li>)}</ul>:<div style={{display:"flex", flexWrap:"wrap", gap: 6}}>{(f.value || []).map((v, i) => <span key={i} className="pill">{v}</span>)}</div>)
             : (f.value==null||f.value===""?<span style={{color:"var(--c-dim)"}}>{t("discovery.certification.missing")}</span>:f.italic ? <em style={{fontStyle:"italic"}}>{f.value}</em> : f.value)}
         </div>
-        <div style={{textAlign:"right"}}>{typeof f.conf==='number'&&<Confidence value={f.conf} />}</div>
+        <div style={{textAlign:"right"}}>{typeof f.conf==='number'&&<span aria-label={t("provenance.howSure")}>● {certaintyWord({conf:f.conf,sourceKinds:(f.source||f.sourceKind)?normalizeSourceKinds(f.sourceKind||f.source):[]},t)}</span>}</div>
       </div>
     );
   }
@@ -2052,8 +2084,34 @@ function BioVisual({ bio, patch, editing, brandId }) {
   );
 }
 
+function GapEditor({ items, onChange }) {
+  const { t } = useLocale();
+  const used = new Set(items.map((item) => item.field));
+  const add = () => {
+    const field = KNOWN_FIELD_PATHS.find((path) => !used.has(path)) || KNOWN_FIELD_PATHS[0];
+    onChange([...items, { field, reason: "not_found" }]);
+  };
+  return (
+    <ul style={{margin:0, padding:0, listStyle:"none", display:"flex", flexDirection:"column", gap:8}}>
+      {items.map((item, i) => (
+        <li key={`${item.field}-${i}`} style={{display:"flex", gap:8, alignItems:"center"}}>
+          <select aria-label={humanFieldLabel(item.field, t) || item.field} value={item.field} onChange={(e) => onChange(items.map((row, j) => j === i ? { ...row, field: e.target.value } : row))} style={{flex:1, height:34}}>
+            {KNOWN_FIELD_PATHS.map((path) => <option key={path} value={path}>{humanFieldLabel(path, t) || path}</option>)}
+          </select>
+          <select aria-label={missingReasonLine(item.reason, t)} value={item.reason} onChange={(e) => onChange(items.map((row, j) => j === i ? { ...row, reason: e.target.value } : row))} style={{height:34}}>
+            {["not_found", "unclear", "conflicting"].map((reason) => <option key={reason} value={reason}>{missingReasonLine(reason, t)}</option>)}
+          </select>
+          <button onClick={() => onChange(items.filter((_, j) => j !== i))} style={{...CHIP_X, lineHeight:"34px"}} title={t("discovery.common.remove")}>×</button>
+        </li>
+      ))}
+      <li><button type="button" className="btn btn--ghost btn--sm" onClick={add}><Icon name="plus" size={12} /> {t("discovery.editPrimitive.addItem")}</button></li>
+    </ul>
+  );
+}
+
 function BioStrategic({ strat, patchStrategic, editing }) {
   const { t } = useLocale();
+  const gaps = Array.isArray(strat.gaps) ? strat.gaps : [];
   return (
     <div style={{display:"grid", gridTemplateColumns: "1fr 1fr", gap: 18}}>
       <div className="card" style={{padding: 18}}>
@@ -2067,9 +2125,13 @@ function BioStrategic({ strat, patchStrategic, editing }) {
       <div className="card" style={{padding: 18}}>
         <div className="eyebrow" style={{color:"var(--orange-600)", marginBottom: 8}}>{t("discovery.strategic.gaps")}</div>
         {editing
-          ? <StringListEditor items={strat.gaps} onChange={(v) => patchStrategic("gaps", v)} />
+          ? <GapEditor items={gaps} onChange={(v) => patchStrategic("gaps", v)} />
           : <ul style={{margin:0, paddingLeft: 0, listStyle:"none", display:"flex", flexDirection:"column", gap: 10}}>
-              {strat.gaps.map((x, i) => <li key={i} style={{fontSize: 13.5, color:"var(--c-ink)"}}>{x}</li>)}
+              {gaps.map((item) => {
+                const label = humanFieldLabel(item.field, t);
+                if (!label) return null;
+                return <li key={item.field} style={{fontSize: 13.5, color:"var(--c-ink)"}}>{label}. {missingReasonLine(item.reason, t)}</li>;
+              })}
             </ul>}
       </div>
       <div className="card" style={{padding: 18, gridColumn: "1 / -1"}}>

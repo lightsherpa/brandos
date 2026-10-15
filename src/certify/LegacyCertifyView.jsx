@@ -1,5 +1,8 @@
 import React from 'react';
 import { apiFetch } from '../lib/supabase-browser.js';
+import { useLocale } from '../lib/i18n.js';
+import { distinctQuote, sourceLine } from '../lib/provenance-copy.js';
+import { safeHref } from './display-text.js';
 import { useCertThread, ClientThread } from './ClientThread.jsx';
 import { useBrandFonts } from '../brand-fonts.jsx';
 import { foundationStatus, COLOUR_ROLES, GOOGLE_FONTS, validateFoundationVisual } from '../../server/src/lib/brand-foundation.js';
@@ -26,20 +29,23 @@ export function ClaimValue({ claim, value = claim.value, sources = [] }) {
   return <p className="certify-value">{typeof value === 'object' && value ? Object.entries(value).filter(([,v]) => typeof v !== 'object').map(([k,v]) => `${fieldLabel(k)}: ${v}`).join(' · ') : display(value)}</p>;
 }
 export function ClaimEvidence({ claim }) {
+  const { t } = useLocale();
   const [tab, setTab] = React.useState(0);
   React.useEffect(() => setTab(0), [claim.claim_id]);
-  const evidence = claim.evidence[tab] || claim.evidence[0];
+  const evidence = claim.evidence?.[tab] || claim.evidence?.[0];
+  const line = evidence ? sourceLine(evidence.source_kind?.length ? evidence.source_kind : evidence.label ? [evidence.label] : ['guess'], t) : '';
+  const quote = evidence ? distinctQuote(evidence.quote, line) : '';
+  const href = evidence ? safeHref(evidence.url || evidence.asset_url) : null;
+  const pageSuffix = evidence && Number.isFinite(Number(evidence.page)) && String(evidence.page).trim() !== '' ? ` · Page ${evidence.page}` : '';
   return <div className="certify-evidence">
-    <div className="eyebrow">Source evidence</div>
-    {claim.evidence.length > 1 && <div className="certify-tabs" role="tablist" aria-label="Evidence sources">{claim.evidence.map((e,i) => <button key={i} role="tab" aria-selected={tab === i} onClick={() => setTab(i)}>{e.page ? `Page ${e.page}` : `Source ${i+1}`}</button>)}</div>}
-    {!evidence ? <p className="certify-empty">● To confirm · No evidence yet</p> : <>
-      <p className="certify-provenance">● {evidence.first_party ? 'First-party' : 'Recorded / inferred'}{evidence.page ? ` · Page ${evidence.page}` : ''}</p>
-      {evidence.quote && <blockquote>{evidence.quote}</blockquote>}
-      {evidence.screenshot && <img className="certify-source-image" src={evidence.screenshot} alt={`Screenshot of ${evidence.label}`} />}
-      {evidence.asset_url && isImage(evidence) && <img className="certify-source-image" src={evidence.asset_url} alt={`Source: ${evidence.label}`} />}
-      {evidence.asset_url && (evidence.mime === 'application/pdf' || /\.pdf$/i.test(evidence.label || '')) && <iframe className="certify-pdf" title={`Source PDF ${evidence.label}`} src={`${evidence.asset_url}#page=${evidence.page || 1}`} />}
-      {(evidence.url || evidence.asset_url) ? <a href={evidence.url || evidence.asset_url} target="_blank" rel="noreferrer">{evidence.label || 'Open source'} ↗</a> : <small>{evidence.label}</small>}
-      {!evidence.quote && !evidence.asset_url && !evidence.screenshot && <p>No excerpt captured · inspect the source link.</p>}
+    <div className="eyebrow">{t('provenance.where')}</div>
+    {(claim.evidence||[]).length > 1 && <div className="certify-tabs" role="tablist" aria-label={t('provenance.where')}>{claim.evidence.map((e,i) => <button key={i} role="tab" aria-selected={tab === i} onClick={() => setTab(i)}>{Number.isFinite(Number(e.page)) ? e.page : i+1}</button>)}</div>}
+    {!evidence ? <p className="certify-empty">{t('provenance.missingNotFound')}</p> : <>
+      {quote && <blockquote>{quote}</blockquote>}
+      {evidence.screenshot && <img className="certify-source-image" src={evidence.screenshot} alt={line} />}
+      {evidence.asset_url && isImage(evidence) && <img className="certify-source-image" src={evidence.asset_url} alt={line} />}
+      {evidence.asset_url && (evidence.mime === 'application/pdf' || /\.pdf$/i.test(evidence.asset_url || '')) && <iframe className="certify-pdf" title={line} src={`${evidence.asset_url}#page=${evidence.page || 1}`} />}
+      {href ? <a href={href} target="_blank" rel="noreferrer">{line}{pageSuffix} ↗</a> : <p className="certify-provenance">{line}{pageSuffix}</p>}
     </>}
   </div>;
 }

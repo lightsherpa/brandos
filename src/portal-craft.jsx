@@ -10,6 +10,7 @@ const { useState: useCState, useEffect: useCEffect } = React;
 /* CRAFT MARKETPLACE (L3)                                            */
 
 function CraftMarketplace({ go, tier }) {
+  const { t } = useLocale();
   const [pack, setPack] = useCState(null);
   const locked = tier === "00" || tier === "01";
 
@@ -26,7 +27,7 @@ function CraftMarketplace({ go, tier }) {
       <PageHeader
         eyebrow="L3 · The human creative team"
         title="Hand the work that needs hands."
-        sub="Brandolph drafts the first cut. BrandOS's creative team — the same one that's served 50+ brands — finishes the work where craft is the difference. Same credit pool, same Brand Core, no fabricated middle."
+        sub={t("craft.headerSub")}
         right={<>
           <span style={{fontFamily:"var(--font-mono)", fontSize: 11, color:"var(--c-dim)", letterSpacing:"0.06em"}}>
             Available: <strong style={{color:"var(--c-ink)", fontWeight: 600}}>{window.CI_CREDITS.balance} cr</strong>
@@ -66,7 +67,7 @@ function CraftMarketplace({ go, tier }) {
         }}>
           <span style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 24, color:"var(--c-faint)"}}>—</span>
           <div style={{fontSize: 13, color:"var(--c-ink)", fontWeight: 500}}>Quote on request</div>
-          <div style={{fontSize: 12, color:"var(--c-dim)", textAlign:"center", lineHeight: 1.4}}>For work outside this menu. Brandolph briefs the team.</div>
+          <div style={{fontSize: 12, color:"var(--c-dim)", textAlign:"center", lineHeight: 1.4}}>{t("craft.customBody")}</div>
           <button className="btn btn--link" style={{fontSize: 12}}>Start a custom request →</button>
         </div>
       </div>
@@ -165,6 +166,7 @@ function CraftModal({ pack, onClose }) {
 }
 
 function TierLock() {
+  const { t } = useLocale();
   return (
     <div className="card" style={{
       padding: 40, maxWidth: 520, textAlign:"center",
@@ -175,7 +177,7 @@ function TierLock() {
         <BrandolphAvatar size={56} />
       </div>
       <h2 style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 28, color:"var(--c-ink)", letterSpacing:"-0.01em", margin: 0, marginBottom: 14, fontWeight: 500}}>
-        <em style={{background:"var(--yellow-200)", padding:"0 4px", fontStyle:"normal"}}>This lives in Brandolph.</em>
+        <em style={{background:"var(--yellow-200)", padding:"0 4px", fontStyle:"normal"}}>{t("craft.livesInBrandolph")}</em>
       </h2>
       <p style={{fontSize: 14.5, color:"var(--c-dim)", lineHeight: 1.55, margin: 0, marginBottom: 22}}>
         Humans — the L3 layer — are the difference between an AI draft and finished work a buyer takes seriously. They come with Brandolph and up.
@@ -648,7 +650,7 @@ function SettingsView({ section = null, go = null, accountBase = "settings", onL
     ["access","People & access","team"],
     ["specs","Agent specs","settings"],
     ["languages","Platform languages","settings"],
-    ["brandolph","Brandolph memory","sparkles"],
+    ["brandolph", t("admin.brandolphMemory"), "sparkles"],
     ...(portal === "super_admin" ? [["opex","Usage & OPEX","credit"]] : []),
   ];
   const groups = teamAccount ? [

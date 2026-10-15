@@ -53,8 +53,7 @@ function getAssembly(density) {
   const ids = order.slice(0, Math.max(3, Math.min(12, density)));
   const agents = ids.map(id => window.CI_AGENTS.find(a => a.id === id)).filter(Boolean);
   const totalCr = agents.reduce((s, a) => s + a.cr, 0);
-  const models = [...new Set(agents.map(a => a.model))];
-  return { agents, totalCr, models };
+  return { agents, totalCr };
 }
 
 /* Live home stats. Deliberately leaner than useLiveBriefs in portal-briefs:
@@ -387,7 +386,7 @@ function HomeCreate({ tweaks, go }) {
       setSharp((current) => ({ ...current, error: t("brandolph.brandChangedError") }));
       return;
     }
-    /* Hand off the run context to the Canvas: BIO → Brief → Specialists
+    /* Hand off the run context to the Canvas: Brand Core → Brief → Specialists
        assemble there with animations, then the user fires the run from
        the Canvas itself. The Canvas is the moment-of-truth UX surface;
        a flat inline grid breaks that promise. */

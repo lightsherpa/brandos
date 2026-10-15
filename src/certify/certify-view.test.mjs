@@ -20,14 +20,14 @@ test('evidence card renders excerpts, source URL, screenshot and an explicit mis
  const claim={claim_id:'c',evidence:[{label:'https://brand.test',quote:'Baked for joy',url:'https://brand.test',screenshot:'https://files.test/site.png',first_party:true}]};
  const html=renderToStaticMarkup(React.createElement(ClaimEvidence,{claim}));
  assert.match(html,/Baked for joy/);assert.match(html,/href="https:\/\/brand.test"/);assert.match(html,/src="https:\/\/files.test\/site.png"/);
- assert.match(renderToStaticMarkup(React.createElement(ClaimEvidence,{claim:{claim_id:'missing',evidence:[]}})),/To confirm · No evidence yet/);
+ assert.match(renderToStaticMarkup(React.createElement(ClaimEvidence,{claim:{claim_id:'missing',evidence:[]}})),/find this yet/);
 });
 
 test('Certify UX starts in review with focus and Stewart visible and one final entry',async(t)=>{
  const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());
  const {ModernCertifyReview}=await vite.ssrLoadModule('/src/certify/CertifyView.jsx');
  const html=renderToStaticMarkup(React.createElement(ModernCertifyReview,{data:data()}));
- assert.match(html,/Focus first/);assert.match(html,/Stewart/);assert.match(html,/certify-support/);assert.match(html,/How the brand looks/);assert.match(html,/ⓘ/);
+ assert.match(html,/Start here/);assert.match(html,/Stewart/);assert.match(html,/certify-support/);assert.match(html,/How the brand looks/);assert.match(html,/ⓘ/);
  assert.equal((html.match(/>Review confirmation<\/button>/g)||[]).length,1);
  assert.doesNotMatch(html,/Add to S3|Copy question|Human certification seal|not yet true/);
 });

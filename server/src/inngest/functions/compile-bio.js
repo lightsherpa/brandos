@@ -32,6 +32,7 @@ import { extractPalette, extractFonts,firstRealFamily } from "../../lib/extract-
 import { extractImageryAvoid } from "../../lib/extract-visual-vision.js";
 import { loadVisualAssets, mergeTypographyFromAssets } from "../../lib/visual-assets.js";
 import {validateDiscoveryCandidate} from "../../lib/validate-discovery-candidate.js";
+import {sanitizeCompiledProvenance} from "../../lib/source-kind.js";
 import { collectDiscoveryVisuals } from "../../lib/discovery-visuals.js";
 
 // DISCOVERY_V2 master flag (default ON). The full pipeline — multi-page crawl,
@@ -143,13 +144,17 @@ Value schema:
 
 Additive keys (emit ALL THREE in the same JSON object):
 
-"confidence": a sibling map keyed by the dotted path of each value field you populated — "section.key" → { "conf": 0-100, "source": "where you got it" }. Calibrate honestly:
-  - 85+ ONLY when the field is stated explicitly in the source material.
-  - 30–84 when it is reasonably inferable but not explicit.
-  - Below 30 means you cannot really support it: in that case LEAVE THE VALUE EMPTY (null, "", or []) and instead add an entry to "missing" — do not emit a low-confidence value. The "source" string should name the page/document/handle it came from (e.g. "homepage hero", "about page", "uploaded brand-deck.pdf", "instagram bio").
-  Example: "confidence": { "identity.positioning": { "conf": 88, "source": "homepage hero + about" }, "identity.founded": { "conf": 40, "source": "inferred — not stated" } }
+"confidence": a sibling map keyed by the dotted path of each value field you populated — "section.key" → { "conf": 0-100, "source_kind": ["website"|"brand_deck"|"your_answers"|"social"|"guess"], "source_page"?: "home"|"about"|"shop"|"menu"|"contact"|"blog"|"other", "source_ref"?: string, "quote"?: string }.
+  source_kind is an array of at most 2 of those exact tokens. No other keys. No prose.
+  Use "guess" whenever the value is not stated in a source. Do not write filenames, URLs, or field names. Never write the words inferred, stated, or evidence.
+  source_page is optional and only for website. source_ref is optional and is never a filename or URL. quote is optional, at most 160 characters, copied verbatim from the source.
+  Calibrate conf honestly:
+  - 85+ ONLY when the field is copied from a source.
+  - 30–84 when a source supports it without quoting it directly. source_kind is still the real kind, not guess.
+  - Below 30: LEAVE THE VALUE EMPTY (null, "", or []) and add the path to "missing". Do not emit a low value.
+  Example: "confidence": { "identity.positioning": { "conf": 88, "source_kind": ["website"], "source_page": "home", "quote": "Specialty coffee for slow Tuesdays." }, "identity.founded": { "conf": 40, "source_kind": ["guess"] } }
 
-"missing": an array of { "field": "dotted.path", "why": "short reason it could not be supported" } for every value field you could not honestly fill from the sources. Example: [ { "field": "goals.q3", "why": "no roadmap or quarterly priorities surfaced" } ].
+"missing": an array of { "field": one of the 31 known dotted paths, "reason": "not_found"|"unclear"|"conflicting" }. Reject any other path. No prose in reason. Example: [ { "field": "goals.q3", "reason": "not_found" } ].
 
 "refusals": an array of 3–6 brand-specific, imperative refusal sentences (each tells the brand's writers/designers what NOT to do), derived from voice.forbidden and strategic.notList. Make them concrete to THIS brand, not generic. Example: "Never use corporate jargon like 'synergy' or 'leverage'." / "Do not position the brand as a budget option."`;
 
@@ -341,6 +346,10 @@ export const compileBio = inngest.createFunction(
       return result.value;
       });},
     });
+    const provenance = sanitizeCompiledProvenance(bioPayload);
+    bioPayload.confidence = provenance.confidence;
+    bioPayload.missing = provenance.missing;
+    if (provenance.droppedUnknownFields.length) logger.warn("Dropped unknown Brand Core paths", { fields: provenance.droppedUnknownFields });
     validateDiscoveryCandidate(bioPayload);
     bioPayload.discoverySources={references,unreadable:[...linkedSources.failures,...socialSources.failures],instagram:socialSources.sources};
     bioPayload.positioning.researchGaps.push(...linkedSources.failures,...socialSources.failures);
