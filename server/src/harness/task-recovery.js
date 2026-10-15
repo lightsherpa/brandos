@@ -4,6 +4,12 @@ const statusOf = (items) => items.length && items.every(it => it?.status === 'ap
 const humanApproved = row => row.status === 'approved' && ((['internally_approved','client_review','client_approved'].includes(row.workflow_status) && row.internal_reviewed_by && row.internal_reviewed_at) || (row.workflow_status === 'client_approved' && row.client_reviewed_by && row.client_reviewed_at));
 const reviewedItem = (row,item) => humanApproved(row) ? {...item,status:'approved'} : item.status === 'approved' ? {...item,status:'ready'} : item;
 const metricOf = (row) => ({ total_ms: row.run?.latency_ms ?? null, cost: { total_usd: row.run?.cost_usd ?? null }, recovered: true });
+// Browser-readable bodies omit cost. Service-role recovery fills it back from runs.cost_usd.
+const recoveredMetrics = (stored, row) => {
+  const fallback = metricOf(row);
+  if (!stored || typeof stored !== "object") return fallback;
+  return { ...fallback, ...stored, total_ms: stored.total_ms ?? fallback.total_ms, cost: stored.cost ?? fallback.cost };
+};
 export function reconstructTasks(rows, authorized) {
   const jobs = new Map();
   const ordered = [...rows].sort((a,b) => String(a.created_at).localeCompare(String(b.created_at)) || String(a.id).localeCompare(String(b.id)));
@@ -21,7 +27,7 @@ export function reconstructTasks(rows, authorized) {
       brand_core: meta.brand_core ?? { version: row.run?.bio_version ?? null },
       generation_brand_core: meta.generation_brand_core ?? null,
       provenance: meta.provenance ?? { bioVersion: row.run?.bio_version ?? null, recovered: true },
-      items: body.items.map(item => reviewedItem(row,item)), result: { spec: body.spec, metrics: meta.metrics ?? metricOf(row) },
+      items: body.items.map(item => reviewedItem(row,item)), result: { spec: body.spec, metrics: recoveredMetrics(meta.metrics, row) },
       notices: meta.notices ?? [], error: null, recovered: true, reruns: [], rerun_counts: {},
     };
     job.status = statusOf(job.items); job.stage = ['ready','approved'].includes(job.status) ? 'Ready' : 'Flagged';
@@ -35,7 +41,7 @@ export function reconstructTasks(rows, authorized) {
     if (!job || row.brief.brand_id !== job.brandId || workspaceId !== job.workspaceId || !Number.isInteger(body.index) || body.index < 0 || !job.items[body.index] || !body.item) continue;
     job.items[body.index] = reviewedItem(row,body.item);
     job.rerun_counts[body.index] = (job.rerun_counts[body.index] || 0) + 1;
-    job.reruns.push({ index: body.index, run_id: row.run_id, ...(body.metrics ?? metricOf(row)), provenance: body.provenance ?? {bioVersion:row.run?.bio_version ?? null} });
+    job.reruns.push({ index: body.index, run_id: row.run_id, ...recoveredMetrics(body.metrics, row), provenance: body.provenance ?? {bioVersion:row.run?.bio_version ?? null} });
     job.finished_at = body.finished_at ?? row.run?.ended_at ?? row.created_at;
     job.status = statusOf(job.items); job.stage = ['ready','approved'].includes(job.status) ? 'Ready' : 'Flagged';
   }

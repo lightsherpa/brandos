@@ -12,7 +12,7 @@ const { useState: useBrState, useEffect: useBrEffect } = React;
 
   /* useLiveBriefs — fetches real briefs + their runs + outputs from
    Supabase via RLS (workspace auto-filtered). Each brief carries the
-   actual runs (spec_id, model_used, token counts) and outputs (body text,
+   actual runs (spec_id, versions, status) and outputs (body text,
    QA status) that were persisted by POST /api/runs/stream in P3. */
 function useLiveBriefs() {
   const [state, setState] = useBrState(uiFixtureEnabled
@@ -44,7 +44,7 @@ function useLiveBriefs() {
         .from("briefs")
         .select(`
           id, title, type, payload, mode, status, created_at,
-          runs ( id, specialist_id, spec_version, bio_version, model_used, status, prompt_tokens, completion_tokens, ended_at,
+          runs ( id, specialist_id, spec_version, bio_version, status, ended_at,
                  outputs ( id, kind, body, status, workflow_status, internal_reviewed_by, internal_reviewed_at, client_reviewed_by, client_reviewed_at, rationale ) )
         `)
         .eq("brand_id", brand.id)
@@ -698,7 +698,7 @@ function SpecialistsDirectory({ go }) {
   return (
     <div className="cos-agents-v2" style={{padding:"24px 36px 60px"}}>
       <PageHeader
-        eyebrow={t("briefs.spec.eyebrow")}
+        eyebrow={t("briefs.spec.eyebrow", { count: all.length })}
         title={t("briefs.spec.title")}
         sub={t("briefs.spec.sub")}
         right={<>
@@ -887,7 +887,8 @@ function composeSpecialistPrompt(a, isTeam, specArg) {
   L.push("");
   L.push("# TASK");
   L.push("{ the sharpened brief + relevant prior outputs / uploads for this run are injected here }");
-  return L.join("\n");
+  const text = L.join("\n");
+  return isTeam ? text : text.replace(/\bFirecrawl\b/g, "web crawl");
 }
 
 /* TryPanel — fires a real specialist run via /api/runs/stream and
@@ -2200,19 +2201,26 @@ function BriefRunCanvas({ context, onClear, go }) {
 
 /* Curated re-run alternatives. Text specialists get text models; image
    specialists get image models. The cost-default already picked the
-   right one — these are for "escalate to premium" or "try cheaper". */
+   right one — these are for "escalate to premium" or "try cheaper".
+   Users only ever see the tier (briefs.rerun.<tier>), never the route. */
 const TEXT_RERUN_OPTIONS = [
-  { route: "anthropic/claude-opus-4-7",            label: "Opus 4.7",            noteKey: "noteOpus" },
-  { route: "anthropic/claude-sonnet-4-6",          label: "Sonnet 4.6",          noteKey: "noteSonnet" },
-  { route: "anthropic/claude-haiku-4-5-20251001",  label: "Haiku 4.5",           noteKey: "noteHaiku" },
-  { route: "openrouter/google/gemini-2.5-pro",     label: "Gemini Pro",          noteKey: "noteGeminiPro" },
-  { route: "openrouter/google/gemini-2.5-flash",   label: "Gemini Flash",        noteKey: "noteGeminiFlash" },
+  { route: "anthropic/claude-opus-4-7",            tier: "premium" },
+  { route: "anthropic/claude-sonnet-4-6",          tier: "standard" },
+  { route: "anthropic/claude-haiku-4-5-20251001",  tier: "fast" },
+  { route: "openrouter/google/gemini-2.5-pro",     tier: "longContext" },
+  { route: "openrouter/google/gemini-2.5-flash",   tier: "economy" },
 ];
 const IMAGE_RERUN_OPTIONS = [
-  { route: "vendor/fal/flux-1.1-pro",  label: "Flux 1.1 Pro",   noteKey: "noteFluxPro" },
-  { route: "vendor/fal/flux-schnell",  label: "Flux Schnell",   noteKey: "noteFluxSchnell" },
-  { route: "vendor/fal/recraft-v3",    label: "Recraft V3",     noteKey: "noteRecraft" },
+  { route: "vendor/fal/flux-1.1-pro",  tier: "imagePremium" },
+  { route: "vendor/fal/flux-schnell",  tier: "imageDraft" },
+  { route: "vendor/fal/recraft-v3",    tier: "illustration" },
 ];
+/* CI_MODELS key → user-facing tier, for the New Specialist form. */
+const MODEL_TIER = {
+  opus: "premium", sonnet: "standard", sonnet55: "standard", gpt5: "standard",
+  haiku: "fast", haiku55: "fast", gemPro: "longContext", gemFlash: "economy", gemFlash38: "economy",
+  flux: "imagePremium", gptimage: "imagePremium", fluxSchnell: "imageDraft", recraft: "illustration",
+};
 
 /* The brief + Brandolph's recommendations — opened by clicking the Brief node. */
 function BriefDrawer({ brief, onClose }) {
@@ -2369,13 +2377,14 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
   const assetUrl = node.assetUrl || node.done?.output?.asset_url || null;
   const isImage  = !!assetUrl;
   const rerunOptions = isImage ? IMAGE_RERUN_OPTIONS : TEXT_RERUN_OPTIONS;
-  const currentRoute = node.done?.usage?.model || node.run?.model_used || "";
+  const currentRoute = node.done?.usage?.model || "";
+  const currentTier  = node.done?.usage?.tier || null;   /* clients get only the tier, never the route */
 
   const dirty = !isImage && (editedText || "") !== (baselineText || "");
 
   const fireRerun = async ({ modelOverride, revisionFeedback, label }) => {
     if (!briefId || !agent?.id) return;
-    setRerunState({ running: true, model: label || modelOverride, error: null, output: "" });
+    setRerunState({ running: true, model: label, error: null, output: "" });
     let text = "";
     let done = null;
     let err = null;
@@ -2559,10 +2568,10 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
           {!crewCanvasEnabled && rerunOpen && (
             <div className="card" style={{padding: 8, display:"flex", flexDirection:"column", gap: 2, animation:"cvPopIn 160ms cubic-bezier(.2,.8,.2,1)"}}>
               {rerunOptions.map((opt) => {
-                const isCurrent = currentRoute && (currentRoute === opt.route || opt.route.endsWith(currentRoute));
+                const isCurrent = (currentTier && currentTier === opt.tier) || (currentRoute && (currentRoute === opt.route || opt.route.endsWith(currentRoute)));
                 return (
                   <button key={opt.route}
-                    onClick={() => { setRerunOpen(false); fireRerun({ modelOverride: opt.route, label: opt.label }); }}
+                    onClick={() => { setRerunOpen(false); fireRerun({ modelOverride: opt.route, label: t(`briefs.rerun.${opt.tier}.label`) }); }}
                     disabled={isCurrent}
                     style={{
                       display:"flex", justifyContent:"space-between", alignItems:"center",
@@ -2574,8 +2583,8 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
                     onMouseEnter={(e) => { if (!isCurrent) e.currentTarget.style.background = "var(--neutral-50)"; }}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
                     <div>
-                      <div style={{fontSize: 13, fontWeight: 500, color:"var(--c-ink)"}}>{opt.label}{isCurrent && <span style={{color:"var(--c-faint)", fontWeight: 400}}> {t("briefs.notepad.current")}</span>}</div>
-                      <div style={{fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)"}}>{t("briefs.rerun." + opt.noteKey)}</div>
+                      <div style={{fontSize: 13, fontWeight: 500, color:"var(--c-ink)"}}>{t(`briefs.rerun.${opt.tier}.label`)}{isCurrent && <span style={{color:"var(--c-faint)", fontWeight: 400}}> {t("briefs.notepad.current")}</span>}</div>
+                      <div style={{fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)"}}>{t(`briefs.rerun.${opt.tier}.note`)}</div>
                     </div>
                     <Icon name="arrow" size={12} />
                   </button>
@@ -3173,7 +3182,6 @@ function BriefViewCanvas({ briefId, onClear, go }) {
               brand: { bioVersion: opened.firstRun.bio_version },
               output: opened.output?.body?.asset_url ? { asset_url: opened.output.body.asset_url } : null,
             },
-            run: { model_used: opened.firstRun.model_used },
             state: opened.passed ? "done" : "flagged",
           }}
           cert={state.cert}
@@ -3745,7 +3753,7 @@ function Library({ go }) {
         for (const o of (r.outputs || [])) {
           list.push({ ...o,
             brief: { id: b.id, request: b.payload?.request || b.title, title: b.payload?.title || b.title, mode: b.mode, created_at: b.created_at, payload: b.payload || {} },
-            run: { id: r.id, specialist_id: r.specialist_id, bio_version: r.bio_version, completion_tokens: r.completion_tokens, ended_at: r.ended_at },
+            run: { id: r.id, specialist_id: r.specialist_id, bio_version: r.bio_version, ended_at: r.ended_at },
           });
         }
       }
@@ -4318,7 +4326,7 @@ function SpecialistAuthor({ go }) {
     outputContract: form.outputContract, voice: form.voice,
     tools: form.tools.filter(s => s.trim()), refusals: form.refusals.filter(s => s.trim()),
   };
-  const preview = composeSpecialistPrompt(agentLike, true, spec);
+  const preview = composeSpecialistPrompt(agentLike, useIsTeam(), spec);
 
   const canSave = form.name.trim().length > 0;
   const save = () => {
@@ -4402,7 +4410,7 @@ function SpecialistAuthor({ go }) {
             <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12}}>
               <div><Label>{t("briefs.author.model")}</Label>
                 <select value={form.model} onChange={e => set("model", e.target.value)} style={AUTHOR_INPUT}>
-                  {Object.entries(window.CI_MODELS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                  {Object.keys(window.CI_MODELS).filter((k, i, keys) => MODEL_TIER[k] && keys.findIndex(x => MODEL_TIER[x] === MODEL_TIER[k]) === i).map(k => <option key={k} value={k}>{t(`briefs.rerun.${MODEL_TIER[k]}.label`)}</option>)}
                 </select>
               </div>
               <div><Label>{t("briefs.author.creditsPerRun")}</Label><input type="number" min="0" value={form.cr} onChange={e => set("cr", e.target.value)} style={AUTHOR_INPUT} /></div>

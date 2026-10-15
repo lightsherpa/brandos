@@ -19,6 +19,7 @@ import { saveRule } from "../harness/rules.js";
 import { TASKS } from "../harness/registry.js";
 import { creditErrorResponse } from "../lib/credits.js";
 import { preflight, openRun, settle, taskCredits, MAX_RERUNS_PER_ITEM } from "../harness/settlement.js";
+import { forViewer, redactForClient } from "../lib/client-redact.js";
 
 // Feature flag: server env TASKS_ENABLED (default off). When off every route
 // 404s except GET /enabled, which the client uses to hide the nav + route.
@@ -53,7 +54,10 @@ export function clientTaskSnapshot(job) {
     ...(gated ? { crew: crewFor(job.type, job.heroes) } : {}),
   };
 }
-function snapshot(job) { return clientTaskSnapshot(job); }
+/** Clients lose cost, token and vendor keys. Platform keeps the public snapshot, including cost. */
+export function snapshot(job, auth) {
+  return forViewer(auth, clientTaskSnapshot(job));
+}
 
 async function scopeBrand(c, brandId) {
   const auth = c.get("auth");
@@ -121,9 +125,10 @@ export function taskOutput(job, res) {
   const ready = res.status === "ready";
   return {
     kind: "task", status: ready ? "qa_passed" : "needs_review", ledger_kind: ready ? "run" : "run_flagged",
-    body: JSON.stringify({ task_id: job.id, type: job.type, spec: res.spec, items: (res.items || []).map(clientItem),
+    // outputs.body is browser-readable under RLS, so persist the client-safe shape.
+    body: JSON.stringify(redactForClient({ task_id: job.id, type: job.type, spec: res.spec, items: (res.items || []).map(clientItem),
       snapshot: { brief: job.brief, heroes: job.heroes, created_at: job.created_at, finished_at: new Date().toISOString(), created_by: job.created_by,
-        credits: job.credits, brand_core: job.brand_core, generation_brand_core: res.brand_core ?? null, provenance: job.provenance, notices: job.notices, metrics: publicMetrics(res.metrics) } }),
+        credits: job.credits, brand_core: job.brand_core, generation_brand_core: res.brand_core ?? null, provenance: job.provenance, notices: job.notices, metrics: publicMetrics(res.metrics) } })),
     asset_url: res.items?.find((it) => it?.asset_url)?.asset_url || null,
     qa_passed: ready, qa_evidence: { items: (res.items || []).map((it) => ({ index: it?.index, status: it?.status, checks: it?.checks })) },
     rationale: ready ? null : "One or more items need review",
@@ -134,7 +139,7 @@ export function rerunOutput(job, index, res, provenance = null) {
   const ready = res.item?.status === "ready";
   return {
     kind: "task_rerun", status: ready ? "qa_passed" : "needs_review", ledger_kind: ready ? "run" : "run_flagged",
-    body: JSON.stringify({ task_id: job.id, index, item: clientItem(res.item), metrics: publicMetrics(res.metrics), provenance, finished_at: new Date().toISOString() }), asset_url: res.item?.asset_url || null,
+    body: JSON.stringify(redactForClient({ task_id: job.id, index, item: clientItem(res.item), metrics: publicMetrics(res.metrics), provenance, finished_at: new Date().toISOString() })), asset_url: res.item?.asset_url || null,
     qa_passed: ready, qa_evidence: { index, checks: res.item?.checks }, rationale: ready ? null : "Re-run still needs review",
   };
 }
@@ -165,7 +170,7 @@ async function getJob(c) {
 
 app.get("/:id", requireAuth, async (c) => {
   const { job, error } = await getJob(c);
-  return error || c.json(snapshot(job));
+  return error || c.json(snapshot(job, c.get("auth")));
 });
 
 app.post("/:id/rules", requireAuth, async (c) => {
@@ -186,7 +191,7 @@ app.post("/:id/items/:index/rerun", requireAuth, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const r = await executeRerun({ job, index: Number(c.req.param("index")), body, userId: c.get("auth").userId });
   if (r.credit) return creditErrorResponse(c, r.credit);
-  return c.json(r.body, r.status);
+  return c.json(forViewer(c.get("auth"), r.body), r.status);
 });
 
 app.post('/:id/items/:index/component', requireAuth, async (c) => {
@@ -198,7 +203,7 @@ app.post('/:id/items/:index/component', requireAuth, async (c) => {
   if (invalid || body.modelOverride != null) return c.json({ error: invalid || 'Model choice is managed by the crew', code: 'INVALID_COMPONENT' }, 400);
   const r = await executeRerun({ job, index: Number(c.req.param('index')), body: { ...body, componentEdit: true }, userId: c.get('auth').userId });
   if (r.credit) return creditErrorResponse(c, r.credit);
-  return c.json(r.body, r.status);
+  return c.json(forViewer(c.get("auth"), r.body), r.status);
 });
 
 const rerunDeps = { preflight, loadTaskContext, openRun, settle, rerunItem, reviseComponent };

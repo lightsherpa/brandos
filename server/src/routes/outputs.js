@@ -13,6 +13,7 @@ import { supabaseAdmin } from "../lib/supabase.js";
 import { recordSignal } from "../lib/brandolph-memory.js";
 import { canAccessWorkspace, hasPermission } from "../lib/permissions.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
+import { forViewer } from "../lib/client-redact.js";
 
 const app = new Hono();
 
@@ -81,7 +82,7 @@ app.patch("/:id", requireAuth, async (c) => {
     });
   } catch {}
 
-  return c.json({ output: sanitizeOutput(updated) });
+  return c.json({ output: forViewer(auth, sanitizeOutput(updated)) });
 });
 
 app.delete("/:id", requireAuth, async (c) => {
@@ -161,7 +162,7 @@ app.post("/:id/workflow", requireAuth, async (c) => {
   }
   const { data: updated, error: updateError } = await supabaseAdmin.from("outputs").update(next).eq("id", outputId).eq("workflow_status", output.workflow_status).select().single();
   await writeAuthorizationAudit(c, { permission: transition.permission, action, targetType:"output", targetId:outputId, workspaceId, priorState:{workflow_status:output.workflow_status}, newState:updated, outcome:updateError?"failure":"success", reason });
-  return updateError ? c.json({ error:updateError.message },409) : c.json({ output:sanitizeOutput(updated) });
+  return updateError ? c.json({ error:updateError.message },409) : c.json({ output:forViewer(auth, sanitizeOutput(updated)) });
 });
 
 export default app;
