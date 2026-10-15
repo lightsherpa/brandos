@@ -1,6 +1,6 @@
 // Draft review state only. Certification continues through the existing human gates.
 import {createHash} from 'node:crypto';
-export const certifyFrictionEnabled=()=>['1','true'].includes(String(process.env.CERTIFY_FRICTION||'').toLowerCase());
+export const certifyFrictionEnabled=()=>['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||process.env.CERTIFY_FRICTION||'').toLowerCase());
 const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const invalid=(message,code='PROGRESS_INVALID',status=400)=>Object.assign(new Error(message),{code,status});
 export const reviewClosed=(job,steward)=>!(['queued','in_review','changes_requested'].includes(job.status)||(job.status==='pending_lead_review'&&steward?.roles?.includes('lead_steward')&&job.assigned_to!==steward.id));

@@ -1,5 +1,6 @@
+import {previewValue} from './display-text.js';
 import {claimState} from '../../server/src/lib/claim-review.js';
-export const certifyFrictionEnabled=()=>['1','true'].includes(String(import.meta.env?.VITE_CERTIFY_FRICTION||'').toLowerCase());
+export const certifyFrictionEnabled=()=>['1','true'].includes(String(import.meta.env?.VITE_CERTIFY_SIMPLIFY||import.meta.env?.VITE_CERTIFY_FRICTION||'').toLowerCase());
 const VISUAL=['visual.logo','visual.palette','visual.type','visual.typeScale','visual.imagery','visual.references','visual.avoid'];
 export const reviewGroup=claim=>claim.field_path.startsWith('visual.')?'visual':claim.field_path.startsWith('voice.')?'production':'strategy';
 export function orderForDirector(claims){return [...claims].sort((a,b)=>{
@@ -23,6 +24,8 @@ export function terminalReview(job,outcome=null){
  if(['rejected','cancelled','decertified','changes_requested','completed'].includes(status))return status==='completed'?'changes_requested':status;
  return null;
 }
-export const previewClaim=value=>value==null?'':Array.isArray(value)?value.map(v=>typeof v==='object'?v.family||v.hex||v.name||'':v).filter(Boolean).join(' · '):typeof value==='object'?value.name||'':String(value);
+export const previewClaim=previewValue;
 
 export const reviewConfirmationAvailable=({unresolved,busy=false,ready=true})=>ready&&!busy&&unresolved.length===0;
+
+export const certifySimplifyEnabled=()=>['1','true'].includes(String(import.meta.env?.VITE_CERTIFY_SIMPLIFY||'').toLowerCase());

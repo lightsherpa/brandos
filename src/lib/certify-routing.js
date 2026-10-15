@@ -9,3 +9,5 @@ export const ownerBrandFromCertify = (param) => param?.startsWith("owner/") ? de
 export function certifyRoutePortal() {
   return "team";
 }
+
+export const brandBookPath=brandId=>`brand-book/${encodeURIComponent(brandId)}`;

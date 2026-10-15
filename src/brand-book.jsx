@@ -13,7 +13,7 @@ function sourcesFor(payload,section){
 }
 export function BrandBook({go,param}){
  const replayName=param?.startsWith('replay/')?param.slice(7):null;
- const {t,locale}=useLocale(),live=useLiveBio({enabled:!replayName}),[replay,setReplay]=React.useState(null),[error,setError]=React.useState(null);
+ const {t,locale}=useLocale(),live=useLiveBio({enabled:!replayName,brandId:param&&!replayName?param:null}),[replay,setReplay]=React.useState(null),[error,setError]=React.useState(null);
  React.useEffect(()=>{
   if(!replayName)return;
   if(!['cake-me','geoking','demo'].includes(replayName)){setError(t('brandBook.replayUnavailable'));return;}

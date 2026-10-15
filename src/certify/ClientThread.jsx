@@ -1,3 +1,4 @@
+import {displayText} from './display-text.js';
 import React from "react";
 import {useLocale} from "../lib/i18n.js";
 import {reviewText,reviewCopy,reviewFieldLabel} from "./review-copy.js";
@@ -50,10 +51,10 @@ export function AnswerEvidence({ answer, sources = [] }) {
   return (
     <div style={{ fontSize: 11.5, color: "var(--c-dim)", lineHeight: 1.4, marginTop: 4 }}>
       {dot("var(--green-600)")}<strong style={{ color: "var(--c-ink)", fontWeight: 600 }}>{ct("New evidence")}</strong> · {ct("client answer")}
-      {answer.body && <div style={{ marginTop: 2, color: "var(--c-ink)" }}>“{answer.body}”</div>}
+      {answer.body && <div style={{ marginTop: 2, color: "var(--c-ink)" }}>“{displayText(answer.body)}”</div>}
       {file && (
         <div style={{ marginTop: 2 }}>
-          {file.evidence_url ? <a href={file.evidence_url} target="_blank" rel="noreferrer">{file.src} <span aria-hidden="true">↗</span></a> : file.src}
+          {file.evidence_url ? <a href={file.evidence_url} target="_blank" rel="noreferrer">{displayText(file.src)} <span aria-hidden="true">↗</span></a> : file.src}
         </div>
       )}
     </div>
@@ -68,7 +69,7 @@ function DraftRow({ draft, thread, setErr }) {
   return (
     <div className="card card--inset" style={{ padding: "8px 10px" }}>
       <div style={{ fontSize: 10.5, color: "var(--c-faint)", fontFamily: "var(--font-mono)", marginBottom: 4 }}>{(draft.field_paths || draft.claim_ids).map(label).join(", ")}</div>
-      <textarea aria-label={`Question about ${(draft.field_paths || draft.claim_ids).map(label).join(", ")}`} value={text} onChange={(e) => setText(e.target.value)} onBlur={save}
+      <textarea aria-label={`Question about ${(draft.field_paths || draft.claim_ids).map(label).join(", ")}`} value={displayText(text)} onChange={(e) => setText(e.target.value)} onBlur={save}
         rows={2} maxLength={4000} style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
       <button type="button" className="btn btn--link" style={{ fontSize: 11, padding: 0 }} onClick={() => thread.dropDraft(draft.id).catch((e) => setErr(e.message))}>{ct("Remove")}</button>
     </div>
@@ -86,7 +87,7 @@ function Composer({ thread, fields, setErr }) {
       <select aria-label="Field to ask about" value={field} onChange={(e) => setField(e.target.value)} style={{ fontSize: 12 }}>
         {fields.map((f) => <option key={f.field} value={f.field}>{f.label || f.field}</option>)}
       </select>
-      <textarea aria-label="New question for the client" value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={4000}
+      <textarea aria-label="New question for the client" value={displayText(text)} onChange={(e) => setText(e.target.value)} rows={2} maxLength={4000}
         placeholder={ct("Ask the client…")} style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
       <button type="button" className="btn btn--link" style={{ fontSize: 11, padding: 0, alignSelf: "flex-start" }} disabled={!field || !text.trim()} onClick={add}>{ct("Add to drafts")}</button>
     </div>
@@ -125,12 +126,12 @@ export function ClientThread({ thread, sources = [], fields = FOUNDATION_FIELDS 
             <div style={{ fontSize: 11, color: "var(--c-dim)" }}>
               {answers.length ? dot("var(--green-600)") : dot("var(--yellow-800)")}{ct(answers.length ? "Answered" : "Asked")} · <span style={{ fontFamily: "var(--font-mono)" }}>{(q.field_paths || q.claim_ids).map(label).join(", ")}</span>
             </div>
-            <div style={{ fontSize: 12, color: "var(--c-ink)", marginTop: 3 }}>{q.body}</div>
+            <div style={{ fontSize: 12, color: "var(--c-ink)", marginTop: 3 }}>{displayText(q.body)}</div>
             {answers.map((a) => <AnswerEvidence key={a.id} answer={a} sources={sources} />)}
           </div>
         );
       })}
-      {err && <div role="alert" style={{ fontSize: 11.5, color: "var(--pink-500)", marginTop: 6 }}>{err}</div>}
+      {err && <div role="alert" style={{ fontSize: 11.5, color: "var(--pink-500)", marginTop: 6 }}>{displayText(err)}</div>}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import {displayText} from './display-text.js';
 import {ClaimValue,FontSpecimen,ClaimEvidence,FixEditor,SectionExplanation} from './ClaimContent.jsx';
 export {ClaimValue,FontSpecimen,ClaimEvidence,SectionExplanation} from './ClaimContent.jsx';
 import {FrictionCertifyReview} from './FrictionCertifyView.jsx';
@@ -158,7 +159,7 @@ export function CertifyView({ id, go }) {
   },[id,locale]);
   React.useEffect(() => {reload();},[reload]);
   React.useEffect(() => {if(data && !data.certify?.enabled && !certifyUxEnabled()) go(`team-job/${id}`);},[data,id,go]);
-  if(error || (data && !data.certify?.enabled && certifyUxEnabled()))return <div role="alert"><p>{error || reviewText('Review unavailable. Retry to reconnect.',locale)}</p><button className="btn btn--ghost" onClick={reload}>{copy.retry}</button></div>;
+  if(error || (data && !data.certify?.enabled && certifyUxEnabled()))return <div role="alert"><p>{displayText(error || reviewText('Review unavailable. Retry to reconnect.',locale),locale)}</p><button className="btn btn--ghost" onClick={reload}>{copy.retry}</button></div>;
   if(!data?.certify?.enabled)return null;
   const submit = async body => {const res=await apiFetch(`/api/steward/jobs/${id}`,{method:'PATCH',body:JSON.stringify(body)});const json=await res.json();if(!res.ok)throw Error(json.error || 'Review failed');return json;};
   return <CertifyReview key={`${data.job.id}:${data.job.bio.id}`} data={data} thread={thread} onReload={reload} onSubmit={submit} onBack={() => go('team')} />;

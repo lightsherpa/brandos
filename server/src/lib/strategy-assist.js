@@ -4,7 +4,7 @@ import {safeEvidenceUrl} from './claim-ledger.js';
 import {isBrandEvidenceSource} from './bio-source-policy.js';
 import {diffBio} from './bio-diff.js';
 
-export const certifyFrictionEnabled=()=>['1','true'].includes(String(process.env.CERTIFY_FRICTION||'').toLowerCase());
+export const certifyFrictionEnabled=()=>['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||process.env.CERTIFY_FRICTION||'').toLowerCase());
 const LOCALES=['en','es','ar'];
 const localized=fn=>Object.fromEntries(LOCALES.map(locale=>[locale,fn(locale)]));
 const clip=(value,size=220)=>String(value||'').replace(/\s+/g,' ').trim().slice(0,size);
@@ -17,6 +17,11 @@ function recordedValue(value){
 }
 // A field-specific decision lens, not a claim of strategic correctness.
 const LENSES={
+ 'visual.logo':['Check the approved logo lockups on light and dark backgrounds.','Comprueba los logotipos aprobados sobre fondos claros y oscuros.','راجع الشعارات المعتمدة على الخلفيات الفاتحة والداكنة.'],
+ 'visual.palette':['Check primary colours, contrast and production uses.','Comprueba los colores principales, el contraste y los usos de producción.','راجع الألوان الأساسية والتباين واستخدامات الإنتاج.'],
+ 'visual.type':['Check the live font specimens and commercial usage rights.','Comprueba las muestras de tipografía y los derechos de uso comercial.','راجع نماذج الخطوط الحية وحقوق الاستخدام التجاري.'],
+ 'visual.imagery':['Compare the imagery direction with the recorded reference grid.','Compara la dirección fotográfica con las referencias registradas.','قارن توجه الصور بالمراجع المسجلة.'],
+ 'voice.register':['Check whether this voice can guide real production copy.','Comprueba si esta voz sirve para redactar textos reales.','تحقق مما إذا كان هذا الصوت يوجه كتابة النصوص الفعلية.'],
  'identity.positioning':[
   'Check whether this gives the audience a reason to choose the brand.',
   'Comprueba si ofrece al público una razón para elegir la marca.',
@@ -166,7 +171,8 @@ function citationsFor(claim,sources){
   const source=rows.get(evidence.source_id);
   if(!source||!isBrandEvidenceSource(source)||source.signals?.purpose==='aspiration')return [];
   const quote=clip(evidence.quote||source.signals?.quote||source.signals?.snippet,600);
-  if(!quote)return [];
+  const visualAsset=['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||'').toLowerCase())&&/^visual\./.test(claim.field_path)&&safeEvidenceUrl(evidence.asset_url||source.evidence_url);
+  if(!quote&&!visualAsset)return [];
   return [{claim_id:claim.claim_id,source_id:source.id,label:clip(source.src||evidence.label||source.kind),quote,
    url:safeEvidenceUrl(source.src),asset_url:safeEvidenceUrl(source.evidence_url),page:evidence.page||null}];
  });
@@ -184,17 +190,17 @@ function reasonFor(claim,payload,citations){
 
 export function buildStrategyAssist({job,bio,claims=[],sources=[],previousBio=null}={}){
  const payload=bio?.payload||{},changes=new Set(previousBio?diffBio(previousBio.payload||{},payload).map(change=>change.field):[]);
- const items=claims.filter(claim=>!/^visual\.|^voice\./.test(claim.field_path||'')).map(claim=>{
+ const items=claims.filter(claim=>['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||'').toLowerCase())||!/^visual\.|^voice\./.test(claim.field_path||'')).map(claim=>{
   const citations=citationsFor(claim,sources),reasonCode=reasonFor(claim,payload,citations),value=recordedValue(claim.value),lens=LENSES[claim.field_path]||DEFAULT_LENS;
   const recommendation=['conflict','unsupported'].includes(reasonCode)?'flag':reasonCode==='supported'?'accept':'ask';
   return {claim_id:claim.claim_id,field_path:claim.field_path,recommendation,reasonCode,changed:changes.has(claim.field_path),openQuestions:Math.max(0,Number(claim.open_questions)||0),citations,
-   assessment:localized(locale=>{const i=LOCALES.indexOf(locale);return `${value?'“'+value+'” · ':''}${STATUS[reasonCode][locale]} ${lens[i]}`;}),
+   assessment:localized(locale=>{const i=LOCALES.indexOf(locale);return ['1','true'].includes(String(process.env.CERTIFY_SIMPLIFY||'').toLowerCase())?`${STATUS[reasonCode][locale]} ${lens[i]}`:`${value?'“'+value+'” · ':''}${STATUS[reasonCode][locale]} ${lens[i]}`;}),
    question:localized(locale=>{const i=LOCALES.indexOf(locale),recorded=value?`“${value}”`: 'Brand Core';
     const question=(QUESTIONS[claim.field_path]||DEFAULT_QUESTION)[i];
     return locale==='es'?`Sobre ${recorded}: ${question}`:locale==='ar'?`بخصوص ${recorded}: ${question}`:`About ${recorded}: ${question}`;})};
  });
  const counts={accept:0,ask:0,flag:0,missingEvidence:0,openQuestions:0,changed:0};
- for(const item of items){counts[item.recommendation]++;if(!item.citations.length)counts.missingEvidence++;counts.openQuestions+=item.openQuestions;if(item.changed)counts.changed++;}
- const hardClaimIds=items.filter(item=>item.recommendation!=='accept').sort((a,b)=>(a.recommendation==='flag'?0:1)-(b.recommendation==='flag'?0:1)).map(item=>item.claim_id);
+ for(const item of items.filter(row=>!/^visual\.|^voice\./.test(row.field_path))){counts[item.recommendation]++;if(!item.citations.length)counts.missingEvidence++;counts.openQuestions+=item.openQuestions;if(item.changed)counts.changed++;}
+ const hardClaimIds=items.filter(item=>!/^visual\.|^voice\./.test(item.field_path)&&item.recommendation!=='accept').sort((a,b)=>(a.recommendation==='flag'?0:1)-(b.recommendation==='flag'?0:1)).map(item=>item.claim_id);
  return {version:1,jobId:job?.id||null,bioVersion:bio?.version??null,claims:items,summary:{counts,hardClaimIds,text:localized(locale=>locale==='es'?`${counts.ask} decisiones estratégicas necesitan aclaración; ${counts.flag} requieren resolver un conflicto o falta de respaldo. ${counts.accept} tienen extractos vinculados para revisión humana. ${counts.changed} han cambiado desde la versión anterior.`:locale==='ar'?`${counts.ask} قرارات استراتيجية تحتاج إلى توضيح؛ و${counts.flag} تحتاج إلى حل تعارض أو غياب دعم. تتوفر مقتطفات مرتبطة للمراجعة البشرية لـ${counts.accept} قرارات. تغيرت ${counts.changed} منذ الإصدار السابق.`:`${counts.ask} strategy decisions need clarification; ${counts.flag} need a conflict or unsupported claim resolved. ${counts.accept} have linked excerpts for human review. ${counts.changed} changed since the prior version.`)}};
 }
