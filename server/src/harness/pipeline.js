@@ -143,7 +143,7 @@ export async function checkAndRender({ type, task, it, layer1, language, briefCh
     }
   } else {
     let r; try { r = await renderEmailFn({ email: it.copy, layer1, heroUrl: it.image?.asset_url || null, language }); } catch { r = { html: "", mjmlErrors: ["Stable export assets unavailable"], tokens: {} }; }
-    it.export = { kind: "standalone_html", stable: !!r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), transport_html_bytes: r.transport?.html_bytes || null, delivery_ready: false, assets: r.assets || [], formats: ["html"] };
+    it.export = { kind: "standalone_html", stable: !!r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), transport_html_bytes: r.transport?.html_bytes || null, delivery_ready: r.transport?.delivery_ready === true, assets: r.assets || [], formats: ["html"] };
     it.html = r.html;
     it.transport_html = r.transport_html || null;
     it.transport = r.transport || null;

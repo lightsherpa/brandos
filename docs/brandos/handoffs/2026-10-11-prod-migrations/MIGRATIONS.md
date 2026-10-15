@@ -386,3 +386,22 @@ select count(*) from public.outputs where kind in ('task','task_rerun') and stat
 ```
 
 Regression: npm run test:output-status-db applies the migration twice in a disposable PostgreSQL container and proves machine approvals change while independently recorded human approvals remain. It never targets a shared database.
+
+
+## 19. `20261015000000_email_assets.sql` (feat/email-asset-hosting)
+
+Creates the public email-assets Storage bucket, idempotently restoring its public setting on replay. Safe before the merge. Image writes use the server service role; no browser write policies are added. Exported email transport references immutable SHA-256 image paths; hosting failure leaves delivery_ready false. Outbound sending stays disabled. **File only; no production writes performed.**
+
+Approved deployment reference only (not executed during local validation):
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261015000000_email_assets.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261015000000', 'email_assets') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select id, name, public from storage.buckets where id = 'email-assets'; -- email-assets, email-assets, true
+```
+
+Local regression: npm run test:email-assets-local replays this migration twice against the running local Supabase, uploads an image through the export flow, checks anonymous reads and denied anonymous writes, and removes its test object. No remote database is used.

@@ -2,6 +2,7 @@
 // Email: MJML (format-preview templater) with Brand Core tokens + logo (S5).
 // Social: live HTML/CSS composite: raw image + overlay line in the brand
 // display font + logo + accent bar (S4-lite; PNG export is post-freeze).
+import { hostEmailAssets } from "./email-assets.js";
 import { embedExportAssets } from "./stable-export.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -24,7 +25,7 @@ export function emailTokens(layer1) {
   };
 }
 
-export async function renderEmail({ email, layer1, heroUrl = null, language = "en", embedAssets = embedExportAssets }) {
+export async function renderEmail({ email, layer1, heroUrl = null, language = "en", embedAssets = embedExportAssets, hostAssets = hostEmailAssets }) {
   const tokens = emailTokens(layer1);
   const ctx = {
     language, tokens, email, brand_name: layer1.brand.name,
@@ -37,8 +38,10 @@ export async function renderEmail({ email, layer1, heroUrl = null, language = "e
     const out = await mjml2html(src, { validationLevel: "soft", minify: false });
     html = out.html; errors = out.errors || [];
   } catch (e) { errors = [e.message]; }
-  const transport_html = html;
-  const transport = { html_bytes: Buffer.byteLength(html, "utf8"), delivery_ready: false, requires_asset_hosting: /<img[^>]+src=["\']https?:/i.test(html), font_mode: "fallback_stack", purpose: "email_transport_draft" };
+  const hosted = await hostAssets(html);
+  const transport_html = hosted.html;
+  const { html: _hostedHtml, ...hosting } = hosted;
+  const transport = { ...hosting, html_bytes: Buffer.byteLength(transport_html, "utf8"), font_mode: "fallback_stack", purpose: "email_transport" };
   const exported = layer1.logo?.sourceId || layer1.font_assets?.length ? await embedAssets(html, { layer1, imageUrl: heroUrl }) : { html, stable: false, assets: [] };
   return { ...exported, transport_html, transport, mjmlErrors: errors, tokens };
 }
