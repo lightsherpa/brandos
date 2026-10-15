@@ -43,7 +43,7 @@ export function ClaimValue({ claim, value = claim.value, sources = [] }) {
   if (Array.isArray(value)) return <ul className="certify-values">{value.map((v,i) => <li key={i}>{typeof v === 'object' ? Object.entries(v).filter(([,x]) => typeof x === 'string').map(([k,x]) => `${fieldLabel(k)}: ${x}`).join(' · ') : String(v)}</li>)}</ul>;
   return <p className="certify-value">{typeof value === 'object' && value ? Object.entries(value).filter(([,v]) => typeof v !== 'object').map(([k,v]) => `${fieldLabel(k)}: ${v}`).join(' · ') : ct(display(value))}</p>;
 }
-export function FontSpecimen({family,label=family,scale={}}){return <div className="certify-font-samples" style={{fontFamily:`"${family}",sans-serif`}}><strong>{label}</strong>{['h1','h2','h3','h4','h5','h6','body'].map((tag,i)=><div key={tag}><small>{tag.toUpperCase()}</small><p style={{fontFamily:'inherit',fontSize:Math.min(48,Number(scale?.[tag])||[40,34,28,24,20,18,16][i]),lineHeight:1.3}}>The quick brown fox jumps over the lazy dog.</p></div>)}</div>;}
+export function FontSpecimen({family,label=family,scale={}}){return <div className="certify-font-samples" style={{'--certify-specimen-family':`"${family}"`,fontFamily:`"${family}",sans-serif`}}><strong>{label}</strong>{['h1','h2','h3','h4','h5','h6','body'].map((tag,i)=><div key={tag}><small>{tag.toUpperCase()}</small><p style={{fontFamily:'inherit',fontSize:Math.min(48,Number(scale?.[tag])||[40,34,28,24,20,18,16][i]),lineHeight:1.3}}>The quick brown fox jumps over the lazy dog.</p></div>)}</div>;}
 export function ClaimEvidence({ claim }) {
   const {locale}=useLocale();const copy=reviewCopy(locale);const ct=text=>reviewText(text,locale);
   const [tab, setTab] = React.useState(0);

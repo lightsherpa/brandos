@@ -1,0 +1,528 @@
+{
+  "brand": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "retries": 1,
+  "inputs": [
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "Lato",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "Inter",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    }
+  ],
+  "visual": [
+    {
+      "text": "Aa Gg",
+      "computed": "Lato",
+      "declared": "Lato",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 5
+        }
+      ]
+    },
+    {
+      "text": "ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789",
+      "computed": "Lato",
+      "declared": "Lato",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 39
+        }
+      ]
+    },
+    {
+      "text": "Aa Gg",
+      "computed": "Inter",
+      "declared": "Inter",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 5
+        }
+      ]
+    },
+    {
+      "text": "ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789",
+      "computed": "Inter",
+      "declared": "Inter",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 39
+        }
+      ]
+    },
+    {
+      "text": "Aa Gg",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 5
+        }
+      ]
+    },
+    {
+      "text": "ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 39
+        }
+      ]
+    }
+  ],
+  "owner": [
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "inherit",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "inherit",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "inherit",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "inherit",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "inherit",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "inherit",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Lato",
+      "declared": "inherit",
+      "sourceFamily": "\"Lato\"",
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "inherit",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "inherit",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "inherit",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "inherit",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "inherit",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "inherit",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "Inter",
+      "declared": "inherit",
+      "sourceFamily": "\"Inter\"",
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    },
+    {
+      "text": "The quick brown fox jumps over the lazy dog.",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "declared": "inherit",
+      "sourceFamily": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 44
+        }
+      ]
+    }
+  ]
+}

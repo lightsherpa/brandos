@@ -15,7 +15,7 @@ test('editorial brand book renders real strategy, unlimited palette, voice examp
 test('only loaded brand font is described as a live specimen with H1–H6 and body',async t=>{
  const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());const {BookFontSpecimen}=await vite.ssrLoadModule('/src/brand-book-v2.jsx');
  const html=renderToStaticMarkup(React.createElement(BookFontSpecimen,{font:{family:'Commercial Cake',kind:'Both',weight:600},loadedFamily:'BrandFont-commercial',scale:{h1:58}}));
- for(const level of ['H1','H2','H3','H4','H5','H6','BODY'])assert.ok(html.includes(level));assert.match(html,/BrandFont-commercial/);assert.equal((html.match(/The quick brown fox/g)||[]).length,7);assert.match(html,/font-size:58px/);
+ for(const level of ['H1','H2','H3','H4','H5','H6','BODY'])assert.ok(html.includes(level));assert.match(html,/BrandFont-commercial/);assert.match(html,/--book-specimen-family/);assert.match(html,/font-family:inherit/);assert.equal((html.match(/The quick brown fox/g)||[]).length,7);assert.match(html,/font-size:58px/);
  const unavailable=renderToStaticMarkup(React.createElement(BookFontSpecimen,{font:{family:'Unloaded Cake'}}));assert.match(unavailable,/Font preview unavailable/);assert.doesNotMatch(unavailable,/The quick brown fox/);
 });
 test('book copy translates all controls into Spanish and Arabic while keeping Brand Core',async t=>{

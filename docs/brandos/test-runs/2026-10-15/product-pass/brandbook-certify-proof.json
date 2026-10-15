@@ -3,6 +3,53 @@
   "bookBrand": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
   "pendingBrand": "c566c64a-1423-4525-9103-6a50f21f6484",
   "specimens": 21,
+  "fontChecks": [
+    {
+      "label": "Lato",
+      "expected": "\"Lato\"",
+      "computed": "Lato",
+      "loaded": true,
+      "available": true,
+      "rendered": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "label": "Inter",
+      "expected": "\"Inter\"",
+      "computed": "Inter",
+      "loaded": true,
+      "available": true,
+      "rendered": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "label": "Meaty Nineties",
+      "expected": "\"BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f\"",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "loaded": true,
+      "available": true,
+      "rendered": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    }
+  ],
   "finalVisible": true,
   "screenshots": [
     "brand-book-en-1280.png",
