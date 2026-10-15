@@ -1,4 +1,5 @@
 import React from "react";
+import { CERTIFIER_SUPPORT_NAME } from "./lib/certifier-support-name.js";
 import {reviewKind} from "./lib/review-output.js";
 import {reviewDeskCopy,reviewDeskEnabled,certifyReviewEnabled} from "./lib/review-desk-copy.js";
 import {ReviewOutputPreview} from "./lib/review-output-preview.jsx";
@@ -92,7 +93,7 @@ function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
   const recommendation = caseFile.certificationRecommendation || {};
   return (
     <div style={{padding: 20, borderBottom:"1px solid var(--c-line)", background:"linear-gradient(180deg, rgba(212,175,55,0.10), transparent 72%)"}}>
-      <div className="eyebrow eyebrow--yellow" style={{marginBottom: 10}}>Steward Copilot</div>
+      <div className="eyebrow eyebrow--yellow" style={{marginBottom: 10}}>{certifyReviewEnabled() ? CERTIFIER_SUPPORT_NAME : "Steward Copilot"}</div>
       <div style={{fontSize: 15, color:"var(--c-ink)", fontWeight: 650, marginBottom: 5}}>
         {String(caseFile.readiness?.level || "draft").replace(/-/g, " ")}
       </div>
