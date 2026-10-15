@@ -19,6 +19,7 @@ import { saveRule } from "../harness/rules.js";
 import { TASKS } from "../harness/registry.js";
 import { creditErrorResponse } from "../lib/credits.js";
 import { preflight, openRun, settle, taskCredits, MAX_RERUNS_PER_ITEM } from "../harness/settlement.js";
+import { forViewer } from "../lib/client-redact.js";
 
 // Feature flag: server env TASKS_ENABLED (default off). When off every route
 // 404s except GET /enabled, which the client uses to hide the nav + route.
@@ -53,7 +54,10 @@ export function clientTaskSnapshot(job) {
     ...(gated ? { crew: crewFor(job.type, job.heroes) } : {}),
   };
 }
-function snapshot(job) { return clientTaskSnapshot(job); }
+/** Clients lose cost, token and vendor keys. Platform keeps the public snapshot, including cost. */
+export function snapshot(job, auth) {
+  return forViewer(auth, clientTaskSnapshot(job));
+}
 
 async function scopeBrand(c, brandId) {
   const auth = c.get("auth");
@@ -165,7 +169,7 @@ async function getJob(c) {
 
 app.get("/:id", requireAuth, async (c) => {
   const { job, error } = await getJob(c);
-  return error || c.json(snapshot(job));
+  return error || c.json(snapshot(job, c.get("auth")));
 });
 
 app.post("/:id/rules", requireAuth, async (c) => {
@@ -186,7 +190,7 @@ app.post("/:id/items/:index/rerun", requireAuth, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const r = await executeRerun({ job, index: Number(c.req.param("index")), body, userId: c.get("auth").userId });
   if (r.credit) return creditErrorResponse(c, r.credit);
-  return c.json(r.body, r.status);
+  return c.json(forViewer(c.get("auth"), r.body), r.status);
 });
 
 app.post('/:id/items/:index/component', requireAuth, async (c) => {
@@ -198,7 +202,7 @@ app.post('/:id/items/:index/component', requireAuth, async (c) => {
   if (invalid || body.modelOverride != null) return c.json({ error: invalid || 'Model choice is managed by the crew', code: 'INVALID_COMPONENT' }, 400);
   const r = await executeRerun({ job, index: Number(c.req.param('index')), body: { ...body, componentEdit: true }, userId: c.get('auth').userId });
   if (r.credit) return creditErrorResponse(c, r.credit);
-  return c.json(r.body, r.status);
+  return c.json(forViewer(c.get("auth"), r.body), r.status);
 });
 
 const rerunDeps = { preflight, loadTaskContext, openRun, settle, rerunItem, reviseComponent };

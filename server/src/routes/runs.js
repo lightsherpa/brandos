@@ -48,6 +48,7 @@ import { loadVisualAssets, pinCertifiedReferences, selectGenerationReferences } 
 import { assertSpecRouteAllowed, ToolPermissionError } from "../harness/tools.js";
 import { hasPermission } from "../lib/permissions.js";
 import { writeAuthorizationAudit } from "../lib/audit.js";
+import { forViewer, routeTier } from "../lib/client-redact.js";
 
 const app = new Hono();
 
@@ -714,13 +715,15 @@ app.post("/stream", requireAuth, async (c) => {
           runId,
           briefId,
           outputId: outputRow?.id,
-          usage: usage ? {
+          /* Clients get only the opaque tier (re-run "current" marker). */
+          usage: usage ? forViewer(auth, {
             provider: usage.provider,
             model: usage.model,
+            tier: routeTier(usage.model),
             prompt_tokens: usage.prompt_tokens,
             completion_tokens: usage.completion_tokens,
             cached_tokens: usage.cached_tokens,
-          } : null,
+          }) : null,
           qa: clientQa,
           output: isImage
             ? { kind: outputKind, asset_url: imageResult?.asset_url, width: imageResult?.width, height: imageResult?.height, status: qa.passed ? "approved" : "flagged",
@@ -796,7 +799,7 @@ app.get("/:id", requireAuth, async (c) => {
     .select("*")
     .in("output_id", (outputs || []).map((o) => o.id));
 
-  return c.json({ run, outputs: (outputs || []).map(sanitizeOutput), qa: qaResults || [] });
+  return c.json(forViewer(c.get("auth"), { run, outputs: (outputs || []).map(sanitizeOutput), qa: qaResults || [] }));
 });
 
 export default app;

@@ -2378,6 +2378,7 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
   const isImage  = !!assetUrl;
   const rerunOptions = isImage ? IMAGE_RERUN_OPTIONS : TEXT_RERUN_OPTIONS;
   const currentRoute = node.done?.usage?.model || node.run?.model_used || "";
+  const currentTier  = node.done?.usage?.tier || null;   /* clients get only the tier, never the route */
 
   const dirty = !isImage && (editedText || "") !== (baselineText || "");
 
@@ -2567,7 +2568,7 @@ function SpecialistNotepad({ agent, node, cert, context, editedText, onEdit, onC
           {!crewCanvasEnabled && rerunOpen && (
             <div className="card" style={{padding: 8, display:"flex", flexDirection:"column", gap: 2, animation:"cvPopIn 160ms cubic-bezier(.2,.8,.2,1)"}}>
               {rerunOptions.map((opt) => {
-                const isCurrent = currentRoute && (currentRoute === opt.route || opt.route.endsWith(currentRoute));
+                const isCurrent = (currentTier && currentTier === opt.tier) || (currentRoute && (currentRoute === opt.route || opt.route.endsWith(currentRoute)));
                 return (
                   <button key={opt.route}
                     onClick={() => { setRerunOpen(false); fireRerun({ modelOverride: opt.route, label: t(`briefs.rerun.${opt.tier}.label`) }); }}
