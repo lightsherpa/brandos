@@ -12,6 +12,9 @@ export function reviewComponents(body) {
   const decoded=decodeReviewBody(body), result=[];
   function walk(value,path=[],depth=0) {
     if(depth>12 || !value || typeof value!=='object')return;
+    // Stored task artifacts may retain a checked source image for repair.
+    // Quarantined work is private production state, never CD-facing output.
+    if(value.quality_gated && !['ready','approved'].includes(value.status))return;
     for(const [key,entry] of Object.entries(value)) {
       const next=[...path,key];
       if (key==='text' && typeof value.edited_text==='string') continue;

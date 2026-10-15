@@ -39,3 +39,5 @@ test('review desk workflow copy covers every state and control in all locales',(
   for(const state of Object.keys(baseline.states))assert.notEqual(translated.states[state],baseline.states[state]);
  }
 });
+
+test('CD review never exposes privately retained quarantined source images or HTML',()=>{const body={items:[{status:'flagged',quality_gated:true,html:'private HTML',image:{asset_url:'https://img.test/private.png'},copy:{caption:'private copy'}}]};assert.deepEqual(reviewComponents(body),[]);body.items[0].status='ready';assert.ok(reviewComponents(body).some(component=>component.type==='image'));});

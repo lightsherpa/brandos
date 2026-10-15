@@ -229,7 +229,7 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
     job.stage = job.status === "ready" ? "Ready" : "Flagged";
     job.finished_at = new Date().toISOString();
     job.reruns = [...(job.reruns || []), { index, run_id: run.runId, ...res.metrics }];
-    return { status: 200, body: { item: res.item, metrics: res.metrics, run_id: run.runId, reruns_left: MAX_RERUNS_PER_ITEM - job.rerun_counts[index] } };
+    return { status: 200, body: { item: publicItem(res.item), metrics: res.metrics, run_id: run.runId, reruns_left: MAX_RERUNS_PER_ITEM - job.rerun_counts[index] } };
   } catch (e) {
     job.items[index] = item;   // count stays: the reservation was made and settled
     return { status: e.status || 500, body: { error: e.message, code: e.code } };

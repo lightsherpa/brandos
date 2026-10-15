@@ -33,7 +33,8 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
   const timings = {};
   const mark = (stage) => { timings[stage] = Date.now() - t0; onEvent({ type: "stage", stage, at_ms: timings[stage] }); };
   const items = Array.from({ length: n }, (_, index) => ({ index, status: "queued", stage: "Planning", checks: [], review: [], revisions: 0 }));
-  const emitItem = (it) => onEvent({ type: "item", item: publicItem(it) });
+  // These are trusted in-process progress events; HTTP serialization lives in tasks.js.
+  const emitItem = (it) => onEvent({ type: "item", item: internalItem(it) });
   const complete = deps.complete; const gen = deps.gen; const ocr = deps.ocr || ocrNoText;
   const imageFor = (it) => (type === "social_post" ? it.copy.image_brief : it.copy.hero_image_brief);
 
@@ -63,7 +64,7 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
 
   // ── Imaging + per-item code checks, streamed as each item finishes ──
   mark("Imaging");
-  const finishItem = async (it) => { it.status = "checking"; it.stage = "Checking"; emitItem(it); await checkAndRender({ type, task, it, layer1, language: spec.language, briefCheck }); emitItem(it); };
+  const finishItem = async (it) => { it.status = "checking"; it.stage = "Checking"; emitItem(it); await checkAndRender({ type, task, it, layer1, language: spec.language, briefCheck, renderSocialFn: deps.renderSocialFn }); emitItem(it); };
   const imageStep = async (it) => {
     it.status = "imaging"; it.stage = "Imaging"; emitItem(it);
     try { it.image = await sem(() => generateSlot({ slot: it.index, imageBrief: imageFor(it), layer1, budget, gen, ocr, complete, onEvent })); }
@@ -128,7 +129,7 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
   const out = {
     type, status: items.every((it) => it.status === "ready") ? "ready" : "flagged",
     needs_review: items.some((it) => it.needs_review),
-    spec, items: items.map(publicItem),
+    spec, items: items.map(internalItem),
     brand_core: { brand: layer1.brand, palette: layer1.palette, fonts: layer1.fonts, logo_source_id: layer1.logo?.sourceId || null, font_source_ids: (layer1.font_assets || []).map(f => f.sourceId), reference_source_ids: (layer1.references || []).map(r => r.id), provenance: layer1.provenance || null },
     metrics: { total_ms: Date.now() - t0, stage_ms: timings, cost: budget.summary(), ledger: budget.ledger, models: [...new Set(budget.ledger.map((r) => r.model))] },
   };
@@ -137,17 +138,18 @@ export async function runTask({ type, brief, layer1, count, heroes = false, skil
 }
 
 /** Code checks + render for one item (shared by runTask and rerunItem). */
-export async function checkAndRender({ type, task, it, layer1, language, briefCheck, renderEmailFn = renderEmail }) {
+export async function checkAndRender({ type, task, it, layer1, language, briefCheck, renderEmailFn = renderEmail, renderSocialFn = renderStableSocial }) {
+  it.html = null; it.transport_html = null;
   const pre = briefCheck ? [briefCheck] : [];
   let renderedAssets = [];
   if (type === "social_post") {
     it.checks = [...pre, ...checkSocialCopy(it.copy, { banned: layer1.voice.forbidden }), ...checkSocialImage(it.image, { aspect: task.aspect })];
     if (it.image?.asset_url && (!crewCanvasEnabled() || it.image.ocr?.pass === true)) {
-      try { const r = await renderStableSocial({ post: it.copy, imageUrl: it.image.asset_url, layer1, aspect: task.aspect }); it.html = r.html; it.export = { kind: "standalone_html", stable: r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), assets: r.assets, formats: r.stable ? ["html", "png"] : ["html"] }; }
-      catch { it.checks.push(result("EXPORT_ASSETS", false, "Stable export assets unavailable", "hard", "none")); it.html = null; }
+      try { const r = await renderSocialFn({ post: it.copy, imageUrl: it.image.asset_url, layer1, aspect: task.aspect }); it.html = r.html; it.export = { kind: "standalone_html", stable: r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), assets: r.assets, formats: r.stable ? ["html", "png"] : ["html"] }; }
+      catch (error) { logCompositionFailure(type, it.index, error); it.checks.push(result("EXPORT_ASSETS", false, "Stable export assets unavailable", "hard", "none")); it.html = null; }
     }
   } else {
-    let r; try { r = await renderEmailFn({ email: it.copy, layer1, heroUrl: it.image?.ocr?.pass === true ? it.image.asset_url : null, language }); } catch { r = { html: "", mjmlErrors: ["Stable export assets unavailable"], tokens: {} }; }
+    let r; try { r = await renderEmailFn({ email: it.copy, layer1, heroUrl: it.image?.ocr?.pass === true ? it.image.asset_url : null, language }); } catch (error) { logCompositionFailure(type, it.index, error); r = { html: "", mjmlErrors: ["Stable export assets unavailable"], tokens: {} }; }
     it.export = { kind: "standalone_html", stable: !!r.stable, html_bytes: Buffer.byteLength(r.html || "", "utf8"), transport_html_bytes: r.transport?.html_bytes || null, delivery_ready: false, assets: r.assets || [], formats: ["html"] };
     it.html = r.html;
     renderedAssets = r.assets || [];
@@ -183,7 +185,7 @@ export async function rerunItem({ type, brief, layer1, spec, item, heroes = fals
   const failed = [...hardFails(item.checks || []), ...(item.review || []).filter((c) => !c.pass)].map((c) => `${c.id}: ${c.reason}`);
   const newRules = (layer1.rules || []).filter((r) => ruleIds.includes(r.id)).map((r) => `apply saved rule: ${r.kind === "banned_word" ? `never use "${r.value}"` : r.value}${r.reason ? ` (${r.reason})` : ""}`);
   const it = { index: item.index, copy: item.copy, image: item.image, revisions: (item.revisions || 0), before: { copy: item.copy, image_url: item.image?.asset_url || null, failed: [...hardFails(item.checks || []), ...(item.review || []).filter((c) => !c.pass)] } };
-  onEvent({ type: "item", item: { ...publicItem(it), status: "fixing", stage: "Fixing" } });
+  onEvent({ type: "item", item: { ...internalItem(it), status: "fixing", stage: "Fixing" } });
   const { spec: revised } = await writeSpec({ task, brief, count: (type === "social_post" ? spec.posts : spec.emails).length, layer1, skills, budget, complete: deps.complete, revision: { previous: spec, fixes: [{ index: item.index, reasons: [...newRules, ...failed] }] } });
   const next = (type === "social_post" ? revised.posts : revised.emails)[item.index];
   if (next) it.copy = type === "social_post" ? { ...next, image_brief: item.copy.image_brief } : { ...next, ...(item.copy.hero_image_brief ? { hero_image_brief: item.copy.hero_image_brief } : {}) };
@@ -195,19 +197,25 @@ export async function rerunItem({ type, brief, layer1, spec, item, heroes = fals
   const copyText = JSON.stringify(it.copy);
   it.rule_applied = (layer1.rules || []).filter((r) => ruleIds.includes(r.id)).map((r) => ({ id: r.id, value: r.value, applied: r.kind === "banned_word" ? findBanned(copyText, [r.value]).length === 0 : true }));
   it.status = ok ? "ready" : "flagged"; it.stage = ok ? "Ready" : "Flagged"; it.needs_review = !ok; it.revisions += 1;
-  const out = publicItem(it);
+  const out = internalItem(it);
   onEvent({ type: "item", item: out });
   return { item: out, metrics: { total_ms: Date.now() - t0, cost: budget.summary(), ledger: budget.ledger } };
 }
 
-export function publicItem(it) {
-  const publish = !crewCanvasEnabled() || ["ready", "approved"].includes(it.status);
+export function publicItem(it) { return serializeItem(it, false); }
+// Persist only QA-accepted source images, even when rendering/reviewer work fails.
+// The quality_gated marker follows stored output into every UI read path.
+export function internalItem(it) { return serializeItem(it, true); }
+function serializeItem(it, privateArtifacts) {
+  const gated = crewCanvasEnabled() || it.quality_gated === true;
+  const publish = privateArtifacts || !gated || ["ready", "approved"].includes(it.status);
   return {
-    index: it.index, status: it.status, stage: it.stage, needs_review: !!it.needs_review, revisions: it.revisions,
+    index: it.index, quality_gated: gated, status: it.status, stage: it.stage, needs_review: !!it.needs_review, revisions: it.revisions,
+    can_retry_render: gated && !["ready", "approved"].includes(it.status) && (!it.image || it.image.ocr?.pass === true && !!it.image.asset_url) && (it.checks || []).some(check => !check.pass && ["EXPORT_ASSETS", "MJML"].includes(check.id)) && (it.review || []).length > 0 && (it.review || []).every(check => check.pass),
     export: it.export || null,
     transport_html: publish ? it.transport_html || null : null, transport: it.transport || null,
     copy: it.copy || null, html: publish ? it.html || null : null, html_bytes: it.html_bytes || null,
-    image: it.image ? { rejected: !!it.image.rejected, asset_url: publish && (!crewCanvasEnabled() || it.image.ocr?.pass === true) ? it.image.asset_url || null : null, model: it.image.model || null, fallback_from: it.image.fallback_from || null, width: it.image.width, height: it.image.height, uses_reference: it.image.uses_reference, reference_count: it.image.reference_count, ocr: it.image.ocr || null, ms: it.image.ms, attempts: (it.image.attempts || []).map(({ route, model, ms, error, ocr }) => ({ route, model, ms, error, ocr_pass: ocr?.pass ?? null })), error: it.image.error || null } : null,
+    image: it.image ? { rejected: !!it.image.rejected, asset_url: publish && (!gated || it.image.ocr?.pass === true) ? it.image.asset_url || null : null, model: it.image.model || null, fallback_from: it.image.fallback_from || null, width: it.image.width, height: it.image.height, uses_reference: it.image.uses_reference, reference_count: it.image.reference_count, ocr: it.image.ocr || null, ms: it.image.ms, attempts: (it.image.attempts || []).map(({ route, model, ms, error, ocr }) => ({ route, model, ms, error, ocr_pass: ocr?.pass ?? null })), error: it.image.error || null } : null,
     checks: it.checks, review: it.review,
     rule_applied: it.rule_applied || null,
     before: it.before ? { copy: it.before.copy, image_url: crewCanvasEnabled() ? null : it.before.image_url, failed: it.before.failed } : null,
@@ -225,7 +233,9 @@ export async function reviseComponent({ type, brief, layer1, spec, item, heroes 
   const t0 = Date.now();
   const it = { ...item, copy: structuredClone(item.copy), image: item.image, revisions: (item.revisions || 0) + 1 };
   const set = (field, next) => { const parts = field.split('.'); if (parts.length === 2) it.copy[parts[0]] = { ...it.copy[parts[0]], [parts[1]]: next }; else it.copy[field] = next; };
-  if (component === 'image') {
+  if (component === 'composition') {
+    // Reuse checked source assets and copy; no generation work is needed.
+  } else if (component === 'image') {
     const imageBrief = type === 'social_post' ? item.copy.image_brief : item.copy.hero_image_brief;
     if (action === 'replace') {
       const asset = await (deps.fetchAsset || fetchAsset)(value, { kind: 'image' });
@@ -242,10 +252,17 @@ export async function reviseComponent({ type, brief, layer1, spec, item, heroes 
     const parts = component.split('.');
     set(component, parts.length === 2 ? next[parts[0]][parts[1]] : next[component]);
   }
-  await checkAndRender({ type, task, it, layer1, language: spec.language, renderEmailFn: deps.renderEmailFn });
-  [it.review] = await (deps.review || review)({ task, brief, layer1, items: [{ copy: it.copy, image_url: it.image?.asset_url || null }], budget, complete: deps.complete });
+  await checkAndRender({ type, task, it, layer1, language: spec.language, renderEmailFn: deps.renderEmailFn, renderSocialFn: deps.renderSocialFn });
+  if (component === 'composition' && reviewerPasses(task, item.review || [])) it.review = item.review;
+  else [it.review] = await (deps.review || review)({ task, brief, layer1, items: [{ copy: it.copy, image_url: it.image?.asset_url || null }], budget, complete: deps.complete });
   const ok = hardFails(it.checks).length === 0 && reviewerPasses(task, it.review);
   if (!ok) throw Object.assign(new Error('This change did not pass brand quality checks. Your previous work is safe.'), { status: 422, code: 'COMPONENT_QUALITY_REJECTED' });
   it.status = 'ready'; it.stage = 'Ready'; it.needs_review = false;
-  return { item: publicItem(it), metrics: { total_ms: Date.now() - t0, cost: budget.summary(), ledger: budget.ledger } };
+  return { item: internalItem(it), metrics: { total_ms: Date.now() - t0, cost: budget.summary(), ledger: budget.ledger } };
+}
+
+function logCompositionFailure(type, index, error) {
+  // Renderer failures can mention signed assets; only bounded, redacted text is logged.
+  const message = String(error?.message || 'Composition unavailable').replace(/https?:\/\/[^\s"'<>]+/gi, '[asset URL]').replace(/(?:token|key|secret|signature)=[^\s&]+/gi, '[redacted]').slice(0, 240);
+  console.error(JSON.stringify({ event: 'composition_failed', type, item: index, code: /^[A-Z_]{1,64}$/.test(error?.code || '') ? error.code : 'COMPOSITION_FAILED', message }));
 }

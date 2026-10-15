@@ -11,7 +11,7 @@ export function expandOutput(output) {
  const task=output.kind==='task'||body.kind==='task'||output.kind==='task_rerun';
  if(!task) return [{...output,outputId:output.id,status:outputStatus(output.status),text:body.edited_text||body.text||(typeof body==='string'?body:''),assetUrl:body.asset_url||null,edited:!!body.edited_text}];
  const items=Array.isArray(body.items)?body.items:body.item?[{...body.item,index:body.index}]:body.snapshot?.items||[];
- return items.map((item,i)=>({...output,id:`${output.id}:${item.index??i}`,outputId:output.id,itemIndex:item.index??i,taskId:body.task_id||body.snapshot?.id,taskType:body.type||body.snapshot?.type,kind:body.type||body.snapshot?.type||'task',status:hasHumanOutputApproval(output)?'approved':outputStatus(item.status === 'approved' ? 'ready' : item.status),text:item.copy?.caption||item.copy?.subject||'',html:item.html,checks:[...(item.checks||[]),...(item.review||[])],export:item.export,assetUrl:null,edited:false}));
+ return items.map((item,i)=>({...output,id:`${output.id}:${item.index??i}`,outputId:output.id,itemIndex:item.index??i,taskId:body.task_id||body.snapshot?.id,taskType:body.type||body.snapshot?.type,kind:body.type||body.snapshot?.type||'task',status:hasHumanOutputApproval(output)?'approved':outputStatus(item.status === 'approved' ? 'ready' : item.status),text:item.copy?.caption||item.copy?.subject||'',html:item.quality_gated && !['ready','approved'].includes(item.status) ? null : item.html,checks:[...(item.checks||[]),...(item.review||[])],export:item.export,assetUrl:null,edited:false}));
 }
 export async function requestHumanCraft(fetcher, body, onCredits=()=>{}) {
  if(body.outputId==null||body.slot==null) throw new Error('This deliverable is not saved yet.');
