@@ -160,6 +160,7 @@ export async function checkAndRender({ type, task, it, layer1, language, briefCh
   }
   if (crewCanvasEnabled()) {
     const html = String(it.html || '');
+    if (type === 'social_post') it.checks.push(result('COMPOSITED_HEADLINE', !!String(it.copy.overlay_line || '').trim(), 'A typeset headline is required on the social composite', 'hard', 'copy'));
     it.checks.push(result('RENDERED_HTML', /<!doctype html|<html/i.test(html), 'A complete rendered HTML artifact is required', 'hard', 'none'));
     const fontPresent = (type === "social_post" ? [layer1.fonts.display] : [layer1.fonts.display, layer1.fonts.body]).filter(Boolean).every(font => html.toLowerCase().includes(String(fontStack(font)).split(',')[0].replace(/["']/g, '').toLowerCase()));
     it.checks.push(result('BRAND_FONTS', fontPresent, 'The renderer must use the certified brand fonts', 'hard', 'none'));
@@ -218,6 +219,7 @@ export function publicItem(it) {
 export async function reviseComponent({ type, brief, layer1, spec, item, heroes = false, component, action, value, feedback = '', skillsPayloads = {}, deps = {} }) {
   const invalid = validateComponent({ type, heroes, component, action, value });
   if (invalid) throw Object.assign(new Error(invalid), { status: 400, code: 'INVALID_COMPONENT' });
+  feedback = String(feedback || '').slice(0, 1000);
   const task = crewTask({ ...taskSpec(type), type, heroes: type === 'email_sequence' ? !!heroes : true });
   const budget = createBudget(type);
   const t0 = Date.now();
@@ -230,7 +232,7 @@ export async function reviseComponent({ type, brief, layer1, spec, item, heroes 
       const dimensions = await sharp(asset.bytes, { limitInputPixels: 40_000_000 }).metadata();
       const ocr = await (deps.ocr || ocrNoText)({ imageUrl: asset.dataUrl, budget, palette: layer1.palette, complete: deps.complete });
       it.image = ocr.pass ? { ...item.image, asset_url: value, width: dimensions.width, height: dimensions.height, ocr } : { asset_url: null, ocr, error: 'The replacement image did not pass the text check' };
-    } else it.image = await generateSlot({ slot: item.index, imageBrief: { ...imageBrief, ...(feedback ? { notes: feedback.slice(0, 1000) } : {}) }, layer1, budget, gen: deps.gen, ocr: deps.ocr || ocrNoText, complete: deps.complete });
+    } else it.image = await generateSlot({ slot: item.index, imageBrief: { ...imageBrief, ...(feedback ? { composition: [imageBrief.composition, feedback].filter(Boolean).join('. ') } : {}) }, layer1, budget, gen: deps.gen, ocr: deps.ocr || ocrNoText, complete: deps.complete });
   } else if (action === 'replace') set(component, component === 'body_blocks' ? value.split(/\n\s*\n/).filter(Boolean) : value);
   else {
     const list = type === 'social_post' ? spec.posts : spec.emails;
