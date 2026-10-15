@@ -3,7 +3,7 @@
 export const quarantinedItem = item => item?.quality_gated === true && !['ready','approved'].includes(item.status);
 const decode = body => {if(typeof body!=='string')return body;try{return JSON.parse(body);}catch{return null;}};
 export function hasQuarantinedOutput(body) {
- const decoded=decode(body);return !!decoded && (quarantinedItem(decoded)||quarantinedItem(decoded.item)||(decoded.items||[]).some(quarantinedItem));
+ const decoded=decode(body);return !!decoded && (quarantinedItem(decoded)||quarantinedItem(decoded.item)||(Array.isArray(decoded.items)?decoded.items:[]).some(quarantinedItem));
 }
 export function sanitizeOutput(output) {
  const decoded=decode(output?.body);if(!decoded||typeof decoded!=='object'||!hasQuarantinedOutput(decoded))return output;
