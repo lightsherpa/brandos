@@ -44,3 +44,11 @@ test('competitors expose source links beside each rendered finding',async(t)=>{
  const html=renderToStaticMarkup(React.createElement(ClaimValue,{claim:{field_path:'positioning.competitors',value:[{name:'Bakery',source:'https://bakery.test/about',positioning:'Daily treats'}]}}));
  assert.match(html,/href="https:\/\/bakery.test\/about"/);assert.match(html,/Daily treats/);
 });
+test('Stewart shows the deterministic case file, current risks, sources and review actions',async(t)=>{
+ const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());
+ const {StewartSupport}=await vite.ssrLoadModule('/src/certify/CertifyView.jsx');
+ const claim={field_path:'identity.positioning',evidence:[{label:'Brand website',url:'https://brand.test/about'}]};
+ const copilot={caseFile:{readiness:{level:'steward-ready'},risks:[{field:'identity.positioning',reason:'Conflicting evidence or values exist for this claim.',action:'Resolve before certification.'},{field:'voice.register',reason:'UNRELATED RISK'}],changes:[],sourceSummary:{count:4},claims:{sourceBacked:[{}]}},suggestions:[{id:'ask-position',field:'identity.positioning',type:'ask_client',reason:'This high-impact Brand Core field is empty and should not be invented.'}]};
+ const html=renderToStaticMarkup(React.createElement(StewartSupport,{claim,copilot,locale:'en',localLabel:()=> 'Positioning'}));
+ assert.match(html,/Ready for review/);assert.match(html,/Conflicting evidence/);assert.match(html,/Resolve before certification/);assert.match(html,/href="https:\/\/brand.test\/about"/);assert.match(html,/Suggested actions/);assert.match(html,/Review evidence/);assert.match(html,/Dismiss suggestion/);assert.doesNotMatch(html,/UNRELATED RISK/);
+});
