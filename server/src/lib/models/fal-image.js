@@ -201,6 +201,10 @@ export function resolveImageRequest({ route, referenceImageUrl = null, reference
  * @param {string} [args.size]  - "square_hd" | "landscape_16_9" | "portrait_4_3" | ...
  */
 export async function* generate({ route, prompt, size, aspect = null, referenceImageUrl = null, referenceImageUrls = null, timeoutMs = null }) {
+  // Retired generators cannot be reached by old specialists or user overrides.
+  if (/\/(?:flux|recraft)/i.test(String(route))) {
+    yield { type: "error", message: "Image route retired; use the guarded task image pipeline" }; return;
+  }
   const key = process.env.FAL_API_KEY;
   if (!key) { yield { type: "error", message: "FAL_API_KEY not set" }; return; }
   const cfg = FAL_ROUTES[route];

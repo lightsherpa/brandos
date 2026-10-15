@@ -63,7 +63,7 @@ export function buildLayer1({ brand = {}, bio = {}, refusals = [], references = 
     palette: roles,
     swatches: (v.palette || []).filter((p) => HEX.test(p?.hex || "")).map((p) => ({ hex: p.hex, name: p.name || "", role: p.role || "" })),
     fonts,
-    font_assets: (v.type || []).filter(t => t.url && t.sourceId && t.license && t.suggest).map(t => ({ family: cleanFamily(t.family), url: t.url, sourceId: t.sourceId, license: t.license, license_reference: t.suggest, rights_confirmed: t.rights_confirmed === true })),
+    font_assets: (v.type || []).filter(t => t.url && t.sourceId && t.license && t.suggest).map(t => ({ family: cleanFamily(t.family), url: t.url, sourceId: t.sourceId, license: t.license, license_reference: t.suggest, rights_confirmed: t.rights_confirmed === true, weight: t.weight || "400", style: t.style || "normal" })),
     imagery: Array.isArray(v.imagery) ? v.imagery.slice(0, 6) : [],
     avoid: Array.isArray(v.avoid) ? v.avoid.slice(0, 6) : [],
     voice: {

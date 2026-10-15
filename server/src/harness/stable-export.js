@@ -11,7 +11,7 @@ export async function embedExportAssets(html,{layer1,imageUrl=null,fetchAsset=sa
  if(!f.sourceId||!["commercial","open_source","custom","system"].includes(f.license)||!f.license_reference||f.rights_confirmed!==true)throw new Error('Export font must have licensed source evidence');
  const data=await embed(f.url,'font','font',f.sourceId);
  Object.assign(assets.at(-1),{family:f.family,license:f.license,license_reference:f.license_reference,rights_confirmed:true});
- css+=`@font-face{font-family:'${cssString(f.family)}';src:url('${data}');font-style:normal;font-weight:100 900;font-display:block;}`;
+ css+=`@font-face{font-family:'${cssString(f.family)}';src:url('${data}');font-style:${f.style === 'italic' ? 'italic' : 'normal'};font-weight:${/^(?:[1-9]00)(?: [1-9]00)?$/.test(String(f.weight)) ? f.weight : '400'};font-display:block;}`;
  }
  html=html.replace('</head>',`<style>${css}</style></head>`);
  return {html,stable:true,assets};
