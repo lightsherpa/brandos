@@ -30,6 +30,7 @@ export function ReviewDone({data,outcome,decisions={},onBack}){
 function frictionFieldLabel(path,locale,t){return path==='aspirations.notYetTrue'?frictionCopy(locale).evidenceNeeded:reviewFieldLabel(path,locale,t);}
 function safeLink(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null;}catch{return null;}}
 export function StrategyCopilot({assist,claim,claims,decisions,messages,locale,onOpen,onAsk,onSend,onConfirm,onFlag,busy,chatEnabled}){
+ const {t}=useLocale();
  const c=frictionCopy(locale),a=assist?.claims?.find(row=>row.claim_id===claim.claim_id);
  const hard=(assist?.claims||[]).filter(row=>row.recommendation!=='accept'&&!isResolved(claims.find(x=>x.claim_id===row.claim_id)||{},decisions,messages));
  return <section className="certify-stewart certify-strategy-copilot" aria-label="Stewart"><header><h2>Stewart</h2><span>{c.human}</span></header><p>{c.explain}</p>
@@ -38,7 +39,7 @@ export function StrategyCopilot({assist,claim,claims,decisions,messages,locale,o
    <label>{c.draft}<textarea aria-label={c.draft} readOnly value={a.question[locale]||a.question.en} rows={4}/></label><div className="certify-actions"><button className="btn btn--primary" disabled={busy||!chatEnabled} onClick={()=>onSend(a.question[locale]||a.question.en)}>{c.send}</button><button className="btn btn--ghost" disabled={busy} onClick={()=>onAsk(a.question[locale]||a.question.en)}>{c.edit}</button></div>
    <div className="certify-actions"><button className="btn btn--ghost" disabled={busy||!!claim.open_questions} onClick={onConfirm}>{c.accept}</button><button className="btn btn--ghost" disabled={busy} onClick={onFlag}>{c.flag}</button></div>
   </article>:<p>{c.noAssist}</p>):<p>{c.help}</p>}
-  <details className="certify-strategy-summary"><summary>{c.hard} · {hard.length}</summary>{hard.length?<><p className="certify-strategy-summary-note">{c.hardSummary}</p><ul>{hard.map(row=><li key={row.claim_id}><button onClick={()=>onOpen(row.claim_id)}>{frictionFieldLabel(row.field_path,locale)}</button></li>)}</ul></>:<p>{c.noHard}</p>}</details>
+  <details className="certify-strategy-summary"><summary>{c.hard} · {hard.length}</summary>{hard.length?<><p className="certify-strategy-summary-note">{c.hardSummary}</p><ul>{hard.map(row=><li key={row.claim_id}><button onClick={()=>onOpen(row.claim_id)}>{frictionFieldLabel(row.field_path,locale,t)}</button></li>)}</ul></>:<p>{c.noHard}</p>}</details>
  </section>;
 }
 function GraphicalEvidence({claim,sources,c}){
