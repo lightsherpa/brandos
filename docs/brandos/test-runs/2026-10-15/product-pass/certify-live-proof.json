@@ -1,0 +1,27 @@
+{
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "sourceVersion": 3,
+  "version": 4,
+  "sections": 7,
+  "result": {
+    "ok": true,
+    "self_certified": true,
+    "version": 4,
+    "score": 96,
+    "attestationId": "e3a23adc-3af0-4410-8a10-44f862bd0304",
+    "attestedAt": "2026-10-15T16:31:33.634139+00:00",
+    "reviewQueued": true
+  },
+  "screenshots": [
+    "certify-live-final-en-1280.png",
+    "certify-live-final-en-1440.png",
+    "certify-live-final-es-1280.png",
+    "certify-live-final-es-1440.png",
+    "certify-live-final-ar-1280.png",
+    "certify-live-final-ar-1440.png",
+    "certify-live-confirmed-1280.png",
+    "certify-live-confirmed-1440.png"
+  ],
+  "errors": [],
+  "scope": "Same existing local Cake Me brand: sharpen and both crews use certified v3; owner strategy comment creates v4 and exact-version Certify confirmation records it. No seeding. Prior v3 full CD evidence retained in ../certify-ux/walkthrough.json."
+}

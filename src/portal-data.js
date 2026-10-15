@@ -795,7 +795,7 @@ window.CI_BRIEFS = [
     agents: ["a02","a03","a12","a13","a14","a18","a24"],
     clarifications: [
       { q:"Annual as one month free, or a flat discount?", why:"A flat discount competes with your monthly plan. One month free reads as a decision, not a markdown." },
-      { q:"Is the wholesale audience in or out of this push?", why:"They convert on email differently. In → I route sequence variant B. Out → we don't spend a Sonnet pass on copy that won't land." },
+      { q:"Is the wholesale audience in or out of this push?", why:"They convert on email differently. In → I route sequence variant B. Out → we don't spend a pass on copy that won't land." },
     ],
     createdAt: "Mon · 14 May",
   },
@@ -914,7 +914,7 @@ window.CI_OUTPUTS = [
     id:"o6", briefId:"b-pricing-relaunch", kind:"image",
     type:"PRICING HERO · KEY VISUAL", agentId:"a18", status:"in-production",
     body:"A single bag on a sunlit kitchen counter, Tuesday-morning light. Annual band wraps the lower third in warm amber. No price on the visual — the price lives in the copy.",
-    meta:"1600×900 · 3 crops · Flux 2",
+    meta:"1600×900 · 3 crops",
     rationale:"No price on the visual — the BIO keeps price in copy, not image. Chose Tuesday-morning kitchen light over studio product shots so the frame says “ritual” not “sale”, matching the cost-of-pause strategy."
   },
 
@@ -997,7 +997,7 @@ window.CI_OUTPUTS = [
 /* Brandolph's opening lines (4 contexts) --------------------------- */
 window.CI_BRANDOLPH_OPENERS = {
   welcome:  "*You haven't shipped anything this week.* Either we're in a thinking phase, or something is blocked. Tell me which one — I have one of two next moves to suggest depending.",
-  midway:   "*The spring campaign you briefed Monday is two cards short of ready.* The conversion copy and the subject lines look strong. The Email 2 case-for-annual reads dutiful, not persuasive. I'd assign Sonnet a second pass before we ship. You want me to do that, or want to read it first?",
+  midway:   "*The spring campaign you briefed Monday is two cards short of ready.* The conversion copy and the subject lines look strong. The Email 2 case-for-annual reads dutiful, not persuasive. I'd assign a second pass before we ship. You want me to do that, or want to read it first?",
   cold:     "*Your last brief was the Christmas campaign.* That was four months ago. I assume the season has changed. What are you planning for now — or do you want me to look at the calendar and propose three?",
   fresh:    "*Welcome back.* The BIO is current. Nothing is in flight. The fastest way to start is to tell me what you're trying to ship this month — not the deliverable, the change you want made.",
 };

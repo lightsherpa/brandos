@@ -1,0 +1,157 @@
+{
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "rounds": 3,
+  "p50Ms": 9563,
+  "results": [
+    {
+      "round": 1,
+      "ms": 9853,
+      "status": 200,
+      "serverTiming": null,
+      "quality": {
+        "title": "A Tuesday, one slice",
+        "sharpenedBrief": "One Instagram post that makes an ordinary cheesecake moment (a mid-afternoon break, a slice shared on a couch) feel like a small, real celebration, written like a best friend who just found the perfect excuse. It anchors on an existing Cake Me product from the current catalog, with no discounts, no invented offers and no urgency tricks, and lets the photo-worthy slice do the selling. Defaults assumed: single-image feed post, Spanish/English mix to follow the Brand Core voice, and no franchise messaging in this piece.",
+        "questions": [
+          {
+            "q": "Which existing cheesecake should be the star of this post, or should I pick the most photogenic one from the current product references?",
+            "solvingFor": "Settles whether the post is built around one hero product, which sharpens the visual and the caption, or stays a generic mood piece that risks reading like any other dessert shop.",
+            "why": "The Brand Core's pillar 'Artisanal Quality' and the watchout about staying relevant among trendy 'Instagrammable' dessert shops mean the product has to be specific, not generic."
+          },
+          {
+            "q": "Is this moment about sharing with friends, or a solo treat-yourself break?",
+            "solvingFor": "Decides whether the post leans on the social, shareable side of the brand or on the quiet 'happy break' side, which changes the scene, the caption's 'you' vs 'we', and the call to action.",
+            "why": "The Brand Core's JTBD says 'share with my friends', while the north star says 'the perfect excuse for happy breaks', and the two pull the story in different directions."
+          },
+          {
+            "q": "Do you want the post to point anywhere (visit a shop, order a whole cake), or is it pure joy with no call to action?",
+            "solvingFor": "Determines whether the caption ends on a soft nudge to a real action or stays pure brand warmth, so the post avoids pressure while still doing some work for physical locations.",
+            "why": "The Brand Core says the brand is 'not an aggressive, high-pressure sales brand', yet the Q2 priority is to expand the physical footprint, and the watchout warns about FOMO outpacing product availability."
+          }
+        ],
+        "deliveryPlan": {
+          "deliverableGroups": [
+            {
+              "type": "social_post",
+              "count": 1,
+              "platforms": [
+                "instagram"
+              ],
+              "parts": [
+                "caption",
+                "image"
+              ],
+              "crew": {
+                "caption": "a16",
+                "image": "a41"
+              }
+            }
+          ],
+          "proposedSpecialists": [
+            "a16",
+            "a41"
+          ]
+        }
+      }
+    },
+    {
+      "round": 2,
+      "ms": 9563,
+      "status": 200,
+      "serverTiming": null,
+      "quality": {
+        "title": "An ordinary Tuesday, cheesecake",
+        "sharpenedBrief": "One Instagram post that catches a real, unscripted cheesecake moment (a mid-afternoon break, a slice shared between friends, a 'just because' treat) in Cake Me's best-friend voice, using only product references that already exist. Joy is the whole offer: no discounts, no invented flavors or promotions, no pressure to buy. The image should look like something a friend would actually post, not a styled studio shot, so it reads as genuine connection rather than another dessert-shop grid tile.",
+        "questions": [
+          {
+            "q": "Which existing cheesecake should be the hero of this post, or should it stay a mixed 'any slice, any day' moment?",
+            "solvingFor": "Settles whether the post is a product-led close-up that sells one specific cake or a mood-led moment where the feeling comes first and the slice is the supporting character.",
+            "why": "The Brand Core's positioning says 'transform everyday moments into memorable, shareable celebrations,' and the brief says to use 'existing product references,' so I need to know which one is real and ready before the crew writes about it."
+          },
+          {
+            "q": "Do you want the post to feel like a shared moment between friends, or a solo treat-yourself break?",
+            "solvingFor": "Decides the scene, the 'we' versus 'you' in the caption, and which JTBD the post answers: sharing with friends or an easy way to mark a small moment.",
+            "why": "The Brand Core's primary JTBD is 'a fun, delicious, and photo-worthy dessert to share with my friends,' while the North Star frames the brand as 'the perfect excuse for happy breaks,' which can point to either the group scene or the solo break."
+          },
+          {
+            "q": "Is it fine to point people to a franchise location or the shop in the call to action, or should the post stay pure joy with no ask?",
+            "solvingFor": "Determines whether the post carries a soft footfall nudge tied to the Q2 expansion or stays a pure brand-love moment with no action attached.",
+            "why": "The Brand Core's Q2 priority is expanding the physical footprint through franchise locations, but the watchouts warn about 'balancing playful FOMO marketing with sufficient product availability,' and the brand is 'not an aggressive, high-pressure sales brand.'"
+          }
+        ],
+        "deliveryPlan": {
+          "deliverableGroups": [
+            {
+              "type": "social_post",
+              "count": 1,
+              "platforms": [
+                "instagram"
+              ],
+              "parts": [
+                "caption",
+                "image"
+              ],
+              "crew": {
+                "caption": "a16",
+                "image": "a41"
+              }
+            }
+          ],
+          "proposedSpecialists": [
+            "a16",
+            "a41"
+          ]
+        }
+      }
+    },
+    {
+      "round": 3,
+      "ms": 8829,
+      "status": 200,
+      "serverTiming": null,
+      "quality": {
+        "title": "A Tuesday, one slice",
+        "sharpenedBrief": "One Instagram post that catches an ordinary cheesecake moment, like a slice shared at a desk, a post-work catch-up, or a Tuesday just because, in the playful, best-friend voice. It uses only existing product references and makes the slice the hero, with no discounts, no invented offers, and no pressure. The image should look like a real, shareable moment, not a studio shot, and the caption should make someone want to tag a friend.",
+        "questions": [
+          {
+            "q": "Which existing cheesecake should be the star of this post, and is there a flavor you'd rather keep out of the spotlight right now?",
+            "solvingFor": "Settles whether the post leans on a proven hero product or a lesser-known one, which changes the visual, the caption hook, and how much we risk teasing something that might not be on the counter.",
+            "why": "The Brand Core flags a watchout about balancing playful FOMO marketing with enough product availability to avoid customer frustration, so the featured slice has to be one people can actually get."
+          },
+          {
+            "q": "Should this moment feel like friends sharing a slice, or a solo treat-yourself break?",
+            "solvingFor": "Decides the emotional frame and the call to action: tag-a-friend and shared-moment energy versus a personal, indulgent pause.",
+            "why": "The Brand Core's primary audience seeks shareable, Instagrammable experiences, and a JTBD is 'find a fun, delicious, and photo-worthy dessert to share with my friends', but the North Star also talks about 'happy breaks'."
+          },
+          {
+            "q": "Do you want this post to carry any hint of the new locations, like a neighborhood or 'coming soon' wink, or stay purely about the slice?",
+            "solvingFor": "Determines whether the post is pure brand love or quietly serves the Q2 franchise expansion, which changes the caption's closing line and whether location context shows up in the image.",
+            "why": "The Brand Core's Q2 priority is expanding the physical footprint through new franchise locations, while the brand is explicitly 'not an aggressive, high-pressure sales brand' and 'not just a product'."
+          }
+        ],
+        "deliveryPlan": {
+          "deliverableGroups": [
+            {
+              "type": "social_post",
+              "count": 1,
+              "platforms": [
+                "instagram"
+              ],
+              "parts": [
+                "caption",
+                "image"
+              ],
+              "crew": {
+                "caption": "a16",
+                "image": "a41"
+              }
+            }
+          ],
+          "proposedSpecialists": [
+            "a16",
+            "a41"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "ownerFinalRoute": "#/brand-book",
+  "ownerReviewWizard": 0,
+  "ownerCertifyAction": 0,
+  "qualifiedCdCanReview": true,
+  "qualifiedCdCanOpenReviewedBrandBook": true,
+  "backToQueueRoute": "#/team",
+  "finishedReviewDoesNotRestart": true
+}

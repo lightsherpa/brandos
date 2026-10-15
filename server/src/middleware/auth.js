@@ -49,6 +49,7 @@ export async function requireAuth(c, next) {
   const claims = decodeJwtClaims(jwt);
   c.set("auth", {
     userId:      user.id,
+    actorType: user.app_metadata?.actorType || (claims.role === "service_role" ? "service" : "human"),
     email:       row.email,
     workspaceId: row.workspace_id,
     role:        row.role,

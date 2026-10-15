@@ -1,7 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
 import React from 'react';import {renderToStaticMarkup} from 'react-dom/server';import {createServer} from 'vite';import {readFile} from 'node:fs/promises';
 test('foundation strip renders Missing states and three role swatches for legacy Cake Me',async t=>{
- const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"'}});t.after(()=>vite.close());
+ const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"','import.meta.env.VITE_BRAND_CORE_INPUTS':'"0"'}});t.after(()=>vite.close());
  const {FoundationStrip}=await vite.ssrLoadModule('/src/brand-foundation.jsx');
  const payload=JSON.parse(await readFile(new URL('./fixtures/cake-me-foundation.json',import.meta.url),'utf8'));
  const html=renderToStaticMarkup(React.createElement(FoundationStrip,{brandId:'local',payload,onSave:()=>{}}));
@@ -17,7 +17,7 @@ test('Brand Core remains a proper name in Spanish and Arabic',async()=>{
 });
 
 test('logo variant naming: background → logo colour matches the server contract',async t=>{
- const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"'}});t.after(()=>vite.close());
+ const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"','import.meta.env.VITE_BRAND_CORE_INPUTS':'"0"'}});t.after(()=>vite.close());
  const {logoVariantForBackground}=await vite.ssrLoadModule('/src/brand-foundation.jsx');
  assert.equal(logoVariantForBackground('light'),'dark');assert.equal(logoVariantForBackground('dark'),'light');
  const {validateVisualAssetMetadata}=await import('../server/src/lib/ingest-guards.js');
@@ -26,7 +26,7 @@ test('logo variant naming: background → logo colour matches the server contrac
 });
 
 test('UI rejects SVG logos with a clear message',async t=>{
- const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"'}});t.after(()=>vite.close());
+ const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"','import.meta.env.VITE_BRAND_CORE_INPUTS':'"0"'}});t.after(()=>vite.close());
  const {isSvgFile,SVG_LOGO_MESSAGE}=await vite.ssrLoadModule('/src/brand-foundation.jsx');
  assert.ok(isSvgFile({name:'logo.SVG',type:''}));assert.ok(isSvgFile({name:'x',type:'image/svg+xml'}));
  assert.ok(!isSvgFile({name:'logo.png',type:'image/png'}));assert.match(SVG_LOGO_MESSAGE,/SVG/);
@@ -34,7 +34,7 @@ test('UI rejects SVG logos with a clear message',async t=>{
 });
 
 test('needs_rights shows a confirm-rights prompt next to the logo',async t=>{
- const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"'}});t.after(()=>vite.close());
+ const vite=await createServer({server:{middlewareMode:true,ws:false},appType:'custom',define:{'import.meta.env.VITE_UI_FIXTURE':'"1"','import.meta.env.VITE_BRAND_CORE_INPUTS':'"0"'}});t.after(()=>vite.close());
  const {FoundationStrip}=await vite.ssrLoadModule('/src/brand-foundation.jsx');
  const visual={logo:{sourceId:'png1',conf:90},palette:[{role:'primary',hex:'#ffd115'}],type:[{kind:'Display',family:'Inter',provider:'google'}]};
  const pending=renderToStaticMarkup(React.createElement(FoundationStrip,{brandId:'b',payload:{visual},logoRights:[]}));

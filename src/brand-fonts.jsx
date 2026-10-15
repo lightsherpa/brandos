@@ -3,7 +3,7 @@ import {uiFixtureEnabled} from './lib/ui-fixture.js';
 import {apiFetch} from './lib/supabase-browser.js';
 import {GOOGLE_FONTS,googleFontCssUrl,TYPE_SCALE_KEYS,DEFAULT_TYPE_SCALE} from '../server/src/lib/brand-foundation.js';
 
-export function useBrandFonts(type = [], brandId) {
+export function useBrandFonts(type = [], brandId, retryNonce = 0) {
   const [state,setState]=React.useState({});
   React.useEffect(()=>{
     let alive=true;const faces=[];const links=[];
@@ -16,7 +16,7 @@ export function useBrandFonts(type = [], brandId) {
           let url=uiFixtureEnabled?font.previewUrl:null;
           if(!url){const res=await apiFetch(`/api/bios/${brandId}/sources/${font.sourceId}/url`);if(!res.ok)throw Error('Font source unavailable');url=(await res.json()).url;}
           family=`BrandFont-${font.sourceId}`;
-          const face=new FontFace(family,`url(${JSON.stringify(url)})`);await face.load();
+          const face=new FontFace(family,`url(${JSON.stringify(url)})`,{weight:font.weight || 'normal',style:font.style || 'normal'});await face.load();
           if(!alive)return null;document.fonts.add(face);faces.push(face);
         }else if(font.provider==='google'&&GOOGLE_FONTS.includes(family)){
           const link=document.createElement('link');link.rel='stylesheet';link.href=googleFontCssUrl(family);links.push(link);
@@ -28,7 +28,7 @@ export function useBrandFonts(type = [], brandId) {
       }catch{return [key,{status:'failed'}];}
     })).then(entries=>{if(alive)setState(Object.fromEntries(entries.filter(Boolean)));});
     return ()=>{alive=false;faces.forEach(face=>document.fonts.delete(face));links.forEach(link=>link.remove());};
-  },[brandId,JSON.stringify(type.map(f=>[f.sourceId,f.family,f.provider]))]);
+  },[brandId,retryNonce,JSON.stringify(type.map(f=>[f.sourceId,f.family,f.provider,f.weight,f.style]))]);
   return state;
 }
 export function BrandFontControls({visual,onChange,onUpload,disabled=false}) {

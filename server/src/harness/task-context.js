@@ -2,20 +2,16 @@
 // Core (production gate), up to 3 reference images (canonical first, then
 // inspiration; S1), saved rules (Beat 5) and the inlined skill prompts.
 import { loadBrandBio, loadBioForImage } from "../lib/load-brand-bio.js";
+import { activeReferenceIds, scopedReferences, assertReferenceResolution } from "../lib/reference-intake.js";
 import { loadVisualAssets } from "../lib/visual-assets.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { buildLayer1 } from "./brand-core.js";
 import { applyRules, loadRules } from "./rules.js";
+import { hydrateGoogleFontAssets } from "./google-font-assets.js";
 import { TASKS } from "./registry.js";
 
 export function pickReferences(loaded = [], certified = []) {
-  const rank = { canonical: 0, inspiration: 1 };
-  const pinned = new Map((certified || []).filter((r) => r?.sourceId).map((r) => [r.sourceId, r.role]));
-  return (loaded || [])
-    .map((r) => ({ ...r, role: pinned.get(r.id) || r.role }))
-    .filter((r) => r.role in rank && r.url)
-    .sort((a, b) => rank[a.role] - rank[b.role])
-    .slice(0, 3);
+  return scopedReferences(loaded, certified);
 }
 
 export async function loadSkillPayloads(ids) {
@@ -23,19 +19,20 @@ export async function loadSkillPayloads(ids) {
   return Object.fromEntries((data || []).map((row) => [row.specialist_id, row.payload]));
 }
 
-export async function loadTaskContext({ workspaceId, brandId, type, heroes = false, copyOnly = false }) {
+export async function loadTaskContext({ workspaceId, brandId, type, heroes = false, copyOnly = false, bioVersion }) {
   const needsImages = !copyOnly && (type === "social_post" || (type === "email_sequence" && heroes));
   const { brand, bio, refusals } = needsImages
-    ? await loadBioForImage({ workspaceId, brandId })
-    : await loadBrandBio({ workspaceId, brandId, requireCertified: true });
-  let references = [];
-  try {
-    const assets = await loadVisualAssets(brand.id);
-    references = pickReferences(assets.references, bio?.visual?.references || []);
-  } catch (e) { console.warn(`[task] reference load failed: ${e.message}`); }
+    ? await loadBioForImage({ workspaceId, brandId, bioVersion })
+    : await loadBrandBio({ workspaceId, brandId, requireCertified: true, bioVersion });
+  const pinned = bio?.visual?.references || [];
+  const assets = await loadVisualAssets(brand.id, { sourceIds: activeReferenceIds(pinned) });
+  if (needsImages) assertReferenceResolution(assets.references, pinned);
+  const references = pickReferences(assets.references, pinned);
+  const provenance = { bioId: bio.id, bioVersion: bio.version, sourceIds: references.map(r => r.id) };
   const rules = await loadRules(brand.id);
-  const layer1 = applyRules(buildLayer1({ brand, bio, refusals, references }), rules);
+  let layer1 = { ...applyRules(buildLayer1({ brand, bio, refusals, references }), rules), provenance };
+  if (["1","true"].includes(process.env.CREW_CANVAS)) layer1 = await hydrateGoogleFontAssets(layer1);
   const t = TASKS[type];
   const skillsPayloads = t ? await loadSkillPayloads(t.skills) : {};
-  return { brand, bio, layer1, skillsPayloads };
+  return { brand, bio, layer1, skillsPayloads, provenance };
 }

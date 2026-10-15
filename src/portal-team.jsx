@@ -1,7 +1,13 @@
 import React from "react";
+import { CERTIFIER_SUPPORT_NAME } from "./lib/certifier-support-name.js";
+import {reviewKind} from "./lib/review-output.js";
+import {reviewDeskCopy,reviewDeskEnabled,certifyReviewEnabled} from "./lib/review-desk-copy.js";
+import {canEnterCertify,certifyJobPath} from "./lib/certify-routing.js";
+import {ReviewOutputPreview} from "./lib/review-output-preview.jsx";
 import { withUploadType } from "./lib/upload-type.js";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch } from "./lib/supabase-browser.js";
+import { useCertThread, ClientThread, AnswerEvidence, FOUNDATION_FIELDS } from "./certify/ClientThread.jsx";
 const { BrandolphDot, Confidence, Counter, Icon, ModelChip, PageHeader, SlaHeat, StatusPill } = window;
 /* Team portal — queue, job workspace, capacity, clients, earnings. */
 
@@ -29,7 +35,7 @@ function useStewardJobs() {
 }
 
 function useStewardJob(jobId) {
-  const empty = { job: null, sources: [], you: null, focus: [], rubric: null, autoSignals: null, copilot: null };
+  const empty = { job: null, sources: [], you: null, focus: [], rubric: null, autoSignals: null, copilot: null, certify: null };
   const [data, setData] = useTState({ ...empty, error: null, loading: true });
   const reload = async () => {
     if (!jobId) { setData({ ...empty, error: "No job id", loading: false }); return; }
@@ -40,7 +46,7 @@ function useStewardJob(jobId) {
       const json = await res.json();
       setData({
         job: json.job, sources: json.sources || [], you: json.you || null, focus: json.focus || [],
-        rubric: json.rubric || null, autoSignals: json.autoSignals || null, copilot: json.copilot || null, error: null, loading: false,
+        rubric: json.rubric || null, autoSignals: json.autoSignals || null, copilot: json.copilot || null, certify: json.certify || null, error: null, loading: false,
       });
     } catch (e) {
       setData({ ...empty, error: e?.message || String(e), loading: false });
@@ -88,7 +94,7 @@ function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
   const recommendation = caseFile.certificationRecommendation || {};
   return (
     <div style={{padding: 20, borderBottom:"1px solid var(--c-line)", background:"linear-gradient(180deg, rgba(212,175,55,0.10), transparent 72%)"}}>
-      <div className="eyebrow eyebrow--yellow" style={{marginBottom: 10}}>Steward Copilot</div>
+      <div className="eyebrow eyebrow--yellow" style={{marginBottom: 10}}>{certifyReviewEnabled() ? CERTIFIER_SUPPORT_NAME : "Steward Copilot"}</div>
       <div style={{fontSize: 15, color:"var(--c-ink)", fontWeight: 650, marginBottom: 5}}>
         {String(caseFile.readiness?.level || "draft").replace(/-/g, " ")}
       </div>
@@ -142,7 +148,9 @@ function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
    (TeamJob) where the Steward reads the candidate BIO + sources and
    submits a certification.                                              */
 function TeamQueue({ go }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const session = window.useSession();
+  const friendlyQueue = reviewDeskEnabled();
   const { jobs, you, error, loading, reload } = useStewardJobs();
   const [filter, setFilter] = useTState("all");
 
@@ -211,7 +219,7 @@ function TeamQueue({ go }) {
             <tbody className="stagger">
               {!loading && list.length === 0 && (
                 <tr><td colSpan={6} style={{padding: 28, textAlign:"center", color:"var(--c-faint)", fontSize: 13}}>
-                  {t("team.queueEmpty")} <code style={{fontFamily:"var(--font-mono)", fontSize:12}}>npm run test:discovery</code>
+                  {t("team.queueEmpty")} {!friendlyQueue && <code style={{fontFamily:"var(--font-mono)", fontSize:12}}>npm run test:discovery</code>}
                 </td></tr>
               )}
               {list.map((j, i) => {
@@ -224,7 +232,7 @@ function TeamQueue({ go }) {
                 const brandName = j.brand?.name || t("team.brandFallback");
                 const initial = brandName[0]?.toUpperCase() || "?";
                 return (
-                  <tr key={j.id} onClick={() => go("team-job/" + j.id)} style={{
+                  <tr key={j.id} onClick={() => go(certifyJobPath(session, j.id, certifyReviewEnabled() && canEnterCertify(session)))} style={{
                     borderBottom: i < list.length - 1 ? "1px solid var(--c-line)" : "none",
                     cursor:"pointer", borderLeft,
                   }}
@@ -241,8 +249,8 @@ function TeamQueue({ go }) {
                       </div>
                     </td>
                     <td style={{padding:"12px 14px"}}>
-                      <span className="pill" style={{height:22, padding:"0 9px", fontSize:11}}>{j.kind}</span>
-                      {j.override_reason && <span className="pill" style={{height:22, padding:"0 9px", fontSize:11, marginLeft: 6, background:"var(--pink-50, rgba(244,143,177,0.16))", color:"var(--pink-500)"}}>{j.override_reason}</span>}
+                      {friendlyQueue ? <div><span style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:12,fontWeight:600}}><Icon name={reviewKind(j.kind,locale).icon} size={14}/>{reviewKind(j.kind,locale).label}</span><div style={{fontSize:11,lineHeight:1.4,color:"var(--c-dim)",marginTop:4,maxWidth:240}}>{reviewKind(j.kind,locale).description}</div></div> : <span className="pill" style={{height:22, padding:"0 9px", fontSize:11}}>{j.kind}</span>}
+                      {j.override_reason && !friendlyQueue && <span className="pill" style={{height:22, padding:"0 9px", fontSize:11, marginLeft: 6, background:"var(--pink-50, rgba(244,143,177,0.16))", color:"var(--pink-500)"}}>{j.override_reason}</span>}
                     </td>
                     <td style={{padding:"12px 14px", color:"var(--c-faint)", fontSize: 12}}>{relativeTime(j.queued_at)}</td>
                     <td style={{padding:"12px 14px"}}><StatusPill status={j.status === "in_review" ? "review" : j.status === "queued" ? "unassigned" : j.status === "pending_lead_review" ? "review" : j.status} /></td>
@@ -619,7 +627,13 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
    approve_with_conditions / return_changes / reject). May patch the BIO first. */
 function TeamJob({ id, go }) {
   const { t } = useLocale();
-  const { job, sources, you, focus, rubric, autoSignals, copilot, error, loading, reload } = useStewardJob(id);
+  const session = window.useSession();
+  const openCertify = certifyReviewEnabled() && canEnterCertify(session);
+  const { job, sources, you, focus, rubric, autoSignals, copilot, certify, error, loading, reload } = useStewardJob(id);
+  useTEffect(() => {
+    if (openCertify && job?.bio) go(`certify/${id}`);
+  }, [id, job?.bio?.id, openCertify]);
+  const thread = useCertThread(id);                         /* S3 client thread — inert when CERTIFIER_V2_S3 is off */
   const [notes, setNotes] = useTState("");
   const [edited, setEdited] = useTState(null);                /* edited BIO payload — null until job loads */
   const [scores, setScores] = useTState({});                 /* { C3: {score, confidence}, ... } */
@@ -677,6 +691,13 @@ function TeamJob({ id, go }) {
     const fallback = suggestion?.field
       ? `Please clarify ${suggestion.field}: ${suggestion.reason || "The Steward needs a clearer source-backed answer."}`
       : suggestion?.reason || "Please clarify this Brand Core item.";
+    if (thread.enabled && suggestion?.field) {
+      /* S3: the drafted question lands in the client thread for the CD to edit + batch-send. */
+      thread.addDraft([suggestion.field], suggestion?.patch?.requiredChangesPatch?.[0] || fallback)
+        .then(() => setDismissedSuggestions((prev) => new Set([...prev, suggestion.id])))
+        .catch(() => {});
+      return;
+    }
     const lines = suggestion?.patch?.requiredChangesPatch || [fallback];
     setActionItems((prev) => {
       const current = prev.split("\n").map((s) => s.trim()).filter(Boolean);
@@ -774,6 +795,7 @@ function TeamJob({ id, go }) {
     }
   };
 
+  if (openCertify && job?.bio) return null;
   if (loading) {
     return <div style={{padding: 40, textAlign:"center", color:"var(--c-faint)"}}>{t("team.loading")}</div>;
   }
@@ -812,6 +834,7 @@ function TeamJob({ id, go }) {
     <div className="tjob" style={{gridTemplateColumns: "minmax(0,1fr) 360px"}}>
       {/* Main — candidate BIO review */}
       <main className="scroll" style={{overflowY:"auto", padding: "20px 28px 40px"}}>
+        {certify?.enabled && canEnterCertify(session) && <button className="btn btn--primary" style={{marginBottom:16}} onClick={() => go("certify/" + id)}>Open in Certify</button>}
         <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom: 18}}>
           <div>
             <button onClick={() => go("team")} className="btn btn--link" style={{fontSize: 12, marginBottom: 8}}>
@@ -917,12 +940,28 @@ function TeamJob({ id, go }) {
                     {f.action && (
                       <div style={{fontSize: 11.5, color:"var(--c-dim)", lineHeight: 1.4}}>{f.action}</div>
                     )}
+                    {thread.enabled && f.field && (() => {
+                      const claim = thread.claims.get(f.field);
+                      return (
+                        <div style={{marginTop: 5}}>
+                          {claim?.answers.map((a) => <AnswerEvidence key={a.id} answer={a} sources={sources} />)}
+                          {claim?.state === "asked" && <div style={{fontSize: 11, color:"var(--c-dim)"}}><span aria-hidden="true" style={{color:"var(--yellow-800)"}}>●</span> Asked</div>}
+                          {!claim && (
+                            <button type="button" className="btn btn--link" style={{fontSize: 11, padding: 0}}
+                              onClick={() => thread.addDraft([f.field], `Can you confirm ${String(f.label || f.field).toLowerCase()}? ${f.action || ""}`.trim()).catch(() => {})}>
+                              Ask client
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}
             </div>
           )}
         </div>
+        <ClientThread thread={thread} sources={sources} fields={[...FOUNDATION_FIELDS, ...focus.filter((f) => f.field)]} />
         <div style={{padding: 20, borderBottom:"1px solid var(--c-line)"}}>
           <div className="eyebrow" style={{marginBottom: 12}}>{t("team.sourcesRead")} · {sources.length}</div>
           {Object.entries(sourcesByBucket).map(([bucket, list]) => (
@@ -1412,15 +1451,26 @@ function reviewText(output) {
   return body.edited_text || body.text || body.visual_direction || (typeof output?.body === "string" ? output.body : "");
 }
 
-function ReviewState({ value }) {
+function ReviewState({ value, copy }) {
   const color = value === "client_approved" ? "var(--green-600)"
     : value?.startsWith("changes_requested") ? "var(--pink-500)"
     : value === "submitted_internal" ? "var(--yellow-700)"
     : "var(--c-dim)";
-  return <span className="pill" style={{height:24, color, background:"var(--c-bg)", border:"1px solid var(--c-line)"}}>{REVIEW_LABELS[value] || value}</span>;
+  return <span className="pill" style={{height:24, color, background:"var(--c-bg)", border:"1px solid var(--c-line)"}}>{copy ? copy.states[value] || copy.unknownState : REVIEW_LABELS[value] || value}</span>;
 }
 
 function TeamReview() {
+  const {locale}=useLocale();
+  const renderedReview=reviewDeskEnabled(), reviewCopy=reviewDeskCopy(locale);
+  const say=(key,fallback)=>renderedReview ? reviewCopy[key] : fallback;
+  const reviewTime=iso=>{
+    if(!renderedReview)return relativeTime(iso);
+    if(!iso)return '';
+    const minutes=Math.max(1,Math.floor((Date.now()-Date.parse(iso))/60000));
+    const unit=minutes<60?'minute':minutes<1440?'hour':'day';
+    const value=unit==='minute'?minutes:unit==='hour'?Math.floor(minutes/60):Math.floor(minutes/1440);
+    return new Intl.RelativeTimeFormat(locale,{numeric:'auto'}).format(-value,unit);
+  };
   const session = window.useSession?.();
   const [compact, setCompact] = useTState(() => window.innerWidth < 900);
   const [state, setState] = useTState({ outputs: [], permissions: [], loading: true, error: null });
@@ -1449,7 +1499,7 @@ function TeamReview() {
         ? current
         : (data.outputs || []).find((item) => attentionStates.has(item.workflow_status))?.id || data.outputs?.[0]?.id || null);
     } catch (error) {
-      setState({ outputs: [], permissions: [], loading: false, error: error?.message || String(error) });
+      setState({ outputs: [], permissions: [], loading: false, error: renderedReview ? reviewCopy.loadError : error?.message || String(error) });
     }
   };
   useTEffect(() => { load(); }, []);
@@ -1482,68 +1532,68 @@ function TeamReview() {
 
   const transition = async (action) => {
     if (!selected || busy) return;
-    if ((action === "internal_changes") && reason.trim().length < 3) { setNotice("Add a clear review note before returning the work."); return; }
+    if ((action === "internal_changes") && reason.trim().length < 3) { setNotice(say("noteRequired","Add a clear review note before returning the work.")); return; }
     setBusy(action); setNotice(null);
     try {
       /* Submitting a changed draft always persists the editor first. */
-      if (action === "submit_internal" && draft !== reviewText(selected)) {
+      if (!renderedReview && action === "submit_internal" && draft !== reviewText(selected)) {
         const saved = await apiFetch(`/api/outputs/${selected.id}`, { method:"PATCH", body:JSON.stringify({ text:draft }) });
         if (!saved.ok) throw new Error((await saved.json().catch(() => ({}))).error || "The revision could not be saved.");
       }
       const response = await apiFetch(`/api/outputs/${selected.id}/workflow`, { method:"POST", body:JSON.stringify({ action, reason:reason.trim() || null }) });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || "The workflow state could not be changed.");
-      setNotice(action === "internal_approve" ? "Approved internally" : action === "send_client" ? "Sent to client review" : action === "internal_changes" ? "Returned with a review note" : "Submitted for internal review");
+      setNotice(action === "internal_approve" ? say("approvedNotice","Approved internally") : action === "send_client" ? say("sentNotice","Sent to client review") : action === "internal_changes" ? say("returnedNotice","Returned with a review note") : say("submittedNotice","Submitted for internal review"));
       await load();
-    } catch (error) { setNotice(error?.message || String(error)); }
+    } catch (error) { setNotice(renderedReview ? reviewCopy.transitionError : error?.message || String(error)); }
     finally { setBusy(null); }
   };
 
   const counts = state.outputs.reduce((result, item) => ({ ...result, [item.workflow_status]:(result[item.workflow_status] || 0) + 1 }), {});
   return <div style={{padding:"24px 32px 60px", maxWidth:1440, margin:"0 auto"}}>
-    <PageHeader eyebrow="Internal delivery" title="Review desk" sub="Designers prepare and submit work; Creative Directors provide an independent internal decision before anything reaches the client." right={<button className="btn btn--ghost btn--sm" onClick={load} disabled={state.loading}><Icon name="refresh" size={13} /> Refresh</button>} />
+    <PageHeader eyebrow={say("eyebrow","Internal delivery")} title={renderedReview ? reviewCopy.title : "Review desk"} sub={renderedReview ? reviewCopy.sub : "Designers prepare and submit work; Creative Directors provide an independent internal decision before anything reaches the client."} right={<button className="btn btn--ghost btn--sm" onClick={load} disabled={state.loading}><Icon name="refresh" size={13} /> {say("refresh","Refresh")}</button>} />
     <div style={{display:"grid", gridTemplateColumns:compact ? "minmax(0, 1fr)" : "minmax(280px, 0.78fr) minmax(0, 1.45fr)", gap:18, alignItems:"start"}}>
       <section className="card" style={{padding:0, overflow:"hidden"}} aria-label="Review queue">
         <div style={{padding:"14px 16px", borderBottom:"1px solid var(--c-line)", display:"flex", gap:6, flexWrap:"wrap"}}>
-          {[["attention",`Needs attention · ${attentionCount}`],["submitted_internal",`Review · ${counts.submitted_internal || 0}`],["client_review",`With client · ${counts.client_review || 0}`],["all",`All · ${state.outputs.length}`]].map(([key,label]) => <button key={key} className={"pill" + (filter === key ? " pill--dark" : "")} style={{cursor:"pointer",height:28}} onClick={() => setFilter(key)}>{label}</button>)}
+          {[["attention",`${say("attention","Needs attention")} · ${attentionCount}`],["submitted_internal",`${say("review","Review")} · ${counts.submitted_internal || 0}`],["client_review",`${say("withClient","With client")} · ${counts.client_review || 0}`],["all",`${say("all","All")} · ${state.outputs.length}`]].map(([key,label]) => <button key={key} className={"pill" + (filter === key ? " pill--dark" : "")} style={{cursor:"pointer",height:28}} onClick={() => setFilter(key)}>{label}</button>)}
         </div>
         {state.error && <div role="alert" style={{padding:16,color:"var(--pink-500)",fontSize:13}}>{state.error}</div>}
-        {!state.loading && shown.length === 0 && <div style={{padding:"36px 22px",textAlign:"center",color:"var(--c-faint)",fontSize:13}}>Nothing is waiting in this lane.</div>}
+        {!state.loading && shown.length === 0 && <div style={{padding:"36px 22px",textAlign:"center",color:"var(--c-faint)",fontSize:13}}>{say("nothing","Nothing is waiting in this lane.")}</div>}
         <div style={{maxHeight:"calc(100vh - 250px)",overflowY:"auto"}}>
           {shown.map((output) => {
-            const title = output.brief?.title || output.brief?.payload?.title || "Untitled brief";
+            const title = output.brief?.title || output.brief?.payload?.title || say("untitled","Untitled brief");
             const active = output.id === selectedId;
             return <button key={output.id} onClick={() => setSelectedId(output.id)} style={{display:"block",width:"100%",padding:"14px 16px",textAlign:"left",border:0,borderBottom:"1px solid var(--c-line)",background:active ? "var(--c-yellow-tint)" : "transparent",cursor:"pointer",color:"inherit"}}>
-              <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"flex-start",marginBottom:7}}><strong style={{fontSize:13.5,lineHeight:1.35}}>{title}</strong><span style={{fontFamily:"var(--font-mono)",fontSize:10,color:"var(--c-faint)"}}>{relativeTime(output.created_at)}</span></div>
-              <div style={{fontSize:11.5,color:"var(--c-dim)",marginBottom:9}}>{output.brief?.brand?.name} · {specialistNameForReview(output.run?.specialist_id)}</div>
-              <ReviewState value={output.workflow_status} />
+              <div style={{display:"flex",justifyContent:"space-between",gap:10,alignItems:"flex-start",marginBottom:7}}><strong style={{fontSize:13.5,lineHeight:1.35}}>{title}</strong><span style={{fontFamily:"var(--font-mono)",fontSize:10,color:"var(--c-faint)"}}>{reviewTime(output.created_at)}</span></div>
+              <div style={{fontSize:11.5,color:"var(--c-dim)",marginBottom:9}}>{output.brief?.brand?.name} · {renderedReview ? window.CI_AGENTS?.find(agent=>agent.id===output.run?.specialist_id)?.name || reviewCopy.specialist : specialistNameForReview(output.run?.specialist_id)}</div>
+              <ReviewState value={output.workflow_status} copy={renderedReview ? reviewCopy : null} />
             </button>;
           })}
         </div>
       </section>
 
       <section className="card" style={{padding:0,overflow:"hidden",minHeight:420}} aria-label="Selected output">
-        {!selected ? <div style={{padding:48,textAlign:"center",color:"var(--c-faint)"}}>{state.loading ? "Loading review queue…" : "Select an output to review."}</div> : <>
+        {!selected ? <div style={{padding:48,textAlign:"center",color:"var(--c-faint)"}}>{state.loading ? say("pending","Loading review queue…") : say("choose","Select an output to review.")}</div> : <>
           <header style={{padding:"18px 20px",borderBottom:"1px solid var(--c-line)",display:"flex",justifyContent:"space-between",gap:16,alignItems:"flex-start"}}>
-            <div><div className="eyebrow eyebrow--yellow" style={{marginBottom:5}}>{selected.brief?.brand?.name} · {selected.kind}</div><h2 style={{margin:0,fontSize:21,color:"var(--c-ink)"}}>{selected.brief?.title || selected.brief?.payload?.title || "Untitled brief"}</h2></div>
-            <ReviewState value={selected.workflow_status} />
+            <div><div className="eyebrow eyebrow--yellow" style={{marginBottom:5}}>{selected.brief?.brand?.name} · {renderedReview ? reviewKind(selected.kind,locale).label : selected.kind}</div><h2 style={{margin:0,fontSize:21,color:"var(--c-ink)"}}>{selected.brief?.title || selected.brief?.payload?.title || say("untitled","Untitled brief")}</h2></div>
+            <ReviewState value={selected.workflow_status} copy={renderedReview ? reviewCopy : null} />
           </header>
           <div style={{padding:20}}>
             {selected.body?.workflow_notes?.length > 0 && (() => {
               const note = selected.body.workflow_notes[selected.body.workflow_notes.length - 1];
-              return <div style={{marginBottom:14,padding:"11px 13px",borderRadius:8,background:"var(--c-yellow-tint)",border:"1px solid var(--yellow-200)",fontSize:13,lineHeight:1.5}}><div className="eyebrow eyebrow--yellow" style={{marginBottom:4}}>{note.stage === "client" ? "Client feedback" : "Internal review note"}</div>{note.reason}</div>;
+              return <div style={{marginBottom:14,padding:"11px 13px",borderRadius:8,background:"var(--c-yellow-tint)",border:"1px solid var(--yellow-200)",fontSize:13,lineHeight:1.5}}><div className="eyebrow eyebrow--yellow" style={{marginBottom:4}}>{note.stage === "client" ? say("clientFeedback","Client feedback") : say("internalNote","Internal review note")}</div>{note.reason}</div>;
             })()}
-            {selected.body?.asset_url ? <img src={selected.body.asset_url} alt="Generated output" style={{display:"block",maxWidth:"100%",maxHeight:"52vh",objectFit:"contain",margin:"0 auto 18px",borderRadius:8}} /> : <textarea value={draft} onChange={(event) => setDraft(event.target.value)} disabled={["client_review","client_approved"].includes(selected.workflow_status)} rows={16} style={{width:"100%",boxSizing:"border-box",resize:"vertical",padding:"18px 20px",borderRadius:8,border:"1px solid var(--c-line)",background:"#fff",color:"var(--c-ink)",fontFamily:"var(--font-serif)",fontSize:16,lineHeight:1.65,outline:"none"}} />}
-            {selfSubmitted && selected.workflow_status === "submitted_internal" && <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:"var(--c-yellow-tint)",fontSize:12.5,color:"var(--c-dim)"}}><strong style={{color:"var(--c-ink)"}}>Independent review required.</strong> You submitted this version, so another Creative Director must approve it.</div>}
-            {canApprove && selected.workflow_status === "submitted_internal" && <textarea value={reason} onChange={(event) => setReason(event.target.value)} rows={2} placeholder="Review note (required when requesting changes)" style={{width:"100%",boxSizing:"border-box",resize:"vertical",marginTop:12,padding:"9px 11px",borderRadius:8,border:"1px solid var(--c-line)",background:"var(--c-bg)",font:"inherit",fontSize:13}} />}
+            {renderedReview ? <ReviewOutputPreview output={selected} locale={locale} editable={state.permissions.includes("output.write") && ["draft","changes_requested_internal","changes_requested_client"].includes(selected.workflow_status)} onSaved={load}/> : selected.body?.asset_url ? <img src={selected.body.asset_url} alt="Generated output" style={{display:"block",maxWidth:"100%",maxHeight:"52vh",objectFit:"contain",margin:"0 auto 18px",borderRadius:8}} /> : <textarea value={draft} onChange={(event) => setDraft(event.target.value)} disabled={["client_review","client_approved"].includes(selected.workflow_status)} rows={16} style={{width:"100%",boxSizing:"border-box",resize:"vertical",padding:"18px 20px",borderRadius:8,border:"1px solid var(--c-line)",background:"#fff",color:"var(--c-ink)",fontFamily:"var(--font-serif)",fontSize:16,lineHeight:1.65,outline:"none"}} />}
+            {selfSubmitted && selected.workflow_status === "submitted_internal" && <div style={{marginTop:12,padding:"10px 12px",borderRadius:8,background:"var(--c-yellow-tint)",fontSize:12.5,color:"var(--c-dim)"}}><strong style={{color:"var(--c-ink)"}}>{say("independent","Independent review required.")}</strong> {say("independentHelp","You submitted this version, so another Creative Director must approve it.")}</div>}
+            {canApprove && selected.workflow_status === "submitted_internal" && <textarea value={reason} onChange={(event) => setReason(event.target.value)} rows={2} placeholder={say("notePlaceholder","Review note (required when requesting changes)")} style={{width:"100%",boxSizing:"border-box",resize:"vertical",marginTop:12,padding:"9px 11px",borderRadius:8,border:"1px solid var(--c-line)",background:"var(--c-bg)",font:"inherit",fontSize:13}} />}
             {notice && <div role="status" style={{marginTop:10,fontSize:12.5,color:notice.toLowerCase().includes("could") || notice.toLowerCase().includes("add a") ? "var(--pink-500)" : "var(--green-600)"}}>{notice}</div>}
           </div>
           <footer style={{padding:"14px 20px",borderTop:"1px solid var(--c-line)",background:"var(--c-bg)",display:"flex",gap:8,justifyContent:"flex-end",flexWrap:"wrap"}}>
-            {canSubmit && ["draft","changes_requested_internal","changes_requested_client"].includes(selected.workflow_status) && <><button className="btn btn--ghost btn--sm" disabled={!!busy || draft === reviewText(selected)} onClick={saveDraft}>{busy === "save" ? "Saving…" : "Save revision"}</button><button className="btn btn--primary btn--sm" disabled={!!busy} onClick={() => transition("submit_internal")}><Icon name="check" size={13} /> {busy === "submit_internal" ? "Submitting…" : "Submit for internal review"}</button></>}
-            {canApprove && selected.workflow_status === "submitted_internal" && <><button className="btn btn--danger btn--sm" disabled={!!busy || reason.trim().length < 3} onClick={() => transition("internal_changes")}>{busy === "internal_changes" ? "Returning…" : "Request changes"}</button><button className="btn btn--primary btn--sm" disabled={!!busy || selfSubmitted} title={selfSubmitted ? "You cannot approve your own submission" : "Approve this output internally"} onClick={() => transition("internal_approve")}><Icon name="check" size={13} /> {busy === "internal_approve" ? "Approving…" : "Approve internally"}</button></>}
-            {canApprove && selected.workflow_status === "internally_approved" && <button className="btn btn--primary btn--sm" disabled={!!busy} onClick={() => transition("send_client")}>{busy === "send_client" ? "Sending…" : "Send to client review"} <Icon name="arrow" size={13} /></button>}
-            {selected.workflow_status === "client_review" && <span style={{fontSize:12.5,color:"var(--c-dim)"}}>Waiting for the client’s decision.</span>}
-            {selected.workflow_status === "client_approved" && <span style={{fontSize:12.5,color:"var(--green-600)"}}>Delivery accepted by the client.</span>}
+            {canSubmit && ["draft","changes_requested_internal","changes_requested_client"].includes(selected.workflow_status) && <>{!renderedReview && <button className="btn btn--ghost btn--sm" disabled={!!busy || draft === reviewText(selected)} onClick={saveDraft}>{busy === "save" ? "Saving…" : "Save revision"}</button>}<button className="btn btn--primary btn--sm" disabled={!!busy} onClick={() => transition("submit_internal")}><Icon name="check" size={13} /> {busy === "submit_internal" ? say("submitting","Submitting…") : say("submit","Submit for internal review")}</button></>}
+            {canApprove && selected.workflow_status === "submitted_internal" && <><button className="btn btn--danger btn--sm" disabled={!!busy || reason.trim().length < 3} onClick={() => transition("internal_changes")}>{busy === "internal_changes" ? say("returning","Returning…") : say("requestChanges","Request changes")}</button><button className="btn btn--primary btn--sm" disabled={!!busy || selfSubmitted} title={selfSubmitted ? say("selfApproval","You cannot approve your own submission") : say("approveTitle","Approve this output internally")} onClick={() => transition("internal_approve")}><Icon name="check" size={13} /> {busy === "internal_approve" ? say("approving","Approving…") : say("approve","Approve internally")}</button></>}
+            {canApprove && selected.workflow_status === "internally_approved" && <button className="btn btn--primary btn--sm" disabled={!!busy} onClick={() => transition("send_client")}>{busy === "send_client" ? say("sending","Sending…") : say("sendClient","Send to client review")} <Icon name="arrow" size={13} /></button>}
+            {selected.workflow_status === "client_review" && <span style={{fontSize:12.5,color:"var(--c-dim)"}}>{say("waiting","Waiting for the client’s decision.")}</span>}
+            {selected.workflow_status === "client_approved" && <span style={{fontSize:12.5,color:"var(--green-600)"}}>{say("accepted","Delivery accepted by the client.")}</span>}
           </footer>
         </>}
       </section>

@@ -15,7 +15,7 @@ import {foundationError} from "./brand-foundation.js";
 // pass straight through); success returns { ok:true, score }.
 
 import {bioIntegrityError} from "./brand-source-integrity.js";
-import { assignSteward } from "./assign-steward.js";
+import {reconcileDiscoveryReview} from "./discovery-review.js";
 import { supabaseAdmin } from "./supabase.js";
 import { computeFocus } from "./bio-focus.js";
 import { payloadHash } from "./bio-hash.js";
@@ -93,12 +93,7 @@ export async function selfCertifyBio({ brandId, bioId, payload, userId, statemen
   if(error)return {ok:false,code:"ATTESTATION_FAILED",error:"Could not record certification. Please retry."};
   if(!data?.ok)return data||{ok:false,code:"ATTESTATION_FAILED",error:"Certification was not recorded."};
   await supabaseAdmin.from("discovery_sessions").update({status:"completed",updated_at:new Date().toISOString()}).eq("brand_id",brandId);
-  const {data:existing}=await supabaseAdmin.from("steward_jobs").select("id").eq("bio_id",bioId).in("status",["queued","in_review","pending_lead_review"]).limit(1).maybeSingle();
-  let reviewQueued=!!existing;
-  if(!existing){
-    const {data:job,error:queueError}=await supabaseAdmin.from("steward_jobs").insert({bio_id:bioId,brand_id:brandId,kind:"drift_check",status:"queued"}).select("id").single();
-    reviewQueued=!!job||queueError?.code==="23505";
-    if(job){try{await assignSteward(job.id);}catch{ /* remains queued for operations */ }}
-  }
-  return {...data, score, reviewQueued};
+  const reviewGate=await reconcileDiscoveryReview({brandId,bioId,payload:bio,kind:"drift_check",logoRights});
+  const reviewQueued=!!reviewGate.job_id;
+  return {...data, score, reviewQueued,reviewGate};
 }

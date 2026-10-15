@@ -60,7 +60,7 @@ function hexToRgb(hex) {
 }
 
 // Normalize any supported color token to "#rrggbb" lowercase, or null.
-function normalizeColor(token) {
+export function normalizeColor(token) {
   if (!token) return null;
   const t = token.trim().toLowerCase();
 
@@ -166,18 +166,26 @@ const GENERIC_FAMILIES = new Set([
   "inherit",
   "initial",
   "unset",
+  "cursive",
+  "fantasy",
+  "ui-rounded",
+  "emoji",
+  "math",
+  "fangsong",
+  "revert",
+  "revert-layer",
 ]);
 
 function cleanFamilyName(raw) {
   if (!raw) return null;
   let f = raw.trim().replace(/^['"]|['"]$/g, "").trim();
-  if (!f) return null;
+  if (!f || /var\s*\(|[(){};]/i.test(f)) return null;
   if (GENERIC_FAMILIES.has(f.toLowerCase())) return null;
   return f;
 }
 
 // Pull the first non-generic family out of a font-family stack string.
-function firstRealFamily(stack) {
+export function firstRealFamily(stack) {
   if (!stack) return null;
   for (const part of stack.split(",")) {
     const fam = cleanFamilyName(part);

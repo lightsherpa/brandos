@@ -1,3 +1,5 @@
+import {certifyUxEnabled} from './certify/ux-flags.js';
+import {ReviewGateNotice} from "./discovery-review-gate.jsx";
 import {FoundationStrip} from "./brand-foundation.jsx";
 import { withUploadType } from "./lib/upload-type.js";
 import {useBrandFonts} from "./brand-fonts.jsx";
@@ -7,6 +9,7 @@ import {foundationStatus,suggestColourRoles} from "../server/src/lib/brand-found
 import React from "react";
 import {discoveryWebsiteError, bioIntegrityError} from "../server/src/lib/brand-source-integrity.js";
 import {BioSelfCertification} from "./bio-self-certification.jsx";
+import {ClientQuestions} from "./certify/ClientQuestions.jsx";
 import {watchDiscoveryBio} from "./lib/discovery-progress.js";
 import {SectionTour} from "./section-tour.jsx";
 import {validateUpload} from "../server/src/lib/ingest-guards.js";
@@ -412,9 +415,11 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
     const stop = watchDiscoveryBio({
       discoveryId: runContext?.discoveryId,
       read: async () => {
+        let runFinished=true;
         setElapsed(Math.floor((Date.now() - startedAt) / 1000));
         if(runContext?.discoveryId){
           const progress=await apiFetch(`/api/discovery/${runContext.discoveryId}/status`);
+          if(!progress.ok)throw new Error("Progress temporarily unavailable");
           if(progress.ok){
             const {run}=await progress.json();
             if(run?.stage){
@@ -422,18 +427,19 @@ function DiscoveryStep2Running({ onDone, onExit, runContext }) {
               const idx = stages.indexOf(run.stage);
               publishReadProgress({ done: idx >= 0 ? idx + 1 : 1, total: stages.length });
             }
+            runFinished=["completed","gated"].includes(run?.status);
             if(run?.status==='failed')throw Object.assign(new Error(run.error_code||'DISCOVERY_FAILED'),{terminal:true});
           }
         }
         const res = await apiFetch(`/api/bios/${runContext?.brandId}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const {bio} = await res.json();
-        return bio;
+        return runFinished ? bio : null;
       },
       onStatus: failed => setError(failed ? t("discovery.running.reconnecting") : null),
       onFailure: failure=>setError(t("discovery.running.errors."+failure.message)),
-      onComplete: () => {
-        setStage("done");
+      onComplete: bio => {
+        setStage(bio?.reviewGate?.status==='gated'?"review_gate":"done");
         publishReadProgress(null);
         completionTimer = setTimeout(onDone, 400);
       },
@@ -912,6 +918,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       const response=await apiFetch(`/api/discovery/session/${brandId}/prepare-review`,{method:"POST"});
       const body=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(body.error||`HTTP ${response.status}`);
+      if(certifyUxEnabled()){window.location.hash = "#/brand-book";return;}
       setReviewBio(body.bio);
     }catch(error){setAttestErr(error.message);}finally{setAttestBusy(false);}
   };
@@ -977,6 +984,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       ) : (
         <>
           {/* Steward / cert chip — flips live if certification lands. */}
+          <ReviewGateNotice gate={live.bio?.reviewGate} />
           <p className="bio-landscape-notice">{t("discovery.landscape.draftNotice")}</p>
 
           {/* Brand row + completion meter */}
@@ -1589,7 +1597,7 @@ function BioViewer({ go, bioScore = 91 }) {
           ) : (
             <>
               {live.brandId && live.bio && (!live.cert || (live.bio.client_acceptance_required && !live.bio.client_accepted_at)) && (
-                <BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges || !foundation.certifiable} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
+                <BioSelfCertification go={go} brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges || !foundation.certifiable} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
               )}
               <button className="btn btn--ghost" onClick={() => go("brand-book")}>{t("discovery.bio.openBook")}</button>
             </>
@@ -1610,6 +1618,8 @@ function BioViewer({ go, bioScore = 91 }) {
         const json=await res.json();if(!res.ok)throw Error(json.error || 'Foundation save failed');
         await live.refresh();
       }}/>}
+
+      {live.brandId && <ClientQuestions brandId={live.brandId} />}
 
       {/* Live cert chip — pulls real DB state, polls every 5s */}
       {live.brandId && (
@@ -1634,6 +1644,8 @@ function BioViewer({ go, bioScore = 91 }) {
                   <>{t("discovery.results.certifiedBy")} <span style={{color:"var(--green-600)"}}>{live.cert.byName}</span> · {formatCertDate(live.cert.at)}</>
                 ) : live.reviewPending && live.bio ? (
                   <>{t("discovery.bio.reviewingThis")}</>
+                ) : live.bio?.reviewGate?.status==='gated' ? (
+                  <>{t("discovery.reviewGate.waiting",{reasons:live.bio.reviewGate.reasons.map(reason=>t("discovery.reviewGate."+reason.code,{minScore:live.bio.reviewGate.min_score})).join(" · ")})}</>
                 ) : live.bio ? (
                   <>{t("discovery.bio.awaitingCert")}</>
                 ) : (
@@ -1657,7 +1669,7 @@ function BioViewer({ go, bioScore = 91 }) {
               )}
             </div>
           </div>
-          {!live.cert && live.bio && (
+          {!live.cert && live.bio && live.bio.reviewGate?.status!=='gated' && (
             <span style={{fontSize: 11.5, color:"var(--c-dim)", fontStyle:"italic", whiteSpace:"nowrap"}}>
               {live.reviewPending ? t("discovery.bio.inReview") : t("discovery.bio.within24h")}
             </span>
@@ -1667,6 +1679,7 @@ function BioViewer({ go, bioScore = 91 }) {
 
       {/* From your Steward — change requests / returned BIO / conditions.
           CTA drops the BIO into the existing edit flow (Save → re-certify). */}
+      <ReviewGateNotice gate={live.bio?.reviewGate} />
       {live.brandId && <StewardReviewPanel review={live.review} onEdit={() => setEditing(true)} />}
 
       {/* What your Steward changed — before → after diff of the Steward's edits */}

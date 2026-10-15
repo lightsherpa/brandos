@@ -1,0 +1,43 @@
+{
+  "taskId": "22283801-77c6-422b-bdbf-b47be0ba48ee",
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "component": "caption",
+  "action": "replace",
+  "rejectedRegeneration": "Earlier 422 preserved the original ready artifact; quality gate was not bypassed.",
+  "elapsedMs": 12180,
+  "imageUnchanged": true,
+  "otherFieldsUnchanged": true,
+  "pinnedVersion": 3,
+  "metrics": {
+    "total_ms": 11755,
+    "cost": {
+      "total_usd": 0.0053,
+      "calls": 1,
+      "by_step": {
+        "review": 0.0053
+      },
+      "limits": {
+        "maxUsd": 0.6,
+        "maxImageCalls": 7,
+        "maxTextCalls": 12,
+        "imageConcurrency": 3
+      }
+    },
+    "ledger": [
+      {
+        "at": "2026-10-15T16:34:23.924Z",
+        "kind": "text",
+        "step": "review",
+        "model": "google/gemini-3.8-flash",
+        "cost_usd": 0.005274,
+        "ms": 9736,
+        "tokens_in": 1967,
+        "tokens_out": 1013,
+        "fallback_from": null,
+        "error": null
+      }
+    ]
+  },
+  "before": "Midweek plot twist: one cheesecake, two forks. 💛\n\nYou know that moment when the day has been a lot, and then you cut into something golden-brown and creamy? Everything softens. Your shoulders drop. You grin.\n\nThat's the Cake Me moment. 🌟\n\nMaybe you're sharing it with your best friend on the couch. Maybe it's just you, a fork and zero interruptions. Both count. Both are a celebration.\n\nWe bake artisanal cheesecakes for exactly these everyday moments, the ones that turn into the ones you remember. And we love having you in our happiness-making crew. 🩷\n\nSo who's your slice person? Tag them and make today a little more shareable.",
+  "after": "Some Tuesdays need two forks. 💛\n\nTag the person you would share this cheesecake moment with. 🩷"
+}

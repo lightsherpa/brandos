@@ -1,0 +1,55 @@
+{
+  "title": "Your Tuesday Just Got Sweeter",
+  "tension": "Celebrating small, everyday moments without manufactured urgency or invented scarcity—staying authentic to Joyful Indulgence while avoiding FOMO traps.",
+  "sharpenedBrief": "Create one Instagram post that captures a genuine, relatable cheesecake moment—mid-week treat, friend hangout, or solo indulgence—using direct address and sensory language. Showcase an existing Cake Me product with warm, playful copy that invites audience into the community of happiness-makers. No discounts, no invented offers; let the product and moment do the talking.",
+  "questions": [
+    {
+      "q": "Which everyday moment feels most shareable to your audience right now—a weekday break, a friend gathering, or a personal indulgence ritual?",
+      "solvingFor": "Scene selection and emotional hook for the post",
+      "why": "Brand Core Pillar 'Memorable Experiences' + JTBD 'Give me an easy and special way to celebrate a moment, big or small' clarifies that scale of celebration is flexible."
+    },
+    {
+      "q": "Should the caption use 'tú' direct address or 'nosotros' community language as the primary voice?",
+      "solvingFor": "Tone and intimacy level of the copy",
+      "why": "SIGNATURES list both: 'Addressing the audience directly with tú and using nosotros to build a sense of community'—this post must choose one lead voice."
+    }
+  ],
+  "deliveryPlan": {
+    "deliverableGroups": [
+      {
+        "type": "social_post",
+        "count": 1,
+        "platforms": [
+          "instagram"
+        ],
+        "parts": [
+          "caption",
+          "image"
+        ],
+        "crew": {
+          "caption": "a16",
+          "image": "a41"
+        }
+      }
+    ],
+    "proposedSpecialists": [
+      "a16",
+      "a41"
+    ]
+  },
+  "proposedSpecialists": [
+    "a16",
+    "a41"
+  ],
+  "refusals": [
+    "Discounts, limited-time offers, or invented scarcity language",
+    "Formal, corporate, or distant tone",
+    "Generic 'treat yourself' messaging without emotional specificity",
+    "Aggressive sales language or high-pressure FOMO",
+    "Claims about product exclusivity or brand superiority"
+  ],
+  "brand": {
+    "name": "Cake Me · earlier local UX check 1",
+    "bioVersion": 3
+  }
+}

@@ -47,7 +47,8 @@ function bioError(code, message, status = 409) {
 /* degradeRights: read-only callers (Brandolph Q&A) keep working if the logo-rights
    lookup fails; rights-dependent parts (foundation status, live score) are skipped
    and bio.rightsUnavailable is set. Production paths never pass it: they fail closed (503). */
-export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false, requireFoundation = false, degradeRights = false }) {
+export async function loadBrandBio({ workspaceId, brandId, requireCertified = false, requireSelfCertified = false, requireFoundation = false, degradeRights = false, bioVersion }) {
+  if (bioVersion !== undefined && (!Number.isInteger(bioVersion) || bioVersion < 1)) throw bioError("BIO_VERSION_INVALID", "A positive exact BIO version is required", 400);
   let rightsUnavailable = false;
   const rightsFor = async (...payloads) => {
     try { return await loadLogoRights(brandRow.id, ...payloads); }
@@ -79,10 +80,12 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   }
 
   // Check latest lineage even when an older certified version is requested.
-  const {data:latest,error:latestError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandRow.id).order("version",{ascending:false}).limit(1).maybeSingle();
+  const {data:latest,error:latestError}=await supabaseAdmin.from("bios").select("payload,version").eq("brand_id",brandRow.id).order("version",{ascending:false}).limit(1).maybeSingle();
   if(latestError)throw bioError("BIO_UNAVAILABLE","Brand Core integrity check unavailable",503);
   const integrity=latest&&bioIntegrityError(latest,brandRow);
   if(integrity)throw bioError(integrity.code,integrity.error);
+  // A reference update cannot silently generate from the older certified set.
+  if (requireCertified && bioVersion === undefined && latest?.payload?.reference_intake) bioVersion = latest.version;
   // Resolve the gated BIO version.
   const bioColumns = "id, version, payload, score, certified, certified_by, certified_at, cert_kind, cert_valid_until, self_certified, self_certified_at, client_acceptance_required, client_accepted_at, client_accepted_by";
   let bioRow;
@@ -91,7 +94,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
   if (requireCertified) {
     // Newest CD certification, or a newer self-cert at the floor. Expired
     // rows are skipped in selectProductionBio. Acceptance still blocks.
-    const { data: rows, error } = await supabaseAdmin
+    const { data: rawRows, error } = await supabaseAdmin
       .from("bios")
       .select(bioColumns)
       .eq("brand_id", brandRow.id)
@@ -100,8 +103,9 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
     bioErr = error;
     if (!error) {
       // One rights set, used for selection AND the checks below.
-      logoRights = await rightsFor(...(rows || []).map(row => row.payload));
-      const withFoundation = (rows || []).filter(row => !foundationError(row.payload, { logoRights }));
+      logoRights = await rightsFor(...(rawRows || []).map(row => row.payload));
+      const rows = (rawRows || []).filter(row => (bioVersion === undefined || row.version === bioVersion) && (!row.payload?.reference_intake || row.certified === true));
+      const withFoundation = rows.filter(row => !foundationError(row.payload, { logoRights }));
       if (requireFoundation) {
         // Image work: never fall back to a version without a rights-confirmed foundation.
         bioRow = selectProductionBio(withFoundation);
@@ -117,6 +121,7 @@ export async function loadBrandBio({ workspaceId, brandId, requireCertified = fa
       .from("bios")
       .select(bioColumns)
       .eq("brand_id", brandRow.id);
+    if (bioVersion !== undefined) bioQuery = bioQuery.eq("version", bioVersion);
     if (requireSelfCertified) bioQuery = bioQuery.eq("self_certified", true);
     const result = await bioQuery
       .order("version", { ascending: false })
@@ -204,6 +209,6 @@ export function loadBioForBriefing({ workspaceId, brandId }) {
 }
 
 /** Image/compositor preflight; never use for copy-only work. */
-export function loadBioForImage({workspaceId,brandId}) {
- return loadBrandBio({workspaceId,brandId,requireCertified:true,requireFoundation:true});
+export function loadBioForImage({workspaceId,brandId,bioVersion}) {
+ return loadBrandBio({workspaceId,brandId,requireCertified:true,requireFoundation:true,bioVersion});
 }

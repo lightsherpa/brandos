@@ -1,0 +1,44 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path=public,extensions;
+select no_plan();
+select ok((select relrowsecurity from pg_class where oid='public.certify_review_progress'::regclass),'progress RLS is enabled');
+select ok((select relrowsecurity from pg_class where oid='public.certify_review_progress_requests'::regclass),'idempotency receipts RLS is enabled');
+select ok(not has_table_privilege('authenticated','public.certify_review_progress','SELECT') and not has_table_privilege('authenticated','public.certify_review_progress','UPDATE'),'browser cannot read or write review drafts directly');
+select ok(not has_table_privilege('anon','public.certify_review_progress_requests','SELECT'),'anonymous caller cannot read save receipts');
+select ok(not has_function_privilege('authenticated','public.save_certify_review_progress(uuid,uuid,integer,integer,uuid,text,jsonb)','EXECUTE'),'draft RPC is unavailable to browser roles');
+select ok(has_function_privilege('service_role','public.save_certify_review_progress(uuid,uuid,integer,integer,uuid,text,jsonb)','EXECUTE'),'server may execute the atomic save RPC');
+select ok(not has_table_privilege('service_role','public.certify_review_progress','UPDATE'),'server saves drafts only through the atomic RPC');
+-- Transactional test fixtures are rolled back, never seeded or used as brand data.
+create temp table progress_fixture as select gen_random_uuid() ws,gen_random_uuid() uid,gen_random_uuid() lead_uid,gen_random_uuid() owner_uid,gen_random_uuid() brand,gen_random_uuid() bio,gen_random_uuid() job,gen_random_uuid() steward,gen_random_uuid() lead;
+insert into workspaces(id,name) select ws,'Progress SQL rollback fixture' from progress_fixture;
+insert into auth.users(id,email) select uid,'progress-reviewer@example.test' from progress_fixture union all select lead_uid,'progress-lead@example.test' from progress_fixture union all select owner_uid,'progress-owner@example.test' from progress_fixture;
+insert into public.users(id,workspace_id,email) select uid,ws,'progress-reviewer@example.test' from progress_fixture union all select lead_uid,ws,'progress-lead@example.test' from progress_fixture union all select owner_uid,ws,'progress-owner@example.test' from progress_fixture
+ on conflict(id) do update set workspace_id=excluded.workspace_id,email=excluded.email;
+insert into team_members(id,user_id,name,first_name,roles) select steward,uid,'Progress reviewer','Reviewer',array['steward'] from progress_fixture union all select lead,lead_uid,'Progress lead','Lead',array['lead_steward'] from progress_fixture;
+insert into brands(id,workspace_id,name) select brand,ws,'Progress rollback fixture' from progress_fixture;
+insert into bios(id,brand_id,version,payload) select bio,brand,1,'{}'::jsonb from progress_fixture;
+insert into steward_jobs(id,brand_id,bio_id,kind,status,assigned_to) select job,brand,bio,'onboarding','in_review',steward from progress_fixture;
+create function pg_temp.progress_save(actor text,revision integer,request uuid,hash text default 'hash',ver integer default 1) returns jsonb language sql as $$
+ select public.save_certify_review_progress(f.job,case actor when 'lead' then f.lead_uid when 'owner' then f.owner_uid else f.uid end,ver,revision,request,hash,'{"decisions":{},"notes":"Saved","active_id":null,"scores":{},"mode":"review"}'::jsonb) from progress_fixture f;
+$$;
+select is(pg_temp.progress_save('reviewer',0,'00000000-0000-4000-8000-000000000001')->>'ok','true','first save succeeds');
+select is((select revision from certify_review_progress p join progress_fixture f on p.job_id=f.job),1,'first save creates revision one');
+select is(pg_temp.progress_save('reviewer',0,'00000000-0000-4000-8000-000000000001')->'progress'->>'revision','1','same idempotency request replays before stale revision check');
+select is((select count(*)::int from certify_review_progress_requests p join progress_fixture f on p.job_id=f.job),1,'replay creates no duplicate receipt');
+select is(pg_temp.progress_save('reviewer',0,'00000000-0000-4000-8000-000000000001','changed')->>'code','IDEMPOTENCY_CONFLICT','reusing a request id for another snapshot is rejected');
+select is(pg_temp.progress_save('reviewer',0,'00000000-0000-4000-8000-000000000002')->>'code','PROGRESS_CONFLICT','another stale writer cannot overwrite current progress');
+select is(pg_temp.progress_save('reviewer',1,'00000000-0000-4000-8000-000000000002')->'progress'->>'revision','2','matching revision advances exactly once');
+select is(pg_temp.progress_save('owner',0,'00000000-0000-4000-8000-000000000003')->>'code','REVIEW_FORBIDDEN','brand owner cannot save certifier progress');
+select is(pg_temp.progress_save('lead',0,'00000000-0000-4000-8000-000000000004')->'progress'->>'revision','1','Lead progress is scoped independently to the Lead user');
+select is(pg_temp.progress_save('reviewer',2,'00000000-0000-4000-8000-000000000005','hash',2)->>'code','STALE_PROGRESS_VERSION','job version is guarded inside the transaction');
+update steward_jobs set status='pending_lead_review' where id=(select job from progress_fixture);
+select is(pg_temp.progress_save('reviewer',2,'00000000-0000-4000-8000-000000000006')->>'code','JOB_CLOSED','submitted reviewer cannot mutate pending second review');
+select is(pg_temp.progress_save('lead',1,'00000000-0000-4000-8000-000000000007')->'progress'->>'revision','2','different Lead may continue their second human review');
+update steward_jobs set status='completed' where id=(select job from progress_fixture);
+select is(pg_temp.progress_save('lead',2,'00000000-0000-4000-8000-000000000008')->>'code','JOB_CLOSED','completed job blocks even Lead writes');
+select is(pg_temp.progress_save('reviewer',0,'00000000-0000-4000-8000-000000000001')->>'code','JOB_CLOSED','idempotent replay cannot reopen a completed job');
+select is((select state->>'notes' from certify_review_progress p join progress_fixture f on p.job_id=f.job where p.actor_user_id=f.uid),'Saved','saved draft survives completion for terminal summary');
+select is((select certified from bios b join progress_fixture f on b.id=f.bio),false,'draft saves never certify a Brand Core');
+select * from finish();
+rollback;

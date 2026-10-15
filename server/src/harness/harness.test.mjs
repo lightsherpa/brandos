@@ -81,8 +81,9 @@ test("html gates: links https, alt, 80KB, contrast", () => {
   assert.equal(contrastCheck([["#111111", "#ffffff", "body"]]).pass, true);
 });
 
-test("OCR gate: tokens ≥2 chars at confidence ≥60 fail; errors fail closed", async () => {
-  assert.equal(evaluateOcrTokens([{ text: "a", confidence: 99 }, { text: "OK", confidence: 40 }]).pass, true);
+test("OCR gate: tokens ≥1 char at confidence ≥60 fail; errors fail closed", async () => {
+  assert.equal(evaluateOcrTokens([{ text: "a", confidence: 99 }]).pass, false);
+  assert.equal(evaluateOcrTokens([{ text: "OK", confidence: 40 }]).pass, true);
   assert.equal(evaluateOcrTokens([{ text: "CAKE", confidence: 90 }]).pass, false);
   const r = await ocrNoText({ imageUrl: "https://x/y.png", complete: async function* () { yield { type: "error", message: "boom" }; } });
   assert.equal(r.pass, false);
@@ -143,7 +144,7 @@ function stubComplete({ captions, verdict }) {
   };
   fn.calls = calls; return fn;
 }
-const passAll = (task) => () => ({ items: [0, 1, 2].map((index) => ({ index, checks: TASKS[task].reviewerChecks.map((id) => ({ id, pass: true, reason: "ok", target: "copy" })) })) });
+const passAll = (task) => (messages) => ({ items: JSON.parse(messages[0].content[0].text.split("ITEMS:\n")[1]).map((_, index) => ({ index, checks: TASKS[task].reviewerChecks.map((id) => ({ id, pass: true, reason: "ok", target: "copy" })) })) });
 const gen = async function* ({ route, aspect, referenceImageUrls }) { yield { type: "done", asset_url: `https://img.test/${route.split("/").pop()}-${Math.random()}.png`, width: 1088, height: 1360, model: route, cost_usd: 0.07, uses_reference: referenceImageUrls?.length > 0, reference_count: referenceImageUrls?.length || 0 }; };
 
 test("social task: 3 posts, 1 image each with refs, streamed, ready", async () => {
@@ -170,15 +171,17 @@ test("social task: banned word in the brief is flagged, copy fail gets 1 targete
   assert.equal(complete.calls.filter((s) => s === "task.fixing").length, 1);
 });
 
-test("OCR fail regenerates once on the fallback model, then flags", async () => {
+test("OCR fail retries twice with primary and never exposes a rejected asset", async () => {
   const complete = stubComplete({ captions: () => ["Uno"], verdict: passAll("social_post") });
   const routes = [];
   const g = async function* (a) { routes.push(a.route); yield* gen(a); };
   const out = await runTask({ type: "social_post", brief: "Lanza el sabor", layer1: layer1(), count: 1, deps: { complete, gen: g, ocr: async () => ({ pass: false, reason: "Text found: CAKE" }) } });
   assert.equal(out.items[0].status, "flagged");
   assert.ok(out.items[0].needs_review);
-  assert.ok(routes.includes("vendor/fal/nano-banana-2.1"));
-  assert.ok(routes.length <= 4);
+  assert.ok(routes.every(r => r === "vendor/fal/gpt-image-2.5"));
+  assert.equal(routes.length, 3);
+  assert.equal(out.items[0].image.asset_url, null);
+  assert.equal(out.items[0].html, null);
 });
 
 test("Beat 5 re-run regenerates only that item's copy and reuses the image", async () => {
@@ -196,9 +199,9 @@ test("Beat 5 re-run regenerates only that item's copy and reuses the image", asy
 });
 
 test("email task: 3 HTML emails rendered, every one <80KB", async () => {
-  const complete = async function* ({ spec }) {
+  const complete = async function* ({ spec, messages }) {
     const step = spec.payload.name;
-    const body = step === "task.review" ? passAll("email_sequence")() : { task: "email_sequence", language: "es", smp: "s", emails: [0, 3, 7].map((d, i) => ({ day_offset: d, purpose: `p${i}`, subject: `Asunto ${i}`, preheader: "Un adelanto de lo que encontrarás dentro de este email.", headline: `Titular ${i}`, body_blocks: ["Hola, esto es un email."], cta: { label: "Ver", url: "https://cakeme.es" } })) };
+    const body = step === "task.review" ? passAll("email_sequence")(messages) : { task: "email_sequence", language: "es", smp: "s", emails: [0, 3, 7].map((d, i) => ({ day_offset: d, purpose: `p${i}`, subject: `Asunto ${i}`, preheader: "Un adelanto de lo que encontrarás dentro de este email.", headline: `Titular ${i}`, body_blocks: ["Hola, esto es un email."], cta: { label: "Ver", url: "https://cakeme.es" } })) };
     yield { type: "token", text: JSON.stringify(body) }; yield { type: "done", usage: { cost_usd: 0.01 } };
   };
   const out = await runTask({ type: "email_sequence", brief: "Secuencia de bienvenida", layer1: layer1(), deps: { complete, gen } });

@@ -16,7 +16,7 @@ const STATUS_LABELS = {
   "steward-certified": "steward-certified",
 };
 
-const HIGH_IMPACT = new Set([
+export const HIGH_IMPACT = new Set([
   "identity.positioning",
   "voice.forbidden",
   "audience.primary",
@@ -42,7 +42,7 @@ function normalizeStatus(status, conf, source) {
   return source ? "source-backed" : "client-stated";
 }
 
-function groupClaims(payload) {
+export function groupClaims(payload) {
   const bio = normalizeBio(payload);
   const groups = {
     sourceBacked: [],
@@ -149,7 +149,6 @@ export function buildStewardCaseFile({ job, bio, brand, sources = [], previousBi
     ...groups.inferred.filter((claim) => HIGH_IMPACT.has(claim.field)).map((claim) => riskFromClaim(claim, "low", "High-impact claim is inferred.", "Confirm source support or mark as aspirational.")),
   ];
   const readiness = readinessFor({ bio, focus, scoreBreakdown, groups });
-  const approveReady = !risks.some((risk) => risk.severity === "high") && groups.missing.filter((claim) => HIGH_IMPACT.has(claim.field)).length === 0;
 
   return {
     job: job ? { id: job.id, status: job.status, kind: job.kind } : null,
@@ -163,14 +162,6 @@ export function buildStewardCaseFile({ job, bio, brand, sources = [], previousBi
     sourceSummary: sourceSummary(sources, payload),
     focus,
     latestDecision: latestDecision || null,
-    certificationRecommendation: {
-      decision: approveReady ? "approve" : "return_changes",
-      rationale: approveReady
-        ? "No high-severity Copilot risks or high-impact missing fields detected."
-        : "Resolve high-severity risks and high-impact gaps before certification.",
-      requiredChanges: approveReady ? [] : risks.filter((risk) => risk.severity !== "low").map((risk) => risk.action),
-      conditions: approveReady && risks.length ? risks.map((risk) => risk.action) : [],
-    },
   };
 }
 

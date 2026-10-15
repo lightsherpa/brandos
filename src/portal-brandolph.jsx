@@ -228,7 +228,7 @@ function HomeDashboard({ go, stats }) {
               /* Still producing vs. produced-but-awaiting-your-approval. */
               const running = (b.runs || []).some(r => r.status === "queued" || r.status === "running");
               return (
-                <a key={b.id} href={"#/board/" + b.id} className="card" style={{padding:16, textDecoration:"none", color:"inherit", cursor:"pointer", display:"flex", flexDirection:"column", gap:7}}>
+                <a key={b.id} href="#/briefs" className="card" style={{padding:16, textDecoration:"none", color:"inherit", cursor:"pointer", display:"flex", flexDirection:"column", gap:7}}>
                   <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:10}}><span className="eyebrow">{b.type === "one_off" ? t("brandolph.briefKind") : (b.type || t("brandolph.briefKind"))}</span><StatusPill status={running ? "in-production" : "review"} /></div>
                   <div style={{fontSize:14.5, fontWeight:500, color:"var(--c-ink)", letterSpacing:"-0.005em"}}>{b.title || b.payload?.title || t("brandolph.untitledBrief")}</div>
                   <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:7, borderTop:"1px dashed var(--c-line-2)"}}>
@@ -391,7 +391,11 @@ function HomeCreate({ tweaks, go }) {
        assemble there with animations, then the user fires the run from
        the Canvas itself. The Canvas is the moment-of-truth UX surface;
        a flat inline grid breaks that promise. */
+    const groups=sharp.data?.deliveryPlan?.deliverableGroups||[];
+    const normalizedTaskType=groups.length===1?(['email','newsletter'].includes(groups[0].type)?'email_sequence':groups[0].type):null;
     const ctx = {
+      taskType: normalizedTaskType,
+      requestedTaskType: normalizedTaskType,
       sourceDraftId: store.getSnapshot().id,
       rawBrief:      input.trim(),
       composedBrief: composeBriefText(),

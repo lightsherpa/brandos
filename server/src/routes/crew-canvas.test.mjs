@@ -1,0 +1,21 @@
+import {test,mock} from 'node:test';
+import assert from 'node:assert/strict';
+process.env.TASKS_ENABLED='1';
+process.env.CREW_CANVAS='1';
+let denied=false;
+const rows=[{id:'out',kind:'task',run_id:'run',created_at:'2026-10-15T10:00:00Z',body:JSON.stringify({task_id:'saved',type:'email_sequence',spec:{emails:[{subject:'before'}]},items:[{index:0,status:'flagged',html:'<html>rejected</html>',image:{asset_url:'https://bad.test/image',ocr:{pass:false}}}],snapshot:{heroes:false}}),brief:{brand_id:'brand',payload:{request:'Stored brief for cakes'},brand:{workspace_id:'workspace'}}}];
+mock.module(new URL('../middleware/auth.js',import.meta.url).href,{namedExports:{requireAuth:async(c,next)=>{c.set('auth',{userId:'owner'});return next();}}});
+mock.module(new URL('../lib/permissions.js',import.meta.url).href,{namedExports:{hasPermission:()=>!denied}});
+mock.module(new URL('../lib/supabase.js',import.meta.url).href,{namedExports:{supabaseAdmin:{from(){const q={select(){return q;},in(){return q;},eq(){return q;},order(){return q;},range(){return q;},then(resolve){resolve({data:rows,error:null});}};return q;}}}});
+const {default:app,executeRerun}=await import('./tasks.js');
+test('enabled contract advertises Crew Canvas and recovered failures never expose rejected work',async()=>{const enabled=await(await app.request('/enabled')).json();assert.equal(enabled.crew_canvas,true);const r=await app.request('/saved');assert.equal(r.status,200);const j=await r.json();assert.equal(j.items[0].html,null);assert.equal(j.items[0].image.asset_url,null);assert.deepEqual(j.crew,['copy','html','qa']);});
+test('component endpoint is flagged and authorized before edits',async()=>{const request=()=>app.request('/saved/items/0/component',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({component:'subject',action:'replace',value:'hello'})});process.env.CREW_CANVAS='0';assert.equal((await request()).status,404);process.env.CREW_CANVAS='1';denied=true;assert.equal((await request()).status,403);denied=false;});
+test('component validation prevents unrelated field edits and hero generation when off',async()=>{for(const body of [{component:'__proto__',action:'replace',value:'x'},{component:'image',action:'regenerate'},{component:'subject',action:'replace',value:'Hello',modelOverride:'some/model'}]){const r=await app.request('/saved/items/0/component',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});assert.equal(r.status,400);}});
+test('component changes use the pinned context and preserve the previous item on QA rejection',async()=>{
+ const original={index:0,status:'ready',copy:{subject:'before'},html:'<html>before</html>'};
+ const job={id:'j',workspaceId:'w',brandId:'b',type:'email_sequence',brief:'A cake brief',heroes:false,provenance:{bioVersion:3},items:[original],result:{spec:{emails:[original.copy]}}};
+ let context;
+ const deps={preflight:async()=>({ok:true}),loadTaskContext:async args=>{context=args;return{layer1:{},bio:{version:3}};},openRun:async()=>({runId:'r'}),settle:async({work})=>work(),reviseComponent:async()=>{throw Object.assign(new Error('Quality rejected'),{status:422,code:'COMPONENT_QUALITY_REJECTED'});}};
+ const r=await executeRerun({job,index:0,body:{componentEdit:true,component:'subject',action:'replace',value:'after'}},deps);
+ assert.equal(r.status,422);assert.equal(context.bioVersion,3);assert.equal(context.copyOnly,true);assert.equal(job.items[0],original);assert.equal(job.items[0].html,'<html>before</html>');
+});

@@ -508,7 +508,7 @@
       "close": "إغلاق"
     },
     "spec": {
-      "eyebrow": "L2 · 33 متخصصًا كبيرًا",
+      "eyebrow": "L2 · {count} متخصصًا كبيرًا",
       "title": "القسم، في المناوبة.",
       "sub": "يقرأ براندولف الموجز. المتخصصون ينجزون العمل. يُوجَّه كل واحد إلى النموذج الأنسب للمهمة — واضح وقابل للتدقيق ومدفوع من نفس رصيد الأرصدة.",
       "liveCount": "{live} نشط · {soon} قريبًا",
@@ -766,7 +766,7 @@
       "saveEdit": "حفظ التعديل",
       "saved": "محفوظ",
       "theBrief": "الموجز",
-      "sharpened": "المصقول (a02)",
+      "sharpened": "الموجز المصقول",
       "brandQa": "فحص جودة العلامة",
       "voiceQa": "فحص جودة الصوت",
       "output": "المُخرَج",
@@ -791,14 +791,38 @@
       "certifiedBy": "معتمد من"
     },
     "rerun": {
-      "noteOpus": "Premium — أعمق استدلال",
-      "noteSonnet": "حصان العمل المتوازن",
-      "noteHaiku": "سريع ورخيص",
-      "noteGeminiPro": "تركيب سياق طويل",
-      "noteGeminiFlash": "الأرخص",
-      "noteFluxPro": "جودة بطل ممتازة",
-      "noteFluxSchnell": "مسودة سريعة (أرخص بـ 13×)",
-      "noteRecraft": "متجه / رسم توضيحي"
+      "premium": {
+        "label": "Premium",
+        "note": "أعمق استدلال"
+      },
+      "standard": {
+        "label": "قياسي",
+        "note": "جودة متوازنة"
+      },
+      "fast": {
+        "label": "سريع",
+        "note": "تسليم سريع، أرصدة أقل"
+      },
+      "longContext": {
+        "label": "سياق طويل",
+        "note": "تركيب المواد الطويلة"
+      },
+      "economy": {
+        "label": "اقتصادي",
+        "note": "أقل الأرصدة"
+      },
+      "imagePremium": {
+        "label": "صورة Premium",
+        "note": "جودة بطل"
+      },
+      "imageDraft": {
+        "label": "صورة مسودة",
+        "note": "مسودة سريعة، أرصدة أقل"
+      },
+      "illustration": {
+        "label": "رسم توضيحي",
+        "note": "متجه / رسم توضيحي"
+      }
     },
     "view": {
       "notFound": "الموجز غير موجود",
@@ -929,8 +953,8 @@
       "toolsPlaceholder": "مثل: بحث Exa، توليد الصور",
       "refusalsLabel": "الرفض · لن يفعل (فوق قواعد العلامة)",
       "refusalsPlaceholder": "قاعدة صارمة لن يخالفها هذا المتخصص",
-      "routingCost": "التوجيه والتكلفة",
-      "model": "النموذج",
+      "routingCost": "الجودة والأرصدة",
+      "model": "مستوى الجودة",
       "creditsPerRun": "الأرصدة / تشغيل",
       "livePrompt": "الموجّه المُركَّب الحيّ",
       "testTab": "اختبار · تشغيل تجريبي + بوابة الفحص",
@@ -1648,6 +1672,15 @@
       "preserved": "لن يُعرض محتوى Brand Core أو إجراءات التصديق حتى يتم التحقق من هوية العلامة ومصادرها.",
       "retry": "تحقق مجددًا",
       "sourcesFor": "مصادر {name}. تحتاج العلامة الأخرى إلى سجل خاص بها."
+    },
+    "reviewGate": {
+      "waiting": "بانتظار: {reasons}",
+      "score": "الثقة: {score}/{minScore}. ستُطلب مراجعة المدير الإبداعي تلقائياً عند اجتياز هذه الفحوصات.",
+      "LOGO_RIGHTS_UNCONFIRMED": "تأكيد حقوق استخدام الشعار",
+      "LOGO_REQUIRED": "إضافة شعار معتمد",
+      "PRIMARY_COLOUR_REQUIRED": "اختيار لون أساسي",
+      "DISPLAY_FONT_REQUIRED": "إضافة خط عناوين مرخص",
+      "BELOW_MIN_SCORE": "رفع الثقة إلى {minScore}"
     }
   },
   "floater": {
@@ -1745,5 +1778,29 @@
       "strategic": "ما يجب فعله وتجنبه"
     },
     "sourceFailure": "تعذّرت قراءة المصادر. لم يتم إنشاء Brand Core. أضف مصدراً عاماً يمكن قراءته أو ارفع مواد العلامة."
+  },
+  "taskOutput": {
+    "status": {
+      "needs_review": "يحتاج إلى مراجعة",
+      "approved": "معتمد",
+      "failed": "فشل"
+    },
+    "finished": "اكتمل",
+    "elapsed": " خلال {seconds} ثانية",
+    "credits": " · {count} cr",
+    "generationComplete": "اكتمل الإنشاء · يحتاج إلى مراجعة",
+    "savedBriefGuidance": "افتح موجزاً محفوظاً لاستخدام Canvas.",
+    "openBriefs": "فتح الموجزات",
+    "generationFailed": "فشل الإنشاء",
+    "needsHumanReview": "اكتمل الإنشاء · يحتاج إلى مراجعة بشرية",
+    "openLibrary": "فتح العناصر المحفوظة في المكتبة",
+    "taskIntro": "أنشئ المخرجات وافحصها وراجعها وفق Brand Core. لا تزال الموافقة البشرية مطلوبة.",
+    "checks": "فحوصات",
+    "passed": "اجتاز",
+    "savedDeliverable": "مخرج محفوظ",
+    "previewItem": "معاينة {index}",
+    "downloadPng": "تنزيل PNG",
+    "savedTasks": "المهام المحفوظة",
+    "running": "قيد التنفيذ"
   }
 }

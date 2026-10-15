@@ -23,7 +23,7 @@ export async function scrape(url, opts = {}) {
 
   const started = Date.now();
   const requestId = crypto.randomUUID();
-  reserveDiscoveryTestSpend(.10,"firecrawl:scrape");
+  reserveDiscoveryTestSpend(.10, /^https?:\/\/(?:www\.)?instagram\.com\//i.test(url)?"firecrawl:instagram":"firecrawl:scrape");
   const res = await fetch(FIRECRAWL_URL, {
     method: "POST",
     headers: {
@@ -34,6 +34,7 @@ export async function scrape(url, opts = {}) {
       url,
       formats: opts.formats || ["markdown"],
       onlyMainContent: opts.onlyMainContent ?? true,
+      ...(opts.actions ? { actions: opts.actions } : {}),
       timeout: opts.timeoutMs || 30000,
     }),
   });
@@ -115,6 +116,8 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telem
         url: link,
         markdown: result.markdown,
         title: result.metadata?.title,
+        rawHtml: result.rawHtml,
+        metadata: result.metadata,
       });
     } catch(error) {
       failures.push(error.message);
@@ -125,18 +128,18 @@ export async function mapAndScrape(url, { max = 6, formats = ["markdown"], telem
     try{
       const result=await scrape(url,{formats,onlyMainContent:true,telemetry});
       if(!isReadableSource(result))throw new Error("No readable homepage content");
-      out.push({url,markdown:result.markdown,title:result.metadata?.title});
+      out.push({url,markdown:result.markdown,title:result.metadata?.title,rawHtml:result.rawHtml,metadata:result.metadata});
     }catch(error){throw new Error(`Brand retrieval failed: ${error.message}; ${failures.length} initial page failures`);}
   }
   return out;
 }
 
 // Bounded competitive discovery; search snippets alone are never evidence.
-export async function searchCompetitiveSources(query,{limit=4}={}){
+export async function searchCompetitiveSources(query,{limit=4,country,city,countryName,language}={}){
  const key=process.env.FIRECRAWL_API_KEY;
  if(!key)throw new Error("FIRECRAWL_API_KEY not set");
  reserveDiscoveryTestSpend(.10,"firecrawl:search");
- const res=await fetch("https://api.firecrawl.dev/v2/search",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({query,limit:Math.min(limit,4),scrapeOptions:{formats:["markdown"]}})});
+ const res=await fetch("https://api.firecrawl.dev/v2/search",{method:"POST",headers:{Authorization:`Bearer ${key}`,"Content-Type":"application/json"},body:JSON.stringify({query,limit:Math.min(limit,4),...(country?{country}:{}),...((city||countryName)?{location:[city,countryName||country].filter(Boolean).join(",")}:{}),...(language?{lang:language}:{}),scrapeOptions:{formats:["markdown"]}})});
  if(!res.ok)throw new Error(`Competitive search HTTP ${res.status}`);
  const json=await res.json();
  if(!json.success)throw new Error("Competitive search failed");

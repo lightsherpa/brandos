@@ -1,0 +1,32 @@
+{
+  "outputId": "7c6fb202-3a91-4c66-920a-b1ebcfd5cd14",
+  "fixture": "Synthetic local copy/image/email components, real auth and API replacement with persisted audit",
+  "componentEdits": 3,
+  "screenshots": [
+    "review-desk-rendered-en-1280.png",
+    "review-desk-rendered-en-1440.png",
+    "review-desk-rendered-es-1280.png",
+    "review-desk-rendered-es-1440.png",
+    "review-desk-rendered-ar-1280.png",
+    "review-desk-rendered-ar-1440.png",
+    "component-replacement-en-1280.png",
+    "component-replacement-en-1440.png",
+    "component-replacement-es-1280.png",
+    "component-replacement-es-1440.png",
+    "component-replacement-ar-1280.png",
+    "component-replacement-ar-1440.png",
+    "component-replacements-saved-en-1280.png",
+    "component-replacements-saved-en-1440.png",
+    "component-replacements-saved-es-1280.png",
+    "component-replacements-saved-es-1440.png",
+    "component-replacements-saved-ar-1280.png",
+    "component-replacements-saved-ar-1440.png",
+    "brand-review-queue-en-1280.png",
+    "brand-review-queue-en-1440.png",
+    "brand-review-queue-es-1280.png",
+    "brand-review-queue-es-1440.png",
+    "brand-review-queue-ar-1280.png",
+    "brand-review-queue-ar-1440.png"
+  ],
+  "errors": []
+}

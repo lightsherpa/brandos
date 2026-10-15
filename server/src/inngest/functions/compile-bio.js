@@ -1,3 +1,5 @@
+import {discoveryMarket,readDiscoveryInstagram} from '../../lib/discovery-source-context.js';
+import {reconcileDiscoveryReview} from '../../lib/discovery-review.js';
 import {discoverLogo, storeDiscoveredLogo} from "../../lib/discovered-logo.js";
 import {mergeLogoFromAssets} from "../../lib/extract-logo.js";
 // ─────────────────────────────────────────────────────────────────────
@@ -23,11 +25,10 @@ import { inngest } from "../../lib/inngest.js";
 import { supabaseAdmin } from "../../lib/supabase.js";
 import { scrape, mapAndScrape, searchCompetitiveSources } from "../../lib/firecrawl.js";
 import { assembleSourceText, discoverySourceRow } from "../../lib/bio-source-policy.js";
-import { assignSteward } from "../../lib/assign-steward.js";
 import { completeDiscoveryStep } from "../../lib/discovery-models.js";
 import { scoreBio } from "../../lib/score-bio.js";
 import { loadLogoRights } from "../../lib/foundation-assets.js";
-import { extractPalette, extractFonts } from "../../lib/extract-visual-deterministic.js";
+import { extractPalette, extractFonts,firstRealFamily } from "../../lib/extract-visual-deterministic.js";
 import { extractImageryAvoid } from "../../lib/extract-visual-vision.js";
 import { loadVisualAssets, mergeTypographyFromAssets } from "../../lib/visual-assets.js";
 import {validateDiscoveryCandidate} from "../../lib/validate-discovery-candidate.js";
@@ -193,7 +194,7 @@ export const compileBio = inngest.createFunction(
       if (V2) {
         const pages = await mapAndScrape(url, {
           max: 6,
-          formats: ["markdown"],
+          formats: ["markdown","rawHtml"],
           telemetry: { feature: "discovery.scrape", workspaceId, brandId, workflowId: discoveryId },
         });
         // Insert one bio_sources row per crawled page (kind:url_scrape, bucket:null).
@@ -216,12 +217,14 @@ export const compileBio = inngest.createFunction(
         return {
           markdown,
           title: pages[0]?.title || null,
+          rawHtml: pages[0]?.rawHtml || "",
+          metadata: pages[0]?.metadata || {},
         };
       }
 
       const result = await scrape(url, {
-        formats: ["markdown"],
-        onlyMainContent: true,
+        formats: ["markdown","rawHtml"],
+        onlyMainContent: false,
         telemetry: { feature: "discovery.scrape", workspaceId, brandId, workflowId: discoveryId },
       });
       // Persist as a bio_sources row (URL-derived, bucket=null per rev-2 §5.3)
@@ -243,6 +246,8 @@ export const compileBio = inngest.createFunction(
       return {
         markdown: `## SOURCE: ${row?.src || url}\n\n${result.markdown || ""}`,
         title: result.metadata?.title || null,
+        rawHtml: result.rawHtml || "",
+        metadata: result.metadata || {},
       };
     });
 
@@ -291,14 +296,11 @@ export const compileBio = inngest.createFunction(
             }
           }
 
-          // Instagram handle (collected at discovery, passed through event.data).
-          if (instagram) {
-            // Handle identifies a reference; it is not evidence of its content.
-          }
-
           return blocks;
         });
 
+    const market=discoveryMarket({url,html:scraped.rawHtml,metadata:scraped.metadata,evidence:scraped.markdown});
+    const socialSources=await step.run("read-linked-instagram",()=>readDiscoveryInstagram({instagram,html:scraped.rawHtml,markdown:scraped.markdown,scrape,telemetry:{feature:"discovery.instagram",workspaceId,brandId,workflowId:discoveryId}}));
     const linkedSources=await step.run("read-discovery-references",async()=>{
       const blocks=[],failures=[];
       for(const ref of references){
@@ -317,16 +319,16 @@ export const compileBio = inngest.createFunction(
     });
     await progress("visual");
     const visualEvidence = V2 ? await step.run("read-brand-and-reference-visuals", () => loadVisualAssets(brandId).then(assets=>collectDiscoveryVisuals({url,references,scrape,readImagery:extractImageryAvoid,assets,telemetry:{workspaceId,brandId,workflowId:discoveryId}}))) : null;
-    const evidence=assembleSourceText([scraped.markdown,...extraSources,...linkedSources.blocks,visualEvidence ? `VISUAL OBSERVATIONS (source declarations, not computed styles; preserve source purposes):\n${JSON.stringify(visualEvidence)}` : null]);
+    const evidence=assembleSourceText([scraped.markdown,...socialSources.blocks,...extraSources,...linkedSources.blocks,visualEvidence ? `VISUAL OBSERVATIONS (computed styles where available; other declarations are unverified; preserve source purposes):\n${JSON.stringify(visualEvidence)}` : null]);
     let synthesisPass=0;
     const bioPayload=await generateDiscoveryBrain({
-      evidence,
+      evidence,market,
       interpret:async content=>{await progress("read");return step.run("extract-brand-evidence",async()=>{
         const result=await completeDiscoveryStep({step:"reader",system:EXTRACTION_SYSTEM,messages:[{role:"user",content:`Primary brand: ${brandContext.name}. Primary website: ${url || "uploaded brand sources"}. Interpret this brand only; reference brands are not its identity.\n${content}`}],parse:parseCompiledBio,telemetry:{workspaceId,brandId,workflowId:discoveryId,actorUserId,breakerOverride},onUsage:usage=>logger.info("Discovery extraction usage",usage)});
         return result.value;
       });},
-      research:async query=>{await progress("research");return step.run("research-competitive-landscape",async()=>{
-        const pages=await searchCompetitiveSources(query);
+      research:async (query,scope)=>{await progress("research");return step.run("research-competitive-landscape",async()=>{
+        const pages=await searchCompetitiveSources(query,scope);
         return pages.map(page=>({...page,evidence:"market",counts_as_brand_evidence:false}));
       });},
       synthesize:async content=>{await progress("synthesize");return step.run(synthesisPass++===0?"interpret-brand-evidence":"synthesize-researched-bio",async()=>{
@@ -340,8 +342,8 @@ export const compileBio = inngest.createFunction(
       });},
     });
     validateDiscoveryCandidate(bioPayload);
-    bioPayload.discoverySources={references,unreadable:linkedSources.failures,instagram:instagram||null};
-    bioPayload.positioning.researchGaps.push(...linkedSources.failures);
+    bioPayload.discoverySources={references,unreadable:[...linkedSources.failures,...socialSources.failures],instagram:socialSources.sources};
+    bioPayload.positioning.researchGaps.push(...linkedSources.failures,...socialSources.failures);
 
     // ── Step 2b · Visual extraction (V2 only) ────────────────────
     // Palette + fonts are deterministic ($0) from the homepage rawHtml; imagery
@@ -401,6 +403,8 @@ export const compileBio = inngest.createFunction(
     bioPayload.visual.logo = mergeLogoFromAssets(bioPayload.visual.logo, foundationAssets.logos);
     bioPayload.visual.type = mergeTypographyFromAssets(bioPayload.visual.type, foundationAssets.fonts.filter(f => f.signals?.purpose !== "aspiration"));
 
+    bioPayload.visual.type = (bioPayload.visual.type || []).map(font=>({...font,family:firstRealFamily(font.family)})).filter(font=>font.family);
+
     // ── Step 3 · Write bios row (uncertified) ────────────────────
     await progress("save");
     const bioRow = await step.run("write-bio-row", async () => {
@@ -447,33 +451,6 @@ export const compileBio = inngest.createFunction(
       return { written: true, count: refusals.length };
     });
 
-    // ── Step 4 · Enqueue Steward certification job ──────────────
-    // Per rev-2 §5: every BIO is certified by a senior human before
-    // any specialist run reads it. Discovery just produced an
-    // uncertified BIO — queue a Steward to review. Assignment uses
-    // the shared assignSteward() helper (P1.5-002) which handles
-    // round-robin + Lead-Steward capacity fallback.
-    const stewardJob = await step.run("enqueue-steward-cert", async () => {
-      const { data: job, error } = await supabaseAdmin
-        .from("steward_jobs")
-        .insert({
-          bio_id: bioRow.id,
-          brand_id: brandId,
-          kind: "onboarding",
-          status: "queued",
-        })
-        .select("id")
-        .single();
-      if (error) throw new Error(`steward_jobs insert failed: ${error.message}`);
-      const assignment = await assignSteward(job.id);
-      logger.info("Steward cert queued", {
-        jobId: job.id,
-        assignedTo: assignment.name || "(unassigned)",
-        override: assignment.override || null,
-      });
-      return { id: job.id, ...assignment };
-    });
-
     // ── Step 5 · Seed discovery draft session (best-effort) ──────
     // Upsert one resumable draft per brand (brand_id is UNIQUE) so the rebuilt
     // discovery UI can reopen the compiled BIO as an editable draft. Non-fatal
@@ -506,7 +483,9 @@ export const compileBio = inngest.createFunction(
       }
     });
 
-    await progress("done","completed",bioRow.id);
-    return { bioId: bioRow.id, version: bioRow.version, brandId, stewardJobId: stewardJob.id };
+    // Bind the run before reconciliation so gated status survives completion.
+    await step.run("bind-review-gate-run",()=>recordDiscoveryStage({discoveryId,brandId,workspaceId,stage:"save",status:"running",bioId:bioRow.id}));
+    const reviewGate=await step.run("reconcile-review-gate",()=>reconcileDiscoveryReview({brandId,bioId:bioRow.id,payload:bioPayload}));
+    return {bioId:bioRow.id,version:bioRow.version,brandId,stewardJobId:reviewGate.job_id,reviewGate};
   }
 );

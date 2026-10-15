@@ -1,0 +1,6 @@
+1..5
+ok 1 - browser cannot manufacture rights
+ok 2 - rights audit is append only
+ok 3 - rights audit cannot be deleted
+ok 4 - rights evidence has RLS
+ok 5 - explicit reviews require owner attestation and remain exact once

@@ -1,3 +1,4 @@
+import { sanitizeOutput } from "../lib/output-quality.js";
 // ─────────────────────────────────────────────────────────────────────
 // /api/team — read surfaces for the internal Team portal (capacity,
 // client roster, my desk).
@@ -120,7 +121,7 @@ app.get("/outputs", requireAuth, requireTeam, async (c) => {
     const workspaceId=output.brief?.brand?.workspace_id;
     return auth.persona==="super_admin"||auth.persona==="platform_admin"||auth.assignedWorkspaceIds?.has(workspaceId);
   });
-  return c.json({outputs,persona:auth.persona,permissions:[...auth.permissions]});
+  return c.json({outputs:outputs.map(sanitizeOutput),persona:auth.persona,permissions:[...auth.permissions]});
 });
 
 export default app;

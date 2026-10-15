@@ -1,0 +1,272 @@
+{
+  "label": "Cake Me — production snapshot, allow-list projection; no DB writes",
+  "brand": {
+    "id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+    "workspace_id": "c1eb77fe-4d09-4ac9-928a-5b79cc90b89a",
+    "name": "Cake-me",
+    "url": "https://thecake-me.com",
+    "industry": null,
+    "default_locale": "en"
+  },
+  "bio": {
+    "id": "f46b7cd3-b339-4ccd-881f-078866c195ba",
+    "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+    "version": 1,
+    "payload": {
+      "goals": {
+        "q2": "Expand the brand's physical footprint through new franchise locations.",
+        "q3": "Grow the B2B channel by supplying cheesecakes to hospitality professionals.",
+        "northStar": "To sweeten the world, one slice at a time, becoming the perfect excuse for happy breaks."
+      },
+      "voice": {
+        "rhythm": "Uses short, punchy, action-oriented sentences with exclamations, mixed with more descriptive phrases that evoke sensory pleasure.",
+        "register": "Playful, enthusiastic, informal, and direct, like a best friend sharing an exciting discovery.",
+        "forbidden": [
+          "formal",
+          "corporativo",
+          "distante",
+          "agresivo",
+          "negativo",
+          "aburrido",
+          "exclusivo",
+          "cliente"
+        ],
+        "signatures": [
+          "Addressing the audience directly with 'tú' and using 'nosotros' to build a sense of community.",
+          "Using playful urgency with phrases like '¡Corre, que vuelan!'.",
+          "Incorporating emojis (💛, 🩷, 🌟) and exclamations to convey genuine excitement."
+        ]
+      },
+      "visual": {
+        "type": [],
+        "avoid": [
+          "sterile, corporate product shots",
+          "formal, traditional settings",
+          "aggressive, high-pressure visuals",
+          "distant, unapproachable compositions"
+        ],
+        "imagery": [
+          "close-up of baked cheesecake texture",
+          "warm, inviting golden-brown tones",
+          "natural, soft overhead lighting",
+          "minimalist, product-focused composition",
+          "kraft paper packaging"
+        ],
+        "palette": [
+          {
+            "hex": "#161616",
+            "name": "black"
+          },
+          {
+            "hex": "#ffffff",
+            "name": "white"
+          },
+          {
+            "hex": "#ffd115",
+            "name": "yellow"
+          },
+          {
+            "hex": "#ccddcc",
+            "name": "cream"
+          },
+          {
+            "hex": "#f40041",
+            "name": "red"
+          }
+        ]
+      },
+      "missing": [
+        {
+          "why": "The specific typography is mentioned as a section in the brand guide's table of contents, but the content itself was not provided.",
+          "field": "visual.type"
+        },
+        {
+          "why": "No explicit guidelines for photography style were provided, only examples on the website.",
+          "field": "visual.imagery"
+        },
+        {
+          "why": "No explicit visual avoidance rules were provided.",
+          "field": "visual.avoid"
+        }
+      ],
+      "audience": {
+        "jtbd": [
+          "Help me find a fun, delicious, and photo-worthy dessert to share with my friends.",
+          "Give me an easy and special way to celebrate a moment, big or small.",
+          "Let me indulge in a high-quality, customizable treat that feels personal and exciting."
+        ],
+        "primary": "Young, social, and digitally-native adults (Millennials/Gen Z) in urban areas who seek out shareable, 'Instagrammable' experiences and value authentic, fun brands.",
+        "tertiary": "Customers with dietary needs, such as those seeking gluten-free options, who are looking for a high-quality treat.",
+        "secondary": "Individuals and groups celebrating special occasions (birthdays, gatherings) who need a whole cake, as well as B2B hospitality clients."
+      },
+      "identity": {
+        "founded": "2025",
+        "pillars": [
+          "Joyful Indulgence",
+          "Artisanal Quality",
+          "Genuine Connection",
+          "Memorable Experiences"
+        ],
+        "category": "Artisanal Desserts / Cheesecake Shop",
+        "positioning": "Cake-me sells artisanal cheesecakes that transform everyday moments into memorable, shareable celebrations of happiness."
+      },
+      "refusals": [
+        "Never use formal language or address customers as 'señor/a'; always speak to them as a friend.",
+        "Do not position the brand as a traditional, elegant, or exclusive patisserie.",
+        "Avoid creating aggressive or high-pressure sales promotions; our urgency is always playful and fun.",
+        "Never describe the product with generic terms like 'quality product'; use vibrant, passionate language.",
+        "Do not adopt a cold or corporate tone; we are enthusiastic, warm, and genuine.",
+        "Refuse to be just a dessert shop; we are creators of happiness and memorable moments."
+      ],
+      "strategic": {
+        "notList": [
+          "Not a formal, traditional, or elegant pastry shop.",
+          "Not an aggressive, high-pressure sales brand.",
+          "Not a cold, distant corporate entity.",
+          "Not just a product; it's an experience of happiness."
+        ],
+        "watchouts": [
+          "Maintaining brand authenticity and product quality while scaling through franchising.",
+          "Balancing playful FOMO marketing with sufficient product availability to avoid customer frustration.",
+          "Staying innovative and relevant in a crowded market of trendy, 'Instagrammable' dessert shops."
+        ]
+      },
+      "confidence": {
+        "goals.q2": {
+          "conf": 90,
+          "source": "homepage ('Franquicias Abiertas')"
+        },
+        "goals.q3": {
+          "conf": 90,
+          "source": "homepage ('Para profesionales de la Hostelería')"
+        },
+        "voice.rhythm": {
+          "conf": 80,
+          "source": "inferred from examples in uploaded brand-deck.pdf and homepage copy"
+        },
+        "audience.jtbd": {
+          "conf": 85,
+          "source": "uploaded brand-deck.pdf ('Indulgencia sin culpa'), homepage ('El plan perfecto con amigos')"
+        },
+        "visual.palette": {
+          "conf": 60,
+          "source": "inferred from website imagery and emoji use (💛🩷)"
+        },
+        "voice.register": {
+          "conf": 98,
+          "source": "uploaded brand-deck.pdf ('Tono de Voz')"
+        },
+        "goals.northStar": {
+          "conf": 98,
+          "source": "uploaded brand-deck.pdf ('Misión')"
+        },
+        "voice.forbidden": {
+          "conf": 95,
+          "source": "uploaded brand-deck.pdf ('¿Qué evitar...?')"
+        },
+        "audience.primary": {
+          "conf": 85,
+          "source": "uploaded brand-deck.pdf ('Tono de Voz', 'Experiencia para Compartir')"
+        },
+        "identity.founded": {
+          "conf": 75,
+          "source": "uploaded brand-deck.pdf (Copyright © 2025), homepage (Copyright © 2025)"
+        },
+        "identity.pillars": {
+          "conf": 95,
+          "source": "uploaded brand-deck.pdf ('Nuestra Promesa', 'Principales')"
+        },
+        "voice.signatures": {
+          "conf": 95,
+          "source": "uploaded brand-deck.pdf ('Cercanía \"De Tú a Tú\"', 'Ejemplos')"
+        },
+        "audience.tertiary": {
+          "conf": 80,
+          "source": "homepage ('Clásica (Sin Gluten)')"
+        },
+        "identity.category": {
+          "conf": 90,
+          "source": "homepage, uploaded brand-deck.pdf"
+        },
+        "strategic.notList": {
+          "conf": 98,
+          "source": "uploaded brand-deck.pdf ('Alegria Desenfadada', 'Urgencia Juguetona', 'Cercanía \"De Tú a Tú\"')"
+        },
+        "audience.secondary": {
+          "conf": 88,
+          "source": "homepage ('Celebra cada momento', 'Para profesionales de la Hostelería')"
+        },
+        "strategic.watchouts": {
+          "conf": 70,
+          "source": "inferred from goals (franchising) and voice (urgency) stated in homepage and uploaded brand-deck.pdf"
+        },
+        "identity.positioning": {
+          "conf": 95,
+          "source": "uploaded brand-deck.pdf ('Quienes somos', 'Misión')"
+        }
+      }
+    },
+    "score": 96,
+    "certified": true,
+    "self_certified": true
+  },
+  "sources": [
+    {
+      "id": "aec78e3e-f9e6-49c7-b571-789a12b4b698",
+      "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+      "kind": "file_upload",
+      "bucket": "foundations",
+      "src": "Cake-me Brand Guidelines - 2025.pdf",
+      "signals": {
+        "ext": "pdf",
+        "mime": "application/pdf"
+      },
+      "created_at": "2026-08-25T22:01:26.627694+00:00"
+    },
+    {
+      "id": "192ed447-6a9b-4394-8910-8e39c5819ae5",
+      "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "58.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png"
+      },
+      "created_at": "2026-08-25T22:01:30.630945+00:00"
+    },
+    {
+      "id": "de0cbc49-2c82-4379-9993-0176db76294d",
+      "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "53.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png"
+      },
+      "created_at": "2026-08-25T22:01:33.729741+00:00"
+    },
+    {
+      "id": "57452734-2e7f-4e28-b030-61a098743c73",
+      "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+      "kind": "file_upload",
+      "bucket": "visual",
+      "src": "56.png",
+      "signals": {
+        "ext": "png",
+        "mime": "image/png"
+      },
+      "created_at": "2026-08-25T22:01:36.541202+00:00"
+    },
+    {
+      "id": "209b4127-5a36-4240-9aea-78cbf2180a89",
+      "brand_id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+      "kind": "url_scrape",
+      "bucket": null,
+      "src": "https://thecake-me.com",
+      "signals": {},
+      "created_at": "2026-08-25T22:03:12.483329+00:00"
+    }
+  ]
+}

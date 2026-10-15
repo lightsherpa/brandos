@@ -12,7 +12,7 @@ const sb=createClient(local.API_URL,local.SERVICE_ROLE_KEY),owner=JSON.parse(awa
 const must=async query=>{const {data,error}=await query;if(error)throw error;return data;};
 const login=async(email,password)=>{const result=await createClient(local.API_URL,local.ANON_KEY).auth.signInWithPassword({email,password});if(result.error)throw result.error;return result.data.session.access_token;};
 const ownerToken=await login(owner.email,'Bio-release-test-2026!');
-const cdEmail='bio-vds-demo-director@example.test',password='Demo-only-release-2026!';
+const cdEmail='bio-demo-director@example.test',password='Demo-only-release-2026!';
 let cd=(await must(sb.from('users').select('id').eq('email',cdEmail).maybeSingle()));
 if(!cd){const created=await sb.auth.admin.createUser({email:cdEmail,password,email_confirm:true});if(created.error)throw created.error;cd=created.data.user;}
 let member=await must(sb.from('team_members').select('id').eq('user_id',cd.id).maybeSingle());
@@ -53,7 +53,7 @@ const {compileBio}=await import('../server/src/inngest/functions/compile-bio.js'
 const {CERTIFICATION_SECTIONS}=await import('../server/src/lib/certification-review.js');
 const {loadBioForRun,loadBioForBriefing}=await import('../server/src/lib/load-brand-bio.js');
 const results=[];
-await mkdir('output/bio-vds',{recursive:true});await mkdir('public/demo/bio',{recursive:true});
+await mkdir('output/bio-discovery',{recursive:true});await mkdir('public/demo/bio',{recursive:true});
 for(let n=1;n<=3;n++){
  const started=Date.now(),discoveryId=randomUUID();
  const brand=await must(sb.from('brands').insert({workspace_id:owner.workspaceId,name:`Demo bakery · synthetic hero ${n}`,url:'https://demo-brand.test'}).select('id').single());
@@ -92,9 +92,9 @@ for(let n=1;n<=3;n++){
  console.log(`PASS synthetic hero ${n}: ${seconds.toFixed(2)}s; Owner/CD/acceptance gates and receipts verified`);
 }
 // Real live results remain unreviewed. Do not synthesize a Geoking BIO.
-const cake=JSON.parse(await readFile('output/bio-vds/cake-me-live.json','utf8'));
+const cake=JSON.parse(await readFile('output/bio-discovery/cake-me-live.json','utf8'));
 const publicCakePayload=structuredClone(cake.bio.payload);for(const source of publicCakePayload.visualEvidence?.sources||[])delete source.screenshotUrl;
 await writeFile('public/demo/bio/cake-me.json',JSON.stringify({brandName:'Cake-me · saved live test',bio:{id:'cake-me-live-test',version:cake.bio.version,payload:publicCakePayload,certified:false,self_certified:false}},null,2)+'\n');
 await writeFile('public/demo/bio/geoking.json',JSON.stringify({brandName:'Geoking',unavailable:true,message:'Source retrieval failed. No BIO was generated.'},null,2)+'\n');
-await writeFile('output/bio-vds/demo-results.json',JSON.stringify(results,null,2));
+await writeFile('output/bio-discovery/demo-results.json',JSON.stringify(results,null,2));
 globalThis.fetch=originalFetch;

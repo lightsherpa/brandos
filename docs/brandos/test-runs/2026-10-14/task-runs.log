@@ -1,0 +1,6 @@
+Loaded 55 agents from portal-data.js
+Departments: Strategy, Concept, Copy, Visual, Web & UX, Motion & Sound, Research & Ops
+social_post 202 {"id":"2266dfe5-827d-4be0-936c-fe25f54b1f3e","eta_s":150,"stage":"Writing"}
+social_post {"elapsedSeconds":95.942,"status":"flagged","stage":"Ready","error":null}
+email_sequence 202 {"id":"ef1db6fe-7453-43c1-9cd3-2110ac5de5d6","eta_s":60,"stage":"Writing"}
+email_sequence {"elapsedSeconds":29.14,"status":"ready","stage":"Ready","error":null}

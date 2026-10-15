@@ -1,3 +1,4 @@
+import { crewCanvasEnabled } from "../crew-canvas.js";
 // Email sequence code checks (CREWS §2 step 4).
 import { result, bannedCheck, linksCheck, altCheck, htmlSizeCheck, contrastCheck, isHttpsUrl, wordCount } from "./common.js";
 
@@ -11,7 +12,7 @@ export function checkEmailCopy(email, { banned = [] } = {}) {
   return [
     result("LEN_SUBJECT", subjectOk, `Subject ${subject.length}/${EMAIL_LIMITS.subjectSoft} chars${subject.length > EMAIL_LIMITS.subjectHard ? " (over hard limit 70)" : ""}`),
     result("LEN_PREHEADER", pre.length >= EMAIL_LIMITS.preheaderMin && pre.length <= EMAIL_LIMITS.preheaderMax, `Preheader ${pre.length} chars (40–100)`),
-    result("LEN_HEADLINE", String(email?.headline || "").length <= EMAIL_LIMITS.headline, `Headline ${String(email?.headline || "").length}/${EMAIL_LIMITS.headline} chars`),
+    result("LEN_HEADLINE", (!crewCanvasEnabled() || !!String(email?.headline || "").trim()) && String(email?.headline || "").length <= EMAIL_LIMITS.headline, `Headline ${String(email?.headline || "").length}/${EMAIL_LIMITS.headline} chars`),
     result("LEN_BODY", words > 0 && words <= EMAIL_LIMITS.bodyWords, `Body ${words}/${EMAIL_LIMITS.bodyWords} words`),
     result("CTA", !!email?.cta?.label && isHttpsUrl(email?.cta?.url), email?.cta?.label ? `CTA "${email.cta.label}" → ${email.cta.url}` : "No primary CTA"),
     result("SUBJECT_PREHEADER_DISTINCT", subject.trim().toLowerCase() !== pre.trim().toLowerCase() && !pre.toLowerCase().startsWith(subject.toLowerCase()), "Subject and preheader differ"),
@@ -23,7 +24,7 @@ export function checkEmailHtml({ html, mjmlErrors = [], tokens }) {
   const ctas = (String(html).match(/class="cta-primary"/g) || []).length;
   return [
     result("MJML", mjmlErrors.length === 0 && !!html, mjmlErrors.length ? `MJML errors: ${mjmlErrors.length}` : "MJML compiled with 0 errors", "hard", "none"),
-    htmlSizeCheck(html, EMAIL_LIMITS.htmlBytes),
+    { ...htmlSizeCheck(html, EMAIL_LIMITS.htmlBytes), reason: `Email transport: ${htmlSizeCheck(html, EMAIL_LIMITS.htmlBytes).reason}` },
     altCheck(html),
     linksCheck(html),
     result("ONE_PRIMARY_CTA", ctas === 1, `${ctas} primary CTA(s)`, "hard", "none"),

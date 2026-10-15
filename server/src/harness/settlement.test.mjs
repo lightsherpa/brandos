@@ -64,6 +64,11 @@ test("credits: happy path reserves before work, attributes usage, finalizes with
   assert.equal(seen.runId, "runs-1"); assert.equal(seen.workspaceId, "w");
   const fin = log.find(([op, fn]) => op === "rpc" && fn === "finalize_run_atomic")[2];
   assert.equal(fin.p_output_status, "needs_review"); assert.equal(fin.p_ledger_kind, "run_flagged"); assert.equal(fin.p_cost_usd, 0.25);
+  assert.equal(fin.p_model_used, "m1");
+  const stored = JSON.parse(fin.p_output_body);
+  assert.equal(stored.snapshot.metrics.models, undefined);
+  assert.equal(stored.snapshot.metrics.ledger, undefined);
+  assert.equal(stored.snapshot.metrics.cost, undefined);
   assert.ok(!log.some(([op]) => op === "release"));
 });
 
@@ -98,7 +103,7 @@ test("flag: TASKS_ENABLED off → /api/tasks 404 except /enabled", async () => {
   const r = await app.request("/", { method: "POST", body: "{}" });
   assert.equal(r.status, 404); assert.equal((await r.json()).code, "TASKS_DISABLED");
   assert.deepEqual(await (await app.request("/enabled")).json(), { enabled: false });
-  process.env.TASKS_ENABLED = "true";
+  process.env.TASKS_ENABLED = "1";
   assert.deepEqual(await (await app.request("/enabled")).json(), { enabled: true });
   assert.equal((await app.request("/x")).status, 401);   // gate open → auth applies
   delete process.env.TASKS_ENABLED;

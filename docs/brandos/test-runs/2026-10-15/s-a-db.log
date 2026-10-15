@@ -1,0 +1,14 @@
+✔ atomic replacement retains old BIO/source identities, no certification or premature review (646.808667ms)
+✔ two concurrent retries append once, identical request returns exact row (161.313541ms)
+✔ distinct concurrent requests on same expected version cannot both append (150.292375ms)
+✔ failed multi-source transaction rolls back rights and version; tenants/owner/rights fail closed (355.595625ms)
+✔ after exact owner attestation concurrent review triggers create once including terminal jobs (402.436667ms)
+✔ new sources may not relabel prior refs as new; browser cannot forge RPC or mutate rights audit (351.050833ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2115.891959

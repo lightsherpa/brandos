@@ -1,0 +1,86 @@
+{
+  "api": "http://127.0.0.1:8796",
+  "tasks": [
+    {
+      "id": "22f62d16-e33f-4ecc-bf4a-f019ce8b82e6",
+      "status": "ready",
+      "recovered": true,
+      "version": 2,
+      "sourceIds": [
+        "57452734-2e7f-4e28-b030-61a098743c73",
+        "de0cbc49-2c82-4379-9993-0176db76294d",
+        "192ed447-6a9b-4394-8910-8e39c5819ae5"
+      ],
+      "items": [
+        {
+          "index": 0,
+          "status": "ready",
+          "stable": true,
+          "htmlBytes": null,
+          "checksPassed": true
+        }
+      ],
+      "elapsedSeconds": 0.231,
+      "costUsd": 0
+    },
+    {
+      "id": "b7cd7917-7e74-439a-9d15-f50afdfa3889",
+      "status": "ready",
+      "recovered": true,
+      "version": 2,
+      "sourceIds": [
+        "57452734-2e7f-4e28-b030-61a098743c73",
+        "de0cbc49-2c82-4379-9993-0176db76294d",
+        "192ed447-6a9b-4394-8910-8e39c5819ae5"
+      ],
+      "items": [
+        {
+          "index": 0,
+          "status": "ready",
+          "stable": true,
+          "htmlBytes": 525122,
+          "transport": {
+            "html_bytes": 12386,
+            "delivery_ready": false,
+            "requires_asset_hosting": true,
+            "font_mode": "fallback_stack",
+            "purpose": "email_transport_draft"
+          },
+          "checksPassed": true
+        },
+        {
+          "index": 1,
+          "status": "ready",
+          "stable": true,
+          "htmlBytes": 525112,
+          "transport": {
+            "html_bytes": 12376,
+            "delivery_ready": false,
+            "requires_asset_hosting": true,
+            "font_mode": "fallback_stack",
+            "purpose": "email_transport_draft"
+          },
+          "checksPassed": true
+        },
+        {
+          "index": 2,
+          "status": "ready",
+          "stable": true,
+          "htmlBytes": 525105,
+          "transport": {
+            "html_bytes": 12369,
+            "delivery_ready": false,
+            "requires_asset_hosting": true,
+            "font_mode": "fallback_stack",
+            "purpose": "email_transport_draft"
+          },
+          "checksPassed": true
+        }
+      ],
+      "elapsedSeconds": 0.167,
+      "costUsd": 0
+    }
+  ],
+  "pngHttpStatus": 200,
+  "pngType": "image/png"
+}

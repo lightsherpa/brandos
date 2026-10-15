@@ -1,3 +1,4 @@
+import { isAllowedAssetUrl } from "../lib/reference-bridge.js";
 // Brand Core Layer 1 pack (CREWS §0.1): logo, palette roles, typography,
 // voice do/don't + examples, refusals and reference images. Loaded first by
 // every task. Pure: callers pass the normalized bio + resolved references.
@@ -54,14 +55,16 @@ export function buildLayer1({ brand = {}, bio = {}, refusals = [], references = 
   const voice = bio.voice || {};
   const roles = paletteRoles(v.palette);
   const fonts = fontRoles(v.type);
-  const logo = v.logo?.url ? { url: v.logo.url, dark_url: v.logo.dark_url || null, source: v.logo.source || null, conf: v.logo.conf ?? null } : null;
-  const refs = (references || []).filter((r) => /^https:\/\//.test(r?.url || "")).slice(0, 3).map((r, i) => ({ id: r.id || `ref${i + 1}`, url: r.url, role: r.role || "inspiration", source: r.source || "brand_core" }));
+  const logo = v.logo?.url ? { url: v.logo.url, dark_url: v.logo.dark_url || null, sourceId: v.logo.sourceId || null, source: v.logo.source || null, conf: v.logo.conf ?? null } : null;
+  const refs = (references || []).filter((r) => isAllowedAssetUrl(r?.url || "")).slice(0, 3).map((r, i) => ({ id: r.id || `ref${i + 1}`, url: r.url, role: r.role || "inspiration", source: r.source || "brand_core" }));
   return {
     brand: { id: brand.id || null, name: brand.name || "Brand", url: brand.url || null },
     logo,
     palette: roles,
     swatches: (v.palette || []).filter((p) => HEX.test(p?.hex || "")).map((p) => ({ hex: p.hex, name: p.name || "", role: p.role || "" })),
     fonts,
+    google_fonts: (v.type || []).filter(t => t.provider === "google" && !t.sourceId).map(t => ({family:cleanFamily(t.family),provider:"google",weight:t.weight || "400",style:t.style || "normal",...(Array.isArray(t.weights)?{weights:t.weights}:{})})),
+    font_assets: (v.type || []).filter(t => t.url && t.sourceId && t.license && t.suggest).map(t => ({ family: cleanFamily(t.family), url: t.url, sourceId: t.sourceId, license: t.license, license_reference: t.suggest, rights_confirmed: t.rights_confirmed === true, weight: t.weight || "400", style: t.style || "normal" })),
     imagery: Array.isArray(v.imagery) ? v.imagery.slice(0, 6) : [],
     avoid: Array.isArray(v.avoid) ? v.avoid.slice(0, 6) : [],
     voice: {

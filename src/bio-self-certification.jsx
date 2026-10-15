@@ -6,10 +6,14 @@ import {CERTIFICATION_SECTIONS} from '../server/src/lib/certification-review.js'
 import {computeFocus} from '../server/src/lib/bio-focus.js';
 import {selfCertScoreReport} from '../server/src/lib/self-cert-floor.js';
 import './bio-self-certification.css';
+import { reviewCopy,reviewText } from './certify/review-copy.js';
+import { certifyUxEnabled } from './certify/ux-flags.js';
+import {bookCopy} from './locales/brand-book-copy.js';
 
-export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,renderSection,initiallyOpen=false,onClose}){
+export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,renderSection,initiallyOpen=false,onClose,go}){
  const {t}=useLocale();
  const [open,setOpen]=React.useState(initiallyOpen);
+ if(certifyUxEnabled())return null;
  const foundation=foundationStatus(bio.payload,{logoRights:bio.logoRights});
  if(!foundation.certifiable)return <span className="bio-cert-receipt foundation-incomplete" role="status">{foundation.logoStatus==='needs_rights'&&foundation.missing.length===1?'Foundation incomplete · confirm rights to use the logo':'Foundation incomplete · add logo, primary colour and display font'}</span>;
  if(bio.self_certified&&!(bio.client_acceptance_required&&!bio.client_accepted_at))return <span className="bio-cert-receipt">{t('discovery.selfCert.attestedBold')} · Brand Core v{bio.version}</span>;
@@ -18,8 +22,9 @@ export function BioSelfCertification({brandId,brandName,bio,blocked,onDone,rende
   {open&&<CertificationDialog key={bio.id} {...{brandId,brandName,bio,renderSection,onDone}} onClose={()=>{setOpen(false);onClose?.();}}/>}
  </>;
 }
-function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection}){
- const {t}=useLocale();
+export function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection,embedded=false}){
+ const {t,locale}=useLocale();const copy=reviewCopy(locale),actionCopy=bookCopy[locale]||bookCopy.en;
+ const modern=certifyUxEnabled();
  const ref=React.useRef(null);
  const [step,setStep]=React.useState(0);
  const [section,setSection]=React.useState('identity');
@@ -35,6 +40,7 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
  const focusable=root=>[...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')];
  React.useEffect(()=>{
   const d=ref.current;
+  if(embedded)return;
   const previous=document.activeElement;
   d.showModal();
   const items=focusable(d);
@@ -75,12 +81,14 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
    setReceipt(j);
   }catch(e){setError(e.message);}finally{setBusy(false);}
  };
+ const confirmCurrent=()=>{setReviewed(prev=>prev.includes(section)?prev:[...prev,section]);const next=CERTIFICATION_SECTIONS.find(s=>s!==section&&!reviewed.includes(s));if(next)setSection(next);};
  const label=s=>t('discovery.tab.'+(s==='positioning'?'competitive':s));
- return <dialog ref={ref} className="bio-cert-dialog" role="dialog" aria-modal="true" aria-labelledby="bio-cert-title" tabIndex={-1} onCancel={e=>{e.preventDefault();close();}}>
-  <header><div><span className="bio-cert-kicker">{t('discovery.certification.kicker')}</span><h2 id="bio-cert-title">{t(receipt?'discovery.certification.success':step?'discovery.certification.confirm':'discovery.certification.review')}</h2></div><button type="button" className="bio-cert-close" disabled={busy} aria-label={t('discovery.certification.close')} onClick={close}>×</button></header>
+ const Container=embedded?'section':'dialog';
+ return <Container ref={ref} className={embedded?'bio-cert-dialog bio-cert-inline':'bio-cert-dialog'} role={embedded?'region':'dialog'} aria-modal={embedded?undefined:'true'} aria-labelledby="bio-cert-title" tabIndex={-1} onCancel={e=>{e.preventDefault();close();}}>
+  <header><div><span className="bio-cert-kicker">{t('discovery.certification.kicker')}</span><h2 id="bio-cert-title">{embedded&&!receipt?(step?t('discovery.certification.confirm'):'Brand Core'):t(receipt?'discovery.certification.success':step?'discovery.certification.confirm':'discovery.certification.review')}</h2></div><button type="button" className="bio-cert-close" disabled={busy} aria-label={t('discovery.certification.close')} onClick={close}>×</button></header>
   <div className="bio-cert-meta"><strong>{brandName}</strong><span>Brand Core v{bio.version}</span></div>
   {receipt?<>
-   <div className="bio-cert-body"><p>{t(accepting?'discovery.certification.acceptedText':'discovery.certification.successText')}</p>{receipt.reviewQueued===false&&<p role="status">{t('discovery.certification.queuePending')}</p>}<dl className="bio-cert-record"><dt>{t('discovery.certification.account')}</dt><dd>{window.CI_USER?.name||window.CI_USER?.email||t('discovery.certification.signedIn')}</dd><dt>{t('discovery.certification.recorded')}</dt><dd>{new Date(receipt.attestedAt).toLocaleString()}</dd></dl></div>
+   <div className="bio-cert-body"><p>{embedded?reviewText('Your confirmation is recorded. You can now use this Brand Core and request changes from here.',locale):t(accepting?'discovery.certification.acceptedText':'discovery.certification.successText')}</p>{receipt.reviewQueued===false&&<p role="status">{t('discovery.certification.queuePending')}</p>}<dl className="bio-cert-record"><dt>{t('discovery.certification.account')}</dt><dd>{window.CI_USER?.name||window.CI_USER?.email||t('discovery.certification.signedIn')}</dd><dt>{t('discovery.certification.recorded')}</dt><dd>{new Date(receipt.attestedAt).toLocaleString()}</dd></dl></div>
    <footer><button className="btn btn--primary" onClick={()=>{onClose();onDone?.();}}>{t('discovery.certification.done')}</button></footer>
   </>:<>
    <ol className="bio-cert-steps"><li aria-current={step===0?'step':undefined}>01 {t('discovery.certification.reviewStep')}</li><li aria-current={step===1?'step':undefined}>02 {t('discovery.certification.confirmStep')}</li></ol>
@@ -98,17 +106,24 @@ function CertificationDialog({brandId,brandName,bio,onDone,onClose,renderSection
     </section>}
     {!step?<>
      <div className="bio-cert-review-grid"><nav aria-label={t('discovery.certification.sections')}>{CERTIFICATION_SECTIONS.map(s=><button type="button" key={s} aria-current={section===s?'page':undefined} onClick={()=>setSection(s)}><span>{label(s)}</span><span>{reviewed.includes(s)?'✓':'—'}</span></button>)}</nav>
-      <section className="bio-cert-preview" aria-label={label(section)}><h3>{label(section)}</h3>{renderSection(section)}<label className="bio-cert-check"><input type="checkbox" checked={reviewed.includes(section)} onChange={e=>setReviewed(prev=>e.target.checked?[...prev,section]:prev.filter(s=>s!==section))}/><span>{t('discovery.certification.reviewed',{section:label(section)})}</span></label></section></div>
+      <section className="bio-cert-preview" aria-label={label(section)}><h3>{label(section)}</h3>{modern&&<div className="bio-cert-section-action"><div><strong>{label(section)}</strong><small>{reviewed.length} / {CERTIFICATION_SECTIONS.length} {actionCopy.progress}</small></div><button className="btn btn--primary" onClick={confirmCurrent}>{reviewed.includes(section)?actionCopy.recorded:actionCopy.next} {reviewed.includes(section)?"✓":"→"}</button>{reviewed.includes(section)&&<button className="btn btn--ghost" onClick={()=>setReviewed(prev=>prev.filter(s=>s!==section))}>{actionCopy.unconfirm}</button>}</div>}{renderSection(section)}{!modern&&<label className="bio-cert-check"><input type="checkbox" checked={reviewed.includes(section)} onChange={e=>setReviewed(prev=>e.target.checked?[...prev,section]:prev.filter(s=>s!==section))}/><span>{t('discovery.certification.reviewed',{section:label(section)})}</span></label>}</section></div>
      {issues.length>0&&<details className="bio-cert-issues"><summary>{t('discovery.certification.issues',{count:issues.length})}</summary><p>{t('discovery.certification.issuesText')}</p><ul>{issues.map(i=><li key={i.field}>{i.label} · {i.status==='missing'?t('discovery.certification.missing'):t('discovery.certification.verify')}</li>)}</ul></details>}
      {blocking.length>0&&<p role="alert" className="bio-cert-error">{t('discovery.selfCert.fillBefore',{fields:blocking.map(i=>i.label).join(', ')})}</p>}
     </>:<>
      <div className="bio-cert-record"><span>{t('discovery.certification.account')}</span><strong>{window.CI_USER?.name||window.CI_USER?.email||t('discovery.certification.signedIn')}</strong><span>{t('discovery.certification.reviewCount',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</span></div>
      <fieldset className="bio-cert-declarations"><legend>{t('discovery.certification.declarations')}</legend>{[['authority','authority'],['reflects','reflects'],['aspirationalMarked','aspirational']].map(([key,msg])=><label className="bio-cert-check" key={key}><input type="checkbox" disabled={busy} checked={statements[key]} onChange={e=>setStatements(prev=>({...prev,[key]:e.target.checked}))}/><span>{t('discovery.statement.'+msg)}</span></label>)}</fieldset>
-     <p className="bio-cert-consequence">{t(accepting?'discovery.certification.acceptConsequence':'discovery.certification.consequence')}</p>
+     <p className="bio-cert-consequence">{embedded?reviewText('This confirms the version you reviewed. Future changes create a new version.',locale):t(accepting?'discovery.certification.acceptConsequence':'discovery.certification.consequence')}</p>
     </>}
     {error&&<p role="alert" className="bio-cert-error">{error}</p>}
    </div>
-   <footer><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&(blocking.length>0||below))} onClick={()=>setStep(1)}>{t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)||below} onClick={submit}>{t(busy?'discovery.selfCert.submitting':accepting?'discovery.certification.acceptChanges':'discovery.certification.submit')}</button>}</footer>
+   <footer className={modern?"bio-cert-primary-footer":undefined}><button className="btn btn--ghost" disabled={busy} onClick={()=>step?setStep(0):close()}>{t(step?'discovery.tour.back':'discovery.common.cancel')}</button>{!step?<button className="btn btn--primary" disabled={!allReviewed||(!accepting&&(blocking.length>0||below))} onClick={()=>setStep(1)}>{modern?actionCopy.finish:t('discovery.certification.continue',{count:reviewed.length,total:CERTIFICATION_SECTIONS.length})}</button>:<button className="btn btn--primary" disabled={busy||!Object.values(statements).every(v=>v===true)||below} onClick={submit}>{embedded&&!busy?copy.certify:t(busy?'discovery.selfCert.submitting':accepting?'discovery.certification.acceptChanges':'discovery.certification.submit')}</button>}</footer>
   </>}
- </dialog>;
+ </Container>;
+}
+
+
+// Kept so older imports cannot mount the claims review. Owners read Brand Book.
+export function OwnerCertifyView({go}){
+ React.useEffect(()=>{go?.('brand-book');},[go]);
+ return null;
 }

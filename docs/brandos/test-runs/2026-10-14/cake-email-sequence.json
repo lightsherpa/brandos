@@ -1,0 +1,83 @@
+{
+  "httpStatus": 200,
+  "elapsedSeconds": 61.783,
+  "done": {
+    "runId": "c1e4031b-ad52-4143-9604-ce01d66f4804",
+    "briefId": "f584840d-8ece-43a4-bbcc-ad459d8a2668",
+    "outputId": "e5fa11fb-76e9-4f61-8738-eb606d0117e4",
+    "usage": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "prompt_tokens": 8895,
+      "completion_tokens": 6000,
+      "cached_tokens": 4150
+    },
+    "qa": {
+      "passed": false,
+      "status": "needs_review",
+      "voice_match": null,
+      "violations": [
+        "qa_unparseable_response"
+      ]
+    },
+    "output": {
+      "text": "Email 1: Welcome\n\nSubject: Hi, friend! Your next happy break starts here 💛\nPreview: Colourful artisan cakes, made for celebrating.\n\nHeadline: Hi, friend! Let's make a moment sweeter.\n\nBody: We're so happy you're here! Cake Me makes artisan cheesecakes that turn everyday moments into little celebrations. Colourful, joyful and made to share with your people 🌟 Over the next two emails, we'll help you find the one that fits your moment.\n\nBullets: none\n\nCTA label: Meet the cakes (https://thecake-me.com)\n\nFooter note: Cake Me: sweetening the world, one slice at a time 💛\n[Unsubscribe and legal line to be supplied by Cake Me. It is",
+      "status": "needs_review"
+    },
+    "brand": {
+      "id": "35f265f0-0546-4a9a-b793-a49887ad7125",
+      "name": "Cake-me",
+      "bioVersion": 2,
+      "certifiedBy": "2bca6687-b392-4d74-9bb0-3f81f75ae5b5"
+    },
+    "spec": {
+      "id": "a13",
+      "name": "Email Sequence",
+      "version": 1
+    },
+    "credits_debited": 12
+  },
+  "stored": {
+    "id": "c1e4031b-ad52-4143-9604-ce01d66f4804",
+    "brief_id": "f584840d-8ece-43a4-bbcc-ad459d8a2668",
+    "specialist_id": "a13",
+    "spec_version": 1,
+    "bio_version": 2,
+    "model_used": "claude-sonnet-5-5",
+    "status": "completed",
+    "prompt_tokens": 8895,
+    "completion_tokens": 6000,
+    "cached_tokens": 4150,
+    "cost_usd": 0.0722,
+    "latency_ms": 61538,
+    "started_at": "2026-10-14T12:59:31.309+00:00",
+    "ended_at": "2026-10-14T13:00:32.848213+00:00",
+    "created_at": "2026-10-14T12:59:31.322548+00:00",
+    "output_locale": "en",
+    "cache_creation_tokens": 2075
+  },
+  "outputs": [
+    {
+      "id": "e5fa11fb-76e9-4f61-8738-eb606d0117e4",
+      "run_id": "c1e4031b-ad52-4143-9604-ce01d66f4804",
+      "brief_id": "f584840d-8ece-43a4-bbcc-ad459d8a2668",
+      "kind": "copy",
+      "body": {
+        "text": "Email 1: Welcome\n\nSubject: Hi, friend! Your next happy break starts here 💛\nPreview: Colourful artisan cakes, made for celebrating.\n\nHeadline: Hi, friend! Let's make a moment sweeter.\n\nBody: We're so happy you're here! Cake Me makes artisan cheesecakes that turn everyday moments into little celebrations. Colourful, joyful and made to share with your people 🌟 Over the next two emails, we'll help you find the one that fits your moment.\n\nBullets: none\n\nCTA label: Meet the cakes (https://thecake-me.com)\n\nFooter note: Cake Me: sweetening the world, one slice at a time 💛\n[Unsubscribe and legal line to be supplied by Cake Me. It is",
+        "rationale": null
+      },
+      "asset_url": null,
+      "status": "needs_review",
+      "rationale": "qa_unparseable_response",
+      "created_at": "2026-10-14T13:00:32.848213+00:00",
+      "locale": "en",
+      "workflow_status": "draft",
+      "submitted_by": null,
+      "internal_reviewed_by": null,
+      "internal_reviewed_at": null,
+      "client_reviewed_by": null,
+      "client_reviewed_at": null
+    }
+  ],
+  "usage": null
+}

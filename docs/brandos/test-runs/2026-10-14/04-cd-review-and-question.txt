@@ -1,0 +1,44 @@
+BrandOS
+Team
+Review desk
+Job queue
+Craft polish
+Capacity
+Clients
+Account
+La Mesa team / Creative Director
+Certify
+1
+← Job
+Certify · Cake-me · Version 2
+Refresh evidence
+Brand in 60 seconds
+Cake-me
+
+Cake-me sells artisanal cheesecakes that transform everyday moments into memorable, shareable celebrations of happiness.
+
+primary
+#FFD115
+ink
+#3F3F3F
+surface
+#FFFFFF
+accent
+#FF4375
+
+Aa · Fraunces
+Display
+
+Aa · Lato
+Body
+
+Aa · Inter
+Label
+
+31 claims · 9 to confirm · 0 conflicting
+
+File
+Fraunces.ttf
+logo-wordmark-ink.png
+logo-wordmark-on-dark.png
+Start review

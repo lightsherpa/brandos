@@ -11,7 +11,9 @@ import briefs from "./routes/briefs.js";
 import discovery from "./routes/discovery.js";
 import discoverySession from "./routes/discovery-session.js";
 import discoveryDelegation from "./routes/discovery-delegation.js";
-import steward from "./routes/steward.js";
+import steward, {requireSteward} from "./routes/steward.js";
+import {createReviewProgressRoutes} from "./routes/review-progress.js";
+import certChat from "./routes/cert-chat.js";
 import runs from "./routes/foundation-run-gateway.js";
 import outputs from "./routes/outputs.js";
 import craft from "./routes/craft.js";
@@ -25,6 +27,7 @@ import access from "./routes/access.js";
 import opex from "./routes/opex.js";
 import teamPortal from "./routes/team-portal.js";
 import tasks from "./routes/tasks.js";
+import taskExports from "./routes/task-export.js";
 import { inngestHandler } from "./routes/inngest.js";
 import { applyPerimeter, healthPayload, resolveAllowedOrigin } from "./lib/http-policy.js";
 import { redactingLogPrinter } from "./lib/log-redact.js";
@@ -67,7 +70,9 @@ app.route("/api/briefs", briefs);
 app.route("/api/discovery", discovery);
 app.route("/api/discovery", discoverySession);      // /session/:brandId, /session/:brandId/attest
 app.route("/api/discovery", discoveryDelegation);   // /delegation, /delegation/:token
+app.route("/api/steward", createReviewProgressRoutes(requireSteward));
 app.route("/api/steward", steward);
+app.route("/api/cert-chat", certChat);
 app.route("/api/runs", runs);
 app.route("/api/outputs", outputs);
 app.route("/api/craft", craft);
@@ -81,6 +86,7 @@ app.route("/api/access", access);
 app.route("/api/opex", opex);
 app.route("/api/team", teamPortal);
 app.route("/api/tasks", tasks);
+app.route("/api/task-exports", taskExports);
 // Inngest serve — local dev server auto-discovers this endpoint
 // (GET introspection + POST function invocations + PUT registration).
 app.on(["GET", "POST", "PUT"], "/api/inngest", inngestHandler);

@@ -474,7 +474,7 @@
       "close": "Close"
     },
     "spec": {
-      "eyebrow": "L2 · 33 senior specialists",
+      "eyebrow": "L2 · {count} senior specialists",
       "title": "The department, on shift.",
       "sub": "Brandolph reads the brief. The specialists do the work. Each one routes to the model best suited to the job — visible, auditable, paid out of the same credit pool.",
       "liveCount": "{live} live · {soon} coming soon",
@@ -713,7 +713,7 @@
       "saveEdit": "Save edit",
       "saved": "Saved",
       "theBrief": "The brief",
-      "sharpened": "Sharpened (a02)",
+      "sharpened": "Sharpened brief",
       "brandQa": "Brand QA",
       "voiceQa": "Voice QA",
       "output": "Output",
@@ -738,14 +738,38 @@
       "certifiedBy": "certified by"
     },
     "rerun": {
-      "noteOpus": "Premium — deepest reasoning",
-      "noteSonnet": "Balanced workhorse",
-      "noteHaiku": "Fast + cheap",
-      "noteGeminiPro": "Long-context synthesis",
-      "noteGeminiFlash": "Cheapest",
-      "noteFluxPro": "Premium hero quality",
-      "noteFluxSchnell": "Fast draft (13× cheaper)",
-      "noteRecraft": "Vector / illustration"
+      "premium": {
+        "label": "Premium",
+        "note": "Deepest reasoning"
+      },
+      "standard": {
+        "label": "Standard",
+        "note": "Balanced quality"
+      },
+      "fast": {
+        "label": "Fast",
+        "note": "Quick turnaround, fewer credits"
+      },
+      "longContext": {
+        "label": "Long context",
+        "note": "Synthesises long material"
+      },
+      "economy": {
+        "label": "Economy",
+        "note": "Fewest credits"
+      },
+      "imagePremium": {
+        "label": "Premium image",
+        "note": "Hero quality"
+      },
+      "imageDraft": {
+        "label": "Draft image",
+        "note": "Fast draft, fewer credits"
+      },
+      "illustration": {
+        "label": "Illustration",
+        "note": "Vector / illustration"
+      }
     },
     "view": {
       "notFound": "Brief not found",
@@ -860,8 +884,8 @@
       "toolsPlaceholder": "e.g. Exa search, image generation",
       "refusalsLabel": "Refusals · won't do (on top of brand rules)",
       "refusalsPlaceholder": "A hard rule this specialist won't break",
-      "routingCost": "Routing & cost",
-      "model": "Model",
+      "routingCost": "Quality & credits",
+      "model": "Quality tier",
       "creditsPerRun": "Credits / run",
       "livePrompt": "Live composed prompt",
       "testTab": "Test · dry run + QA gate",
@@ -1563,6 +1587,15 @@
       "preserved": "No Brand Core content or certification actions are shown until the brand and source identity are resolved.",
       "retry": "Check again",
       "sourcesFor": "Sources for {name}. A different brand needs its own record."
+    },
+    "reviewGate": {
+      "waiting": "Waiting on: {reasons}",
+      "score": "Confidence: {score}/{minScore}. Creative Director review will queue automatically when these checks pass.",
+      "LOGO_RIGHTS_UNCONFIRMED": "confirm logo rights",
+      "LOGO_REQUIRED": "add an approved logo",
+      "PRIMARY_COLOUR_REQUIRED": "choose a primary colour",
+      "DISPLAY_FONT_REQUIRED": "add a licensed display font",
+      "BELOW_MIN_SCORE": "raise confidence to {minScore}"
     }
   },
   "floater": {
@@ -1660,5 +1693,29 @@
       "strategic": "Do & don’t"
     },
     "sourceFailure": "Source retrieval failed. No Brand Core was generated. Add a readable public source or upload brand materials."
+  },
+  "taskOutput": {
+    "status": {
+      "needs_review": "Needs review",
+      "approved": "Approved",
+      "failed": "Failed"
+    },
+    "finished": "Finished",
+    "elapsed": " in {seconds}s",
+    "credits": " · {count} cr",
+    "generationComplete": "Generation complete · needs review",
+    "savedBriefGuidance": "Open a saved brief to use Canvas.",
+    "openBriefs": "Open Briefs",
+    "generationFailed": "Generation failed",
+    "needsHumanReview": "Generation finished · needs human review",
+    "openLibrary": "Open saved items in Library",
+    "taskIntro": "Generate, check and review deliverables against your Brand Core. Human approval is still required.",
+    "checks": "checks",
+    "passed": "Passed",
+    "savedDeliverable": "Saved deliverable",
+    "previewItem": "Preview {index}",
+    "downloadPng": "Download PNG",
+    "savedTasks": "Saved tasks",
+    "running": "Running"
   }
 }

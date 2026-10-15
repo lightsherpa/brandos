@@ -1,3 +1,4 @@
+import { hasQuarantinedOutput } from "../lib/output-quality.js";
 // Demo-only multi-format preview. Off unless FORMAT_PREVIEW=1.
 // Not a specialist and not part of the production roster.
 //
@@ -57,7 +58,7 @@ async function loadContext(c, briefId) {
     .from("runs")
     .select("id, outputs ( id, kind, body, status )")
     .eq("brief_id", brief.id);
-  const outputs = (runs || []).flatMap((run) => run.outputs || []);
+  const outputs = (runs || []).flatMap((run) => run.outputs || []).filter(output => !hasQuarantinedOutput(output.body));
 
   const { data: decisions } = await supabaseAdmin
     .from("cert_decisions")

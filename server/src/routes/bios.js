@@ -1,3 +1,5 @@
+import { requireHumanActor } from "../middleware/human-actor.js";
+import {reconcileDiscoveryReview,reconcileLatestDiscoveryReview} from '../lib/discovery-review.js';
 import {foundationStatus,foundationError} from "../lib/brand-foundation.js";
 import {validateFoundationAssets, loadLogoRights} from "../lib/foundation-assets.js";
 import {writeAuthorizationAudit} from "../lib/audit.js";
@@ -8,7 +10,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { assignSteward } from "../lib/assign-steward.js";
 import { scoreBio } from "../lib/score-bio.js";
-import { validateUpload, isStorageRejection, contentTypeForExt, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
+import { validateUpload, isStorageRejection, contentTypeForExt, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS, referenceUploadKind, UPLOAD_TOO_LARGE_MESSAGE } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
 import {validateCertificationReview} from "../lib/certification-review.js";
 import { isWorkspaceOwner, hasPermission } from "../lib/permissions.js";
@@ -18,7 +20,21 @@ import { loadBioForRun } from "../lib/load-brand-bio.js";
 import { certifiedVisualSourceIds } from "../lib/visual-assets.js";
 import { prepareClientBioEditPayload } from "../lib/bio-evidence.js";
 
+import { validateReferenceConfirmation } from "../lib/reference-intake.js";
 const app = new Hono();
+
+// Uploads remain untrusted until the owner deliberately confirms this batch.
+app.post("/:brandId/references/confirm", requireAuth, requireHumanActor, async c => {
+ const auth=c.get("auth"), brandId=c.req.param("brandId");
+ const {data:brand,error:brandError}=await supabaseAdmin.from("brands").select("id,workspace_id").eq("id",brandId).maybeSingle();
+ if(brandError)return c.json({error:"Brand lookup unavailable"},503);
+ if(!brand || !isWorkspaceOwner(auth,brand.workspace_id))return c.json({code:"OWNER_REQUIRED",error:"Only the workspace owner can confirm reference rights"},403);
+ const body=await c.req.json().catch(()=>({}));
+ const invalid=validateReferenceConfirmation(body);if(invalid)return c.json(invalid,400);
+ const {data,error}=await supabaseAdmin.rpc("confirm_brand_references",{p_brand_id:brandId,p_user_id:auth.userId,p_expected_version:body.expectedVersion,p_request_id:body.requestId,p_source_ids:body.sourceIds,p_rights:body.rights});
+ if(error){const code=error.message?.includes("STALE_BIO_VERSION")?"STALE_BIO_VERSION":error.message?.includes("REQUEST_REUSED")?"REFERENCE_REQUEST_REUSED":error.message?.includes("REFERENCE")?"REFERENCE_INVALID":"REFERENCE_CONFIRMATION_FAILED";return c.json({code,error:"Could not confirm references; reload the current Brand Core and retry"},error.code==='40001'?409:code==='REFERENCE_CONFIRMATION_FAILED'?503:400);}
+ return c.json({bio:data,reviewQueued:false,requiresOwnerAttestation:true});
+});
 
 /* POST /api/bios/:brandId/sources
    Body: { sources: [{ kind, bucket, src, signals? }, ...] }
@@ -92,7 +108,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   // buffering the whole multipart body into memory.
   const declaredLen = Number(c.req.header("content-length") || 0);
   if (declaredLen && declaredLen > MAX_UPLOAD_BYTES + 8192) {
-    return c.json({ error: "File too large", code: "TOO_LARGE" }, 413);
+    return c.json({ error: UPLOAD_TOO_LARGE_MESSAGE, code: "TOO_LARGE" }, 413);
   }
 
   const form = await c.req.formData().catch(() => null);
@@ -106,7 +122,13 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   const filename = file.name || "upload.bin";
   // Untrusted upload — validate type + size BEFORE buffering the whole file
   // into memory (evidence is parsed by an LLM, so it is an injection surface).
-  const vUp = validateUpload({ mime: file.type, size: file.size, filename });
+  // Reference images are 5 MB; logos and commercial fonts stay at 15 MB.
+  const kind = referenceUploadKind({
+    referenceIntake: form.get("referenceIntake"),
+    referenceAppend: form.get("referenceAppend"),
+    referenceTag: form.get("referenceTag"),
+  });
+  const vUp = validateUpload({ mime: file.type, size: file.size, filename, kind });
   if (!vUp.ok) return c.json({ error: vUp.message, code: vUp.code }, vUp.code === "TOO_LARGE" ? 413 : 400);
   const ext = vUp.ext || "bin";
   const mime = contentTypeForExt(ext);   // from the validated extension, never the browser
@@ -114,20 +136,26 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   if (FONT_UPLOAD_EXTS.has(ext) && bucket !== "visual") {
     return c.json({ error: "Font assets belong in Visual references", code: "FONT_BUCKET" }, 400);
   }
+  const pendingReference = bucket === "visual" && String(form.get("referenceIntake")) === "true" && ["png","jpg","jpeg","webp"].includes(ext);
   let visualMetadata = {};
   if (bucket === "visual") {
     const metadata = validateVisualAssetMetadata({
       ext,
       assetRole: form.get("assetRole") || "inspiration",
       logoVariant: form.get("logoVariant") || "light",
-      rightsConfirmed: String(form.get("rightsConfirmed") || "") === "true",
+      rightsConfirmed: pendingReference || String(form.get("rightsConfirmed") || "") === "true",
       fontFamily: form.get("fontFamily"),
       fontUsage: form.get("fontUsage"),
       licenseType: form.get("licenseType"),
       licenseReference: form.get("licenseReference"),
+      logoUse: form.get("logoUse") || "",
+      referenceTag: form.get("referenceTag") || "",
+      referenceAppend: String(form.get("referenceAppend")) === "true",
+      fontWeight: form.get("fontWeight") || "400",
+      fontStyle: form.get("fontStyle") || "normal",
     });
     if (!metadata.ok) return c.json({ error: metadata.message, code: metadata.code }, 400);
-    visualMetadata = metadata.metadata;
+    visualMetadata = pendingReference ? {...metadata.metadata,asset_role:"canonical",rights_confirmed:false,reference_intake_pending:true} : metadata.metadata;
   }
   const safeName = filename.replace(/[^a-z0-9._-]+/gi, "_").slice(0, 80);
   const objectPath = `${workspaceId}/${brandId}/${crypto.randomUUID()}-${safeName}`;
@@ -179,7 +207,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
         upload_id: uploadRow?.id,
         ext, purpose,
         ...visualMetadata,
-        ...(bucket === "visual" ? { rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() } : {}),
+        ...(bucket === "visual" && visualMetadata.rights_confirmed === true ? { rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() } : {}),
       },
       raw_ref: objectPath,
     })
@@ -213,6 +241,9 @@ app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
     .maybeSingle();
   if (!source) return c.json({ deleted:true });
   if (source.kind !== "file_upload") return c.json({ error:"Only uploaded sources can be removed here" }, 409);
+  const {data:versions,error:historyError}=await supabaseAdmin.from("bios").select("payload").eq("brand_id",brandId);
+  if(historyError)return c.json({code:"SOURCE_HISTORY_UNAVAILABLE",error:"Could not verify historical source usage"},503);
+  if((versions || []).some(row=>certifiedVisualSourceIds(row.payload?.visual).has(sourceId)))return c.json({code:"HISTORICAL_SOURCE",error:"This source is retained in Brand Core version history and cannot be removed"},409);
   let activeBio = null;
   try {
     activeBio = (await loadBioForRun({ workspaceId, brandId })).bio;
@@ -235,7 +266,7 @@ app.delete("/:brandId/sources/:sourceId", requireAuth, async (c) => {
    from the site's inline SVG during Discovery, stored with rights unconfirmed).
    Same permission as uploading with rights. Only flips the signal; the Brand
    Core version is unchanged, and foundationStatus reads rights live. */
-app.post("/:brandId/sources/:sourceId/confirm-rights", requireAuth, async (c) => {
+app.post("/:brandId/sources/:sourceId/confirm-rights", requireHumanActor, requireAuth, requireHumanActor, async (c) => {
   const { userId } = c.get("auth");
   const brandId = c.req.param("brandId");
   const sourceId = c.req.param("sourceId");
@@ -248,12 +279,16 @@ app.post("/:brandId/sources/:sourceId/confirm-rights", requireAuth, async (c) =>
   if (findErr) return c.json({ error:"Could not load source" }, 500);
   if (!source || source.kind !== "file_upload" || source.bucket !== "visual" || !source.raw_ref) return c.json({ error:"Source not found" }, 404);
   if (source.signals?.asset_role !== "logo" || source.signals?.ext !== "png") return c.json({ error:"Only PNG logos can be confirmed here", code:"NOT_A_LOGO" }, 400);
-  if (source.signals?.rights_confirmed === true) return c.json({ ok:true, sourceId, rightsConfirmed:true, unchanged:true });
+  if (source.signals?.rights_confirmed === true) {
+    const reviewGate=await reconcileLatestDiscoveryReview(brandId);
+    return c.json({ok:true,sourceId,rightsConfirmed:true,unchanged:true,reviewGate});
+  }
   const signals = { ...source.signals, rights_confirmed:true, rights_confirmed_by:userId, rights_confirmed_at:new Date().toISOString() };
   const { error } = await supabaseAdmin.from("bio_sources").update({ signals }).eq("id", sourceId).eq("brand_id", brandId);
   if (error) return c.json({ error:"Could not confirm rights" }, 500);
   await writeAuthorizationAudit(c,{permission:"bio.propose",action:"brand.logo.confirm_rights",targetType:"bio_source",targetId:sourceId,workspaceId:brand.workspace_id,priorState:{rights_confirmed:source.signals?.rights_confirmed ?? false},newState:{rights_confirmed:true}});
-  return c.json({ ok:true, sourceId, rightsConfirmed:true });
+  const reviewGate=await reconcileLatestDiscoveryReview(brandId);
+  return c.json({ok:true,sourceId,rightsConfirmed:true,reviewGate});
 });
 
 /* Fresh private URL for an approved visual/font source. BIO payloads store a
@@ -283,8 +318,7 @@ app.get("/:brandId/sources/:sourceId/url", requireAuth, async (c) => {
 /* PATCH /api/bios/:brandId
    Body: { payload }
    Creates a NEW bios row (append-only versioned per rev-2 §5.5) with
-   certified=false. Doesn't auto-enqueue a Steward drift_check yet —
-   that's P1.5-005, deferred. Returns the new bios row. */
+   certified=false. Re-evaluates the review gate for this version. */
 app.patch("/:brandId", requireAuth, async (c) => {
   let { workspaceId, userId } = c.get("auth");
   const brandId = c.req.param("brandId");
@@ -296,17 +330,23 @@ app.patch("/:brandId", requireAuth, async (c) => {
 
   const body = await c.req.json().catch(() => ({}));
   if (!body.payload || typeof body.payload !== "object") return c.json({ error: "payload required" }, 400);
-  const { data: previousBio } = await supabaseAdmin
+  const { data: previousBio, error: previousError } = await supabaseAdmin
     .from("bios")
-    .select("payload")
+    .select("payload,version")
     .eq("brand_id", brandId)
     .order("version", { ascending: false })
     .limit(1)
     .maybeSingle();
+  if(previousError)return c.json({code:"BIO_UNAVAILABLE",error:"Could not read the current Brand Core"},503);
+  if (body.expectedVersion != null && (!Number.isInteger(body.expectedVersion) || body.expectedVersion !== previousBio?.version)) return c.json({code:"STALE_BIO_VERSION",error:"Brand Core changed; reload before saving"},409);
+  if (JSON.stringify(body.payload.visual?.references || []) !== JSON.stringify(previousBio?.payload?.visual?.references || [])) return c.json({code:"REFERENCE_CONFIRMATION_REQUIRED",error:"Use the owner reference confirmation flow to change product references"},409);
   const logoUnchanged = JSON.stringify(body.payload.visual?.logo ?? null) === JSON.stringify(previousBio?.payload?.visual?.logo ?? null);
   const foundationAssetError = await validateFoundationAssets(brandId, body.payload.visual || {}, previousBio?.payload?.visual || {}, { allowUnconfirmedLogos: logoUnchanged });
   if (foundationAssetError) return c.json({error:foundationAssetError,code:"FOUNDATION_ASSET"},400);
   const cleanPayload = prepareClientBioEditPayload(body.payload, previousBio?.payload || {});
+  // Rights lineage survives every later edit; clients cannot remove the CD gate.
+  delete cleanPayload.reference_intake;
+  if(previousBio?.payload?.reference_intake) cleanPayload.reference_intake=previousBio.payload.reference_intake;
 
   const { data: newRow, error } = await supabaseAdmin
     .rpc("append_bio_version", {
@@ -315,34 +355,15 @@ app.patch("/:brandId", requireAuth, async (c) => {
       p_score: scoreBio(cleanPayload, { logoRights: await loadLogoRights(brandId, cleanPayload).catch(() => []) }),
       p_created_by: userId,
       p_discovery_id: null,
+      p_expected_version: previousBio?.version,
     });
-  if (error) return c.json({ error: error.message }, 500);
+  if (error) return c.json({ error: error.code === "40001" ? "Brand Core changed; reload before saving" : error.message }, error.code === "40001" ? 409 : 500);
 
   if (JSON.stringify(previousBio?.payload?.visual) !== JSON.stringify(cleanPayload.visual)) await writeAuthorizationAudit(c,{permission:"brand.update",action:"brand.foundation.edit",targetType:"bio",targetId:newRow.id,workspaceId,priorState:previousBio?.payload?.visual || null,newState:cleanPayload.visual});
 
-  /* P1.5-005 — every BIO edit enqueues a drift_check Steward job so a
-     senior human re-reviews the user's edits before this version
-     becomes the active BIO for specialist runs. loadBioForRun (§5.5)
-     keeps serving the previously-certified version until this one is
-     certified. Fire-and-forget here — the route returns immediately;
-     the helper handles its own errors via the override_reason field. */
-  try {
-    const { data: stewardJob } = await supabaseAdmin
-      .from("steward_jobs")
-      .insert({
-        bio_id: newRow.id,
-        brand_id: brandId,
-        kind: "drift_check",
-        status: "queued",
-      })
-      .select("id")
-      .single();
-    if (stewardJob?.id) await assignSteward(stewardJob.id);
-  } catch (e) {
-    console.warn("[bios PATCH] failed to enqueue drift_check Steward job:", e?.message || e);
-  }
+  const reviewGate=await reconcileDiscoveryReview({brandId,bioId:newRow.id,payload:cleanPayload,kind:"drift_check"});
 
-  return c.json({ bio: newRow });
+  return c.json({bio:{...newRow,reviewGate}});
 });
 
 /* GET /api/bios/:brandId
@@ -445,7 +466,9 @@ app.get("/:brandId", requireAuth, async (c) => {
 
   let logoRights = [];
   if (bio) { try { logoRights = await loadLogoRights(brandId, bio.payload); } catch { return c.json({ error:"Could not verify logo rights", code:"RIGHTS_LOOKUP_FAILED" }, 503); } }
-  return c.json({ brand, bio:bio ? {...bio,score:scoreBio(bio.payload,{logoRights}),...foundationStatus(bio.payload,{logoRights}),logoRights} : null, reviewPending, focusCount, review, diff });
+  const {data:reviewGate,error:gateError}=bio?await supabaseAdmin.from('bio_review_gates').select('status,score,min_score,reasons,job_id,updated_at').eq('bio_id',bio.id).maybeSingle():{data:null};
+  if(gateError)return c.json({error:'Could not load review status'},503);
+  return c.json({ brand, bio:bio ? {...bio,reviewGate,score:scoreBio(bio.payload,{logoRights}),...foundationStatus(bio.payload,{logoRights}),logoRights} : null, reviewPending, focusCount, review, diff });
 });
 
 /* POST /api/bios/:brandId/self-certify
@@ -454,7 +477,7 @@ app.get("/:brandId", requireAuth, async (c) => {
    briefing. Editing the BIO creates a new (self_certified=false) version, so
    the attestation auto-lapses. Preconditions are pure: three affirmed
    statements, no missing high-importance field, minimum score. */
-app.post("/:brandId/self-certify", requireAuth, async (c) => {
+app.post("/:brandId/self-certify", requireHumanActor, requireAuth, requireHumanActor, async (c) => {
   const { workspaceId, userId } = c.get("auth");
   const brandId = c.req.param("brandId");
 
@@ -486,7 +509,7 @@ app.post("/:brandId/self-certify", requireAuth, async (c) => {
 });
 
 /* Owner acceptance of a CD-edited version uses the same deliberate v2 review. */
-app.post("/:brandId/accept-changes",requireAuth,async c=>{
+app.post("/:brandId/accept-changes",requireHumanActor,requireAuth,requireHumanActor,async c=>{
  const {workspaceId,userId}=c.get("auth"),brandId=c.req.param("brandId");
  const {data:brand}=await supabaseAdmin.from("brands").select("workspace_id").eq("id",brandId).maybeSingle();
  if(!brand||brand.workspace_id!==workspaceId)return c.json({error:"Brand not in workspace"},403);
@@ -518,15 +541,15 @@ app.post("/:brandId/request-review", requireAuth, async (c) => {
   if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Brand not in workspace" }, 403);
 
   const { data: bio } = await supabaseAdmin
-    .from("bios").select("id, version").eq("brand_id", brandId)
+    .from("bios").select("id, version, payload, self_certified").eq("brand_id", brandId)
     .order("version", { ascending: false }).limit(1).maybeSingle();
   if (!bio) return c.json({ error: "No Brand Core to review yet" }, 400);
 
-  // Idempotency: reuse an existing open job for this BIO.
+  if(bio.payload?.reference_intake && !bio.self_certified)return c.json({code:"OWNER_ATTESTATION_REQUIRED",error:"The owner must attest this exact version before review"},409);
+  // Idempotency: reuse any prior job for this exact BIO.
   const { data: existing } = await supabaseAdmin
     .from("steward_jobs").select("id, status")
     .eq("bio_id", bio.id)
-    .in("status", ["queued", "in_review", "pending_lead_review"])
     .limit(1).maybeSingle();
   if (existing) return c.json({ ok: true, jobId: existing.id, status: existing.status, reused: true });
 

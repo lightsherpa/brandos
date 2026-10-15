@@ -1,0 +1,393 @@
+{
+  "elapsedSeconds": 95.941,
+  "id": "2266dfe5-827d-4be0-936c-fe25f54b1f3e",
+  "type": "social_post",
+  "brandId": "35f265f0-0546-4a9a-b793-a49887ad7125",
+  "brief": "Create a joyful Instagram post celebrating Cake Me artisan cakes. Use the certified colours, real logo and approved product photos. Do not invent prices or offers.",
+  "heroes": false,
+  "status": "flagged",
+  "stage": "Ready",
+  "eta_s": 150,
+  "run_id": "2e247186-4ab3-40b2-b983-69589f79b7ac",
+  "credits": 12,
+  "created_at": "2026-10-14T13:02:19.750Z",
+  "created_by": "78cbcad1-c664-4583-a306-55a440ec7b1c",
+  "brand_core": {
+    "version": 2,
+    "foundation_missing": [
+      "reference_images"
+    ],
+    "references": 0,
+    "rules": 0
+  },
+  "items": [
+    {
+      "index": 0,
+      "status": "flagged",
+      "stage": "Flagged",
+      "needs_review": true,
+      "revisions": 1,
+      "copy": {
+        "angle": "Everyday moment turned celebration: a joyful, sensory close-up of the cheesecake that makes any day shareable",
+        "overlay_line": "Today deserves a cheesecake 💛",
+        "caption": "Plot twist: an ordinary day just became a celebration! 🌟\n\nGolden, creamy, baked-to-perfection cheesecake that makes you stop mid-scroll and say \"yes, please!\" That's what we make at Cake-me: artisanal cheesecakes made for sharing, laughing and turning regular moments into ones you'll remember. 💛\n\nSo grab your favourite people (or don't, we won't judge if you keep it all to yourself 😉) and make today a little sweeter. 🩷\n\nTell us: who are you sharing your next slice with? 👇",
+        "hashtags": [
+          "#CakeMe",
+          "#Cheesecake",
+          "#ArtisanalCheesecake",
+          "#ShareTheHappiness",
+          "#SweetMoments"
+        ],
+        "cta": "Tag the person you'd share a slice with!",
+        "claims": [
+          "Cake-me sells artisanal cheesecakes",
+          "Cake-me's cheesecakes turn everyday moments into memorable, shareable celebrations of happiness"
+        ],
+        "image_brief": {
+          "subject": "Close-up of a freshly baked cheesecake slice showing its creamy, golden-brown texture, resting on kraft paper packaging. Use the approved product photo as reference.",
+          "composition": "Minimalist, product-focused overhead framing. The slice sits slightly off-centre with generous clean space around it for the typeset overlay line. Close and inviting, not distant.",
+          "light": "Natural, soft overhead daylight with warm, gentle shadows that bring out the golden-brown tones.",
+          "palette_roles": [
+            "primary",
+            "accent",
+            "surface",
+            "ink"
+          ],
+          "ref_ids": [
+            "ref1"
+          ],
+          "negative": "no text, no letters, no logo, no signage, no labels, no packaging printing",
+          "aspect": "4:5"
+        }
+      },
+      "html": "<!doctype html><html><head><meta charset=\"utf-8\"><style>\nhtml,body{margin:0;background:transparent}\n.post{position:relative;width:1080px;height:1350px;overflow:hidden;background:#FFFFFF;font-family:'Fraunces', Helvetica, Arial, sans-serif}\n.post .img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}\n.post .bar{position:absolute;left:0;right:0;bottom:0;height:8px;background:#FFD115}\n.post .line{position:absolute;left:4%;right:30%;bottom:6%;color:#fff;font-size:64px;line-height:1.05;font-weight:600;text-shadow:0 2px 18px rgba(0,0,0,.35)}\n.post .logo{position:absolute;right:4%;bottom:4%;width:18%;height:auto}\n</style></head><body><div class=\"post\" data-width=\"1080\" data-height=\"1350\">\n<img class=\"img\" src=\"https://v3b.fal.media/files/b/0aae5957/QZlAwxy2I425Oy2Djjl-x_yJKj7QJq.png\" alt=\"Close-up of a freshly baked cheesecake slice showing its creamy, golden-brown texture, resting on kraft paper packaging. Use the approved product photo as reference.\">\n<div class=\"line\">Today deserves a cheesecake 💛</div><img class=\"logo\" src=\"http://127.0.0.1:54321/storage/v1/object/sign/bio-sources/8989b70a-8b6d-4519-8c21-0de3c6ff0442/35f265f0-0546-4a9a-b793-a49887ad7125/72e02457-f001-4bd0-be64-b1655ea30f49-logo-wordmark-ink.png?token=eyJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiaW8tc291cmNlcy84OTg5YjcwYS04YjZkLTQ1MTktOGMyMS0wZGUzYzZmZjA0NDIvMzVmMjY1ZjAtMDU0Ni00YTlhLWI3OTMtYTQ5ODg3YWQ3MTI1LzcyZTAyNDU3LWYwMDEtNGJkMC1iZTY0LWIxNjU1ZWEzMGY0OS1sb2dvLXdvcmRtYXJrLWluay5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxOTgyOTM5LCJleHAiOjE3OTE5ODY1Mzl9.225NUSuKkzzem5BTvqExgdXsYqerp2SMN94AHVsQP4s\" alt=\"Cake-me\"><div class=\"bar\"></div></div></body></html>",
+      "html_bytes": null,
+      "image": {
+        "asset_url": "https://v3b.fal.media/files/b/0aae5957/QZlAwxy2I425Oy2Djjl-x_yJKj7QJq.png",
+        "model": "vendor/fal/gpt-image-2.5",
+        "fallback_from": null,
+        "width": null,
+        "height": null,
+        "uses_reference": false,
+        "reference_count": 0,
+        "ocr": {
+          "pass": true,
+          "hits": [],
+          "reason": "0 legible text tokens"
+        },
+        "ms": 58783,
+        "attempts": [
+          {
+            "route": "vendor/fal/gpt-image-2.5",
+            "model": "vendor/fal/gpt-image-2.5",
+            "ms": 53304,
+            "error": null,
+            "ocr_pass": true
+          }
+        ],
+        "error": null
+      },
+      "checks": [
+        {
+          "id": "BRIEF_BANNED",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Brief is clean against the don't-list",
+          "target": "none"
+        },
+        {
+          "id": "LEN_CAPTION",
+          "pass": true,
+          "severity": "hard",
+          "reason": "Caption 481/2200 chars",
+          "target": "copy"
+        },
+        {
+          "id": "LEN_FIRST_LINE",
+          "pass": true,
+          "severity": "hard",
+          "reason": "First line 57/125 chars",
+          "target": "copy"
+        },
+        {
+          "id": "HASHTAGS",
+          "pass": true,
+          "severity": "hard",
+          "reason": "5/5 hashtags",
+          "target": "copy"
+        },
+        {
+          "id": "CTA",
+          "pass": true,
+          "severity": "hard",
+          "reason": "CTA present",
+          "target": "copy"
+        },
+        {
+          "id": "BANNED",
+          "pass": true,
+          "severity": "hard",
+          "reason": "No banned words",
+          "target": "copy"
+        },
+        {
+          "id": "ASPECT",
+          "pass": true,
+          "severity": "soft",
+          "reason": "Dimensions not reported; skipped",
+          "target": "image"
+        },
+        {
+          "id": "OCR_NOTEXT",
+          "pass": true,
+          "severity": "hard",
+          "reason": "0 legible text tokens",
+          "target": "image"
+        }
+      ],
+      "review": [
+        {
+          "id": "image_matches_brief",
+          "pass": false,
+          "reason": "reviewer verdict invalid: / must have required property 'items'",
+          "target": "none"
+        },
+        {
+          "id": "image_matches_palette_refs",
+          "pass": false,
+          "reason": "reviewer verdict invalid: / must have required property 'items'",
+          "target": "none"
+        },
+        {
+          "id": "caption_matches_image",
+          "pass": false,
+          "reason": "reviewer verdict invalid: / must have required property 'items'",
+          "target": "none"
+        },
+        {
+          "id": "voice_on_brand",
+          "pass": false,
+          "reason": "reviewer verdict invalid: / must have required property 'items'",
+          "target": "none"
+        },
+        {
+          "id": "no_unsupported_claim",
+          "pass": false,
+          "reason": "reviewer verdict invalid: / must have required property 'items'",
+          "target": "none"
+        },
+        {
+          "id": "cta_present",
+          "pass": false,
+          "reason": "reviewer verdict invalid: / must have required property 'items'",
+          "target": "none"
+        }
+      ],
+      "rule_applied": null,
+      "before": {
+        "copy": {
+          "angle": "Everyday moment turned celebration: a joyful, sensory close-up of the cheesecake that makes any day shareable",
+          "overlay_line": "Today deserves a cheesecake 💛",
+          "caption": "Plot twist: an ordinary day just became a celebration! 🌟\n\nGolden, creamy, baked-to-perfection cheesecake that makes you stop mid-scroll and say \"yes, please!\" That's what we make at Cake-me: artisanal cheesecakes made for sharing, laughing and turning regular moments into ones you'll remember. 💛\n\nSo grab your favourite people (or don't, we won't judge if you keep it all to yourself 😉) and make today a little sweeter. 🩷\n\nTell us: who are you sharing your next slice with? 👇",
+          "hashtags": [
+            "#CakeMe",
+            "#Cheesecake",
+            "#ArtisanalCheesecake",
+            "#ShareTheHappiness",
+            "#SweetMoments"
+          ],
+          "cta": "Tag the person you'd share a slice with!",
+          "claims": [
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me's cheesecakes turn everyday moments into memorable, shareable celebrations of happiness"
+          ],
+          "image_brief": {
+            "subject": "Close-up of a freshly baked cheesecake slice showing its creamy, golden-brown texture, resting on kraft paper packaging. Use the approved product photo as reference.",
+            "composition": "Minimalist, product-focused overhead framing. The slice sits slightly off-centre with generous clean space around it for the typeset overlay line. Close and inviting, not distant.",
+            "light": "Natural, soft overhead daylight with warm, gentle shadows that bring out the golden-brown tones.",
+            "palette_roles": [
+              "primary",
+              "accent",
+              "surface",
+              "ink"
+            ],
+            "ref_ids": [
+              "ref1"
+            ],
+            "negative": "no text, no letters, no logo, no signage, no labels, no packaging printing",
+            "aspect": "4:5"
+          }
+        },
+        "image_url": "https://v3b.fal.media/files/b/0aae5957/QZlAwxy2I425Oy2Djjl-x_yJKj7QJq.png",
+        "failed": [
+          {
+            "id": "image_matches_brief",
+            "pass": false,
+            "reason": "reviewer verdict invalid: / must have required property 'items'",
+            "target": "none"
+          },
+          {
+            "id": "image_matches_palette_refs",
+            "pass": false,
+            "reason": "reviewer verdict invalid: / must have required property 'items'",
+            "target": "none"
+          },
+          {
+            "id": "caption_matches_image",
+            "pass": false,
+            "reason": "reviewer verdict invalid: / must have required property 'items'",
+            "target": "none"
+          },
+          {
+            "id": "voice_on_brand",
+            "pass": false,
+            "reason": "reviewer verdict invalid: / must have required property 'items'",
+            "target": "none"
+          },
+          {
+            "id": "no_unsupported_claim",
+            "pass": false,
+            "reason": "reviewer verdict invalid: / must have required property 'items'",
+            "target": "none"
+          },
+          {
+            "id": "cta_present",
+            "pass": false,
+            "reason": "reviewer verdict invalid: / must have required property 'items'",
+            "target": "none"
+          }
+        ]
+      }
+    }
+  ],
+  "notices": [
+    "Brand Core foundation missing: reference_images"
+  ],
+  "result": {
+    "spec": {
+      "task": "social_post",
+      "language": "en",
+      "smp": "Cake-me's artisanal cheesecakes turn everyday moments into memorable, shareable celebrations of happiness.",
+      "posts": [
+        {
+          "angle": "Everyday moment turned celebration: a joyful, sensory close-up of the cheesecake that makes any day shareable",
+          "overlay_line": "Today deserves a cheesecake 💛",
+          "caption": "Plot twist: an ordinary day just became a celebration! 🌟\n\nGolden, creamy, baked-to-perfection cheesecake that makes you stop mid-scroll and say \"yes, please!\" That's what we make at Cake-me: artisanal cheesecakes made for sharing, laughing and turning regular moments into ones you'll remember. 💛\n\nSo grab your favourite people (or don't, we won't judge if you keep it all to yourself 😉) and make today a little sweeter. 🩷\n\nTell us: who are you sharing your next slice with? 👇",
+          "hashtags": [
+            "#CakeMe",
+            "#Cheesecake",
+            "#ArtisanalCheesecake",
+            "#ShareTheHappiness",
+            "#SweetMoments"
+          ],
+          "cta": "Tag the person you'd share a slice with!",
+          "claims": [
+            "Cake-me sells artisanal cheesecakes",
+            "Cake-me's cheesecakes turn everyday moments into memorable, shareable celebrations of happiness"
+          ],
+          "image_brief": {
+            "subject": "Close-up of a freshly baked cheesecake slice showing its creamy, golden-brown texture, resting on kraft paper packaging. Use the approved product photo as reference.",
+            "composition": "Minimalist, product-focused overhead framing. The slice sits slightly off-centre with generous clean space around it for the typeset overlay line. Close and inviting, not distant.",
+            "light": "Natural, soft overhead daylight with warm, gentle shadows that bring out the golden-brown tones.",
+            "palette_roles": [
+              "primary",
+              "accent",
+              "surface",
+              "ink"
+            ],
+            "ref_ids": [
+              "ref1"
+            ],
+            "negative": "no text, no letters, no logo, no signage, no labels, no packaging printing",
+            "aspect": "4:5"
+          }
+        }
+      ]
+    },
+    "metrics": {
+      "total_ms": 93520,
+      "stage_ms": {
+        "Planning": 0,
+        "Writing": 2,
+        "Imaging": 10465,
+        "Checking": 69256,
+        "Fixing": 93519,
+        "Ready": 93520
+      },
+      "cost": {
+        "total_usd": 0.0748,
+        "calls": 4,
+        "by_step": {
+          "writing": 0.0167,
+          "imaging": 0.053,
+          "ocr": 0.001,
+          "review": 0.004
+        },
+        "limits": {
+          "maxUsd": 0.6,
+          "maxImageCalls": 7,
+          "maxTextCalls": 12,
+          "imageConcurrency": 3
+        }
+      },
+      "ledger": [
+        {
+          "at": "2026-10-14T13:02:30.209Z",
+          "kind": "text",
+          "step": "writing",
+          "model": "claude-sonnet-5-5",
+          "cost_usd": 0.016706,
+          "ms": 10455,
+          "tokens_in": 1438,
+          "tokens_out": 1383,
+          "fallback_from": null,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T13:03:23.522Z",
+          "kind": "image",
+          "step": "imaging",
+          "slot": 0,
+          "model": "vendor/fal/gpt-image-2.5",
+          "cost_usd": 0.053,
+          "ms": 53304,
+          "fallback_from": null,
+          "uses_reference": false,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T13:03:28.999Z",
+          "kind": "text",
+          "step": "ocr",
+          "model": "google/gemini-3.8-flash",
+          "cost_usd": 0.001035,
+          "ms": 5476,
+          "tokens_in": 1160,
+          "tokens_out": 44,
+          "fallback_from": null,
+          "error": null
+        },
+        {
+          "at": "2026-10-14T13:03:53.269Z",
+          "kind": "text",
+          "step": "review",
+          "model": "claude-sonnet-4-6",
+          "cost_usd": 0.004041,
+          "ms": 24262,
+          "tokens_in": 302,
+          "tokens_out": 209,
+          "fallback_from": "openrouter/google/gemini-3.8-flash",
+          "error": null
+        }
+      ],
+      "models": [
+        "claude-sonnet-5-5",
+        "vendor/fal/gpt-image-2.5",
+        "google/gemini-3.8-flash",
+        "claude-sonnet-4-6"
+      ]
+    }
+  },
+  "error": null,
+  "finished_at": "2026-10-14T13:03:53.287Z"
+}
