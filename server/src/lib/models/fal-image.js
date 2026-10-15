@@ -183,6 +183,15 @@ export function resolveImageRequest({ route, referenceImageUrl = null, reference
   };
 }
 
+// One absolute deadline bounds submit, polling, result headers AND response bodies.
+// Abort errors are deliberately generic: never echo provider URLs or credentials.
+export async function fetchWithImageDeadline(url, options, deadline, fetchImpl = fetch) {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) throw new Error("fal job timed out");
+  try { return await fetchImpl(url, {...options, signal: AbortSignal.timeout(remaining)}); }
+  catch (error) { throw new Error(error?.name === "TimeoutError" || error?.name === "AbortError" ? "fal job timed out" : "fal network request failed"); }
+}
+
 /**
  * Generate an image via fal.ai. Async generator yielding normalized events:
  *   { type: "progress", stage, pct }   while waiting / polling
@@ -204,6 +213,8 @@ export async function* generate({ route, prompt, size, aspect = null, referenceI
   const cfg = FAL_ROUTES[route];
   if (!cfg)  { yield { type: "error", message: `Unknown fal route: ${route}` }; return; }
 
+  timeoutMs = timeoutMs || cfg.timeout_ms || 90_000;
+  const deadline = Date.now() + timeoutMs;
   let refs = normalizeReferenceUrls({ referenceImageUrl, referenceImageUrls });
   if (refs.length && !cfg.referenceEndpoint) { yield { type: "error", message: "Image route does not support references; generation refused" }; return; }
   try { refs = await bridgeReferences(refs); } catch { yield { type: "error", message: "Reference bridge failed; generation refused" }; return; }
@@ -219,11 +230,11 @@ export async function* generate({ route, prompt, size, aspect = null, referenceI
   yield { type: "progress", stage: "submitting", pct: 5 };
 
   /* Submit to fal queue. Returns { request_id, status_url, response_url, cancel_url }. */
-  const submitRes = await fetch(`${QUEUE_BASE}${endpoint}`, {
+  const submitRes = await fetchWithImageDeadline(`${QUEUE_BASE}${endpoint}`, {
     method: "POST",
     headers: { "Authorization": `Key ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
-  });
+  }, deadline);
   if (!submitRes.ok) {
     const text = await submitRes.text().catch(() => "");
     yield { type: "error", message: `fal submit HTTP ${submitRes.status}` };
@@ -241,11 +252,11 @@ export async function* generate({ route, prompt, size, aspect = null, referenceI
   const started = Date.now();
   timeoutMs = timeoutMs || cfg.timeout_ms || 90_000;   // per-route override; slow models (gpt-image-2) need more headroom
   let pct = 15;
-  while (Date.now() - started < timeoutMs) {
+  while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 1500));
-    const statusRes = await fetch(submitted.status_url, {
+    const statusRes = await fetchWithImageDeadline(submitted.status_url, {
       headers: { "Authorization": `Key ${key}` },
-    });
+    }, deadline);
     if (!statusRes.ok) continue;
     const status = await statusRes.json();
     if (status.status === "IN_QUEUE") {
@@ -256,9 +267,9 @@ export async function* generate({ route, prompt, size, aspect = null, referenceI
       yield { type: "progress", stage: "generating", pct };
     } else if (status.status === "COMPLETED") {
       /* Fetch the result from response_url */
-      const resultRes = await fetch(submitted.response_url, {
+      const resultRes = await fetchWithImageDeadline(submitted.response_url, {
         headers: { "Authorization": `Key ${key}` },
-      });
+      }, deadline);
       if (!resultRes.ok) {
         yield { type: "error", message: `fal result HTTP ${resultRes.status}` };
         return;
@@ -301,7 +312,11 @@ export function isRetryableImageError(message) { return IMAGE_RETRYABLE.test(Str
 
 export async function* generateWithFallback({ route, fallback = null, prompt, size, aspect = null, referenceImageUrl = null, referenceImageUrls = null, timeoutMs = null }, gen = generate) {
   let failed = null;
-  for await (const ev of gen({ route, prompt, size, aspect, referenceImageUrl, referenceImageUrls, timeoutMs })) {
+  const safelyGenerate = async function* (args) {
+    try { yield* gen(args); }
+    catch (error) { yield {type:"error",message:/timed out|TimeoutError|AbortError/i.test(error?.message || error?.name || "") ? "fal job timed out" : "fal network request failed"}; }
+  };
+  for await (const ev of safelyGenerate({ route, prompt, size, aspect, referenceImageUrl, referenceImageUrls, timeoutMs })) {
     if (ev?.type === "error" && fallback && fallback !== route && isRetryableImageError(ev.message)) { failed = ev; break; }
     yield ev;
     if (ev?.type === "done" || ev?.type === "error") return;
@@ -309,7 +324,7 @@ export async function* generateWithFallback({ route, fallback = null, prompt, si
   if (!failed) return;
   console.warn(`[fal-image] primary ${route} failed (${failed.message}); falling back to ${fallback}`);
   yield { type: "progress", stage: "fallback", pct: 10 };
-  for await (const ev of gen({ route: fallback, prompt, size, aspect, referenceImageUrl, referenceImageUrls, timeoutMs })) {
+  for await (const ev of safelyGenerate({ route: fallback, prompt, size, aspect, referenceImageUrl, referenceImageUrls, timeoutMs })) {
     yield ev?.type === "done" ? { ...ev, fallback_from: route } : ev;
   }
 }
