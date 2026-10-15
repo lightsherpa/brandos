@@ -4,9 +4,13 @@ export const REFERENCE_TAGS = ['product','lifestyle','usage'];
 export const PALETTE_GROUPS = ['primary','secondary','tertiary','neutral','accent'];
 export const MAX_REFERENCE_BATCH = 10;
 export const MAX_ASSET_BYTES = 15 * 1024 * 1024;
+export const MAX_REFERENCE_BYTES = 5 * 1024 * 1024;
+export function assetByteLimit(kind) {
+  return kind === 'reference' ? MAX_REFERENCE_BYTES : MAX_ASSET_BYTES;
+}
 export function fileIssue(file, kind) {
   if (!file?.size) return 'empty';
-  if (file.size > MAX_ASSET_BYTES) return 'size';
+  if (file.size > assetByteLimit(kind)) return 'size';
   const extension = file.name.split('.').pop().toLowerCase();
   const allowed = kind === 'font' ? ['woff2','woff','otf','ttf'] : kind === 'logo' ? ['png'] : ['png','jpg','jpeg','webp'];
   return allowed.includes(extension) ? null : 'format';
@@ -23,6 +27,19 @@ export function appendUploadedAsset(current, item, source, previewUrl) {
   }
   if(item.kind==='font') return {...current,type:[...(current.type||[]),{...entry,family:item.family,kind:item.usage,license:'commercial',...item.descriptors}]};
   return {...current,references:[...(current.references||[]),{...entry,role:'canonical',tag:item.tag,pendingRights:true}]};
+}
+const UPLOAD_CODE_KEYS = {
+  EMPTY:'empty', EXT:'format', MIME:'format', SVG_UNSUPPORTED:'format', LOGO_EXT:'format',
+  FONT_INVALID:'invalidFont', LOGO_INVALID:'invalidLogo', STALE_BIO_VERSION:'stale', STORAGE_REJECTED:'format',
+};
+/** Copy key for a failed Brand Core upload. Size failures (413 / TOO_LARGE / PAYLOAD_TOO_LARGE) never fall through to a generic message. */
+export function uploadErrorCopyKey(json = {}, status = 0) {
+  if (json?.code === 'TOO_LARGE' || json?.code === 'PAYLOAD_TOO_LARGE' || Number(status) === 413) return 'size';
+  if (UPLOAD_CODE_KEYS[json?.code]) return UPLOAD_CODE_KEYS[json.code];
+  if (status === 401) return 'auth';
+  if (status === 403) return 'permission';
+  if (status >= 500) return 'service';
+  return null;
 }
 export function uploadMetadata(item) {
   if(item.kind==='font')return {fontFamily:item.family,fontUsage:item.usage,licenseType:'commercial',rightsConfirmed:true,fontWeight:item.descriptors.weight,fontStyle:item.descriptors.style};

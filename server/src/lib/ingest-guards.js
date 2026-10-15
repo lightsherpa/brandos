@@ -7,7 +7,18 @@
 //    of a client-supplied URL.
 // No I/O — testable with case tables.
 
-export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // 15 MB
+export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024; // logos, commercial fonts, other evidence
+export const MAX_REFERENCE_BYTES = 5 * 1024 * 1024; // Brand Core reference images
+export const UPLOAD_TOO_LARGE_MESSAGE = "File too large · max 5 MB for references / 15 MB for logos and fonts";
+
+/** Reference intake (Brand Core batch, or the same flags on the upload form). Logos and fonts stay on the 15 MB ceiling. */
+export function referenceUploadKind(fields = {}) {
+  const tag = String(fields.referenceTag || "");
+  const reference = String(fields.referenceIntake || "") === "true"
+    || String(fields.referenceAppend || "") === "true"
+    || tag === "product" || tag === "lifestyle" || tag === "usage";
+  return reference ? "reference" : "";
+}
 
 // Exactly the bio-sources bucket allowed_mime_types (see BUCKET_MIME_TYPES):
 // anything else would be accepted here and then 500 at Storage, so it 400s instead.
@@ -50,11 +61,10 @@ const ALLOWED_MIME_EXACT = new Set([
  * @param {{ mime?: string, size?: number, filename?: string }} f
  * @returns {{ ok: true, ext: string } | { ok: false, code: string, message: string }}
  */
-export function validateUpload({ mime = "", size = 0, filename = "" } = {}) {
+export function validateUpload({ mime = "", size = 0, filename = "", kind = "" } = {}) {
   if (!Number.isFinite(size) || size <= 0) return { ok: false, code: "EMPTY", message: "Empty file" };
-  if (size > MAX_UPLOAD_BYTES) {
-    return { ok: false, code: "TOO_LARGE", message: `File exceeds ${Math.round(MAX_UPLOAD_BYTES / 1024 / 1024)}MB` };
-  }
+  const limit = kind === "reference" ? MAX_REFERENCE_BYTES : MAX_UPLOAD_BYTES;
+  if (size > limit) return { ok: false, code: "TOO_LARGE", message: UPLOAD_TOO_LARGE_MESSAGE };
   const ext = filename.includes(".") ? filename.split(".").pop().toLowerCase() : "";
   const m = String(mime || "").toLowerCase();
   if (ext === "svg" || m === "image/svg+xml") return { ok: false, code: "SVG_UNSUPPORTED", message: SVG_UNSUPPORTED_MESSAGE };

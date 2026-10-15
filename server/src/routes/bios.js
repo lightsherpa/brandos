@@ -10,7 +10,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { supabaseAdmin } from "../lib/supabase.js";
 import { assignSteward } from "../lib/assign-steward.js";
 import { scoreBio } from "../lib/score-bio.js";
-import { validateUpload, isStorageRejection, contentTypeForExt, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS } from "../lib/ingest-guards.js";
+import { validateUpload, isStorageRejection, contentTypeForExt, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, FONT_UPLOAD_EXTS, referenceUploadKind, UPLOAD_TOO_LARGE_MESSAGE } from "../lib/ingest-guards.js";
 import { computeFocus } from "../lib/bio-focus.js";
 import {validateCertificationReview} from "../lib/certification-review.js";
 import { isWorkspaceOwner, hasPermission } from "../lib/permissions.js";
@@ -108,7 +108,7 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   // buffering the whole multipart body into memory.
   const declaredLen = Number(c.req.header("content-length") || 0);
   if (declaredLen && declaredLen > MAX_UPLOAD_BYTES + 8192) {
-    return c.json({ error: "File too large", code: "TOO_LARGE" }, 413);
+    return c.json({ error: UPLOAD_TOO_LARGE_MESSAGE, code: "TOO_LARGE" }, 413);
   }
 
   const form = await c.req.formData().catch(() => null);
@@ -122,7 +122,13 @@ app.post("/:brandId/sources/upload", requireAuth, async (c) => {
   const filename = file.name || "upload.bin";
   // Untrusted upload — validate type + size BEFORE buffering the whole file
   // into memory (evidence is parsed by an LLM, so it is an injection surface).
-  const vUp = validateUpload({ mime: file.type, size: file.size, filename });
+  // Reference images are 5 MB; logos and commercial fonts stay at 15 MB.
+  const kind = referenceUploadKind({
+    referenceIntake: form.get("referenceIntake"),
+    referenceAppend: form.get("referenceAppend"),
+    referenceTag: form.get("referenceTag"),
+  });
+  const vUp = validateUpload({ mime: file.type, size: file.size, filename, kind });
   if (!vUp.ok) return c.json({ error: vUp.message, code: vUp.code }, vUp.code === "TOO_LARGE" ? 413 : 400);
   const ext = vUp.ext || "bin";
   const mime = contentTypeForExt(ext);   // from the validated extension, never the browser

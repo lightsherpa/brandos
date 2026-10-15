@@ -32,6 +32,20 @@ test('stale expectedVersion is rejected before appending owner changes',async()=
  assert.equal(res.status,409);assert.equal((await res.json()).code,'STALE_BIO_VERSION');assert.equal(appends,before);
 });
 
+test('reference uploads above 5MB are 413; logos and fonts keep 15MB',async()=>{
+ auth=designer();
+ const MB=1024*1024;
+ const file=(name,type,size)=>new File([new Uint8Array(size)],name,{type});
+ const send=async(upload,extra)=>{const form=new FormData();form.set('file',upload);form.set('bucket','visual');for(const [k,v] of Object.entries(extra))form.set(k,v);const res=await app.request('/brand/sources/upload',{method:'POST',body:form});return {status:res.status,json:await res.json()};};
+ const overRef=await send(file('ref.png','image/png',5*MB+1),{referenceIntake:'true',referenceTag:'product',referenceAppend:'true'});
+ assert.equal(overRef.status,413);assert.equal(overRef.json.code,'TOO_LARGE');assert.match(overRef.json.error,/5 MB/);
+ const logo=await send(file('mark.png','image/png',5*MB+1),{assetRole:'logo',logoUse:'primary',rightsConfirmed:'true'});
+ assert.notEqual(logo.status,413);assert.notEqual(logo.json.code,'TOO_LARGE');
+ const font=await send(file('Brand.woff2','font/woff2',6*MB),{assetRole:'font',fontFamily:'Brand',fontUsage:'Display',licenseType:'commercial',rightsConfirmed:'true'});
+ assert.notEqual(font.status,413);assert.notEqual(font.json.code,'TOO_LARGE');
+ const overFont=await send(file('Brand.woff2','font/woff2',15*MB+1),{assetRole:'font',fontFamily:'Brand',fontUsage:'Display',licenseType:'commercial',rightsConfirmed:'true'});
+ assert.equal(overFont.status,413);assert.equal(overFont.json.code,'TOO_LARGE');
+});
 test('new input upload tags persist on source records',async()=>{
  auth=designer();
  const png=await (await import('sharp')).default({create:{width:10,height:10,channels:4,background:'#ffd115'}}).png().toBuffer();

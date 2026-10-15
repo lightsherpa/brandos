@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES } from "./ingest-guards.js";
+import { validateUpload, validateVisualAssetMetadata, assertPublicUrl, MAX_UPLOAD_BYTES, MAX_REFERENCE_BYTES, referenceUploadKind, UPLOAD_TOO_LARGE_MESSAGE } from "./ingest-guards.js";
 
 test("validateUpload accepts an allowed document", () => {
   const r = validateUpload({ mime: "application/pdf", size: 2048, filename: "brand-deck.pdf" });
@@ -22,6 +22,20 @@ test("validateUpload rejects an executable extension", () => {
 test("validateUpload rejects oversize and empty files", () => {
   assert.equal(validateUpload({ mime: "application/pdf", size: MAX_UPLOAD_BYTES + 1, filename: "big.pdf" }).code, "TOO_LARGE");
   assert.equal(validateUpload({ mime: "application/pdf", size: 0, filename: "x.pdf" }).code, "EMPTY");
+});
+
+test("reference images cap at 5MB while logos and fonts keep 15MB", () => {
+  assert.equal(MAX_REFERENCE_BYTES, 5 * 1024 * 1024);
+  assert.equal(validateUpload({ mime: "image/png", size: MAX_REFERENCE_BYTES, filename: "ref.png", kind: "reference" }).ok, true);
+  const overRef = validateUpload({ mime: "image/jpeg", size: MAX_REFERENCE_BYTES + 1, filename: "ref.jpg", kind: "reference" });
+  assert.equal(overRef.code, "TOO_LARGE");
+  assert.equal(overRef.message, UPLOAD_TOO_LARGE_MESSAGE);
+  assert.equal(validateUpload({ mime: "image/png", size: MAX_REFERENCE_BYTES + 1, filename: "logo.png", kind: "logo" }).ok, true);
+  assert.equal(validateUpload({ mime: "font/woff2", size: MAX_UPLOAD_BYTES, filename: "Brand.woff2" }).ok, true);
+  assert.equal(validateUpload({ mime: "font/otf", size: MAX_UPLOAD_BYTES + 1, filename: "Brand.otf", kind: "font" }).code, "TOO_LARGE");
+  assert.equal(referenceUploadKind({ referenceIntake: "true" }), "reference");
+  assert.equal(referenceUploadKind({ referenceTag: "lifestyle" }), "reference");
+  assert.equal(referenceUploadKind({ assetRole: "logo", logoUse: "primary" }), "");
 });
 
 test("validateUpload rejects a disallowed mime even with an ok-ish name", () => {
