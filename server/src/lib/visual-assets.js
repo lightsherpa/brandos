@@ -113,7 +113,7 @@ export function certifiedVisualSourceIds(visual = {}) {
 
 export function projectResolvedFont(font, url, signals) {
   return {...font,...(font.sourceId?{url:url||null}:{}),...(signals?{
-    license:signals.license_type||null,suggest:signals.license_reference||null,
+    license:signals.license_type||null,suggest:signals.license_reference || (signals.rights_confirmed === true && font.sourceId ? `bio-source:${font.sourceId}#rights-confirmed` : null),
     rights_confirmed:signals.rights_confirmed===true,
     weight:signals.font_weight||font.weight||"400",style:signals.font_style||font.style||"normal",
   }:{})};
