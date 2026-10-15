@@ -1,3 +1,4 @@
+import {localTestDatabase} from './lib/local-test-database.mjs';
 // Run with CERTIFIER_TEST_CONTAINER pointing ONLY to a disposable test Postgres.
 // No project DB URL, production credentials or application database is used.
 import test from 'node:test';import assert from 'node:assert/strict';
@@ -5,11 +6,12 @@ import {spawn} from 'node:child_process';import {readFileSync} from 'node:fs';im
 import {createCertifierState,recordCertifierRun,latestCertifierBrief,confirmCertifierClaim} from '../server/src/lib/certifier-store.js';
 import {runCertifier} from '../server/src/lib/certifier/run.js';
 import {fixture,context,recordedOutput,modelMock} from '../server/src/lib/certifier/test-helpers.js';
-const container=process.env.CERTIFIER_TEST_CONTAINER;
-if(!container||!/^certifier-durable-pg-test(?:-[\w-]+)?$/.test(container))throw new Error('Set CERTIFIER_TEST_CONTAINER to a disposable certifier-durable-pg-test container.');
+const local=localTestDatabase('durable');
+const container=local?.container || process.env.CERTIFIER_TEST_CONTAINER;
+if(!local&&(!container||!/^certifier-durable-pg-test(?:-[\w-]+)?$/.test(container)))throw new Error('Set CERTIFIER_TEST_CONTAINER to a disposable certifier-durable-pg-test container.');
 const literal=value=>value==null?'NULL':typeof value==='number'?String(value):`'${(typeof value==='object'?JSON.stringify(value):String(value)).replaceAll("'","''")}'`;
 async function sql(text){return new Promise((resolve,reject)=>{
- const child=spawn('docker',['exec','-i',container,'psql','-h','/tmp','-U','postgres','-d','postgres','-X','-qAt','-v','ON_ERROR_STOP=1'],{stdio:['pipe','pipe','pipe']});
+ const child=spawn('docker',['exec','-i',container,'psql','-h',local?'/var/run/postgresql':'/tmp','-U','postgres','-d',local?.database || 'postgres','-X','-qAt','-v','ON_ERROR_STOP=1'],{stdio:['pipe','pipe','pipe']});
  let out='',err='';child.stdout.on('data',b=>out+=b);child.stderr.on('data',b=>err+=b);child.on('error',reject);
  child.on('close',code=>code?reject(new Error(err.trim())):resolve(out.trim()));child.stdin.end(text);
 });}
@@ -19,7 +21,8 @@ function database(){return{async rpc(name,params){try{return{data:JSON.parse(awa
  async single(){try{const row=JSON.parse(await sql(`with t as (insert into public.${table}(${Object.keys(insert).join(',')}) values(${Object.values(insert).map(literal).join(',')}) returning ${columns}) select row_to_json(t)::text from t;`));return{data:row,error:null};}catch(e){return{error:{message:e.message,code:/duplicate key/.test(e.message)?'23505':'P0001'}};}}};return q;}};}
 const ws=randomUUID(),human=randomUUID();
 test.before(async()=>{
- await sql(`create role service_role nologin bypassrls; create role anon nologin; create role authenticated nologin;
+ local?.create();
+ await sql(`do $$ begin if not exists(select 1 from pg_roles where rolname='service_role') then create role service_role nologin bypassrls;end if;if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin;end if;if not exists(select 1 from pg_roles where rolname='authenticated') then create role authenticated nologin;end if;end $$;
  create table public.workspaces(id uuid primary key);create table public.users(id uuid primary key);
  create table public.brands(id uuid primary key, workspace_id uuid references workspaces(id));
  create table public.bios(id uuid primary key, brand_id uuid references brands(id), version integer);
@@ -77,3 +80,5 @@ test('RLS/client grants and function execution enforce service-only access; audi
  const ctx=await scope();await sql(`set role service_role;select public.certifier_acquire_run('${ctx.workspaceId}','${ctx.brandId}','${ctx.bioId}',1,'${randomUUID()}');`);
  await assert.rejects(sql('set role authenticated;select * from public.certifier_briefs;'),/permission denied/);
 });
+
+test.after(()=>local?.drop());

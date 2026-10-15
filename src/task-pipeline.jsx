@@ -134,7 +134,7 @@ function ItemCard({ type, item, taskId, onItem }) {
       </div>
       {type === "social_post" && copy && <p style={{ margin: 0, fontSize: 13, whiteSpace: "pre-wrap" }}>{copy.caption}<br /><span style={css.dim}>{(copy.hashtags || []).join(" ")}</span></p>}
       {item.before && showBefore && <div style={{ fontSize: 12, color: "#b91c1c" }}>Before: {item.before.failed.map((f) => `${f.id}: ${f.reason}`).join(" · ")}</div>}
-      {item.image && <span style={css.dim}>Image: {item.image.model?.replace("vendor/fal/", "")}{item.image.fallback_from ? " (fallback)" : ""} · {item.image.reference_count || 0} Brand Core refs · {item.image.ocr?.pass ? "no text detected" : item.image.ocr?.reason || ""}</span>}
+      {item.image && <span style={css.dim}>{item.image.reference_count || 0} Brand Core refs · {item.image.ocr?.pass ? "no text detected" : item.image.ocr?.reason || ""}</span>}
       <span style={css.dim}>Written by {TYPES[type].writer} (skills: {TYPES[type].skills}) · reviewed by {TYPES[type].reviewer}</span>
     </div>
     <CheckPanel checks={item.checks} review={item.review} onSaveRule={item.status === "ready" || item.status === "flagged" ? setRule : null} />

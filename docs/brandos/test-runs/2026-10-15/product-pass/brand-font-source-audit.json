@@ -1,0 +1,15 @@
+{
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "sourceId": "a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+  "certifiedFamily": "Meaty Nineties",
+  "byteLength": 124156,
+  "sha256": "0e03ff8dc6c02c8420505d6c9be8856f1e597b3a3ff075ff51bbe164ce066907",
+  "nameTable": {
+    "1": "Meaty Nineties",
+    "2": "Bold",
+    "4": "Meaty Nineties Bold",
+    "6": "MeatyNineties-Bold"
+  },
+  "matchesCertifiedFamily": true,
+  "dataWrites": false
+}

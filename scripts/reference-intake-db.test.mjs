@@ -1,8 +1,10 @@
+import {localTestDatabase} from './lib/local-test-database.mjs';
 // Disposable isolated Postgres only; never accepts a project DB URL.
 import {test} from 'node:test';import assert from 'node:assert/strict';import {spawn} from 'node:child_process';import {readFileSync} from 'node:fs';import {randomUUID} from 'node:crypto';
-const container=process.env.REFERENCE_TEST_CONTAINER;
-if(!/^reference-intake-pg-test(?:-[\w-]+)?$/.test(container||''))throw Error('Use REFERENCE_TEST_CONTAINER=reference-intake-pg-test (disposable only)');
-const database=`reference_intake_${process.pid}`;
+const local=localTestDatabase('reference');
+const container=local?.container || process.env.REFERENCE_TEST_CONTAINER;
+if(!local&&!/^reference-intake-pg-test(?:-[\w-]+)?$/.test(container||''))throw Error('Use REFERENCE_TEST_CONTAINER=reference-intake-pg-test (disposable only)');
+const database=local?.database || `reference_intake_${process.pid}`;
 function sql(input,db=database){return new Promise((resolve,reject)=>{const p=spawn('docker',['exec','-i',container,'psql','-h','/var/run/postgresql','-U','postgres','-d',db,'-X','-qAt','-v','ON_ERROR_STOP=1']);let out='',err='';p.stdout.on('data',b=>out+=b);p.stderr.on('data',b=>err+=b);p.on('error',reject);p.on('close',c=>c?reject(Error(err)):resolve(out.trim()));p.stdin.end(input);});}
 const ws=randomUUID(),owner=randomUUID(),other=randomUUID();
 test.before(async()=>{
@@ -17,6 +19,7 @@ test.before(async()=>{
  await sql(readFileSync(new URL('../supabase/migrations/20261013010000_append_bio_version_expected.sql',import.meta.url),'utf8'));
  await sql('alter default privileges for role postgres in schema public grant all on tables to anon,authenticated,service_role;');
  await sql(readFileSync(new URL('../supabase/migrations/20261014000000_reference_intake.sql',import.meta.url),'utf8'));
+ await sql(readFileSync(new URL('../supabase/migrations/20261016000000_brand_core_input_tags.sql',import.meta.url),'utf8'));
 });
 async function fixture(){const brand=randomUUID(),old=randomUUID(),sources=[randomUUID(),randomUUID()];await sql(`insert into brands values('${brand}','${ws}');insert into bios(brand_id,version,payload,score,certified) values('${brand}',2,'{"visual":{"references":[{"sourceId":"${old}","role":"canonical"}]} }',96,true);${sources.map(id=>`insert into bio_sources values('${id}','${brand}','file_upload','visual','new photo','${ws}/${brand}/${id}.png','{"asset_role":"canonical","ext":"png","rights_confirmed":false}');`).join('')}`);return{brand,old,sources};}
 const rights=`'{"authority":true,"ownsOrLicensed":true,"generationAllowed":true}'`;
@@ -27,3 +30,17 @@ test('distinct concurrent requests on same expected version cannot both append',
 test('failed multi-source transaction rolls back rights and version; tenants/owner/rights fail closed',async()=>{const f=await fixture();for(const opts of [{ids:[f.sources[0],randomUUID()]},{user:other},{statements:`'{"authority":true}'`},{ids:[f.sources[0],f.sources[0]]}])await assert.rejects(sql(intake(f,opts)),/REFERENCE/);const foreign=await fixture();await assert.rejects(sql(intake(f,{ids:[foreign.sources[0]]})),/REFERENCE_SOURCE_INVALID/);assert.equal(await sql(`select count(*) from bios where brand_id='${f.brand}';`),'1');assert.equal(await sql(`select count(*) from bio_sources where brand_id='${f.brand}' and signals->>'rights_confirmed'='true';`),'0');});
 test('after exact owner attestation concurrent review triggers create once including terminal jobs',async()=>{const f=await fixture(),bio=JSON.parse(await sql(intake(f)));await assert.rejects(sql(`insert into steward_jobs(bio_id,brand_id,kind,status) values('${bio.id}','${f.brand}','drift_check','queued');`),/OWNER_ATTESTATION_REQUIRED/);await sql(`update bios set self_certified=true where id='${bio.id}';`);const trigger=`select reconcile_bio_review('${bio.id}','{"score":96,"minScore":80,"meetsFloor":true,"reasons":[]}','drift_check')::text;`;const results=await Promise.all([sql(trigger),sql(trigger)]);assert.equal(results.filter(r=>JSON.parse(r).created).length,1);await sql(`update steward_jobs set status='completed' where bio_id='${bio.id}';`);assert.equal(JSON.parse(await sql(trigger)).created,false);await assert.rejects(sql(`insert into steward_jobs(bio_id,brand_id,kind,status) values('${bio.id}','${f.brand}','drift_check','queued');`),/REFERENCE_REVIEW_ALREADY_EXISTS/);assert.equal(await sql(`select count(*) from steward_jobs where bio_id='${bio.id}';`),'1');});
 test('new sources may not relabel prior refs as new; browser cannot forge RPC or mutate rights audit',async()=>{const f=await fixture();await sql(intake(f));await assert.rejects(sql(intake(f,{version:3})),/REFERENCE_NOT_NEW/);for(const role of ['anon','authenticated'])assert.equal(await sql(`select has_function_privilege('${role}','confirm_brand_references(uuid,uuid,integer,uuid,uuid[],jsonb)','execute');`),'f');for(const privilege of ['UPDATE','DELETE'])assert.equal(await sql(`select has_table_privilege('service_role','bio_reference_intakes','${privilege}');`),'f');});
+
+test('flagged reference batches preserve tags and append active prior references',async()=>{
+ const f=await fixture();
+ await sql(`update bio_sources set signals=signals||'{"reference_append":true,"reference_tag":"lifestyle"}'::jsonb where id='${f.sources[0]}';update bio_sources set signals=signals||'{"reference_append":true,"reference_tag":"usage"}'::jsonb where id='${f.sources[1]}';`);
+ const result=JSON.parse(await sql(intake(f)));
+ assert.deepEqual(result.payload.visual.references.slice(0,2).map(r=>r.tag),['lifestyle','usage']);
+ assert.equal(result.payload.visual.references[2].sourceId,f.old);
+ assert.notEqual(result.payload.visual.references[2].status,'superseded');
+ assert.equal(result.certified,false);assert.equal(result.self_certified,false);
+ await sql(readFileSync(new URL('../supabase/migrations/20261016000000_brand_core_input_tags.sql',import.meta.url),'utf8'));
+ assert.equal(await sql(`select count(*) from bio_reference_intakes where brand_id='${f.brand}';`),'1');
+});
+
+test.after(()=>local?.drop());

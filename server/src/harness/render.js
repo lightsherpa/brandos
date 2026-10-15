@@ -25,6 +25,7 @@ export function emailTokens(layer1) {
 }
 
 export async function renderEmail({ email, layer1, heroUrl = null, language = "en", embedAssets = embedExportAssets }) {
+  assertCompositionBrand(layer1);
   const tokens = emailTokens(layer1);
   const ctx = {
     language, tokens, email, brand_name: layer1.brand.name,
@@ -45,17 +46,37 @@ export async function renderEmail({ email, layer1, heroUrl = null, language = "e
 
 const escHtml = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+export function assertCompositionBrand(layer1) {
+  if (process.env.CREW_CANVAS !== "1" && process.env.CREW_CANVAS !== "true") return;
+  const systemFonts = /^(Arial|Helvetica|Georgia|Times New Roman|Verdana|Tahoma|system-ui|sans-serif|serif)$/i;
+  for (const role of ["display", "body"]) {
+    const family = layer1.fonts?.[role];
+    if (!family || (!systemFonts.test(family) && !(layer1.font_assets || []).some(f => f.family === family && f.rights_confirmed === true))) {
+      throw new Error(`Certified ${role} font unavailable for composition`);
+    }
+  }
+  if (!layer1.logo?.url) throw new Error("Certified logo unavailable for composition");
+  for (const role of ["primary", "ink", "surface"]) if (!/^#[0-9a-f]{6}$/i.test(layer1.palette?.[role])) throw new Error("Certified brand colours unavailable for composition");
+}
+
 export function renderSocialComposite({ post, imageUrl, layer1, aspect = "4:5" }) {
+  assertCompositionBrand(layer1);
   const [w, h] = aspect === "1:1" ? [1080, 1080] : aspect === "9:16" ? [1080, 1920] : [1080, 1350];
   const p = layer1.palette;
-  const line = String(post.overlay_line || "").split(/\s+/).slice(0, 8).join(" ");
+  const line = String(post.overlay_line || "").trim();
+  const faces = (layer1.font_assets || []).filter(f => f.family === layer1.fonts.display);
+  const face = faces.find(f => !f.style || f.style === "normal") || faces[0];
+  const weight = face?.weight || "400";
+  const fontStyle = face?.style === "italic" ? "italic" : "normal";
+  const fontWeight = /^[1-9]00$/.test(String(weight)) ? weight : "400";
+  const direction = layer1.language === "ar" ? "rtl" : "ltr";
   const logo = layer1.logo?.url ? `<img class="logo" src="${escHtml(layer1.logo.url)}" alt="${escHtml(layer1.brand.name)}">` : "";
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
+  return `<!doctype html><html lang="${escHtml(layer1.language || "en")}" dir="${direction}"><head><meta charset="utf-8"><style>
 html,body{margin:0;background:transparent}
 .post{position:relative;width:${w}px;height:${h}px;overflow:hidden;background:${p.surface};font-family:${fontStack(layer1.fonts.display)}}
 .post .img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .post .bar{position:absolute;left:0;right:0;bottom:0;height:8px;background:${p.primary}}
-.post .line{position:absolute;left:4%;right:30%;bottom:6%;color:#fff;font-size:64px;line-height:1.05;font-weight:600;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.post .line{position:absolute;left:4%;right:30%;bottom:6%;color:${p.ink};background:${p.surface};padding:24px;font-size:${line.length > 80 ? 44 : 64}px;line-height:1.05;font-weight:${fontWeight};font-style:${fontStyle};overflow-wrap:anywhere}
 .post .logo{position:absolute;right:4%;bottom:4%;width:18%;height:auto}
 </style></head><body><div class="post" data-width="${w}" data-height="${h}">
 <img class="img" src="${escHtml(imageUrl)}" alt="${escHtml(post.image_brief?.subject || "")}">

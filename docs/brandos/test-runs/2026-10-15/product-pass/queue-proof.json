@@ -1,0 +1,15 @@
+{
+  "base": "http://127.0.0.1:5196",
+  "brandId": "0b956afd-a927-4340-93ef-62f060ec26bc",
+  "queueRows": 3,
+  "screenshots": [
+    "queue-labels-en-1280.png",
+    "queue-labels-en-1440.png",
+    "queue-labels-es-1280.png",
+    "queue-labels-es-1440.png",
+    "queue-labels-ar-1280.png",
+    "queue-labels-ar-1440.png"
+  ],
+  "errors": [],
+  "mutations": "None: real auth and GET requests only"
+}

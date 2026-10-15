@@ -1,0 +1,152 @@
+{
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "rounds": 3,
+  "p50Ms": 7604,
+  "results": [
+    {
+      "round": 1,
+      "ms": 7604,
+      "status": 200,
+      "serverTiming": "authorization;dur=1.6, context;dur=8.3, sharpen;dur=7528.3, total;dur=7538.2",
+      "quality": {
+        "title": "Your Tuesday just got delicious",
+        "sharpenedBrief": "Create one Instagram post that captures a relatable, joyful everyday cheesecake moment—a midweek treat, a friend hangout, a solo indulgence. Use direct address ('tú'), playful urgency, and sensory language that makes the moment feel both special and accessible. Include emoji and exclamation energy; no offers, no discounts, no invented products.",
+        "questions": [
+          {
+            "q": "Is this everyday moment solo indulgence, a friend share, or a small group gathering?",
+            "solvingFor": "Which relatable scenario anchors the caption and image selection.",
+            "why": "Brand Core JOTBD: 'Help me find a fun, delicious, and photo-worthy dessert to share with my friends' and 'Give me an easy and special way to celebrate a moment, big or small.'"
+          },
+          {
+            "q": "Which existing Cake Me cheesecake flavor or style will appear in the image?",
+            "solvingFor": "Authentic product reference and whether the visual emphasizes texture, topping, or the moment around it.",
+            "why": "Brand Core Positioning: 'artisanal cheesecakes that transform everyday moments' requires real product, not generic dessert."
+          },
+          {
+            "q": "Should the tone lean toward 'treat yourself' self-care or 'bring people together' connection?",
+            "solvingFor": "Whether the caption prioritizes personal indulgence or shared joy, shaping the directness of the call to feel.",
+            "why": "Brand Core Pillars balance 'Joyful Indulgence' and 'Genuine Connection'—both authentic, but they shape voice register differently."
+          }
+        ],
+        "deliveryPlan": {
+          "deliverableGroups": [
+            {
+              "type": "social_post",
+              "count": 1,
+              "platforms": [
+                "instagram"
+              ],
+              "parts": [
+                "caption",
+                "image"
+              ],
+              "crew": {
+                "caption": "a16",
+                "image": "a41"
+              }
+            }
+          ],
+          "proposedSpecialists": [
+            "a16",
+            "a41"
+          ]
+        }
+      }
+    },
+    {
+      "round": 2,
+      "ms": 7761,
+      "status": 200,
+      "serverTiming": "authorization;dur=2.6, context;dur=16.3, sharpen;dur=7673.6, total;dur=7692.5",
+      "quality": {
+        "title": "Your Tuesday just got a whole lot sweeter",
+        "sharpenedBrief": "Create one Instagram post that captures a relatable, joyful everyday cheesecake moment—a friend group, a solo treat, a work-week break—using Cake Me's playful, direct voice and existing product references. Emphasize the happiness and shareability of the moment, not a sale. The caption should feel like a best friend's genuine excitement, with direct address and sensory language.",
+        "questions": [
+          {
+            "q": "Is this post anchored to a real, specific everyday moment (e.g., mid-week pick-me-up, friend hangout, solo celebration) or a seasonal/timeless vibe?",
+            "solvingFor": "Whether to shoot a styled scene or rely on authentic user-generated-style imagery, and what product variant to feature",
+            "why": "Brand Core says 'transform everyday moments into memorable, shareable celebrations of happiness'—so we need to lock which everyday moment this is"
+          },
+          {
+            "q": "Should the caption use 'tú' to address one person indulging solo, or 'nosotros' to invite a sense of community and sharing?",
+            "solvingFor": "Tone direction and whether the image shows solo enjoyment or a group moment",
+            "why": "Signatures state: 'Addressing the audience directly with tú and using nosotros to build a sense of community'—this choice shapes authenticity"
+          },
+          {
+            "q": "Which Cake Me product reference (flavor, size, or signature detail) should be visible or mentioned in the post?",
+            "solvingFor": "Specificity and product credibility without inventing offers",
+            "why": "Brand Core emphasizes 'Artisanal Quality' and 'Genuine Connection'—product specificity reinforces this, not generic 'cheesecake'"
+          }
+        ],
+        "deliveryPlan": {
+          "deliverableGroups": [
+            {
+              "type": "social_post",
+              "count": 1,
+              "platforms": [
+                "instagram"
+              ],
+              "parts": [
+                "caption",
+                "image"
+              ],
+              "crew": {
+                "caption": "a16",
+                "image": "a41"
+              }
+            }
+          ],
+          "proposedSpecialists": [
+            "a16",
+            "a41"
+          ]
+        }
+      }
+    },
+    {
+      "round": 3,
+      "ms": 6562,
+      "status": 200,
+      "serverTiming": "authorization;dur=1.9, context;dur=10.4, sharpen;dur=6495.5, total;dur=6507.8",
+      "quality": {
+        "title": "Your Tuesday Just Got Sweeter",
+        "sharpenedBrief": "Create one Instagram post that captures a relatable, mid-week cheesecake moment—a friend group, a solo treat, or a quiet celebration—that feels genuinely joyful and shareable. Use direct address, sensory language, and Cake Me's signature emojis to invite followers into the happiness, not a sale. No offers; pure celebration of the experience.",
+        "questions": [
+          {
+            "q": "Is this post anchored to a specific everyday scenario (coffee break, friend meetup, solo indulgence) or intentionally universal?",
+            "solvingFor": "Choosing between a tight narrative moment (more relatable) or open invitation (broader reach)",
+            "why": "Brand Core: 'Give me an easy and special way to celebrate a moment, big or small'—we need to know if you're narrowing the moment or keeping it wide."
+          },
+          {
+            "q": "Should the image show the cheesecake as the star, or the *people enjoying it* as the focus?",
+            "solvingFor": "Determining whether the post leads with product beauty or shared happiness",
+            "why": "Brand Core PILLAR 'Genuine Connection'—this shapes whether we're selling the slice or the feeling."
+          }
+        ],
+        "deliveryPlan": {
+          "deliverableGroups": [
+            {
+              "type": "social_post",
+              "count": 1,
+              "platforms": [
+                "instagram"
+              ],
+              "parts": [
+                "caption",
+                "image"
+              ],
+              "crew": {
+                "caption": "a16",
+                "image": "a41"
+              }
+            }
+          ],
+          "proposedSpecialists": [
+            "a16",
+            "a41"
+          ]
+        }
+      }
+    }
+  ]
+}

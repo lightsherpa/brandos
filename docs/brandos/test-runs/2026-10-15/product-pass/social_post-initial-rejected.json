@@ -1,0 +1,471 @@
+{
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "type": "social_post",
+  "id": "6beffa02-696b-451d-bb2b-f1721532d9fe",
+  "totalMs": 156774,
+  "task": {
+    "id": "6beffa02-696b-451d-bb2b-f1721532d9fe",
+    "type": "social_post",
+    "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+    "brief": "Create one Instagram social post for Cake Me celebrating an everyday cheesecake moment. Use the joyful, friendly voice and the existing product references. No discounts or invented offers.\nCreate one Instagram post that captures a real, unplanned cheesecake moment (not a milestone). Use direct address, sensory language, and one product reference. Tone is best-friend excited, no urgency or scarcity tactics.\nDiscount codes or limited-time offers\nFormal or corporate language\nGeneric celebration language without sensory detail\nUrgency-driven FOMO ('hurry, they're flying off')\nThird-person product description",
+    "heroes": false,
+    "status": "flagged",
+    "stage": "Flagged",
+    "eta_s": 150,
+    "run_id": "96813f6e-b020-4ee5-8214-cf4abd2c3c2a",
+    "credits": 12,
+    "created_at": "2026-10-15T16:21:11.582Z",
+    "created_by": "78cbcad1-c664-4583-a306-55a440ec7b1c",
+    "brand_core": {
+      "version": 3,
+      "foundation_missing": [],
+      "references": 3,
+      "rules": 0
+    },
+    "provenance": {
+      "bioId": "b6ac7b4f-300a-4ef3-a65c-c625812440ee",
+      "bioVersion": 3,
+      "sourceIds": [
+        "41cf8fe1-7aae-407a-a6bb-ce89da85141e",
+        "214bf8ec-b74c-41ad-a5f3-f4ce755353c3",
+        "e65f43f7-dfe8-4ed2-80b5-07aec8441d3c"
+      ]
+    },
+    "items": [
+      {
+        "index": 0,
+        "status": "flagged",
+        "stage": "Flagged",
+        "needs_review": true,
+        "revisions": 1,
+        "export": null,
+        "transport_html": null,
+        "transport": null,
+        "copy": {
+          "angle": "Unplanned everyday bite: no occasion, just a fork, a slice and the 'you have to try this' look",
+          "overlay_line": "No occasion. Just cheesecake.",
+          "caption": "Nobody planned this. Then the cheesecake came out. 💛\n\nYou know that moment. You're mid-day, mid-scroll, mid-nothing, and suddenly there's a fork in your hand and a golden-brown slice right in front of you. 🌟\n\nThat baked top. That creamy, soft middle. The tiny pause after the first bite where you just go \"oh.\"\n\nNo candles. No big news. No reason at all. Just you, a really good bite and someone across the table giving you the \"wait, let me try that\" look.\n\nThat's exactly why we make our artisanal cheesecakes: for the small, spur-of-the-moment happy breaks that turn into the ones you remember. Grab a fork, share a bite (or don't, we won't tell 🩷).\n\nWho's your \"you have to try this\" person?",
+          "hashtags": [
+            "#CakeMe",
+            "#Cheesecake",
+            "#ArtisanalCheesecake",
+            "#EverydayMoments",
+            "#ShareTheHappy"
+          ],
+          "cta": "Tag your 'you have to try this' person 💛",
+          "claims": [
+            "Cake Me sells artisanal cheesecakes",
+            "Cake Me cheesecakes are baked",
+            "Cake Me cheesecakes turn everyday moments into memorable, shareable celebrations of happiness",
+            "Kraft paper packaging is part of the brand's imagery"
+          ],
+          "image_brief": {
+            "subject": "A single baked cheesecake slice with a golden-brown top and creamy cross-section, resting on kraft paper packaging, with a fork already dipped into the corner and a hand reaching in from the edge of frame, as if caught mid-bite in an unplanned moment",
+            "composition": "Close-up, overhead (top-down) view, minimalist and product-focused; slice off-center with generous breathing space; the fork and hand give a casual, lived-in feel; the cheesecake texture is the hero",
+            "light": "Natural, soft overhead daylight, warm and inviting, gentle shadows, golden-brown tones emphasized",
+            "palette_roles": [
+              "primary",
+              "surface",
+              "ink",
+              "accent"
+            ],
+            "ref_ids": [
+              "ref1"
+            ],
+            "negative": "no text, no letters, no logo, no signage, no labels, no printed packaging graphics, no candles, no party decor, no sterile or corporate styling",
+            "aspect": "4:5"
+          }
+        },
+        "html": null,
+        "html_bytes": null,
+        "image": {
+          "rejected": false,
+          "asset_url": null,
+          "model": "vendor/fal/gpt-image-2.5-edit",
+          "fallback_from": null,
+          "width": null,
+          "height": null,
+          "uses_reference": true,
+          "reference_count": 3,
+          "ocr": {
+            "pass": true,
+            "hits": [],
+            "reason": "0 legible text tokens"
+          },
+          "ms": 126294,
+          "attempts": [
+            {
+              "route": "vendor/fal/gpt-image-2.5",
+              "model": "vendor/fal/gpt-image-2.5-edit",
+              "ms": 52372,
+              "error": null,
+              "ocr_pass": null
+            },
+            {
+              "route": "vendor/fal/gpt-image-2.5",
+              "model": "vendor/fal/gpt-image-2.5-edit",
+              "ms": 58201,
+              "error": null,
+              "ocr_pass": null
+            }
+          ],
+          "error": null
+        },
+        "checks": [
+          {
+            "id": "BRIEF_BANNED",
+            "pass": false,
+            "severity": "soft",
+            "reason": "Brief uses don't-list word(s): formal. Kept out of the copy.",
+            "target": "none"
+          },
+          {
+            "id": "LEN_CAPTION",
+            "pass": true,
+            "severity": "hard",
+            "reason": "Caption 698/2200 chars",
+            "target": "copy"
+          },
+          {
+            "id": "LEN_FIRST_LINE",
+            "pass": true,
+            "severity": "hard",
+            "reason": "First line 53/125 chars",
+            "target": "copy"
+          },
+          {
+            "id": "HASHTAGS",
+            "pass": true,
+            "severity": "hard",
+            "reason": "5/5 hashtags",
+            "target": "copy"
+          },
+          {
+            "id": "CTA",
+            "pass": true,
+            "severity": "hard",
+            "reason": "CTA present",
+            "target": "copy"
+          },
+          {
+            "id": "BANNED",
+            "pass": true,
+            "severity": "hard",
+            "reason": "No banned words",
+            "target": "copy"
+          },
+          {
+            "id": "ASPECT",
+            "pass": true,
+            "severity": "soft",
+            "reason": "Dimensions not reported; skipped",
+            "target": "image"
+          },
+          {
+            "id": "OCR_NOTEXT",
+            "pass": true,
+            "severity": "hard",
+            "reason": "0 legible text tokens",
+            "target": "image"
+          },
+          {
+            "id": "EXPORT_ASSETS",
+            "pass": false,
+            "severity": "hard",
+            "reason": "Stable export assets unavailable",
+            "target": "none"
+          },
+          {
+            "id": "RENDERED_HTML",
+            "pass": false,
+            "severity": "hard",
+            "reason": "A complete rendered HTML artifact is required",
+            "target": "none"
+          },
+          {
+            "id": "BRAND_FONTS",
+            "pass": false,
+            "severity": "hard",
+            "reason": "The renderer must use the certified brand fonts",
+            "target": "none"
+          },
+          {
+            "id": "BRAND_PALETTE",
+            "pass": false,
+            "severity": "hard",
+            "reason": "The renderer must use the certified brand palette",
+            "target": "none"
+          }
+        ],
+        "review": [
+          {
+            "id": "image_matches_brief",
+            "pass": true,
+            "reason": "Depicts a baked cheesecake slice on paper packaging with a hand and fork taking an unplanned bite.",
+            "target": "none"
+          },
+          {
+            "id": "image_matches_palette_refs",
+            "pass": true,
+            "reason": "Features warm yellow background matching the primary palette, golden-brown baked tones, and natural soft daylight.",
+            "target": "none"
+          },
+          {
+            "id": "caption_matches_image",
+            "pass": true,
+            "reason": "Caption describes the fork, creamy slice, baked top, and casual moment shown in the photo.",
+            "target": "none"
+          },
+          {
+            "id": "voice_on_brand",
+            "pass": true,
+            "reason": "Enthusiastic, direct, and conversational tone without using any forbidden corporate or negative words.",
+            "target": "copy"
+          },
+          {
+            "id": "no_unsupported_claim",
+            "pass": true,
+            "reason": "Contains no discounts, superlatives, or unverified claims; strictly aligns with product reference.",
+            "target": "copy"
+          },
+          {
+            "id": "cta_present",
+            "pass": true,
+            "reason": "Includes a clear call to action asking readers who their 'you have to try this' person is.",
+            "target": "copy"
+          }
+        ],
+        "rule_applied": null,
+        "before": {
+          "copy": {
+            "angle": "Unplanned everyday bite: no occasion, just a fork, a slice and the 'you have to try this' look",
+            "overlay_line": "No occasion. Just cheesecake.",
+            "caption": "Nobody planned this. Then the cheesecake came out. 💛\n\nYou know that moment. You're mid-day, mid-scroll, mid-nothing, and suddenly there's a fork in your hand and a golden-brown slice right in front of you. 🌟\n\nThat baked top. That creamy, soft middle. The tiny pause after the first bite where you just go \"oh.\"\n\nNo candles. No big news. No reason at all. Just you, a really good bite and someone across the table giving you the \"wait, let me try that\" look.\n\nThat's exactly why we make our artisanal cheesecakes: for the small, spur-of-the-moment happy breaks that turn into the ones you remember. Grab a fork, share a bite (or don't, we won't tell 🩷).\n\nWho's your \"you have to try this\" person?",
+            "hashtags": [
+              "#CakeMe",
+              "#Cheesecake",
+              "#ArtisanalCheesecake",
+              "#EverydayMoments",
+              "#ShareTheHappy"
+            ],
+            "cta": "Tag your 'you have to try this' person 💛",
+            "claims": [
+              "Cake Me sells artisanal cheesecakes",
+              "Cake Me cheesecakes are baked",
+              "Cake Me cheesecakes turn everyday moments into memorable, shareable celebrations of happiness",
+              "Kraft paper packaging is part of the brand's imagery"
+            ],
+            "image_brief": {
+              "subject": "A single baked cheesecake slice with a golden-brown top and creamy cross-section, resting on kraft paper packaging, with a fork already dipped into the corner and a hand reaching in from the edge of frame, as if caught mid-bite in an unplanned moment",
+              "composition": "Close-up, overhead (top-down) view, minimalist and product-focused; slice off-center with generous breathing space; the fork and hand give a casual, lived-in feel; the cheesecake texture is the hero",
+              "light": "Natural, soft overhead daylight, warm and inviting, gentle shadows, golden-brown tones emphasized",
+              "palette_roles": [
+                "primary",
+                "surface",
+                "ink",
+                "accent"
+              ],
+              "ref_ids": [
+                "ref1"
+              ],
+              "negative": "no text, no letters, no logo, no signage, no labels, no printed packaging graphics, no candles, no party decor, no sterile or corporate styling",
+              "aspect": "4:5"
+            }
+          },
+          "image_url": null,
+          "failed": [
+            {
+              "id": "EXPORT_ASSETS",
+              "pass": false,
+              "severity": "hard",
+              "reason": "Stable export assets unavailable",
+              "target": "none"
+            },
+            {
+              "id": "RENDERED_HTML",
+              "pass": false,
+              "severity": "hard",
+              "reason": "A complete rendered HTML artifact is required",
+              "target": "none"
+            },
+            {
+              "id": "BRAND_FONTS",
+              "pass": false,
+              "severity": "hard",
+              "reason": "The renderer must use the certified brand fonts",
+              "target": "none"
+            },
+            {
+              "id": "BRAND_PALETTE",
+              "pass": false,
+              "severity": "hard",
+              "reason": "The renderer must use the certified brand palette",
+              "target": "none"
+            }
+          ]
+        }
+      }
+    ],
+    "notices": [
+      "Brief uses don't-list word(s): formal. Kept out of the copy."
+    ],
+    "result": {
+      "spec": {
+        "task": "social_post",
+        "language": "en",
+        "smp": "Cake Me turns an ordinary, unplanned moment into a happy, shareable one with an artisanal cheesecake.",
+        "posts": [
+          {
+            "angle": "Unplanned everyday bite: no occasion, just a fork, a slice and the 'you have to try this' look",
+            "overlay_line": "No occasion. Just cheesecake.",
+            "caption": "Nobody planned this. Then the cheesecake came out. 💛\n\nYou know that moment. You're mid-day, mid-scroll, mid-nothing, and suddenly there's a fork in your hand and a golden-brown slice right in front of you. 🌟\n\nThat baked top. That creamy, soft middle. The tiny pause after the first bite where you just go \"oh.\"\n\nNo candles. No big news. No reason at all. Just you, a really good bite and someone across the table giving you the \"wait, let me try that\" look.\n\nThat's exactly why we make our artisanal cheesecakes: for the small, spur-of-the-moment happy breaks that turn into the ones you remember. Grab a fork, share a bite (or don't, we won't tell 🩷).\n\nWho's your \"you have to try this\" person?",
+            "hashtags": [
+              "#CakeMe",
+              "#Cheesecake",
+              "#ArtisanalCheesecake",
+              "#EverydayMoments",
+              "#ShareTheHappy"
+            ],
+            "cta": "Tag your 'you have to try this' person 💛",
+            "claims": [
+              "Cake Me sells artisanal cheesecakes",
+              "Cake Me cheesecakes are baked",
+              "Cake Me cheesecakes turn everyday moments into memorable, shareable celebrations of happiness",
+              "Kraft paper packaging is part of the brand's imagery"
+            ],
+            "image_brief": {
+              "subject": "A single baked cheesecake slice with a golden-brown top and creamy cross-section, resting on kraft paper packaging, with a fork already dipped into the corner and a hand reaching in from the edge of frame, as if caught mid-bite in an unplanned moment",
+              "composition": "Close-up, overhead (top-down) view, minimalist and product-focused; slice off-center with generous breathing space; the fork and hand give a casual, lived-in feel; the cheesecake texture is the hero",
+              "light": "Natural, soft overhead daylight, warm and inviting, gentle shadows, golden-brown tones emphasized",
+              "palette_roles": [
+                "primary",
+                "surface",
+                "ink",
+                "accent"
+              ],
+              "ref_ids": [
+                "ref1"
+              ],
+              "negative": "no text, no letters, no logo, no signage, no labels, no printed packaging graphics, no candles, no party decor, no sterile or corporate styling",
+              "aspect": "4:5"
+            }
+          }
+        ]
+      },
+      "metrics": {
+        "total_ms": 149399,
+        "stage_ms": {
+          "Planning": 0,
+          "Writing": 2,
+          "Imaging": 15548,
+          "Checking": 141846,
+          "Fixing": 149399,
+          "Ready": 149399
+        },
+        "cost": {
+          "total_usd": 0.1718,
+          "calls": 6,
+          "by_step": {
+            "writing": 0.0221,
+            "imaging": 0.14,
+            "ocr": 0.0045,
+            "review": 0.0052
+          },
+          "limits": {
+            "maxUsd": 0.6,
+            "maxImageCalls": 7,
+            "maxTextCalls": 12,
+            "imageConcurrency": 3
+          }
+        },
+        "ledger": [
+          {
+            "at": "2026-10-15T16:21:27.128Z",
+            "kind": "text",
+            "step": "writing",
+            "model": "claude-sonnet-5-5",
+            "cost_usd": 0.022144,
+            "ms": 15543,
+            "tokens_in": 1397,
+            "tokens_out": 1935,
+            "fallback_from": null,
+            "error": null
+          },
+          {
+            "at": "2026-10-15T16:22:19.503Z",
+            "kind": "image",
+            "step": "imaging",
+            "slot": 0,
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "cost_usd": 0.07,
+            "ms": 52372,
+            "fallback_from": null,
+            "uses_reference": true,
+            "error": null
+          },
+          {
+            "at": "2026-10-15T16:22:28.170Z",
+            "kind": "text",
+            "step": "ocr",
+            "model": "google/gemini-3.8-flash",
+            "cost_usd": 0.00252375,
+            "ms": 8666,
+            "tokens_in": 1305,
+            "tokens_out": 412,
+            "fallback_from": null,
+            "error": null
+          },
+          {
+            "at": "2026-10-15T16:23:26.373Z",
+            "kind": "image",
+            "step": "imaging",
+            "slot": 0,
+            "model": "vendor/fal/gpt-image-2.5-edit",
+            "cost_usd": 0.07,
+            "ms": 58201,
+            "fallback_from": null,
+            "uses_reference": true,
+            "error": null
+          },
+          {
+            "at": "2026-10-15T16:23:33.425Z",
+            "kind": "text",
+            "step": "ocr",
+            "model": "google/gemini-3.8-flash",
+            "cost_usd": 0.00199875,
+            "ms": 7051,
+            "tokens_in": 1305,
+            "tokens_out": 272,
+            "fallback_from": null,
+            "error": null
+          },
+          {
+            "at": "2026-10-15T16:23:40.980Z",
+            "kind": "text",
+            "step": "review",
+            "model": "google/gemini-3.8-flash",
+            "cost_usd": 0.00518175,
+            "ms": 7552,
+            "tokens_in": 2159,
+            "tokens_out": 950,
+            "fallback_from": null,
+            "error": null
+          }
+        ],
+        "models": [
+          "claude-sonnet-5-5",
+          "vendor/fal/gpt-image-2.5-edit",
+          "google/gemini-3.8-flash"
+        ]
+      }
+    },
+    "error": null,
+    "finished_at": "2026-10-15T16:23:41.020Z",
+    "crew": [
+      "copy",
+      "image",
+      "compositor",
+      "qa"
+    ]
+  }
+}

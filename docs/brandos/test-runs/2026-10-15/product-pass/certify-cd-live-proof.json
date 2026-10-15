@@ -1,0 +1,28 @@
+{
+  "brandId": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "jobId": "99dc109f-8e2e-4ec1-bff4-6b4e6d2bbafd",
+  "version": 4,
+  "claims": 31,
+  "result": {
+    "ok": true,
+    "status": "completed",
+    "decision": "approve",
+    "composite": 100,
+    "band": "approve",
+    "gateFailures": [],
+    "needsCalibration": false,
+    "certifiedVersion": 4,
+    "needsLeadApproval": false
+  },
+  "screenshots": [
+    "certify-cd-live-final-en-1280.png",
+    "certify-cd-live-final-en-1440.png",
+    "certify-cd-live-final-es-1280.png",
+    "certify-cd-live-final-es-1440.png",
+    "certify-cd-live-final-ar-1280.png",
+    "certify-cd-live-final-ar-1440.png",
+    "certify-cd-live-confirmed-1280.png",
+    "certify-cd-live-confirmed-1440.png"
+  ],
+  "errors": []
+}

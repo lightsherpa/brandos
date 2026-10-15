@@ -26,3 +26,24 @@ test("no fallback configured behaves like generate", async () => {
   const out = await collect(generateWithFallback({ route: "p", prompt: "x" }, gen));
   assert.equal(out.at(-1).model, "p"); assert.equal(out.at(-1).fallback_from, undefined);
 });
+
+test('thrown vendor network errors fall back internally without leaking provider details', async () => {
+ const gen=async function*({route}){if(route==='p')throw Error('network https://provider.test?key=private');yield {type:'done',asset_url:'https://image.test/accepted',model:route};};
+ const out=await collect(generateWithFallback({route:'p',fallback:'f',prompt:'photo'},gen));
+ assert.equal(out.at(-1).fallback_from,'p');assert.ok(!JSON.stringify(out).includes('private'));
+});
+test('every vendor request carries the remaining overall deadline and expired requests never start',async()=>{
+ const {fetchWithImageDeadline}=await import('./fal-image.js');
+ let options;await fetchWithImageDeadline('https://provider.test',{},Date.now()+50,async(_url,opts)=>{options=opts;return {};});
+ assert.ok(options.signal instanceof AbortSignal);
+ let calls=0;await assert.rejects(fetchWithImageDeadline('https://provider.test',{},Date.now()-1,async()=>{calls++;}),/timed out/);assert.equal(calls,0);
+ await assert.rejects(fetchWithImageDeadline('https://provider.test',{},Date.now()+50,async()=>{throw Error('sensitive-url');}),/network request failed/);
+});
+test('hung vendor fetch aborts within its remaining deadline',async()=>{
+ const {fetchWithImageDeadline}=await import('./fal-image.js');const started=Date.now();
+ await assert.rejects(fetchWithImageDeadline('https://provider.test',{},Date.now()+20,async(_url,{signal})=>new Promise((_resolve,reject)=>{
+  const guard=setTimeout(()=>reject(Error('deadline did not abort')),500);
+  signal.addEventListener('abort',()=>{clearTimeout(guard);reject(signal.reason);},{once:true});
+ })),/timed out/);
+ assert.ok(Date.now()-started<400);
+});

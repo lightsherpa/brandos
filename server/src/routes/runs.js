@@ -1,3 +1,4 @@
+import { sanitizeOutput } from "../lib/output-quality.js";
 // ─────────────────────────────────────────────────────────────────────
 // P3 — first production specialist run + QA gate.
 //
@@ -21,6 +22,7 @@
 //   5. Atomically finalizes `runs`, `outputs`, `qa_results`, and the reserved debit.
 // ─────────────────────────────────────────────────────────────────────
 
+import { crewCanvasEnabled } from "../harness/crew-canvas.js";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { requireAuth } from "../middleware/auth.js";
@@ -76,6 +78,7 @@ app.post("/stream", requireAuth, async (c) => {
   let body;
   try { body = await c.req.json(); } catch { return c.json({ error: "Invalid JSON" }, 400); }
   const { specialistId, briefText, brandId: requestedBrandId, briefId: existingBriefId, briefMeta, modelOverride, revisionFeedback, deliverableSpec, guardrailOverrideToken, outputLocale: requestedOutputLocale } = body || {};
+  if (crewCanvasEnabled() && modelOverride != null) return c.json({ error: "Model choice is managed by the crew", code: "MODEL_OVERRIDE_NOT_ALLOWED" }, 400);
   let brandId = requestedBrandId || null;
   let pinnedBrief = null;
   if (!specialistId || !briefText) return c.json({ error: "specialistId and briefText required" }, 400);
@@ -150,6 +153,7 @@ app.post("/stream", requireAuth, async (c) => {
     ? modelOverride
     : (spec.payload?.modelRouting?.primary || "");
   const isImage = isImageRoute(route);
+  if (crewCanvasEnabled() && isImage) return c.json({ error: "Use a Canvas task so image quality checks and brand composition run together", code: "CREW_TASK_REQUIRED" }, 409);
   /* Tool permission (harness §3): a copy agent may never run on an image route. */
   try { assertSpecRouteAllowed(spec, route); }
   catch (err) { if (err instanceof ToolPermissionError) return c.json({ error: err.message, code: err.code }, 403); throw err; }
@@ -792,7 +796,7 @@ app.get("/:id", requireAuth, async (c) => {
     .select("*")
     .in("output_id", (outputs || []).map((o) => o.id));
 
-  return c.json({ run, outputs: outputs || [], qa: qaResults || [] });
+  return c.json({ run, outputs: (outputs || []).map(sanitizeOutput), qa: qaResults || [] });
 });
 
 export default app;

@@ -1,9 +1,11 @@
+import { sanitizeOutput, hasQuarantinedOutput } from "../lib/output-quality.js";
 // PATCH /api/outputs/:id — save the user's edited output body.
 // Writes `edited_text` + `edited_at` + `edited_by` INSIDE the existing
 // outputs.body JSONB so the original AI output stays intact for audit
 // (apis-and-agents-plan §8 — "Per-run audit ... recoverable forever").
 // The UI reads body.edited_text if present, else body.text.
 
+import { replaceOutputComponent } from "../lib/output-component.js";
 import { assertHumanActor } from "../lib/human-actor.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
@@ -20,7 +22,9 @@ app.patch("/:id", requireAuth, async (c) => {
   const outputId = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
   const text = typeof body.text === "string" ? body.text : null;
-  if (text == null) return c.json({ error: "text required" }, 400);
+  const component = body.component;
+  if (component && !["1", "true"].includes(process.env.REVIEW_DESK_UX)) return c.json({error:"Component replacement is unavailable"}, 404);
+  if (text == null && !component) return c.json({ error: "text required" }, 400);
 
   /* Ownership check via the output → brief → brand → workspace chain */
   const { data: output, error: outErr } = await supabaseAdmin
@@ -39,17 +43,23 @@ app.patch("/:id", requireAuth, async (c) => {
   }
 
   const nowIso = new Date().toISOString();
-  const newBody = {
+  let newBody = {
     ...(output.body || {}),
     edited_text: text,
     edited_at:   nowIso,
     edited_by:   userId,
   };
 
+  if (component) {
+    try { newBody = replaceOutputComponent(output.body, component, {userId,now:nowIso}); }
+    catch(error) { return c.json({error:error.message},400); }
+  }
+
   const { data: updated, error: updErr } = await supabaseAdmin
     .from("outputs")
     .update({ body: newBody })
     .eq("id", outputId)
+    .eq("workflow_status", output.workflow_status)
     .select("id, body, status")
     .single();
   if (updErr) return c.json({ error: updErr.message }, 500);
@@ -67,11 +77,11 @@ app.patch("/:id", requireAuth, async (c) => {
       runId:        output.run_id,
       outputId,
       createdBy:    userId,
-      payload:      { chars_edited: text.length },
+      payload:      { chars_edited: component ? component.value.length : text.length, ...(component ? {component_path:component.path} : {}) },
     });
   } catch {}
 
-  return c.json({ output: updated });
+  return c.json({ output: sanitizeOutput(updated) });
 });
 
 app.delete("/:id", requireAuth, async (c) => {
@@ -127,6 +137,7 @@ app.post("/:id/workflow", requireAuth, async (c) => {
   if (!hasPermission(auth, transition.permission, workspaceId)) return c.json({ error: "Forbidden", permission: transition.permission }, 403);
   if (!transition.from.includes(output.workflow_status)) return c.json({ error: "Invalid workflow transition", from: output.workflow_status, action }, 409);
   if (action === "internal_approve" && output.submitted_by === auth.userId) return c.json({ error: "Designers cannot internally approve their own submission", code: "SEPARATION_OF_DUTY" }, 409);
+  if (["submit_internal", "internal_approve", "send_client", "client_approve"].includes(action) && hasQuarantinedOutput(output.body)) return c.json({error:"This artifact has not passed quality review",code:"QUALITY_REVIEW_REQUIRED"},409);
   const next = { workflow_status: transition.to, ...transition.patch };
   if (["task", "task_rerun"].includes(output.kind)) {
     if (["internal_approve", "client_approve"].includes(action)) next.status = "approved";
@@ -150,7 +161,7 @@ app.post("/:id/workflow", requireAuth, async (c) => {
   }
   const { data: updated, error: updateError } = await supabaseAdmin.from("outputs").update(next).eq("id", outputId).eq("workflow_status", output.workflow_status).select().single();
   await writeAuthorizationAudit(c, { permission: transition.permission, action, targetType:"output", targetId:outputId, workspaceId, priorState:{workflow_status:output.workflow_status}, newState:updated, outcome:updateError?"failure":"success", reason });
-  return updateError ? c.json({ error:updateError.message },409) : c.json({ output:updated });
+  return updateError ? c.json({ error:updateError.message },409) : c.json({ output:sanitizeOutput(updated) });
 });
 
 export default app;

@@ -1,3 +1,4 @@
+import { quarantinedItem } from '../lib/output-quality.js';
 // Exact saved output download: no model calls, asset renewal, or DB mutations.
 import { Hono } from 'hono';
 import { requireAuth } from '../middleware/auth.js';
@@ -25,6 +26,7 @@ export function createTaskExportRouter({authMiddleware=requireAuth,loadOutput=lo
   if(!/^\d+$/.test(c.req.param('index'))||!Number.isSafeInteger(index))return c.json({error:'Invalid item index'},400);
   const item=Array.isArray(saved?.items)?saved.items.find(it=>it.index===index):saved?.item?.index===index?saved.item:null;
   if(!item)return c.json({error:'Item not found'},404);
+  if(quarantinedItem(item))return c.json({error:'This artifact has not passed quality review',code:'QUALITY_REVIEW_REQUIRED'},409);
   if(item.export?.stable!==true||typeof item.html!=='string'||Buffer.byteLength(item.html)>40*1024*1024)return c.json({error:'Stable HTML export unavailable',code:'EXPORT_UNAVAILABLE'},409);
   const width=Number(item.html.match(/data-width="(\d+)"/)?.[1]);
   const height=Number(item.html.match(/data-height="(\d+)"/)?.[1]);

@@ -1,6 +1,9 @@
 -- Certifier v2 S3: cert_messages RLS. Self-asserting; runs in a rolled-back transaction.
 -- docker exec -i supabase_db_CaastorOS psql -U postgres -v ON_ERROR_STOP=1 < supabase/tests/cert_messages_rls.sql
 begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path=public,extensions;
+select no_plan();
 insert into auth.users (id, email, aud, role) values
  ('00000000-0000-0000-0000-0000000000a1','a@test.local','authenticated','authenticated'),
  ('00000000-0000-0000-0000-0000000000b1','b@test.local','authenticated','authenticated');
@@ -101,4 +104,7 @@ do $$ begin
   raise exception 'client RPC must be denied';
 exception when insufficient_privilege then raise notice 'OK service-only answer RPC';
 end $$;
+reset role;
+select pass('All transactional cert-message identity, idempotency, scope, privacy and grant checks passed');
+select * from finish();
 rollback;

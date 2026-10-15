@@ -10,8 +10,8 @@ export async function embedExportAssets(html,{layer1,imageUrl=null,fetchAsset=sa
  for(const f of layer1.font_assets||[]) {
  if(!f.sourceId||!["commercial","open_source","custom","system"].includes(f.license)||!f.license_reference||f.rights_confirmed!==true)throw new Error('Export font must have licensed source evidence');
  const data=await embed(f.url,'font','font',f.sourceId);
- Object.assign(assets.at(-1),{family:f.family,license:f.license,license_reference:f.license_reference,rights_confirmed:true});
- css+=`@font-face{font-family:'${cssString(f.family)}';src:url('${data}');font-style:normal;font-weight:100 900;font-display:block;}`;
+ Object.assign(assets.at(-1),{family:f.family,license:f.license,license_reference:f.license_reference,rights_confirmed:true,weight:f.weight||"400",style:f.style||"normal",...(f.unicode_range?{unicode_range:f.unicode_range}:{})});
+ css+=`@font-face{font-family:'${cssString(f.family)}';src:url('${data}');font-style:${f.style === 'italic' ? 'italic' : 'normal'};font-weight:${/^(?:[1-9]00)(?: [1-9]00)?$/.test(String(f.weight)) ? f.weight : '400'};font-display:block;${f.unicode_range && /^U\+[0-9A-F?]+(?:-[0-9A-F]+)?(?:\s*,\s*U\+[0-9A-F?]+(?:-[0-9A-F]+)?)*$/i.test(f.unicode_range) ? `unicode-range:${f.unicode_range};` : ''}}`;
  }
  html=html.replace('</head>',`<style>${css}</style></head>`);
  return {html,stable:true,assets};

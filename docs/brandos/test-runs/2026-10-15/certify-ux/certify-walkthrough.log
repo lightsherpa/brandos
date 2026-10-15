@@ -1,0 +1,15 @@
+SCREEN owner-review
+SCREEN owner-confirmation
+SCREEN owner-confirmed
+SCREEN cd-review
+SCREEN claim-details
+SCREEN inline-question
+SCREEN client-chat
+SCREEN imagery-evidence
+SCREEN font-specimens
+SCREEN competitor-evidence
+SCREEN cd-final-confirmation
+SCREEN cd-certified
+SCREEN owner-change-request
+SCREEN owner-next-version
+PASS local Cake Me v3 end-to-end: 4 stages, 80 screenshots, no page errors.

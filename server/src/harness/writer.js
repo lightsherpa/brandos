@@ -1,3 +1,4 @@
+import { crewCanvasEnabled } from "./crew-canvas.js";
 // The ONE writer call per task (CREWS §0.2). Output is a typed Message Spec,
 // validated against the task contract before anything downstream reads it.
 import { callJson } from "./llm.js";
@@ -10,7 +11,7 @@ import { EMAIL_LIMITS } from "./checks/email.js";
 const IMAGE_BRIEF_SHAPE = `{"subject": what is photographed (concrete, on-brief), "composition": framing, "light": lighting, "palette_roles": ["primary"|"accent"|"ink"|"surface"...], "ref_ids": ["ref1"...], "negative": "no text, no letters, no logo", "aspect": "ASPECT"}`;
 
 const SHAPES = {
-  social_post: (n, aspect) => `{"task":"social_post","language": ISO code,"smp": single-minded proposition from the brief,"posts":[ exactly ${n} × {"angle": distinct angle,"overlay_line": optional ≤8 words for code typesetting,"caption": ≤${SOCIAL_LIMITS.caption} chars with first line ≤${SOCIAL_LIMITS.firstLine} chars and NO hashtags inside,"hashtags": ≤${SOCIAL_LIMITS.hashtags} items with #,"cta": short call to action,"claims": [factual claims you made, each must come from the brief or Brand Core],"image_brief": ${IMAGE_BRIEF_SHAPE.replace("ASPECT", aspect)} } ]}`,
+  social_post: (n, aspect) => `{"task":"social_post","language": ISO code,"smp": single-minded proposition from the brief,"posts":[ exactly ${n} × {"angle": distinct angle,"overlay_line": ${crewCanvasEnabled() ? "required nonempty" : "optional"} ≤8 words for code typesetting,"caption": ≤${SOCIAL_LIMITS.caption} chars with first line ≤${SOCIAL_LIMITS.firstLine} chars and NO hashtags inside,"hashtags": ≤${SOCIAL_LIMITS.hashtags} items with #,"cta": short call to action,"claims": [factual claims you made, each must come from the brief or Brand Core],"image_brief": ${IMAGE_BRIEF_SHAPE.replace("ASPECT", aspect)} } ]}`,
   email_sequence: (n, aspect, heroes) => `{"task":"email_sequence","language": ISO code,"smp": single-minded proposition,"emails":[ exactly ${n} × {"day_offset": integer days after start,"purpose": distinct purpose (welcome/value/convert...),"subject": ≤${EMAIL_LIMITS.subjectSoft} chars,"preheader": ${EMAIL_LIMITS.preheaderMin}–${EMAIL_LIMITS.preheaderMax} chars and not repeating the subject,"headline": ≤${EMAIL_LIMITS.headline} chars,"body_blocks": 1–4 short paragraphs, ≤${EMAIL_LIMITS.bodyWords} words total,"cta":{"label": ≤28 chars,"url": absolute https URL},"claims": [factual claims made]${heroes ? `,"hero_image_brief": ${IMAGE_BRIEF_SHAPE.replace("ASPECT", aspect)}` : ""} } ]}`,
 };
 

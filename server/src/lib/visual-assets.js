@@ -111,6 +111,14 @@ export function certifiedVisualSourceIds(visual = {}) {
   ].filter(Boolean));
 }
 
+export function projectResolvedFont(font, url, signals) {
+  return {...font,...(font.sourceId?{url:url||null}:{}),...(signals?{
+    license:signals.license_type||null,suggest:signals.license_reference || (signals.rights_confirmed === true && font.sourceId ? `bio-source:${font.sourceId}#rights-confirmed` : null),
+    rights_confirmed:signals.rights_confirmed===true,
+    weight:signals.font_weight||font.weight||"400",style:signals.font_style||font.style||"normal",
+  }:{})};
+}
+
 // Runtime projection only. Signed URLs must never be persisted in a BIO.
 // The pipeline's Layer 1 reader expects logo.url / dark_url; source IDs remain
 // the durable certification identity and stay present in this projection.
@@ -134,7 +142,7 @@ export async function resolveFoundationForUse(brandId, visual = {}) {
   } : null;
   const type=(visual.type || []).map(font=>{
     const signals=fontMetadata.get(font.sourceId);
-    return {...font,...(font.sourceId?{url:fontUrls.get(font.sourceId)||null}:{}),...(signals?{license:signals.license_type||null,suggest:signals.license_reference||null,rights_confirmed:signals.rights_confirmed===true}:{})};
+    return projectResolvedFont(font,fontUrls.get(font.sourceId),signals);
   });
   const unresolved=[...ids].filter(id=>!logoUrls.has(id)&&!fontUrls.has(id));
   if(unresolved.length){const error=new Error('A certified foundation upload cannot be resolved');error.code='FOUNDATION_INCOMPLETE';error.status=409;error.missing=unresolved.map(id=>`source:${id}`);throw error;}

@@ -49,3 +49,5 @@ test('task cards require a recorded human workflow decision to show Approved',()
  assert.equal(expandOutput(human)[0].status,'approved');
  assert.equal(expandOutput({...output,status:'qa_passed'})[0].status,'needs_review');
 });
+
+test('persisted quarantined task artifacts are hidden by Library until ready',()=>{const output={id:'quarantine',kind:'task',body:{task_id:'task',items:[{index:0,status:'flagged',quality_gated:true,html:'private render',copy:{caption:'Cake'}}]}};assert.equal(expandOutput(output)[0].html,null);output.body.items[0].status='ready';assert.equal(expandOutput(output)[0].html,'private render');});

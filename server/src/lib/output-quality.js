@@ -1,0 +1,23 @@
+import { clientBody } from "./client-payload.js";
+// Private production state can retain checked source assets for repair. Only
+// ready artifacts may cross read/export boundaries, regardless of current flags.
+// Model and vendor names are removed from every body that leaves the API.
+export const quarantinedItem = item => item?.quality_gated === true && !['ready','approved'].includes(item.status);
+const decode = body => {if(typeof body!=='string')return body;try{return JSON.parse(body);}catch{return null;}};
+export function hasQuarantinedOutput(body) {
+ const decoded=decode(body);return !!decoded && (quarantinedItem(decoded)||quarantinedItem(decoded.item)||(Array.isArray(decoded.items)?decoded.items:[]).some(quarantinedItem));
+}
+export function sanitizeOutput(output) {
+ const decoded=decode(output?.body);if(!decoded||typeof decoded!=='object')return output;
+ const stripped=clientBody(decoded);
+ const quarantined=hasQuarantinedOutput(decoded);
+ if(stripped===decoded && !quarantined)return output;
+ const cleanItem=item=>quarantinedItem(item)?{...item,html:null,transport_html:null,image:item.image?{...item.image,asset_url:null}:null,before:item.before?{...item.before,image_url:null}:null}:item;
+ let body=stripped===decoded?{...decoded}:stripped;
+ if(quarantined){
+  if(Array.isArray(body.items))body={...body,items:body.items.map(cleanItem)};
+  if(body.item)body={...body,item:cleanItem(body.item)};
+  if(quarantinedItem(body))body=cleanItem(body);
+ }
+ return {...output,asset_url:quarantined?null:output.asset_url,body:typeof output.body==='string'?JSON.stringify(body):body};
+}

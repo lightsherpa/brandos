@@ -386,3 +386,17 @@ select count(*) from public.outputs where kind in ('task','task_rerun') and stat
 ```
 
 Regression: npm run test:output-status-db applies the migration twice in a disposable PostgreSQL container and proves machine approvals change while independently recorded human approvals remain. It never targets a shared database.
+
+## 20. `20261016000000_brand_core_input_tags.sql` (feat/product-pass)
+
+Landing order: **after** `20261015000000_email_assets.sql` on `feat/email-asset-hosting`, which is handoff entry 19. This migration was `20261015150000` and is renumbered to `20261016000000` so the two branches do not both claim entry 19. Apply email assets first, then this file. Preserves per-image product, brand/lifestyle and usage-example tags when confirming reference rights. New flagged uploads append to active references; legacy uploads retain the existing replacement behavior. Owner, tenant, rights, version and idempotency checks remain enforced. Safe before the merge with the new input flags off. This entry is a deployment reference only; no production application is authorized. Never replay the older reference function afterward.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261016000000_brand_core_input_tags.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261016000000', 'brand_core_input_tags') on conflict do nothing" -c 'commit'
+```
+
+Verify:
+
+```sql
+select position('reference_append' in pg_get_functiondef('public.confirm_brand_references(uuid,uuid,integer,uuid,uuid[],jsonb)'::regprocedure)) > 0 as supports_append_and_tags;
+```

@@ -25,3 +25,17 @@ test('upload defaults to inspiration and logo variant persists at ingest',async(
  assert.equal((await upload({assetRole:'logo',logoVariant:'dark'})).status,200);assert.equal(metadata.asset_role,'logo');assert.equal(metadata.logo_variant,'dark');
  const svg=await upload({assetRole:'logo'},new File(['<svg xmlns="http://www.w3.org/2000/svg"/>'],'mark.svg',{type:'image/svg+xml'}));assert.equal(svg.status,400);assert.match(JSON.stringify(await svg.json()),/SVG/);
 });
+
+test('stale expectedVersion is rejected before appending owner changes',async()=>{
+ auth=designer();const before=appends;
+ const res=await app.request('/brand',{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({payload,expectedVersion:99})});
+ assert.equal(res.status,409);assert.equal((await res.json()).code,'STALE_BIO_VERSION');assert.equal(appends,before);
+});
+
+test('new input upload tags persist on source records',async()=>{
+ auth=designer();
+ const png=await (await import('sharp')).default({create:{width:10,height:10,channels:4,background:'#ffd115'}}).png().toBuffer();
+ const form=new FormData();form.set('file',new File([png],'use-case.png',{type:'image/png'}));form.set('bucket','visual');form.set('referenceIntake','true');form.set('referenceTag','usage');form.set('referenceAppend','true');
+ const response=await app.request('/brand/sources/upload',{method:'POST',body:form});
+ assert.equal(response.status,200);assert.equal(metadata.reference_tag,'usage');assert.equal(metadata.reference_append,true);assert.equal(metadata.rights_confirmed,false);
+});

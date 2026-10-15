@@ -46,9 +46,6 @@ export const ALLOWED_MODEL_OVERRIDES = new Set([
   "openrouter/google/gemini-3.8-flash",
   "openrouter/google/gemini-2.5-pro",
   "openrouter/google/gemini-2.5-flash",
-  "vendor/fal/flux-1.1-pro",
-  "vendor/fal/flux-schnell",
-  "vendor/fal/recraft-v3",
 ]);
 
 export function isAllowedModelOverride(route) {

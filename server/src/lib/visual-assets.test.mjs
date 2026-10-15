@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { certifiedVisualSourceIds, classifyVisualSources, mergeTypographyFromAssets, pinCertifiedReferences, selectGenerationReference } from "./visual-assets.js";
+import { projectResolvedFont, certifiedVisualSourceIds, classifyVisualSources, mergeTypographyFromAssets, pinCertifiedReferences, selectGenerationReference } from "./visual-assets.js";
 
 const row = (ext, role, extra = {}) => ({
   id: `${ext}-${role}`,
@@ -55,4 +55,16 @@ test("active visual evidence protection covers image references and licensed fon
     [...certifiedVisualSourceIds({ references:[{ sourceId:"image-1" }], type:[{ sourceId:"font-1" }] })].sort(),
     ["font-1", "image-1"],
   );
+});
+
+ test("runtime uploaded font projection preserves certified family and actual source style",()=>{
+ const out=projectResolvedFont({family:"Meaty Nineties",kind:"Display",sourceId:"uploaded",weight:"400",style:"normal"},"https://storage.test/font",{font_weight:"600",font_style:"italic",rights_confirmed:true,license_type:"commercial",license_reference:"Invoice"});
+ assert.equal(out.family,"Meaty Nineties");assert.equal(out.weight,"600");assert.equal(out.style,"italic");assert.equal(out.rights_confirmed,true);assert.equal(out.suggest,"Invoice");
+ const denied=projectResolvedFont({family:"Meaty Nineties",sourceId:"missing"},null,{rights_confirmed:false});assert.equal(denied.url,null);assert.equal(denied.rights_confirmed,false);
+ });
+
+test("rights-confirmed upload without optional invoice uses its durable rights assertion as evidence",()=>{
+ const out=projectResolvedFont({family:"Meaty Nineties",sourceId:"approved-font"},"https://storage.test/font",{rights_confirmed:true,license_type:"commercial",license_reference:""});
+ assert.equal(out.suggest,"bio-source:approved-font#rights-confirmed");assert.equal(out.license,"commercial");assert.equal(out.rights_confirmed,true);
+ const denied=projectResolvedFont({family:"Meaty Nineties",sourceId:"approved-font"},"https://storage.test/font",{rights_confirmed:false,license_type:"commercial",license_reference:""});assert.equal(denied.suggest,null);
 });

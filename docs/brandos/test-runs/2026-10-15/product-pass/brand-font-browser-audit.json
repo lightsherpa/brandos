@@ -1,0 +1,317 @@
+{
+  "brand": "0b9560e9-684d-4fc4-bed4-fbced3c4f808",
+  "fonts": [
+    {
+      "kind": "Body",
+      "family": "Lato",
+      "provider": "google"
+    },
+    {
+      "kind": "Label",
+      "family": "Inter",
+      "provider": "google"
+    },
+    {
+      "kind": "Display",
+      "family": "Meaty Nineties",
+      "license": "commercial",
+      "sourceId": "a645b9e5-6a93-4fcd-a41b-a2969594c41f"
+    }
+  ],
+  "rules": [
+    {
+      "selector": "p",
+      "font": "var(--font-body)",
+      "priority": ""
+    },
+    {
+      "selector": "html[data-palette=\"plex-registry\"] body, html[data-palette=\"plex-registry\"] body *",
+      "font": "\"Instrument Sans\", \"IBM Plex Sans Arabic\", sans-serif",
+      "priority": "important"
+    },
+    {
+      "selector": ".book2 .book2-specimen, .book2 .book2-type-line p",
+      "font": "var(--book-specimen-family)",
+      "priority": "important"
+    }
+  ],
+  "faces": [
+    {
+      "family": "Geist Mono",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Geist Mono",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Instrument Sans",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Instrument Sans",
+      "weight": "400",
+      "style": "normal",
+      "status": "loaded"
+    },
+    {
+      "family": "Instrument Sans",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Instrument Sans",
+      "weight": "500",
+      "style": "normal",
+      "status": "loaded"
+    },
+    {
+      "family": "Instrument Sans",
+      "weight": "600",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Instrument Sans",
+      "weight": "600",
+      "style": "normal",
+      "status": "loaded"
+    },
+    {
+      "family": "Instrument Serif",
+      "weight": "400",
+      "style": "italic",
+      "status": "unloaded"
+    },
+    {
+      "family": "Instrument Serif",
+      "weight": "400",
+      "style": "italic",
+      "status": "unloaded"
+    },
+    {
+      "family": "Instrument Serif",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Instrument Serif",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "IBM Plex Sans Arabic",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "IBM Plex Sans Arabic",
+      "weight": "500",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "IBM Plex Sans Arabic",
+      "weight": "600",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "IBM Plex Sans Arabic",
+      "weight": "700",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "FoundationFallbackInstrument",
+      "weight": "100 900",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Lato",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Lato",
+      "weight": "400",
+      "style": "normal",
+      "status": "loaded"
+    },
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "status": "unloaded"
+    },
+    {
+      "family": "Inter",
+      "weight": "400",
+      "style": "normal",
+      "status": "loaded"
+    },
+    {
+      "family": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "weight": "normal",
+      "style": "normal",
+      "status": "loaded"
+    }
+  ],
+  "specimens": [
+    {
+      "label": "Lato",
+      "computed": "Lato",
+      "inline": "Lato",
+      "check": true,
+      "samples": 7
+    },
+    {
+      "label": "Inter",
+      "computed": "Inter",
+      "inline": "Inter",
+      "check": true,
+      "samples": 7
+    },
+    {
+      "label": "Meaty Nineties",
+      "computed": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "inline": "BrandFont-a645b9e5-6a93-4fcd-a41b-a2969594c41f",
+      "check": true,
+      "samples": 7
+    }
+  ],
+  "renderedFonts": [
+    {
+      "fonts": [
+        {
+          "familyName": "Lato",
+          "postScriptName": "Lato-Regular",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "fonts": [
+        {
+          "familyName": "Inter",
+          "postScriptName": "Inter-Regular",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    },
+    {
+      "fonts": [
+        {
+          "familyName": "Meaty Nineties",
+          "postScriptName": "MeatyNineties-Bold",
+          "isCustomFont": true,
+          "glyphCount": 43
+        }
+      ]
+    }
+  ]
+}
