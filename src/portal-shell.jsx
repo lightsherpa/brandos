@@ -1,8 +1,12 @@
+import {reviewDeskCopy,reviewDeskEnabled} from './lib/review-desk-copy.js';
+import {OwnerCertifyView} from './bio-self-certification.jsx';
+import {certifyUxEnabled} from './certify/ux-flags.js';
+import {ownerBrandFromCertify,certifyRoutePortal} from './lib/certify-routing.js';
 import { CertifyView } from "./certify/CertifyView.jsx";
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
 import { uiFixtureEnabled, FIXTURE_BRANDS, useReadProgress } from "./lib/ui-fixture.js";
-import { useLocale, t, fmtNumber, applyOverrides } from "./lib/i18n.js";
+import { useLocale, getLocale, t, fmtNumber, applyOverrides } from "./lib/i18n.js";
 const { BrandolphAvatar, BrandolphDot, Icon, TweaksPanel, TweakSection, TweakSelect, TweakSlider, TweakRadio, BrandolphHome, Discovery, BioViewer, BrandBook, BriefsLibrary, BriefDetail, SpecialistsDirectory, SpecialistAuthor, CanvasView, Library, BriefBoard, CraftMarketplace, CreditsLedger, SettingsView, TeamQueue, TeamJob, TeamReview, TeamCapacity, TeamClients, TeamMe, CraftQueue, Login, useSession, getCurrentBrandId, setCurrentBrandId, useCurrentBrandId, AdminSpecs, AdminBrandolphMemory, AdminLanguages, AdminAccess, AdminOpex } = window;
 /* Caastor Intelligence — app shell + router + sidebar + topbar.    */
 /* Internal hash router; supports client + team portals.            */
@@ -383,7 +387,7 @@ function Sidebar({ portal, currentRoute, onNav, onLogout, tweaks, brandName, bio
                   className={"navitem" + (active ? " navitem--active" : "")}
                   style={{border:"none", background: undefined, textAlign:"left", width:"100%"}}>
                   <Icon name={r.icon} size={16} />
-                  <span>{t(r.labelKey)}</span>
+                  <span>{r.id === "team-review" && reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : t(r.labelKey)}</span>
                   {r.id === "bio" && currentRoute !== "discovery" && bioScore < 70 && <BrandolphDot />}
                 </button>
               </React.Fragment>
@@ -617,10 +621,10 @@ function TopBar({ portal, route, brandName, go }) {
     credits:     [t("nav.credits"),     t("section.creditsAccount")],
     settings:    [t("nav.account"),     t("section.creditsAccount")],
     upgrade:     [t("title.plans"),     t("section.creditsAccount")],
-    "team-review":["Review desk",      t("section.teamPortal")],
+    "team-review":[reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : "Review desk",      t("section.teamPortal")],
     team:        [t("team.jobQueue"),   t("section.teamPortal")],
     "team-craft":[t("team.craftPolish"), t("section.teamPortal")],
-    "certify": ["Certify", "Creative Director"],
+    "certify": ["Certify", certifyUxEnabled() && portal !== "team" ? "Brand Core" : "Creative Director"],
     "team-job":  [t("title.activeJob"), t("section.teamPortal")],
     "team-capacity":[t("title.capacitySla"), t("section.teamPortal")],
     "team-clients":[t("title.clientRoster"), t("section.teamPortal")],
@@ -727,7 +731,7 @@ function AppDock({ portal, currentRoute, onNav }) {
             )}
             <button className={"app-dock__item" + (["settings", "admin-account", "team-account"].includes(r.id) ? " app-dock__item--account" : "") + (isActive(r.id) ? " app-dock__item--active" : "")} onClick={() => onNav(r.id)}>
               <span className="app-dock__icon"><Icon name={r.icon} size={18} /></span>
-              <span>{t(r.labelKey)}</span>
+              <span>{r.id === "team-review" && reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : t(r.labelKey)}</span>
             </button>
           </React.Fragment>
         ))}
@@ -786,8 +790,9 @@ function App() {
     if (route.id === "credits") { go(`${portal === "admin" || portal === "super_admin" ? "admin-account" : "settings"}/usage`); return; }
     if ((portal === "admin" || portal === "super_admin") && route.id === "settings") { go(`admin-account/${route.param || "workspace"}`); return; }
     if (portal === "team" && route.id === "team-me") { go("team-account/profile"); return; }
-    const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "formats" || route.id === "upgrade";
-    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || ["team-job", "certify"].includes(route.id) || route.id === "team-account";
+    const ownerCertify = route.id === "certify" && certifyRoutePortal(route.param, certifyUxEnabled()) === "client";
+    const isClientRoute = ownerCertify || CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "formats" || route.id === "upgrade";
+    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || (route.id === "team-job" || (route.id === "certify" && !ownerCertify)) || route.id === "team-account";
     const isAdminRoute = route.id === "admin-account" || [...ADMIN_ROUTES,...SUPER_ADMIN_ROUTES].some(r => r.id === route.id);
     const legacySection = LEGACY_ADMIN_SECTION[route.id];
     if (legacySection) { go(`admin-account/${legacySection}`); return; }
@@ -881,7 +886,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "team":         return <TeamQueue go={go} />;
     case "team-review":  return <TeamReview />;
     case "team-craft":   return <CraftQueue />;
-    case "certify":      return <CertifyView id={route.param} go={go} />;
+    case "certify":      return certifyUxEnabled() && ownerBrandFromCertify(route.param) ? <OwnerCertifyView brandId={ownerBrandFromCertify(route.param)} go={go} /> : <CertifyView id={route.param} go={go} />;
     case "team-job":     return <TeamJob id={route.param} go={go} />;
     case "team-capacity":return <TeamCapacity />;
     case "team-clients": return <TeamClients />;

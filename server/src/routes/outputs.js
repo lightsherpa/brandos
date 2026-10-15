@@ -4,6 +4,7 @@
 // (apis-and-agents-plan §8 — "Per-run audit ... recoverable forever").
 // The UI reads body.edited_text if present, else body.text.
 
+import { replaceOutputComponent } from "../lib/output-component.js";
 import { assertHumanActor } from "../lib/human-actor.js";
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth.js";
@@ -20,7 +21,9 @@ app.patch("/:id", requireAuth, async (c) => {
   const outputId = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
   const text = typeof body.text === "string" ? body.text : null;
-  if (text == null) return c.json({ error: "text required" }, 400);
+  const component = body.component;
+  if (component && !["1", "true"].includes(process.env.REVIEW_DESK_UX)) return c.json({error:"Component replacement is unavailable"}, 404);
+  if (text == null && !component) return c.json({ error: "text required" }, 400);
 
   /* Ownership check via the output → brief → brand → workspace chain */
   const { data: output, error: outErr } = await supabaseAdmin
@@ -39,17 +42,23 @@ app.patch("/:id", requireAuth, async (c) => {
   }
 
   const nowIso = new Date().toISOString();
-  const newBody = {
+  let newBody = {
     ...(output.body || {}),
     edited_text: text,
     edited_at:   nowIso,
     edited_by:   userId,
   };
 
+  if (component) {
+    try { newBody = replaceOutputComponent(output.body, component, {userId,now:nowIso}); }
+    catch(error) { return c.json({error:error.message},400); }
+  }
+
   const { data: updated, error: updErr } = await supabaseAdmin
     .from("outputs")
     .update({ body: newBody })
     .eq("id", outputId)
+    .eq("workflow_status", output.workflow_status)
     .select("id, body, status")
     .single();
   if (updErr) return c.json({ error: updErr.message }, 500);
@@ -67,7 +76,7 @@ app.patch("/:id", requireAuth, async (c) => {
       runId:        output.run_id,
       outputId,
       createdBy:    userId,
-      payload:      { chars_edited: text.length },
+      payload:      { chars_edited: component ? component.value.length : text.length, ...(component ? {component_path:component.path} : {}) },
     });
   } catch {}
 

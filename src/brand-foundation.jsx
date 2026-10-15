@@ -1,4 +1,6 @@
 import React from 'react';
+import {brandCoreInputsEnabled} from './lib/brand-core-inputs.js';
+import {BrandCoreInputs} from './brand-core-inputs.jsx';
 import { withUploadType } from './lib/upload-type.js';
 export { withUploadType };
 import {apiFetch} from './lib/supabase-browser.js';
@@ -41,7 +43,7 @@ function LogoRightsPrompt({brandId,sourceIds,disabled,onConfirmed}){
     <button className="btn btn--sm" disabled={!checked||disabled||busy} onClick={async()=>{setBusy(true);setError('');try{await confirmLogoRights(brandId,sourceIds);await onConfirmed?.();}catch(e){setError(e.message);}finally{setBusy(false);}}}>Confirm rights</button>
     {error&&<small role="alert">{error}</small>}</div>;
 }
-export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRights=[],onRightsConfirmed}) {
+function LegacyFoundationStrip({brandId,payload,onSave,disabled=false,logoRights=[],onRightsConfirmed}) {
   const visual=payload?.visual || {};
   const [draft,setDraft]=React.useState(visual);
   const [editing,setEditing]=React.useState(false);
@@ -128,3 +130,5 @@ export function FoundationStrip({brandId,payload,onSave,disabled=false,logoRight
     {error&&<p role="alert" className="foundation-error">{error}</p>}
   </section>;
 }
+
+export function FoundationStrip(props) { return brandCoreInputsEnabled ? <BrandCoreInputs {...props}/> : <LegacyFoundationStrip {...props}/>; }

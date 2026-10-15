@@ -65,7 +65,7 @@ select ok(
     'public.finalize_run_atomic(uuid,uuid,text,text,integer,integer,integer,numeric,integer,text,jsonb,text,text,text,boolean,text,text)',
     'EXECUTE'
   )
-  and not has_function_privilege('authenticated', 'public.append_bio_version(uuid,jsonb,integer,uuid,text)', 'EXECUTE')
+  and not has_function_privilege('authenticated', 'public.append_bio_version(uuid,jsonb,integer,uuid,text,integer)', 'EXECUTE')
   and not has_function_privilege('authenticated', 'public.create_brand_with_limit(uuid,text)', 'EXECUTE')
   and not has_function_privilege('authenticated', 'public.switch_active_spec_version(text,jsonb)', 'EXECUTE')
   and not has_function_privilege('authenticated', 'public.request_craft_atomic(uuid,uuid,uuid,integer,text,integer,text)', 'EXECUTE')

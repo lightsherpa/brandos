@@ -1,4 +1,8 @@
 import React from "react";
+import {useLocale} from "../lib/i18n.js";
+import {reviewText,reviewCopy,reviewFieldLabel} from "./review-copy.js";
+import {certifyUxEnabled} from "./ux-flags.js";
+function useChatCopy(){const {locale,t}=useLocale();return {locale,label:path=>reviewFieldLabel(path,locale,t),ct:text=>certifyUxEnabled()?reviewText(text,locale):text};}
 import { apiFetch } from "../lib/supabase-browser.js";
 import { draftsBySection, claimThreadState } from "./cert-chat-model.js";
 
@@ -41,10 +45,11 @@ const dot = (color) => <span aria-hidden="true" style={{ color, marginRight: 4 }
 
 /* One client answer rendered as evidence: text quote and/or the uploaded file. */
 export function AnswerEvidence({ answer, sources = [] }) {
+  const {ct,label}=useChatCopy();
   const file = answer.source_id && sources.find((s) => s.id === answer.source_id && s.kind === "file_upload");
   return (
     <div style={{ fontSize: 11.5, color: "var(--c-dim)", lineHeight: 1.4, marginTop: 4 }}>
-      {dot("var(--green-600)")}<strong style={{ color: "var(--c-ink)", fontWeight: 600 }}>New evidence</strong> · client answer
+      {dot("var(--green-600)")}<strong style={{ color: "var(--c-ink)", fontWeight: 600 }}>{ct("New evidence")}</strong> · {ct("client answer")}
       {answer.body && <div style={{ marginTop: 2, color: "var(--c-ink)" }}>“{answer.body}”</div>}
       {file && (
         <div style={{ marginTop: 2 }}>
@@ -56,20 +61,22 @@ export function AnswerEvidence({ answer, sources = [] }) {
 }
 
 function DraftRow({ draft, thread, setErr }) {
+  const {ct,label}=useChatCopy();
   const [text, setText] = React.useState(draft.body);
   React.useEffect(() => setText(draft.body), [draft.body]);
   const save = () => { if (text.trim() && text !== draft.body) thread.editDraft(draft.id, text).catch((e) => setErr(e.message)); };
   return (
     <div className="card card--inset" style={{ padding: "8px 10px" }}>
-      <div style={{ fontSize: 10.5, color: "var(--c-faint)", fontFamily: "var(--font-mono)", marginBottom: 4 }}>{(draft.field_paths || draft.claim_ids).join(", ")}</div>
-      <textarea aria-label={`Question about ${(draft.field_paths || draft.claim_ids).join(", ")}`} value={text} onChange={(e) => setText(e.target.value)} onBlur={save}
+      <div style={{ fontSize: 10.5, color: "var(--c-faint)", fontFamily: "var(--font-mono)", marginBottom: 4 }}>{(draft.field_paths || draft.claim_ids).map(label).join(", ")}</div>
+      <textarea aria-label={`Question about ${(draft.field_paths || draft.claim_ids).map(label).join(", ")}`} value={text} onChange={(e) => setText(e.target.value)} onBlur={save}
         rows={2} maxLength={4000} style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
-      <button type="button" className="btn btn--link" style={{ fontSize: 11, padding: 0 }} onClick={() => thread.dropDraft(draft.id).catch((e) => setErr(e.message))}>Remove</button>
+      <button type="button" className="btn btn--link" style={{ fontSize: 11, padding: 0 }} onClick={() => thread.dropDraft(draft.id).catch((e) => setErr(e.message))}>{ct("Remove")}</button>
     </div>
   );
 }
 
 function Composer({ thread, fields, setErr }) {
+  const {ct,label}=useChatCopy();
   const [field, setField] = React.useState(fields[0]?.field || "");
   const [text, setText] = React.useState("");
   React.useEffect(() => setField(fields[0]?.field || ""), [fields[0]?.field]);
@@ -80,13 +87,14 @@ function Composer({ thread, fields, setErr }) {
         {fields.map((f) => <option key={f.field} value={f.field}>{f.label || f.field}</option>)}
       </select>
       <textarea aria-label="New question for the client" value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={4000}
-        placeholder="Ask the client…" style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
-      <button type="button" className="btn btn--link" style={{ fontSize: 11, padding: 0, alignSelf: "flex-start" }} disabled={!field || !text.trim()} onClick={add}>Add to drafts</button>
+        placeholder={ct("Ask the client…")} style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
+      <button type="button" className="btn btn--link" style={{ fontSize: 11, padding: 0, alignSelf: "flex-start" }} disabled={!field || !text.trim()} onClick={add}>{ct("Add to drafts")}</button>
     </div>
   );
 }
 
 export function ClientThread({ thread, sources = [], fields = FOUNDATION_FIELDS }) {
+  const {ct,label}=useChatCopy();
   const [err, setErr] = React.useState(null);
   const [busy, setBusy] = React.useState(null);
   if (!thread?.enabled) return null;
@@ -99,14 +107,14 @@ export function ClientThread({ thread, sources = [], fields = FOUNDATION_FIELDS 
   };
   return (
     <div style={{ padding: 20, borderBottom: "1px solid var(--c-line)" }} aria-live="polite">
-      <div className="eyebrow" style={{ marginBottom: 12 }}>Client questions · {sent.length}</div>
+      <div className="eyebrow" style={{ marginBottom: 12 }}>{ct("Client questions")} · {sent.length}</div>
       <Composer thread={thread} fields={fields} setErr={setErr} />
       {Object.entries(drafts).map(([section, list]) => (
         <div key={section} style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
-          <div className="eyebrow" style={{ color: "var(--c-faint)", fontSize: 9.5 }}>{SECTION_LABEL[section] || section} · draft</div>
+          <div className="eyebrow" style={{ color: "var(--c-faint)", fontSize: 9.5 }}>{ct(SECTION_LABEL[section] || section)} · {ct("draft")}</div>
           {list.map((d) => <DraftRow key={d.id} draft={d} thread={thread} setErr={setErr} />)}
           <button type="button" className="btn btn--ghost btn--sm" disabled={busy === section} onClick={() => sendSection(section)}>
-            {busy === section ? "Sending…" : `Send ${list.length} question${list.length === 1 ? "" : "s"} to client`}
+            {busy === section ? ct("Sending…") : `${ct("Send questions to client")} · ${list.length}`}
           </button>
         </div>
       ))}
@@ -115,7 +123,7 @@ export function ClientThread({ thread, sources = [], fields = FOUNDATION_FIELDS 
         return (
           <div key={q.id} className="card card--inset" style={{ padding: "8px 10px", marginBottom: 6 }}>
             <div style={{ fontSize: 11, color: "var(--c-dim)" }}>
-              {answers.length ? dot("var(--green-600)") : dot("var(--yellow-800)")}{answers.length ? "Answered" : "Asked"} · <span style={{ fontFamily: "var(--font-mono)" }}>{(q.field_paths || q.claim_ids).join(", ")}</span>
+              {answers.length ? dot("var(--green-600)") : dot("var(--yellow-800)")}{ct(answers.length ? "Answered" : "Asked")} · <span style={{ fontFamily: "var(--font-mono)" }}>{(q.field_paths || q.claim_ids).map(label).join(", ")}</span>
             </div>
             <div style={{ fontSize: 12, color: "var(--c-ink)", marginTop: 3 }}>{q.body}</div>
             {answers.map((a) => <AnswerEvidence key={a.id} answer={a} sources={sources} />)}

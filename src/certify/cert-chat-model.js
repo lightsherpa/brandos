@@ -33,3 +33,12 @@ export function claimThreadState(messages = [], bioVersion) {
   }
   return map;
 }
+
+// Send only the question composed at this claim; other drafts stay untouched.
+export async function sendQuestionNow(thread, fieldPath, body) {
+  if (!thread?.enabled || !body?.trim()) throw new Error('Client chat is unavailable or the question is empty.');
+  const draft = await thread.addDraft([fieldPath], body.trim());
+  if (!draft?.message?.id) throw new Error('The question could not be saved. Please retry.');
+  await thread.send([draft.message.id]);
+  return draft.message;
+}

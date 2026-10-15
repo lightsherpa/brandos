@@ -1,3 +1,5 @@
+import {certifyUxEnabled} from './certify/ux-flags.js';
+import {ownerCertifyPath} from './lib/certify-routing.js';
 import {ReviewGateNotice} from "./discovery-review-gate.jsx";
 import {FoundationStrip} from "./brand-foundation.jsx";
 import { withUploadType } from "./lib/upload-type.js";
@@ -917,6 +919,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       const response=await apiFetch(`/api/discovery/session/${brandId}/prepare-review`,{method:"POST"});
       const body=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(body.error||`HTTP ${response.status}`);
+      if(certifyUxEnabled()){window.location.hash = "#/" + ownerCertifyPath(brandId);return;}
       setReviewBio(body.bio);
     }catch(error){setAttestErr(error.message);}finally{setAttestBusy(false);}
   };
@@ -1595,7 +1598,7 @@ function BioViewer({ go, bioScore = 91 }) {
           ) : (
             <>
               {live.brandId && live.bio && (!live.cert || (live.bio.client_acceptance_required && !live.bio.client_accepted_at)) && (
-                <BioSelfCertification brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges || !foundation.certifiable} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
+                <BioSelfCertification go={go} brandId={live.brandId} brandName={live.brandName} bio={live.bio} blocked={editing || hasUnappliedSourceChanges || !foundation.certifiable} onDone={live.refresh} renderSection={section => <BioReviewSection payload={live.bio.payload} section={section} />} />
               )}
               <button className="btn btn--ghost" onClick={() => go("brand-book")}>{t("discovery.bio.openBook")}</button>
             </>

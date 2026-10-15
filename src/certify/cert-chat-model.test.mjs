@@ -47,3 +47,13 @@ test("evidence from a previous BIO version never marks the current claim answere
   assert.equal(claimThreadState(messages, 2).get("visual.logo").state, "asked");
   assert.deepEqual(claimThreadState(messages, 2).get("visual.logo").answers, []);
 });
+
+test('inline question sends only its newly saved draft and rejects failed delivery', async () => {
+ const {sendQuestionNow}=await import('./cert-chat-model.js');
+ const calls=[];
+ const thread={enabled:true,addDraft:async(fields,body)=>{calls.push([fields,body]);return {message:{id:'new-question'}};},send:async(ids)=>calls.push(ids)};
+ await sendQuestionNow(thread,'visual.imagery','  Please share the product source.  ');
+ assert.deepEqual(calls,[[['visual.imagery'],'Please share the product source.'],['new-question']]);
+ await assert.rejects(sendQuestionNow({...thread,send:async()=>{throw Error('offline');}},'voice.register','Clarify tone'),/offline/);
+ await assert.rejects(sendQuestionNow({enabled:false},'voice.register','Clarify tone'),/unavailable/);
+});
