@@ -8,7 +8,8 @@ const fixture={bio:{version:3},brandName:'Cake Me',brandId:'cake',certified:true
 test('editorial brand book renders real strategy, unlimited palette, voice examples and signed logo/reference assets',async t=>{
  const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());
  const {BrandBookV2}=await vite.ssrLoadModule('/src/brand-book-v2.jsx');const html=renderToStaticMarkup(React.createElement(BrandBookV2,fixture));
- for(const content of ['Happiness in every bite','Made with heart','Lead surfaces','Accent 4','book2-strategy','book2-visual','book2-voice','https://assets.test/cake.jpg','Comment or request changes'])assert.ok(html.includes(content),content);
+ for(const content of ['Happiness in every bite','Made with heart','Lead surfaces','Accent 4','book2-strategy','book2-visual','book2-voice','https://assets.test/cake.jpg','Brand Core'])assert.ok(html.includes(content),content);
+ assert.doesNotMatch(html,/Certify/);
  assert.equal((html.match(/src="https:\/\/assets.test\/main.png"/g)||[]).length,2);
  assert.match(html,/On light/);assert.match(html,/On dark/);assert.doesNotMatch(html,/sourceId|"identity"|"visual"/);
 });
@@ -20,7 +21,7 @@ test('only loaded brand font is described as a live specimen with H1–H6 and bo
 });
 test('book copy translates all controls into Spanish and Arabic while keeping Brand Core',async t=>{
  const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());const {BrandBookV2,bookCopy}=await vite.ssrLoadModule('/src/brand-book-v2.jsx');
- for(const locale of ['es','ar']){const html=renderToStaticMarkup(React.createElement(BrandBookV2,{...fixture,locale}));assert.ok(html.includes(bookCopy[locale].changes));assert.ok(html.includes(bookCopy[locale].strategy));assert.match(html,/Brand Core/);assert.doesNotMatch(html,/Comment or request changes/);}assert.match(renderToStaticMarkup(React.createElement(BrandBookV2,{...fixture,locale:'ar'})),/dir="rtl"/);
+ for(const locale of ['es','ar']){const html=renderToStaticMarkup(React.createElement(BrandBookV2,{...fixture,locale}));assert.ok(html.includes(bookCopy[locale].strategy));assert.ok(html.includes(bookCopy[locale].certified));assert.match(html,/Brand Core/);assert.doesNotMatch(html,/Certify/);}assert.match(renderToStaticMarkup(React.createElement(BrandBookV2,{...fixture,locale:'ar'})),/dir="rtl"/);
 });
 test('brand book flag defaults off and logo deduplication keeps all variants',async t=>{
  const vite=await createServer({define:{'import.meta.env.VITE_BRAND_BOOK_V2':'undefined'},server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());const {bookLogos,brandBookV2Enabled}=await vite.ssrLoadModule('/src/brand-book-v2.jsx');assert.equal(brandBookV2Enabled(),false);const logos=bookLogos(fixture.payload.visual.logo);assert.equal(logos.length,2);assert.equal(logos[1].use,'mark');

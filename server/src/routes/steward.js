@@ -18,8 +18,9 @@ import {validateFoundationAssets, loadLogoRights} from "../lib/foundation-assets
 // scores criteria, the rubric decides the band, and every decision event is
 // written append-only to cert_decisions so "why?" reconstructs from the system.
 //
-// Role gate: caller must have a `team_members` row with 'steward' or
-// 'lead_steward' in roles[]. Decert also allows users.role='super_admin'.
+// Role gate: an active team member who is a creative director or a certifier
+// (steward / lead_steward). Workspace owners and brand contacts receive 403.
+// Decert also allows users.role='super_admin'.
 // ─────────────────────────────────────────────────────────────────────
 
 import { Hono } from "hono";
@@ -32,6 +33,7 @@ import { payloadHash } from "../lib/bio-hash.js";
 import { prepareStewardBioPatchPayload } from "../lib/bio-evidence.js";
 import { notify, brandOwnerUserId } from "../lib/notify.js";
 import { buildStewardCopilot } from "../lib/steward-copilot.js";
+import { canEnterCertify } from "../lib/certify-access.js";
 
 const app = new Hono();
 const CERT_TTL_DAYS = Number(process.env.CERT_TTL_DAYS || 180);
@@ -50,14 +52,14 @@ async function getCallerSteward(userId) {
     .eq("user_id", userId)
     .maybeSingle();
   if (!data || !data.active) return null;
-  const isSteward = data.roles?.some((r) => r === "steward" || r === "lead_steward");
-  return isSteward ? data : null;
+  return data;
 }
 
 export async function requireSteward(c, next) {
-  const { userId } = c.get("auth");
-  const steward = await getCallerSteward(userId);
-  if (!steward) return c.json({ error: "Steward role required" }, 403);
+  const auth = c.get("auth");
+  const steward = await getCallerSteward(auth.userId);
+  const allowed = steward && canEnterCertify({ ...auth, roles: steward.roles || [], qualifications: steward.roles || [] });
+  if (!allowed) return c.json({ error: "Steward role required", code: "CERTIFY_FORBIDDEN" }, 403);
   c.set("steward", steward);
   await next();
 }

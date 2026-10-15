@@ -4,7 +4,6 @@ import {apiFetch} from './lib/supabase-browser.js';
 import {useBrandFonts} from './brand-fonts.jsx';
 import {ClaimValue} from './certify/CertifyView.jsx';
 import {reviewFieldLabel} from './certify/review-copy.js';
-import {ownerCertifyPath} from './lib/certify-routing.js';
 import {brandCoreInputsCopy} from './locales/brand-core-inputs-copy.js';
 import {LOGO_USES,PALETTE_GROUPS,REFERENCE_TAGS} from './lib/brand-core-inputs.js';
 import {DEFAULT_TYPE_SCALE} from '../server/src/lib/brand-foundation.js';
@@ -31,7 +30,7 @@ export function BrandBookV2({bio,payload=bio?.payload||{},brandName,certified,br
  return <article className="book2" dir={locale==='ar'?'rtl':'ltr'} style={{'--book-accent':colour(primary?.hex)||'#cfeb89','--book-display':family(display)?`"${family(display)}"`:undefined,'--book-body':family(body)?`"${family(body)}"`:undefined}}>
   <header className="book2-masthead"><span>Brand Core / {String(bio.version).padStart(2,'0')}</span><span>{certified?'●':'○'} {certified?c.certified:c.draft}</span><button className="btn btn--ghost" onClick={()=>go('bio')}>{c.back} ↗</button></header>
   <section className="book2-cover"><div><p className="book2-eyebrow">{c.title}</p><h1>{brandName}</h1><p className="book2-position">{text(payload.identity?.positioning)||text(payload.identity?.essence)||c.empty}</p></div><div className="book2-edition"><span>{String(bio.version).padStart(2,'0')}</span><small>Brand Core</small></div></section>
-  <div className="book2-toolbar"><nav aria-label={c.title}>{chapters.map(([id,label],i)=><a href={`#book2-${id}`} key={id}><small>0{i+1}</small> {label}</a>)}</nav>{!replay&&brandId&&<button className="btn btn--primary" onClick={()=>go(ownerCertifyPath(brandId))}>{certified?c.changes:c.review} ↗</button>}</div>
+  <div className="book2-toolbar"><nav aria-label={c.title}>{chapters.map(([id,label],i)=><a href={`#book2-${id}`} key={id}><small>0{i+1}</small> {label}</a>)}</nav></div>
   <section id="book2-strategy" className="book2-chapter"><header><span>01</span><div><h2>{c.strategy}</h2><p>{c.strategyNote}</p></div></header><div className="book2-strategy-grid">{fields(['identity','audience','positioning','goals','strategic']).map(renderField)}</div></section>
   <section id="book2-visual" className="book2-chapter"><header><span>02</span><div><h2>{c.visual}</h2><p>{c.visualNote}</p></div></header>
    <section className="book2-subsection"><h3>{c.logos}</h3><div className="book2-logos">{logos.length?logos.map(logo=><figure key={logo.sourceId}><div className="book2-lockups">{['light','dark'].map(bg=><div key={bg} data-background={bg}>{asset(logo.sourceId)?<img src={asset(logo.sourceId)} alt={logo.name||input.logo}/>:<span>{c.asset}</span>}<small>{c[bg]}</small></div>)}</div><figcaption>{input.uses[LOGO_USES.indexOf(logo.use)]||input.logo}{logo.name&&` · ${logo.name}`}</figcaption></figure>):<p>{c.empty}</p>}</div>{logos.some(logo=>!asset(logo.sourceId))&&!replay&&<button className="btn btn--ghost" onClick={()=>setRetry(n=>n+1)}>{input.retry}</button>}</section>
@@ -40,7 +39,7 @@ export function BrandBookV2({bio,payload=bio?.payload||{},brandName,certified,br
    <section className="book2-subsection"><h3>{c.references}</h3><div className="book2-references">{refs.length?refs.map((ref,i)=><figure key={ref.sourceId||i}>{asset(ref.sourceId)?<img src={asset(ref.sourceId)} alt={ref.name||input.references}/>:<div>{c.asset}</div>}<figcaption>{input.tags[REFERENCE_TAGS.indexOf(ref.tag||ref.use)]||ref.name||input.references}</figcaption></figure>):<p>{c.empty}</p>}</div>{fields(['visual']).filter(f=>['visual.imagery','visual.avoid'].includes(f.path)).map(renderField)}</section>
   </section>
   <section id="book2-voice" className="book2-chapter"><header><span>03</span><div><h2>{c.voice}</h2><p>{c.voiceNote}</p></div></header>{payload.voice?.signatures?.length>0&&<div className="book2-voice-examples"><h3>{c.examples}</h3>{payload.voice.signatures.map((value,i)=><blockquote key={i}>{value}</blockquote>)}</div>}<div className="book2-strategy-grid">{fields(['voice']).filter(f=>f.path!=='voice.signatures').map(renderField)}</div></section>
-  <footer className="book2-footer"><strong>{brandName}</strong><span>Brand Core · {bio.version}</span>{!replay&&brandId&&<button className="btn btn--primary" onClick={()=>go(ownerCertifyPath(brandId))}>{certified?c.changes:c.review} ↗</button>}</footer>
+  <footer className="book2-footer"><strong>{brandName}</strong><span>Brand Core · {bio.version}</span></footer>
  </article>;
 }
 

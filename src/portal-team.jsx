@@ -2,6 +2,7 @@ import React from "react";
 import { CERTIFIER_SUPPORT_NAME } from "./lib/certifier-support-name.js";
 import {reviewKind} from "./lib/review-output.js";
 import {reviewDeskCopy,reviewDeskEnabled,certifyReviewEnabled} from "./lib/review-desk-copy.js";
+import {canEnterCertify,certifyJobPath} from "./lib/certify-routing.js";
 import {ReviewOutputPreview} from "./lib/review-output-preview.jsx";
 import { withUploadType } from "./lib/upload-type.js";
 import { useLocale } from "./lib/i18n.js";
@@ -148,6 +149,7 @@ function CopilotPanel({ copilot, dismissed, onAccept, onReject, onAskClient }) {
    submits a certification.                                              */
 function TeamQueue({ go }) {
   const { t, locale } = useLocale();
+  const session = window.useSession();
   const friendlyQueue = reviewDeskEnabled();
   const { jobs, you, error, loading, reload } = useStewardJobs();
   const [filter, setFilter] = useTState("all");
@@ -230,7 +232,7 @@ function TeamQueue({ go }) {
                 const brandName = j.brand?.name || t("team.brandFallback");
                 const initial = brandName[0]?.toUpperCase() || "?";
                 return (
-                  <tr key={j.id} onClick={() => go((certifyReviewEnabled() ? "certify/" : "team-job/") + j.id)} style={{
+                  <tr key={j.id} onClick={() => go(certifyJobPath(session, j.id, certifyReviewEnabled() && canEnterCertify(session)))} style={{
                     borderBottom: i < list.length - 1 ? "1px solid var(--c-line)" : "none",
                     cursor:"pointer", borderLeft,
                   }}
@@ -625,10 +627,12 @@ function RubricPanel({ rubric, autoSignals, scores, setScores }) {
    approve_with_conditions / return_changes / reject). May patch the BIO first. */
 function TeamJob({ id, go }) {
   const { t } = useLocale();
+  const session = window.useSession();
+  const openCertify = certifyReviewEnabled() && canEnterCertify(session);
   const { job, sources, you, focus, rubric, autoSignals, copilot, certify, error, loading, reload } = useStewardJob(id);
   useTEffect(() => {
-    if (certifyReviewEnabled() && job?.bio) go(`certify/${id}`);
-  }, [id, job?.bio?.id]);
+    if (openCertify && job?.bio) go(`certify/${id}`);
+  }, [id, job?.bio?.id, openCertify]);
   const thread = useCertThread(id);                         /* S3 client thread — inert when CERTIFIER_V2_S3 is off */
   const [notes, setNotes] = useTState("");
   const [edited, setEdited] = useTState(null);                /* edited BIO payload — null until job loads */
@@ -791,7 +795,7 @@ function TeamJob({ id, go }) {
     }
   };
 
-  if (certifyReviewEnabled() && job?.bio) return null;
+  if (openCertify && job?.bio) return null;
   if (loading) {
     return <div style={{padding: 40, textAlign:"center", color:"var(--c-faint)"}}>{t("team.loading")}</div>;
   }
@@ -830,7 +834,7 @@ function TeamJob({ id, go }) {
     <div className="tjob" style={{gridTemplateColumns: "minmax(0,1fr) 360px"}}>
       {/* Main — candidate BIO review */}
       <main className="scroll" style={{overflowY:"auto", padding: "20px 28px 40px"}}>
-        {certify?.enabled && <button className="btn btn--primary" style={{marginBottom:16}} onClick={() => go("certify/" + id)}>Open in Certify</button>}
+        {certify?.enabled && canEnterCertify(session) && <button className="btn btn--primary" style={{marginBottom:16}} onClick={() => go("certify/" + id)}>Open in Certify</button>}
         <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom: 18}}>
           <div>
             <button onClick={() => go("team")} className="btn btn--link" style={{fontSize: 12, marginBottom: 8}}>

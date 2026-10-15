@@ -1,7 +1,6 @@
 import {reviewDeskCopy,reviewDeskEnabled} from './lib/review-desk-copy.js';
-import {OwnerCertifyView} from './bio-self-certification.jsx';
 import {certifyUxEnabled} from './certify/ux-flags.js';
-import {ownerBrandFromCertify,certifyRoutePortal} from './lib/certify-routing.js';
+import {brandCoreNavTarget,resolveCertifyRoute} from './lib/certify-routing.js';
 import { CertifyView } from "./certify/CertifyView.jsx";
 import React from "react";
 import { supabase, apiFetch } from "./lib/supabase-browser.js";
@@ -624,7 +623,7 @@ function TopBar({ portal, route, brandName, go }) {
     "team-review":[reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : "Review desk",      t("section.teamPortal")],
     team:        [t("team.jobQueue"),   t("section.teamPortal")],
     "team-craft":[t("team.craftPolish"), t("section.teamPortal")],
-    "certify": ["Certify", certifyUxEnabled() && portal !== "team" ? "Brand Core" : "Creative Director"],
+    "certify": ["Certify", "Creative Director"],
     "team-job":  [t("title.activeJob"), t("section.teamPortal")],
     "team-capacity":[t("title.capacitySla"), t("section.teamPortal")],
     "team-clients":[t("title.clientRoster"), t("section.teamPortal")],
@@ -729,7 +728,7 @@ function AppDock({ portal, currentRoute, onNav }) {
             {(i === 0 || r.sectionKey !== routes[i - 1].sectionKey) && r.sectionKey && (
               <div className="app-dock__section">{t(r.sectionKey)}</div>
             )}
-            <button className={"app-dock__item" + (["settings", "admin-account", "team-account"].includes(r.id) ? " app-dock__item--account" : "") + (isActive(r.id) ? " app-dock__item--active" : "")} onClick={() => onNav(r.id)}>
+            <button className={"app-dock__item" + (["settings", "admin-account", "team-account"].includes(r.id) ? " app-dock__item--account" : "") + (isActive(r.id) ? " app-dock__item--active" : "")} onClick={() => onNav(r.id === "bio" ? brandCoreNavTarget(session) : r.id)}>
               <span className="app-dock__icon"><Icon name={r.icon} size={18} /></span>
               <span>{r.id === "team-review" && reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : t(r.labelKey)}</span>
             </button>
@@ -790,9 +789,12 @@ function App() {
     if (route.id === "credits") { go(`${portal === "admin" || portal === "super_admin" ? "admin-account" : "settings"}/usage`); return; }
     if ((portal === "admin" || portal === "super_admin") && route.id === "settings") { go(`admin-account/${route.param || "workspace"}`); return; }
     if (portal === "team" && route.id === "team-me") { go("team-account/profile"); return; }
-    const ownerCertify = route.id === "certify" && certifyRoutePortal(route.param, certifyUxEnabled()) === "client";
-    const isClientRoute = ownerCertify || CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "formats" || route.id === "upgrade";
-    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || (route.id === "team-job" || (route.id === "certify" && !ownerCertify)) || route.id === "team-account";
+    if (route.id === "certify") {
+      const decision = resolveCertifyRoute({ actor: session, portal, param: route.param, certifyUx: certifyUxEnabled() });
+      if (!decision.allow && decision.redirect) { go(decision.redirect); return; }
+    }
+    const isClientRoute = CLIENT_ROUTES.some(r => r.id === route.id) || route.id === "brief-detail" || route.id === "home" || route.id === "discovery" || route.id === "brand-book" || route.id === "specialist-new" || route.id === "canvas" || route.id === "board" || route.id === "formats" || route.id === "upgrade";
+    const isTeamRoute  = TEAM_ROUTES.some(r => r.id === route.id) || route.id === "team-job" || route.id === "certify" || route.id === "team-account";
     const isAdminRoute = route.id === "admin-account" || [...ADMIN_ROUTES,...SUPER_ADMIN_ROUTES].some(r => r.id === route.id);
     const legacySection = LEGACY_ADMIN_SECTION[route.id];
     if (legacySection) { go(`admin-account/${legacySection}`); return; }
@@ -865,6 +867,8 @@ function AdminAccount({ section, go, onLogout }) {
 /* Screen router — dispatches to the right page component ------- */
 function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
   const tasksEnabled = useTasksEnabled();
+  const session = useSession();
+  const portal = session ? (session.portal || session.role) : "client";
   switch(route.id) {
     case "home":         return <BrandolphHome tweaks={tweaks} setTweak={setTweak} go={go} />;
     case "discovery":    return <Discovery go={go} newBrand={route.param === "new"} />;
@@ -886,7 +890,7 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "team":         return <TeamQueue go={go} />;
     case "team-review":  return <TeamReview />;
     case "team-craft":   return <CraftQueue />;
-    case "certify":      return certifyUxEnabled() && ownerBrandFromCertify(route.param) ? <OwnerCertifyView brandId={ownerBrandFromCertify(route.param)} go={go} /> : <CertifyView id={route.param} go={go} />;
+    case "certify":      return session && !session._pending && resolveCertifyRoute({ actor: session, portal, param: route.param, certifyUx: certifyUxEnabled() }).allow ? <CertifyView id={route.param} go={go} /> : null;
     case "team-job":     return <TeamJob id={route.param} go={go} />;
     case "team-capacity":return <TeamCapacity />;
     case "team-clients": return <TeamClients />;

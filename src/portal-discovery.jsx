@@ -1,5 +1,4 @@
 import {certifyUxEnabled} from './certify/ux-flags.js';
-import {ownerCertifyPath} from './lib/certify-routing.js';
 import {ReviewGateNotice} from "./discovery-review-gate.jsx";
 import {FoundationStrip} from "./brand-foundation.jsx";
 import { withUploadType } from "./lib/upload-type.js";
@@ -919,7 +918,7 @@ function DiscoveryStep2Results({ onConfirm, runContext }) {
       const response=await apiFetch(`/api/discovery/session/${brandId}/prepare-review`,{method:"POST"});
       const body=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(body.error||`HTTP ${response.status}`);
-      if(certifyUxEnabled()){window.location.hash = "#/" + ownerCertifyPath(brandId);return;}
+      if(certifyUxEnabled()){window.location.hash = "#/brand-book";return;}
       setReviewBio(body.bio);
     }catch(error){setAttestErr(error.message);}finally{setAttestBusy(false);}
   };
