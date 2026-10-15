@@ -87,6 +87,19 @@ test('even a complete human claim review cannot seal a foundation without a disp
   assert.ok(!writes.some(w=>w.table==='bios'));
 });
 
+test('unauthorized roles cannot open the Certify job API; a creative director and a certifying designer can',async()=>{
+  for (const persona of ['user','workspace_admin','client']) {
+    reset();auth={userId:'member',persona,scope:'workspace',roles:persona==='workspace_admin'?['steward']:[]};
+    const denied=await read();assert.equal(denied.status,403);assert.equal((await denied.json()).code,'CERTIFY_FORBIDDEN');
+  }
+  reset();auth={userId:'designer',persona:'designer',scope:'platform',roles:['designer']};
+  const plain=await read();assert.equal(plain.status,403);assert.equal((await plain.json()).code,'CERTIFY_FORBIDDEN');
+  reset();auth={userId:'cd',persona:'creative_director',scope:'platform',roles:[]};
+  const director=await read();assert.equal(director.status,200,JSON.stringify(await director.clone().json()));
+  reset();auth={userId:'designer',persona:'designer',scope:'platform',roles:['steward']};
+  const reviewer=await read();assert.equal(reviewer.status,200);
+});
+
 test('Lead approval also requires a complete current claim review and preserves four-eyes',async()=>{
   reset();auth.roles=['lead_steward'];job.status='pending_lead_review';job.assigned_to='first-reviewer';job.decision='approve';
   const missing=await req({leadApprove:true});assert.equal(missing.status,409);assert.equal((await missing.json()).code,'STALE_CLAIM_REVIEW');
