@@ -1,6 +1,7 @@
 import React from 'react';
+import {createPortal} from 'react-dom';
 import {useLocale} from './lib/i18n.js';
-import {apiFetch} from './lib/supabase-browser.js';
+import {apiFetch,API_BASE} from './lib/supabase-browser.js';
 import {renderGuidelines} from '../shared/brand-book/render.js';
 import {guidelinesCopy} from './locales/brand-book-guidelines-copy.js';
 import './brand-book-guidelines.css';
@@ -18,7 +19,7 @@ export function guidelineAssets(snapshot) {
  const record=(id,category,label)=>{if(id)roles.set(id,{category,label});};
  record(visual.logo?.sourceId,'logos',visual.logo?.name||visual.logo?.use||'');
  Object.values(visual.logo?.variants||{}).forEach(value=>record(value?.sourceId,'logos',value?.name||value?.use||''));
- (visual.type||[]).forEach(font=>record(font.sourceId,'typography',[font.family,font.weight,font.style].filter(Boolean).join(' · ')));
+ (visual.type||[]).forEach(font=>record(font.sourceId||(font.provider==='google'&&['Lato','Inter'].includes(font.family)?'font:'+font.family:null),'typography',[font.family,font.weight,font.style].filter(Boolean).join(' · ')));
  (visual.references||[]).forEach(ref=>record(ref.sourceId,'imagery',ref.name||ref.tag||''));
  return [...roles].map(([id,role])=>{const source=(snapshot.sources||[]).find(row=>row.id===id);return {...role,id,label:role.label||source?.src||'',previewOnly:!source||source.previewOnly===true};});
 }
@@ -42,22 +43,23 @@ export function saveBookDownload({blob,filename},browser=window) {
  const url=browser.URL.createObjectURL(blob),anchor=browser.document.createElement('a');
  try{anchor.href=url;anchor.download=filename;browser.document.body.append(anchor);anchor.click();}finally{anchor.remove();browser.setTimeout(()=>browser.URL.revokeObjectURL(url),1000);}
 }
-export function publicBookShareUrl(path,origin=window.location.origin) {
+export function publicBookShareUrl(path,origin=new URL(API_BASE||window.location.origin,window.location.origin).origin) {
  const url=new URL(path,origin);
  if(url.origin!==origin||!/^\/api\/brand-book\/shared\/[a-zA-Z0-9_-]+$/.test(url.pathname)||url.search||url.hash)throw new Error('BOOK_SHARE_URL_INVALID');
  return url.href;
 }
 
 export function BrandBookGuidelines({brandId,version,go,fetcher=apiFetch}) {
- const {locale}=useLocale(),c=guidelinesCopy(locale);
+ const {locale,setLocale}=useLocale(),c=guidelinesCopy(locale);
  const [snapshot,setSnapshot]=React.useState(null),[error,setError]=React.useState(false),[retry,setRetry]=React.useState(0);
  React.useEffect(()=>{setSnapshot(null);setError(false);if(!brandId)return;const abort=new AbortController();loadBookSnapshot(fetcher,brandId,{version,signal:abort.signal}).then(value=>{if(!abort.signal.aborted)setSnapshot(value);}).catch(()=>{if(!abort.signal.aborted)setError(true);});return()=>abort.abort();},[brandId,version,retry,fetcher]);
  if(error)return <section className="book-guidelines-status" role="alert"><p>{c.unavailable}</p><button className="btn btn--primary" onClick={()=>setRetry(n=>n+1)}>{c.retry}</button></section>;
  if(!snapshot||snapshot.brand.id!==brandId||(version&&snapshot.bio.version!==version))return <section className="book-guidelines-status" role="status">{brandId?c.loading:c.pickBrand}</section>;
- return <GuidelinesReader key={`${brandId}:${snapshot.bio.version}`} {...{snapshot,locale,fetcher}} onBack={()=>go?.('bio')}/>;
+ return <GuidelinesReader key={`${brandId}:${snapshot.bio.version}`} {...{snapshot,locale,fetcher}} onLocale={setLocale} onBack={()=>go?.('bio')}/>;
 }
 
-export function GuidelinesReader({snapshot,locale='en',onBack,fetcher=apiFetch}) {
+export function GuidelinesReader({snapshot,locale='en',onBack,onLocale,fetcher=apiFetch}) {
+ React.useEffect(()=>{const shell=document.querySelector('.app');if(!shell)return;const previous=shell.inert;shell.inert=true;return()=>{shell.inert=previous;};},[]);
  const c=guidelinesCopy(locale),brandId=snapshot.brand.id,version=snapshot.bio.version;
  const certified=snapshot.mode==='certified'&&snapshot.bio.certified===true,exportable=certified&&snapshot.canExport===true,shareable=exportable&&snapshot.canShare===true;
  const [panel,setPanel]=React.useState(null),[format,setFormat]=React.useState('website'),[items,setItems]=React.useState(DEFAULT_CATEGORIES),[selected,setSelected]=React.useState(()=>guidelineAssets(snapshot).filter(asset=>!asset.previewOnly).map(asset=>asset.id));
@@ -71,9 +73,9 @@ export function GuidelinesReader({snapshot,locale='en',onBack,fetcher=apiFetch})
  async function createShare(){if(lock.current||!shareable)return;lock.current=true;setBusy('create');setError('');setNotice('');try{const response=await fetcher(`/api/brand-book/${encodeURIComponent(brandId)}/shares`,{method:'POST',body:JSON.stringify({version,locale,expiresInDays:expiry})});if(!response.ok)throw Error();const data=await response.json();setCreatedLink({url:publicBookShareUrl(data.url),expiresAt:data.expiresAt});setNotice(c.shareCreated);await loadShares();}catch{setError(c.shareFailed);}finally{lock.current=false;setBusy('');}}
  async function copyLink(){if(!createdLink)return;try{await navigator.clipboard.writeText(createdLink.url);setNotice(c.copied);}catch{linkInput.current?.focus();linkInput.current?.select();setNotice(c.copyHelp);}}
  async function revoke(id){if(lock.current||!shareable)return;lock.current=true;setBusy(id);setError('');setNotice('');try{const response=await fetcher(`/api/brand-book/${encodeURIComponent(brandId)}/shares/${encodeURIComponent(id)}`,{method:'DELETE'});if(!response.ok)throw Error();setNotice(c.revoked);setCreatedLink(null);await loadShares();}catch{setError(c.revokeFailed);}finally{lock.current=false;setBusy('');}}
- const date=value=>value?new Date(value).toLocaleString(locale,{dateStyle:'medium'}):'—';
- return <section className="book-guidelines" dir={locale==='ar'?'rtl':'ltr'}>
-  <header className="book-guidelines-toolbar"><button className="btn btn--ghost btn--sm" onClick={onBack}>{c.back}</button><div className="book-guidelines-edition"><strong>{snapshot.brand.name}</strong><span>{certified?c.certified:c.draft} · {c.version} {version}</span></div><div className="book-guidelines-tools"><button className="btn btn--ghost btn--sm" disabled={!exportable||!!busy} onClick={()=>{setPanel(panel==='download'?null:'download');setError('');setNotice('');}}>{c.download}</button>{snapshot.canShare&&<button className="btn btn--primary btn--sm" disabled={!shareable||!!busy} onClick={()=>{setPanel(panel==='share'?null:'share');setError('');setNotice('');}}>{c.share}</button>}</div></header>
+ const date=value=>value?new Date(value).toLocaleString(locale,{dateStyle:'medium',timeStyle:'short'}):'—';
+ const reader=<section className="book-guidelines" dir={locale==='ar'?'rtl':'ltr'}>
+  <header className="book-guidelines-toolbar"><button className="btn btn--ghost btn--sm" onClick={onBack}>{c.back}</button><div className="book-guidelines-edition"><strong>{snapshot.brand.name}</strong><span>{certified?c.certified:c.draft} · {c.version} {version}</span></div><div className="book-guidelines-tools">{onLocale&&<select aria-label={c.language} value={locale} onChange={event=>onLocale(event.target.value)}><option value="en">English</option><option value="es">Español</option><option value="ar">العربية</option></select>}<button className="btn btn--ghost btn--sm" disabled={!exportable||!!busy} onClick={()=>{setPanel(panel==='download'?null:'download');setError('');setNotice('');}}>{c.download}</button>{snapshot.canShare&&<button className="btn btn--primary btn--sm" disabled={!shareable||!!busy} onClick={()=>{setPanel(panel==='share'?null:'share');setError('');setNotice('');}}>{c.share}</button>}</div></header>
   {!certified&&<p role="status" className="book-guidelines-draft">{c.draftNotice}</p>}
   {(error||notice)&&<div className="book-guidelines-notice" role={error?'alert':'status'}>{error||notice}</div>}
   {panel&&<section className="book-guidelines-panel" aria-label={panel==='download'?c.downloadTitle:c.shareTitle}><header><h2>{panel==='download'?c.downloadTitle:c.shareTitle}</h2><button className="btn btn--ghost btn--sm" disabled={!!busy} onClick={()=>setPanel(null)}>{c.close}</button></header>
@@ -81,4 +83,5 @@ export function GuidelinesReader({snapshot,locale='en',onBack,fetcher=apiFetch})
   </section>}
   <iframe className="book-guidelines-frame" title={`${snapshot.brand.name} · ${c.preview}`} srcDoc={html} sandbox="allow-scripts allow-downloads" referrerPolicy="no-referrer"/>
  </section>;
+ return typeof document!=='undefined'?createPortal(reader,document.body):reader;
 }

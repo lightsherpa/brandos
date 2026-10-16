@@ -7,6 +7,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import brandolph from "./routes/brandolph.js";
 import bios from "./routes/bios.js";
 import brands from "./routes/brands.js";
+import {createBrandBookRoutes} from "./routes/brand-book.js";
 import briefs from "./routes/briefs.js";
 import discovery from "./routes/discovery.js";
 import discoverySession from "./routes/discovery-session.js";
@@ -66,6 +67,7 @@ app.get("/healthz", (c) => c.json(healthPayload()));
 app.route("/api/brandolph", brandolph);
 app.route("/api/bios", bios);
 app.route("/api/brands", brands);
+app.route("/api/brand-book", createBrandBookRoutes());
 app.route("/api/briefs", briefs);
 app.route("/api/discovery", discovery);
 app.route("/api/discovery", discoverySession);      // /session/:brandId, /session/:brandId/attest
