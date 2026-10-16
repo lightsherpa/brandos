@@ -1,10 +1,12 @@
+import {deliveryFilename,deliveryArchiveName,attachmentHeader} from '../../../shared/delivery-filenames.js';
+import {canEnterCertify} from '../lib/certify-access.js';
 import {Hono} from 'hono';
 import {requireAuth} from '../middleware/auth.js';
 import {requireHumanActor} from '../middleware/human-actor.js';
 import {supabaseAdmin} from '../lib/supabase.js';
 import {hasPermission} from '../lib/permissions.js';
 import {sanitizeOutput} from '../lib/output-quality.js';
-import {groupDeliverables,canInspectDelivery,deliveryDocument} from '../../../shared/grouped-deliverables.js';
+import {groupDeliverables,deliveryDocument} from '../../../shared/grouped-deliverables.js';
 import {deliveryZip} from '../lib/delivery-zip.js';
 import outputRoutes from './outputs.js';
 const available = piece => piece.complete && ['review','delivered'].includes(piece.status);
@@ -15,7 +17,7 @@ function approvalFor(actor,outputs,workspaceId) {
  if(!outputs.length)return null;
  const transitions=[
   {action:'client_approve',from:'client_review',done:'client_approved',permission:'output.client_approve'},
-  ...(canInspectDelivery(actor)?[{action:'internal_approve',from:'submitted_internal',done:'internally_approved',permission:'output.internal_approve'}]:[]),
+  ...((actor?.scope==='platform'||canEnterCertify(actor))?[{action:'internal_approve',from:'submitted_internal',done:'internally_approved',permission:'output.internal_approve'}]:[]),
  ];
  return transitions.find(t=>hasPermission(actor,t.permission,workspaceId)
   &&outputs.some(o=>o.workflow_status===t.from)
@@ -45,12 +47,12 @@ export function createDeliveryRoutes({db=supabaseAdmin,auth=requireAuth,human=re
   const brandId=c.req.query('brandId');if(!brandId)return c.json({error:'Choose a brand'},400);
   const {data:brand}=await db.from('brands').select('id,workspace_id').eq('id',brandId).maybeSingle();
   if(!brand||!hasPermission(c.get('auth'),'brief.read',brand.workspace_id))return c.json({error:'Forbidden'},403);
-  const {data:briefs,error}=await db.from('briefs').select('id,title,created_at').eq('brand_id',brandId).order('created_at',{ascending:false}).limit(50);
+  const {data:briefs,error}=await db.from('briefs').select('id,title,created_at').eq('brand_id',brandId).order('created_at',{ascending:false});
   if(error)return c.json({error:'Deliveries are temporarily unavailable'},503);
   return c.json({briefs:briefs||[]});
  }));
  app.get('/:briefId',wrap(async c=>{
-  const {actor,brief,groups,runs}=await load(c),inspect=canInspectDelivery(actor);
+  const {actor,brief,groups,runs}=await load(c),inspect=(actor?.scope==='platform'||canEnterCertify(actor));
   const deliverables=groups.map(g=>{
    const outputs=runs.flatMap(r=>r.outputs||[]).filter(o=>g.outputIds.includes(o.id));
    const approvalAction=approvalFor(actor,outputs,brief.brand.workspace_id);
@@ -75,23 +77,57 @@ export function createDeliveryRoutes({db=supabaseAdmin,auth=requireAuth,human=re
   if(!pieces.length)return c.json({error:'Deliverable not found'},404);
   // No partial delivery masquerading as a completed handoff.
   if(pieces.some(g=>!available(g)))return c.json({error:'Finish and review the deliverables before downloading'},409);
-  let total=0;const files=[];
-  for(const piece of pieces){
-   let assetUrl=piece.assetUrl;
-   if(assetUrl&&!piece.html&&!assetUrl.startsWith('data:')){
-    const url=new URL(assetUrl),base=new URL(process.env.SUPABASE_URL||'http://localhost:54321');
+  const locale=['en','es','ar'].includes(c.req.query('locale'))?c.req.query('locale'):'en';
+  const aborter=new AbortController(),assets=new Map();let declaredTotal=0,assetTotal=0,exportTotal=0;
+  try{
+   // Validate locations, headers and declared budgets before sending ZIP headers.
+   // Keep response streams unopened; asset bytes are read only with backpressure.
+   for(const piece of pieces){
+    if(!piece.assetUrl||piece.html||piece.assetUrl.startsWith('data:'))continue;
+    const url=new URL(piece.assetUrl),base=new URL(process.env.SUPABASE_URL||'http://localhost:54321');
     if(url.origin!==base.origin||!url.pathname.startsWith('/storage/v1/object/'))throw Object.assign(Error('The saved asset is unavailable for offline export'),{status:409});
-    const response=await fetchAsset(url,{redirect:'error',signal:AbortSignal.timeout(15000)});
+    const response=await fetchAsset(url,{redirect:'error',signal:AbortSignal.any([aborter.signal,c.req.raw.signal,AbortSignal.timeout(15000)])});
     const mime=response.headers.get('Content-Type')?.split(';')[0];
-    if(!response.ok||!['image/png','image/jpeg','image/webp'].includes(mime))throw Object.assign(Error('The saved asset could not be downloaded'),{status:503});
-    if(Number(response.headers.get('Content-Length'))>20*1024*1024)throw Object.assign(Error('The saved asset is too large'),{status:413});
-    const bytes=Buffer.from(await response.arrayBuffer());total+=bytes.length;if(total>48*1024*1024)throw Object.assign(Error('The download is too large'),{status:413});assetUrl=`data:${mime};base64,${bytes.toString('base64')}`;
+    if(!response.ok||!response.body||!['image/png','image/jpeg','image/webp'].includes(mime))throw Object.assign(Error('The saved asset could not be downloaded'),{status:503});
+    assets.set(piece.id,{response,mime});
+    const length=Number(response.headers.get('Content-Length'))||0;declaredTotal+=length;
+    if(length>20*1024*1024||declaredTotal>48*1024*1024)throw Object.assign(Error('The saved assets are too large'),{status:413});
    }
-   const html=deliveryDocument({...piece,assetUrl},{title:brief.title,lang:['en','es','ar'].includes(c.req.query('locale'))?c.req.query('locale'):'en'});
-   total+=Buffer.byteLength(html);if(total>64*1024*1024)throw Object.assign(Error('The download is too large'),{status:413});
-   files.push({name:`${piece.id}.html`,data:html});
+  }catch(error){aborter.abort();await Promise.all([...assets.values()].map(a=>a.response.body.cancel().catch(()=>{})));throw error;}
+  function* textChunks(text){
+   for(let start=0;start<text.length;){let end=Math.min(start+16384,text.length);if(end<text.length&&/[\uD800-\uDBFF]/.test(text[end-1]))end--;yield Buffer.from(text.slice(start,end));start=end;}
   }
-  return c.body(new Uint8Array(deliveryZip(files)),200,{'Content-Type':'application/zip','Content-Disposition':'attachment; filename="brandolph-delivery.zip"'});
+  async function* documentChunks(piece){
+   const asset=assets.get(piece.id),marker=asset?`data:${asset.mime};base64,REVMSVZFUlktQVNTRVQtUExBQ0VIT0xERVI=`:null;
+   const html=deliveryDocument({...piece,assetUrl:marker||piece.assetUrl},{title:brief.title,lang:locale});
+   if(!asset){yield* textChunks(html);return;}
+   const offset=html.indexOf(marker);
+   if(offset<0)throw Error('Asset placeholder missing');
+   yield* textChunks(html.slice(0,offset));yield Buffer.from(`data:${asset.mime};base64,`);
+   const reader=asset.response.body.getReader();let carry=Buffer.alloc(0),size=0;
+   try{
+    while(true){
+     const {done,value}=await reader.read();if(done)break;
+     size+=value.byteLength;assetTotal+=value.byteLength;
+     if(size>20*1024*1024||assetTotal>48*1024*1024)throw Error('Asset stream exceeds download budget');
+     const bytes=Buffer.concat([carry,Buffer.from(value)]),end=bytes.length-bytes.length%3;
+     if(end)yield Buffer.from(bytes.subarray(0,end).toString('base64'));
+     carry=Buffer.from(bytes.subarray(end));
+    }
+    if(carry.length)yield Buffer.from(carry.toString('base64'));
+   }finally{await reader.cancel().catch(()=>{});reader.releaseLock();}
+   yield* textChunks(html.slice(offset+marker.length));
+  }
+  async function* files(){
+   for(const piece of pieces)yield {name:deliveryFilename(brief,piece,locale,groups),data:async function*(){
+    for await(const chunk of documentChunks(piece)){exportTotal+=chunk.byteLength;if(exportTotal>64*1024*1024)throw Error('Export exceeds download budget');yield chunk;}
+   }};
+  }
+  const stream=deliveryZip(files(),{onClose:async()=>{aborter.abort();await Promise.allSettled([...assets.values()].filter(a=>!a.response.body.locked).map(a=>a.response.body.cancel()));}});
+  c.header('Content-Type','application/zip');
+  c.header('Content-Disposition',attachmentHeader(deliveryArchiveName(brief,selected?pieces[0]:null,locale,groups)));
+  return c.body(stream);
+
  }));
  return app;
 }

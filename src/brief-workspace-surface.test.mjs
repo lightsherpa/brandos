@@ -47,9 +47,9 @@ test('default flag is off without a build-time definition', async () => {
 });
 test('live and saved delivery views use grouped cards; dev prototype stays intact', async () => {
   const source = await readFile(new URL('./portal-briefs.jsx', import.meta.url), 'utf8');
-  assert.match(source, /return <LiveDeliveryCanvas/);
-  assert.match(source, /return <SavedDeliveryCanvas/);
-  assert.match(source, /if \(prototype && canInspectDelivery\(session\)\) return <PlexCanvasPrototype go=\{go\} \/>;/);
+  assert.match(source, /<LiveDeliveryCanvas/);
+  assert.match(source, /uiFixtureEnabled \? DeliveryBoard : SavedDeliveryCanvas/);
+  assert.match(source, /if \(prototype && internal\) return <PlexCanvasPrototype go=\{go\} \/>;/);
   assert.match(source, /taskOutput\.savedBriefGuidance/);
   assert.doesNotMatch(source, /OfficePreview/);
 });

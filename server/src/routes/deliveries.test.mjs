@@ -4,12 +4,12 @@ import {createDeliveryRoutes} from './deliveries.js';
 const owner={userId:'owner',scope:'workspace',persona:'workspace_admin',permissions:new Set(['brief.read','output.client_approve']),memberships:[{workspace_id:'w',status:'active'}]};
 const row={id:'b',title:'Granada, primera rebanada',brand_id:'brand',brand:{workspace_id:'w'},payload:{}};
 const out=(id,part,text)=>({id,kind:'copy',status:'qa_passed',workflow_status:'client_review',body:{kind:'deliverables',type:'email',part,deliverables:[{body:text,qa:{passed:true},status:'qa_passed'}]}});
-function fixture({actor=owner,brief=row,error=false,asset=false,approveOutput}={}){
+function fixture({actor=owner,brief=row,error=false,asset=false,approveOutput,fetchAsset}={}){
  const tables={briefs:brief?[structuredClone(brief)]:[],brands:[{id:'brand',workspace_id:'w'}],runs:[{id:'r1',specialist_id:'a14',status:'completed',outputs:[out('subject','subject','Hola')]},{id:'r2',specialist_id:'a13',status:'completed',outputs:[out('body','body','Granada')]}],ledger:[{run_id:'r1',credits:2},{run_id:'r2',credits:12}]};
  if(asset)tables.runs.push({id:'r3',specialist_id:'a20',status:'completed',outputs:[{id:'hero',body:{asset_url:'http://169.254.169.254/latest/meta-data'},status:'qa_passed'}]});
- class Query{constructor(table){this.table=table;}select(){return this;}eq(){return this;}in(){return this;}order(){return this;}limit(){return this;}async maybeSingle(){return {data:tables[this.table]?.[0]||null,error:error?{}:null};}then(a,b){return Promise.resolve({data:tables[this.table]||[],error:error?{}:null}).then(a,b);}}
+ class Query{constructor(table){this.table=table;}select(){return this;}eq(){return this;}in(){return this;}order(){return this;}limit(value){this.max=value;return this;}async maybeSingle(){return {data:tables[this.table]?.[0]||null,error:error?{}:null};}then(a,b){return Promise.resolve({data:(tables[this.table]||[]).slice(0,this.max),error:error?{}:null}).then(a,b);}}
  const auth=async(c,next)=>{if(!c.req.header('Authorization'))return c.json({error:'Unauthorized'},401);c.set('auth',actor);return next();};
- const app=createDeliveryRoutes({db:{from:table=>new Query(table)},auth,human:async(c,next)=>c.req.header('x-actor')==='agent'?c.json({error:'Human required'},403):next(),approveOutput:approveOutput||(async()=>new Response('{}',{status:200})),fetchAsset:async()=>{throw Error('SSRF must never be fetched');}});
+ const app=createDeliveryRoutes({db:{from:table=>new Query(table)},auth,human:async(c,next)=>c.req.header('x-actor')==='agent'?c.json({error:'Human required'},403):next(),approveOutput:approveOutput||(async()=>new Response('{}',{status:200})),fetchAsset:fetchAsset||(async()=>{throw Error('SSRF must never be fetched');})});
  return {app,tables,request:(path,options={})=>app.request(path,{...options,headers:{Authorization:'Bearer local-test',...options.headers}})};
 }
 test('customer DTO combines subject/body, totals credits and never exposes production identifiers or costs',async()=>{
@@ -18,9 +18,9 @@ test('customer DTO combines subject/body, totals credits and never exposes produ
 test('workspace boundaries and auth are enforced before returning deliverables; DB failures fail closed',async()=>{
  const f=fixture();assert.equal((await f.app.request('/b')).status,401);assert.equal((await fixture({brief:{...row,brand:{workspace_id:'foreign'}}}).request('/b')).status,403);assert.equal((await fixture({brief:null}).request('/b')).status,404);assert.equal((await fixture({error:true}).request('/b')).status,503);
 });
-test('only CDs and admins can inspect production, never a client with a reviewer persona or an internal designer',async()=>{
- for(const actor of [{...owner,persona:'creative_director'},{...owner,scope:'platform',persona:'designer',assignedWorkspaceIds:new Set(['w'])}])assert.equal((await(await fixture({actor}).request('/b')).json()).canInspect,false);
- for(const persona of ['creative_director','platform_admin','super_admin']){const actor={...owner,scope:'platform',persona,assignedWorkspaceIds:new Set(['w'])};const b=await(await fixture({actor}).request('/b')).json();assert.equal(b.canInspect,true);assert.ok(b.deliverables[0].production.length);}
+test('only CDs and admins can inspect production, never a workspace reviewer; internal designers and stewards retain access',async()=>{
+ for(const actor of [{...owner,persona:'creative_director'},{...owner,qualifications:['steward']}])assert.equal((await(await fixture({actor}).request('/b')).json()).canInspect,false);
+ for(const persona of ['creative_director','platform_admin','super_admin','designer']){const actor={...owner,scope:'platform',persona,assignedWorkspaceIds:new Set(['w'])};const b=await(await fixture({actor}).request('/b')).json();assert.equal(b.canInspect,true);assert.ok(b.deliverables[0].production.length);}
 });
 test('one explicit approval applies to all contributors using the existing human workflow',async()=>{
  const calls=[];const f=fixture({approveOutput:async(id,action)=>{calls.push([id,action]);return new Response('{}');}});assert.equal((await f.request('/b/email-1/approve',{method:'POST'})).status,200);assert.deepEqual(calls.sort(),[['body','client_approve'],['subject','client_approve']]);assert.equal((await f.request('/b/email-1/approve',{method:'POST',headers:{'x-actor':'agent'}})).status,403);
@@ -43,7 +43,7 @@ test('approving one item cannot silently approve siblings in a shared output row
  assert.equal((await f.request('/b/email-1/approve',{method:'POST'})).status,409);assert.deepEqual(calls,[]);
 });
 test('download all is one real ZIP containing the finished merged email',async()=>{
- const res=await fixture().request('/b/download');assert.equal(res.status,200);assert.match(res.headers.get('content-type'),/zip/);const bytes=Buffer.from(await res.arrayBuffer());assert.equal(bytes.readUInt32LE(0),0x04034b50);assert.match(bytes.toString(),/email-1.html/);assert.match(bytes.toString(),/Hola/);assert.match(bytes.toString(),/Granada/);assert.equal(bytes.readUInt32LE(bytes.length-22),0x06054b50);
+ const res=await fixture().request('/b/download');assert.equal(res.status,200);assert.match(res.headers.get('content-type'),/zip/);const bytes=Buffer.from(await res.arrayBuffer());assert.equal(bytes.readUInt32LE(0),0x04034b50);assert.match(bytes.toString(),/Granada primera rebanada - Email.html/);assert.match(res.headers.get('content-disposition'),/Granada primera rebanada - Delivery.zip/);assert.equal(res.headers.get('content-length'),null);assert.match(bytes.toString(),/Hola/);assert.match(bytes.toString(),/Granada/);assert.equal(bytes.readUInt32LE(bytes.length-22),0x06054b50);
 });
 test('no partial download when any deliverable needs attention, no unknown output URL, no arbitrary server fetch',async()=>{
  const f=fixture();f.tables.runs[1].status='failed';assert.equal((await f.request('/b/download')).status,409);assert.equal((await fixture().request('/b/download?delivery=raw-agent-id')).status,404);assert.equal((await fixture({asset:true}).request('/b/download?delivery=hero_kv-1')).status,409);
@@ -53,4 +53,25 @@ test('old missing requested Hero remains a third needs-attention card without in
 });
 test('share path is authenticated and does not create a public capability',async()=>{
  const f=fixture(),b=await(await f.request('/b')).json();assert.equal(b.sharePath,'#/canvas/b');assert.equal((await f.app.request('/b')).status,401);
+});
+
+test('the customer brief list does not truncate the library at fifty briefs',async()=>{
+ const f=fixture();f.tables.briefs=Array.from({length:61},(_,index)=>({...row,id:`brief-${index}`}));
+ const response=await f.request('/?brandId=brand');assert.equal(response.status,200);
+ assert.equal((await response.json()).briefs.length,61);
+});
+
+test('saved asset bytes stream into the offline HTML without an arrayBuffer read',async()=>{
+ const bytes=Buffer.from([1,2,3,4,5,6,7,8,9]);let abortSignal;
+ const f=fixture({fetchAsset:async(_url,options)=>{
+  abortSignal=options.signal;
+  const response=new Response(new ReadableStream({start(c){c.enqueue(bytes.subarray(0,1));c.enqueue(bytes.subarray(1,3));c.enqueue(bytes.subarray(3,7));c.enqueue(bytes.subarray(7));c.close();}}),{headers:{'Content-Type':'image/png'}});
+  response.arrayBuffer=()=>{throw Error('Must stream assets');};return response;
+ }});
+ const base=process.env.SUPABASE_URL||'http://localhost:54321';
+ f.tables.runs.push({id:'hero-run',specialist_id:'a20',status:'completed',outputs:[{id:'hero',status:'qa_passed',body:{asset_url:`${base}/storage/v1/object/public/assets/hero.png`}}]});
+ const response=await f.request('/b/download?delivery=hero_kv-1');assert.equal(response.status,200);
+ const zip=Buffer.from(await response.arrayBuffer());assert.match(zip.toString(),/Hero KV.html/);
+ assert.ok(zip.includes(Buffer.from(`data:image/png;base64,${bytes.toString('base64')}`)));
+ assert.equal(abortSignal.aborted,true,'asset requests are cleaned up after the archive finishes');
 });

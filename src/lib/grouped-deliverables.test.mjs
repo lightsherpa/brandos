@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {groupDeliverables,combinedDeliveryStatus,canInspectDelivery,deliveryDocument,deliveryTypeForAgent} from '../../shared/grouped-deliverables.js';
+import {groupDeliverables,combinedDeliveryStatus,deliveryDocument,deliveryTypeForAgent} from '../../shared/grouped-deliverables.js';
 const output=(id,part,text,extra={})=>({id,status:'qa_passed',body:{kind:'deliverables',type:part==='caption'||part==='image'?'social_post':'email',part,deliverables:[{body:text,status:'qa_passed',qa:{passed:true},...extra}]}});
 const run=(id,outputs=[],extra={})=>({id:'run-'+id,specialist_id:id,status:'completed',credits:3,outputs,...extra});
 const fixture=()=>[
@@ -40,9 +40,7 @@ test('landing page and deck group production without changing the roster; expect
  assert.equal(deliveryTypeForAgent('a25'),'landing_page');assert.equal(deliveryTypeForAgent('a26'),'email');assert.equal(deliveryTypeForAgent('a27'),'deck');
  const groups=groupDeliverables({runs:[run('a37'),run('a12'),run('a25'),run('a36'),run('a44'),run('a27')],finished:true,expectedSpecialists:['a20']});assert.deepEqual(groups.map(g=>g.type),['hero_kv','landing_page','deck']);assert.ok(groups.every(g=>g.status==='attention'));
 });
-test('production details are server-authorized for CDs/admins only, never clients or unqualified internal designers',()=>{
- for(const actor of [null,{scope:'workspace',persona:'creative_director'},{scope:'workspace',persona:'user'},{scope:'platform',persona:'designer'}])assert.equal(canInspectDelivery(actor),false);
- for(const persona of ['creative_director','platform_admin','super_admin'])assert.equal(canInspectDelivery({scope:'platform',persona}),true);
+test('customer grouping never includes production IDs',()=>{
  assert.ok(groupDeliverables({runs:fixture(),internal:false}).every(g=>!('production'in g)&&!('outputIds'in g)));
 });
 test('email document escapes content and has offline-safe execution policy and RTL',()=>{
@@ -96,4 +94,26 @@ test('post exports contain the image and caption together without duplicating co
  assert.match(plain,/<img src="https:\/\/assets.test\/post.png"/);assert.match(plain,/Primera rebanada/);
  const composed=deliveryDocument({type:'social_post',text:'Primera rebanada',html:'<article><img src="https://assets.test/post.png"><p>Primera rebanada</p></article>'});
  assert.equal(composed.split('Primera rebanada').length-1,1);
+});
+
+test('real Granada agent mix with an a12 Email body yields only the three planned deliverables',()=>{
+ // Sanitized shape captured from local Granada runs on 2026-10-17. The older
+ // run used a12 for an explicitly typed email body; its usual role is landing.
+ const runs=[
+  run('a16',[output('granada-caption','caption','Granada')]),
+  run('a41',[{id:'granada-design',kind:'image',status:'qa_passed',body:{asset_url:'https://assets.test/post.png'}}]),
+  run('a14',[output('granada-subject','subject','Hola Granada')]),
+  run('a12',[output('granada-body','body','Primera rebanada')]),
+ ];
+ const plan={deliverableGroups:['social_post','email','hero_kv'].map(type=>({type,count:1}))};
+ assert.deepEqual(groupDeliverables({runs,plan,finished:true}).map(p=>p.type),['social_post','email','hero_kv']);
+ assert.deepEqual(groupDeliverables({runs,expectedSpecialists:['a20'],finished:true}).map(p=>p.type),['social_post','email','hero_kv']);
+ runs.push(run('a15',[{id:'old-blog',body:{type:'blog_article',part:'body',items:[{text:'UNPLANNED',qa:{passed:false}}]}}]));
+ runs[0].outputs.push({id:'unknown',body:{type:'unrecognized',part:'other',items:[{text:'UNKNOWN',qa:{passed:false}}]}});
+ const pieces=groupDeliverables({runs,plan,finished:true,internal:true});
+ assert.deepEqual(pieces.map(p=>p.type),['social_post','email','hero_kv']);
+ assert.ok(pieces.every(p=>!p.outputIds.includes('unknown')&&!p.outputIds.includes('old-blog')));
+ assert.equal(pieces[0].status,'review');assert.equal(pieces[1].status,'review');
+ assert.equal(pieces[2].status,'attention');
+ assert.equal(pieces[1].text,'Primera rebanada');
 });

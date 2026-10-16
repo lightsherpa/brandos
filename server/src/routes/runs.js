@@ -1,4 +1,4 @@
-import {canInspectDelivery} from '../../../shared/grouped-deliverables.js';
+import {canEnterCertify} from '../lib/certify-access.js';
 import {normalizePlan} from '../lib/delivery-plan.js';
 import { sanitizeOutput } from "../lib/output-quality.js";
 // ─────────────────────────────────────────────────────────────────────
@@ -770,7 +770,7 @@ app.post("/stream", requireAuth, async (c) => {
 /* GET /api/runs/:id — read a finished run (for the SPA to load output
    cards on brief detail pages later). */
 app.get("/:id", requireAuth, async (c) => {
-  if (!canInspectDelivery(c.get("auth"))) return c.json({error:"Open the grouped delivery instead"},403);
+  if (!(c.get("auth")?.scope === "platform" || canEnterCertify(c.get("auth")))) return c.json({error:"Open the grouped delivery instead"},403);
   const { workspaceId } = c.get("auth");
   const runId = c.req.param("id");
   const { data: run } = await supabaseAdmin

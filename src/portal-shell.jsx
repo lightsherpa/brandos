@@ -1,4 +1,3 @@
-import {canInspectDelivery} from '../shared/grouped-deliverables.js';
 import {reviewDeskCopy,reviewDeskEnabled} from './lib/review-desk-copy.js';
 import {certifyUxEnabled} from './certify/ux-flags.js';
 import {brandCoreNavTarget,resolveCertifyRoute,canEnterCertify} from './lib/certify-routing.js';
@@ -879,8 +878,8 @@ function ScreenRouter({ route, go, tweaks, setTweak, onLogout }) {
     case "library":      return <Library go={go} />;
     case "board":
     case "brief-detail": return <BriefsLibrary go={go} />;
-    case "specialists":  return canInspectDelivery(session) ? <SpecialistsDirectory go={go} /> : <BriefsLibrary go={go} />;
-    case "specialist-new": return canInspectDelivery(session) ? <SpecialistAuthor go={go} /> : <BriefsLibrary go={go} />;
+    case "specialists":  return (session?.scope==='platform'||canEnterCertify(session)) ? <SpecialistsDirectory go={go} /> : <BriefsLibrary go={go} />;
+    case "specialist-new": return (session?.scope==='platform'||canEnterCertify(session)) ? <SpecialistAuthor go={go} /> : <BriefsLibrary go={go} />;
     case "canvas":       return <CanvasView go={go} prototype={route.param === "prototype"} briefId={route.param && route.param !== "prototype" ? route.param : null} />;
     case "formats":      return <window.FormatPreviewView briefId={route.param} go={go} />;
     case "tasks":        return tasksEnabled ? <window.TaskPipelineView go={go} /> : <BrandolphHome tweaks={tweaks} setTweak={setTweak} go={go} />;

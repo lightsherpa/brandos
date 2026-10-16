@@ -15,7 +15,7 @@ Oscar selected the [research recommendation](../../research/2026-10-17-grouped-o
 
 ## Role acceptance criteria
 
-1. Only platform creative directors, platform admins, and super admins may expand **How it was made**. Workspace users, workspace admins, workspace actors with a reviewer persona, and platform designers receive no production DTO fields.
+1. The existing `actor.scope === "platform" || canEnterCertify(actor)` check controls **How it was made**, raw run access, and Specialists. Platform designers and stewards retain production access. Workspace users and workspace admins without Certify access receive no production DTO fields.
 2. Customer cards/previews contain no agent codes, model metadata, tokens, per-agent costs, or queue lines. The raw `/api/runs/:id` endpoint rejects those actors before looking up outputs; specialist authoring/directory routes cannot serve them the production UI.
 3. Workspace authorization applies to every grouped read, approval, and download. Missing authentication and foreign-workspace requests fail closed.
 4. Approval requires the existing human workflow permission and review stage. A CD cannot internally approve their own submission. A client can approve only at client review.
@@ -31,7 +31,15 @@ As Oscar previously authorized, only this brief's existing `payload.deliveryPlan
 
 Browser checks: three cards and no agent cards; rendered Email subject and body in one panel; no production details for the current customer view; Expand/Return/Close; identical Canvas transform before and after closing; zoom control still works. Before/after images are below. The before image is the earlier capture of the original agent-node layout, not a fresh production capture.
 
-Validation: `npm test` — **1,025 passed, 0 failed, 0 skipped**; independent server suite — **779 passed, 0 failed, 0 skipped**; `npm run build` — passed, with the existing large-chunk advisory. Server tests are included within the full suite as well, so these counts are not additive.
+Validation: `npm test` — **1,034 passed, 0 failed, 0 skipped**; independent server suite — **786 passed, 0 failed, 0 skipped**; `npm run build` — passed, with the existing large-chunk advisory. Server tests are included within the full suite as well, so these counts are not additive.
+
+## Review fixes
+
+The original notepad verify/edit/copy, DeliverableDrawer and Send to human, fixture/loading/not-found states, full Library with folders/search/actions, task Stepper, QA rule-save and re-run controls are restored. Internal production tools are reachable through the collapsed How it was made section. [Every remaining deletion against origin/dev is accounted for here](review-fixes.md).
+
+Saved plans are authoritative. A regression fixture uses Granada's actual a16/a41/a14/a12 mix (a12 explicitly produced Email body) and planned Hero KV: exactly Social Post, Email, Hero KV, with unrelated/unknown output types excluded.
+
+Delivery routes have a separate 10 requests/minute budget per IP and actor. Downloads stream ZIP headers, document/image chunks, CRC descriptors and the central directory under backpressure; only directory metadata and small chunk buffers are retained. Archive and entry names use the brief title and localized deliverable names. Existing asset origin, size, completeness and approval checks remain. CI tests set placeholder VITE_SUPABASE values with ||= before the SSR import.
 
 ## Excluded files
 
@@ -48,3 +56,9 @@ Only feature source, tests, the selected research documentation, and small refer
 ## Combined Email preview
 
 ![Rendered Email in a side panel with the Canvas retained behind it](email-preview.jpg)
+
+## Restored review drawer
+
+The grouped Email opens the original Copy / Export / Send to human drawer. Customer attribution remains hidden. Library folder/search/filter and saved Brief drawer were also checked locally without submitting a paid handoff.
+
+![Restored customer review drawer](review-drawer.png)

@@ -2,12 +2,15 @@
 // prompt, or persistence changes. The production taxonomy remains authoritative.
 import { DELIVERABLE_TYPES } from '../server/src/lib/taxonomy.js';
 const canonical = type => ({email_sequence:'email',newsletter:'email',key_visual:'hero_kv',landing_section:'landing_page'}[type] || type);
+export {canonical as canonicalDeliveryType};
 const EXTRA = {deck:{...DELIVERABLE_TYPES.deck,crew:{...DELIVERABLE_TYPES.deck.crew,build:'a27'}},email:{...DELIVERABLE_TYPES.email,crew:{...DELIVERABLE_TYPES.email.crew,html:'a26',design:'a48'}},landing_page:{crew:{heading:'a37',body:'a12',build:'a25'}}};
 const QA = new Set(['a18','a24']);
-export const canInspectDelivery = actor => actor?.scope === 'platform' && ['creative_director','platform_admin','super_admin'].includes(actor.persona);
 const decode = value => {if(typeof value!=='string')return value||{};try{return JSON.parse(value);}catch{return {text:value};}};
 export const escapeHTML = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const safeAsset = value => {try{const url=new URL(value);return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password?url.href:null;}catch{return /^data:image\/(png|jpeg|webp);base64,[a-z\d+/=]+$/i.test(value||'')?value:null;}};
+const safeAsset = value => {
+ if(/^data:image\/(png|jpeg|webp);base64,[a-z\d+/=]+$/i.test(value||''))return value;
+ try{const url=new URL(value);return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password?url.href:null;}catch{return null;}
+};
 const registry = Object.fromEntries(Object.entries({...DELIVERABLE_TYPES,...EXTRA}).filter(([key])=>key!=='legacy').map(([key,spec])=>[key,{...spec,type:canonical(key)}]));
 const preferred = ['social_post','email','hero_kv','landing_page','deck'];
 export function deliveryTypeForAgent(id) {
@@ -50,10 +53,22 @@ function partsFor(run) {
 export function groupDeliverables({runs=[],plan,expectedSpecialists=[],creditsByAgent={},finished=false,internal=false}={}) {
  const newest=[...runs].sort((a,b)=>String(b.ended_at||b.started_at||b.created_at||'').localeCompare(String(a.ended_at||a.started_at||a.created_at||''))||String(b.id||'').localeCompare(String(a.id||'')));
  const allParts=newest.flatMap(partsFor), types=new Set();
- for(const g of plan?.deliverableGroups||[])if(g.type!=='legacy')types.add(canonical(g.type));
- for(const p of allParts)if(registry[p.type]||EXTRA[p.type])types.add(p.type);
- for(const id of [...runs.map(r=>r.specialist_id),...expectedSpecialists]){const type=QA.has(id)?null:deliveryTypeForAgent(id);if(type&&![...types].some(t=>Object.values(registry[t]?.crew||{}).includes(id)||(plan?.deliverableGroups||[]).some(g=>canonical(g.type)===t&&Object.values(g.crew||{}).includes(id))))types.add(type);}
- if(!types.size&&runs.length)types.add('legacy');
+ const planned=(plan?.deliverableGroups||[]).filter(g=>g.type==='legacy'||registry[canonical(g.type)]||EXTRA[canonical(g.type)]);
+ if(Array.isArray(plan?.deliverableGroups)&&plan.deliverableGroups.length){
+  // A saved plan is authoritative: incidental or old runs cannot grow cards.
+  for(const group of planned)types.add(canonical(group.type));
+ }else{
+  for(const part of allParts)if(registry[part.type]||EXTRA[part.type])types.add(part.type);
+  const infer=id=>{
+   const type=QA.has(id)?null:deliveryTypeForAgent(id);
+   if(type&&![...types].some(t=>Object.values(registry[t]?.crew||{}).includes(id)))types.add(type);
+  };
+  // Explicit output types win over an agent's usual role (Granada used a12
+  // for an email body). Unknown declared types are not reassigned by guessing.
+  for(const run of newest)if(!allParts.some(part=>part.runId===run.id))infer(run.specialist_id);
+  for(const id of expectedSpecialists)if(!allParts.some(part=>part.agentId===id))infer(id);
+  if(!types.size&&runs.length)types.add('legacy');
+ }
  return [...types].sort((a,b)=>(preferred.indexOf(a)<0?99:preferred.indexOf(a))-(preferred.indexOf(b)<0?99:preferred.indexOf(b))).flatMap(type=>{
   const plans=(plan?.deliverableGroups||[]).filter(g=>canonical(g.type)===type);
   const spec=registry[type]||registry[type==='landing_page'?'landing_section':type]||{crew:{}};
@@ -64,7 +79,7 @@ export function groupDeliverables({runs=[],plan,expectedSpecialists=[],creditsBy
    return ids.has(run.specialist_id)||(type==='legacy'&&!deliveryTypeForAgent(run.specialist_id));
   };
   const relevant=newest.filter(r=>belongs(r)||(QA.has(r.specialist_id)&&!allParts.some(p=>p.runId===r.id&&p.type)));
-  const parts=allParts.filter(p=>relevant.some(r=>r.id===p.runId)&&(!p.type||p.type===type||!registry[p.type]));
+  const parts=allParts.filter(p=>relevant.some(r=>r.id===p.runId)&&(p.type===type||(!p.type&&(QA.has(p.agentId)||type==='legacy'))));
   const platforms=[...new Set(plans.flatMap(g=>g.platforms||[]).concat(parts.map(p=>p.platform).filter(Boolean)))];
   const count=Math.max(1,...plans.map(g=>Number(g.count)||1),...parts.map(p=>p.index+1));
   // Credits are an aggregate only. Retries remain charged; distributing the

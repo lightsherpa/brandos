@@ -4,6 +4,8 @@ import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {createServer} from 'vite';
 import {deliveryCopy} from './locales/grouped-deliverables-copy.js';
+process.env.VITE_SUPABASE_URL||='http://127.0.0.1:54321';
+process.env.VITE_SUPABASE_ANON_KEY||='test';
 const groups=['social_post','email','hero_kv'].map((type,index)=>({id:type+'-1',index:0,type,status:index===2?'attention':'review',complete:index!==2,credits:12,text:'Approved copy',subject:type==='email'?'Hola Granada':''}));
 test('Canvas renders exactly three deliverable cards, one status and credit total each, with one final Delivery',async t=>{
  const vite=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',logLevel:'silent'});t.after(()=>vite.close());

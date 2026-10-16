@@ -55,6 +55,18 @@ const from = (ip, init = {}) => ({
   headers: { "x-forwarded-for": ip, ...(init.headers || {}) },
 });
 
+test('delivery reads, approvals and downloads share an independent 10-per-minute ceiling',async()=>{
+ const app=buildApp(PROD_ENV,app=>app.all('/api/deliveries/*',c=>c.json({ok:true})));
+ assert.equal(PERIMETER_CLASSES.delivery.windowMs,60_000);
+ assert.ok(PERIMETER_CLASSES.delivery.ipMax<=10&&PERIMETER_CLASSES.delivery.userMax<=10);
+ for(const [method,path] of [['GET','/api/deliveries'],['GET','/api/deliveries/b'],['GET','/api/deliveries/b/download'],['POST','/api/deliveries/b/email-1/approve']])assert.equal(classifyRequest(method,path),'delivery');
+ for(let i=0;i<10;i++)assert.equal((await app.request('/api/deliveries/b/download',from('203.0.113.90'))).status,200);
+ const blocked=await app.request('/api/deliveries/b',from('203.0.113.90'));
+ assert.equal(blocked.status,429);assert.equal(blocked.headers.get('RateLimit-Limit'),'10');assert.ok(Number(blocked.headers.get('Retry-After'))>0);
+ assert.equal((await app.request('/api/me',from('203.0.113.90'))).status,200,'ordinary API reads have their own bucket');
+ assert.equal((await app.request('/api/deliveries/b/download',from('203.0.113.91'))).status,200);
+});
+
 /* ── Route classification ─────────────────────────────────────────────────── */
 
 test("classifyRequest maps every perimeter surface to its abuse class", () => {

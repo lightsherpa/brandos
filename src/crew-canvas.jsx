@@ -1,4 +1,4 @@
-import {canInspectDelivery} from '../shared/grouped-deliverables.js';
+import {canEnterCertify} from './lib/certify-routing.js';
 import {deliveryCopy} from './locales/grouped-deliverables-copy.js';
 import React from 'react';
 import { useLocale } from './lib/i18n.js';
@@ -30,7 +30,7 @@ function Artifact({item,type,onSelect,onComponentSelect,selected,copy}) {
 }
 
 export function CrewCanvas({context,onClear,go}) {
- const {locale}=useLocale(),c=crewCopy(locale),dc=deliveryCopy(locale),inspect=canInspectDelivery(window.useSession?.());
+ const {locale}=useLocale(),c=crewCopy(locale),dc=deliveryCopy(locale),actor=window.useSession?.(),inspect=actor?.scope==='platform'||canEnterCertify(actor);
  const [type,setType]=React.useState(requestedCrew(context)||'social_post');
  const [heroes,setHeroes]=React.useState(true),[task,setTask]=React.useState(null),[busy,setBusy]=React.useState(false),[error,setError]=React.useState(''),[notice,setNotice]=React.useState('');
  const [selected,setSelected]=React.useState(null),[component,setComponent]=React.useState(null),[value,setValue]=React.useState(''),[feedback,setFeedback]=React.useState('');
