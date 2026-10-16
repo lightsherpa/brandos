@@ -9,6 +9,7 @@
 // Pure string transform, no I/O.
 
 // /api/discovery/delegation/<token>  (also matches the un-prefixed mount form)
+const BRAND_BOOK_SHARE_PATH=/(\/brand-book\/shared\/)[A-Za-z0-9_-]{8,}/g;
 const DELEGATION_PATH = /(\/delegation\/)[A-Za-z0-9_-]{8,}/g;
 // #/discovery/handoff/<token> — the shape of the emailed link, in case one is
 // ever echoed into a log or an error message.
@@ -24,6 +25,7 @@ const MASK = "[redacted]";
  */
 export function redactLogLine(line) {
   return String(line ?? "")
+    .replace(BRAND_BOOK_SHARE_PATH, `$1${MASK}`)
     .replace(DELEGATION_PATH, `$1${MASK}`)
     .replace(HANDOFF_LINK, `$1${MASK}`)
     .replace(TOKEN_QUERY, `$1${MASK}`);
