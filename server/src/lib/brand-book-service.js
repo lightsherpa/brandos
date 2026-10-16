@@ -1,4 +1,5 @@
 import {createHash,randomBytes} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
 import {hasPermission,isWorkspaceOwner} from './permissions.js';
 import {bioIntegrityError} from './brand-source-integrity.js';
 import {productionBlocker} from './bio-stage.js';
@@ -10,6 +11,17 @@ const fail=(code,message,status=400)=>Object.assign(Error(message),{code,status}
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const MIME={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp',woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',otf:'font/otf'};
 const MAX_BYTES=64*1024*1024;
+const OPEN_FONT_FAMILIES=new Set(['Lato','Inter']);
+const fontCache=new Map();
+function recordedOpenFonts(bio){return [...new Set((bio.payload?.visual?.type||[]).filter(font=>font.provider==='google'&&!font.sourceId&&OPEN_FONT_FAMILIES.has(font.family)).map(font=>font.family))];}
+async function openFontBytes(family){
+ if(!OPEN_FONT_FAMILIES.has(family))throw fail('FONT_UNAVAILABLE','This font is not bundled.',404);
+ if(!fontCache.has(family))fontCache.set(family,Promise.all(['Regular.ttf','Bold.ttf','OFL.txt'].map(part=>readFile(new URL(`../../assets/brand-book-fonts/${family}-${part}`,import.meta.url)))).then(([regular,bold,license])=>({regular,bold,license})).catch(()=>{fontCache.delete(family);throw fail('FONT_UNAVAILABLE','An approved open font could not be read.',503);}));
+ return fontCache.get(family);
+}
+function openFontSource(family){return {id:`font:${family}`,src:`${family} (OFL)`,kind:'bundled_open_font',signals:{asset_kind:'font',font_family:family,license_type:'open_source',rights_confirmed:true,redistribution_allowed:true,ext:'ttf',mime:'font/ttf'},previewOnly:false};}
+async function openFontMap(families){const map={};for(const family of families){const bytes=await openFontBytes(family);map[`font:${family}`]=`data:font/ttf;base64,${bytes.regular.toString('base64')}`;map[`font:${family}:bold`]=`data:font/ttf;base64,${bytes.bold.toString('base64')}`;}return map;}
+
 const safeUrl=value=>{try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password&&!/\/storage\/v1\/object\/sign\//.test(u.pathname)&&!['token','access_token','apikey','api_key','signature'].some(key=>u.searchParams.has(key))?u.href:null;}catch{return null;}};
 const TOP_FIELDS=['identity','audience','positioning','goals','strategic','aspirations','visual','voice','applications','learnedRules','learned_rules','examples'];
 const PRIVATE_KEYS=new Set(['raw_ref','rawRef','previewUrl','evidence_url','access_token','refresh_token','apiKey','token','confidence','evidence','fieldStatus','sourceIdentity','sourceIntegrity','owner_feedback','reference_intake','logoRights']);
@@ -45,7 +57,7 @@ function portable(value,assetMap={}){
  return scrub(value);
 }
 function selectSources(snapshot,options){
- const known=new Set(snapshot.assets.map(asset=>asset.id));
+ const known=new Set([...snapshot.assets.map(asset=>asset.id),...recordedOpenFonts(snapshot.bio).map(family=>`font:${family}`)]);
  if(options.sourceIds?.some(id=>!known.has(id)))throw fail('ASSETS_INVALID','An asset is not approved in this certified version.',409);
  return snapshot.assets.filter(asset=>options.items.includes(groupFor(asset))&&(!options.sourceIds||options.sourceIds.includes(asset.id))&&!publicSource(asset).previewOnly);
 }
@@ -70,6 +82,8 @@ export function createBrandBookService({db,now=()=>Date.now(),tokenBytes=()=>ran
  }
  async function snapshot(auth,brandId,version){
   const value=await load(auth,brandId,version),assetMap={},sources=await Promise.all(value.assets.map(async source=>{const {data,error}=await db.storage.from('bio-sources').createSignedUrl(source.raw_ref,600);const url=!error?data?.signedUrl:null;if(url)assetMap[source.id]=url;return {...publicSource(source),evidence_url:url||null};}));
+  const openFonts=recordedOpenFonts(value.bio);Object.assign(assetMap,await openFontMap(openFonts));
+  sources.push(...openFonts.map(family=>({...openFontSource(family),evidence_url:assetMap[`font:${family}`]})));
   return {brand:value.brand,bio:value.bio,sources,assetMap,mode:'certified',canShare:isWorkspaceOwner(auth,value.workspaceId),canExport:true};
  }
  async function bytesFor(asset){
@@ -82,16 +96,18 @@ export function createBrandBookService({db,now=()=>Date.now(),tokenBytes=()=>ran
    const bytes=await bytesFor(asset);total+=bytes.length;if(total>MAX_BYTES)throw fail('EXPORT_TOO_LARGE','Select fewer assets for a package below 64 MB.',413);
    const file=`assets/${String(i+1).padStart(3,'0')}.${asset.signals.ext.toLowerCase()}`;assetMap[asset.id]=file;files.push({name:file,data:bytes});manifestAssets.push({file,label:publicSource(asset).src,category:groupFor(asset),bytes:bytes.length,sha256:hash(bytes)});
   }
+  const bundled=options.items.includes('typography')?recordedOpenFonts(value.bio).filter(family=>!options.sourceIds||options.sourceIds.includes(`font:${family}`)):[];
+  for(const family of bundled){const bytes=await openFontBytes(family);for(const [style,data]of [['Regular',bytes.regular],['Bold',bytes.bold]]){total+=data.length;if(total>MAX_BYTES)throw fail('EXPORT_TOO_LARGE','Select fewer assets for a package below 64 MB.',413);const file=`assets/${String(manifestAssets.length+1).padStart(3,'0')}.ttf`;files.push({name:file,data});assetMap[`font:${family}${style==='Bold'?':bold':''}`]=file;manifestAssets.push({file,label:`${family} ${style}`,category:'typography',bytes:data.length,sha256:hash(data),license:`${family}-OFL.txt`});}files.push({name:`${family}-OFL.txt`,data:bytes.license});}
   const c=strings[options.locale],p=value.bio.payload,metadata={brand:value.brand.name,version:value.bio.version,certifiedAt:value.bio.certified_at,locale:options.locale,format:options.format,items:options.items,assets:manifestAssets};
   files.push({name:'manifest.json',data:JSON.stringify(metadata,null,2)},{name:'README.txt',data:`${c.readme}\n${value.brand.name} · ${c.edition} ${value.bio.version}\n\n${options.format==='website'?c.open:c.kit}\n\n${c.rights}\n\n${c.missing}\n`});
   const addJSON=(name,data)=>files.push({name,data:JSON.stringify(portable(data,assetMap),null,2)});
   if(options.items.includes('palette')){addJSON('palette.json',p.visual?.palette||[]);files.push({name:'tokens.css',data:':root {\n'+(p.visual?.palette||[]).filter(v=>/^#[\da-f]{6}$/i.test(v.hex)).map((v,i)=>`  --brand-color-${i+1}: ${v.hex};`).join('\n')+'\n}\n'});}
-  if(options.items.includes('typography'))addJSON('typography.json',(p.visual?.type||[]).map(font=>({family:font.family,kind:font.kind,weight:font.weight,style:font.style,license:font.license,licenseReference:safeUrl(value.assets.find(asset=>asset.id===font.sourceId)?.signals?.license_reference),provider:font.provider,...(assetMap[font.sourceId]?{file:assetMap[font.sourceId]}:{previewOnly:true})})));
+  if(options.items.includes('typography'))addJSON('typography.json',(p.visual?.type||[]).map(font=>{const bundled=recordedOpenFonts(value.bio).includes(font.family)&&font.provider==='google'&&!font.sourceId,file=assetMap[font.sourceId]||assetMap[`font:${font.family}`];return {family:font.family,kind:font.kind,weight:font.weight,style:font.style,license:bundled?'OFL-1.1':font.license,licenseReference:bundled&&file?`${font.family}-OFL.txt`:safeUrl(value.assets.find(asset=>asset.id===font.sourceId)?.signals?.license_reference),provider:font.provider,...(file?{file,...(assetMap[`font:${font.family}:bold`]?{boldFile:assetMap[`font:${font.family}:bold`]}:{})}:bundled?{redistributionAllowed:true}:{previewOnly:true})};}));
   if(options.items.includes('voice'))addJSON('voice.json',p.voice||{});
   if(options.items.includes('strategy'))addJSON('strategy.json',Object.fromEntries(['identity','audience','positioning','goals','strategic','aspirations'].filter(key=>p[key]).map(key=>[key,p[key]])));
   if(options.items.includes('logos'))addJSON('logos.json',p.visual?.logo||{});
   if(options.items.includes('imagery'))addJSON('imagery.json',{references:p.visual?.references||[],imagery:p.visual?.imagery||[],avoid:p.visual?.avoid||[]});
-  if(options.format==='website'){if(!renderGuidelines)throw fail('RENDERER_UNAVAILABLE','Guideline export is unavailable.',503);files.push({name:'index.html',data:await renderGuidelines({brand:value.brand,bio:value.bio,sources:value.assets.map(publicSource),locale:options.locale,assetMap,mode:'export',items:options.items})});}
+  if(options.format==='website'){if(!renderGuidelines)throw fail('RENDERER_UNAVAILABLE','Guideline export is unavailable.',503);files.push({name:'index.html',data:await renderGuidelines({brand:value.brand,bio:value.bio,sources:[...value.assets.map(publicSource),...bundled.map(openFontSource)],locale:options.locale,assetMap,mode:'export',items:options.items})});}
   return {files,filename:`brand-core-v${value.bio.version}-${options.locale}-${options.format}.zip`};
  }
  async function ownerSnapshot(auth,brandId,version){const value=await load(auth,brandId,version);if(!isWorkspaceOwner(auth,value.workspaceId))throw fail('OWNER_REQUIRED','Only the workspace owner can share this Brand Book.',403);return value;}
@@ -100,8 +116,9 @@ export function createBrandBookService({db,now=()=>Date.now(),tokenBytes=()=>ran
   const options=exportOptions(body),days=body.expiresInDays??7;if(!Number.isInteger(days)||days<1||days>90)throw fail('EXPIRY_INVALID','Choose an expiry from 1 to 90 days.');
   const value=await ownerSnapshot(auth,brandId,body.version),assets=selectSources(value,options),boundAssets=[];let total=0;
   for(const [i,asset] of assets.entries()){const bytes=await bytesFor(asset);total+=bytes.length;if(total>MAX_BYTES)throw fail('SHARE_TOO_LARGE','Select fewer assets for this share.',413);boundAssets.push({...asset,public_name:`asset-${String(i+1).padStart(3,'0')}.${asset.signals.ext.toLowerCase()}`,sha256:hash(bytes)});}
+  const bundledFonts=[];if(options.items.includes('typography'))for(const family of recordedOpenFonts(value.bio).filter(family=>!options.sourceIds||options.sourceIds.includes(`font:${family}`))){const bytes=await openFontBytes(family);bundledFonts.push({family,regularHash:hash(bytes.regular),boldHash:hash(bytes.bold)});}
   const token=tokenBytes().toString('base64url'),expiresAt=new Date(now()+days*86400000).toISOString();
-  const result=queryError(await db.from('brand_book_shares').insert({brand_id:brandId,bio_id:value.bio.id,bio_version:value.bio.version,created_by:auth.userId,token_hash:hash(token),locale:options.locale,items:options.items,scope:'guidelines_read',expires_at:expiresAt,snapshot:{brand:value.brand,bio:value.bio,assets:boundAssets}}).select('id,created_at').single());
+  const result=queryError(await db.from('brand_book_shares').insert({brand_id:brandId,bio_id:value.bio.id,bio_version:value.bio.version,created_by:auth.userId,token_hash:hash(token),locale:options.locale,items:options.items,scope:'guidelines_read',expires_at:expiresAt,snapshot:{brand:value.brand,bio:value.bio,assets:boundAssets,bundledFonts}}).select('id,created_at').single());
   return {id:result.id,url:`/api/brand-book/shared/${token}`,expiresAt,version:value.bio.version,locale:options.locale};
  }
  async function shares(auth,brandId){await access(auth,brandId,true);const rows=queryError(await db.from('brand_book_shares').select('id,bio_version,locale,items,created_at,expires_at,revoked_at').eq('brand_id',brandId).order('created_at',{ascending:false}));return {shares:(rows||[]).map(row=>({id:row.id,version:row.bio_version,locale:row.locale,items:row.items,createdAt:row.created_at,expiresAt:row.expires_at,revokedAt:row.revoked_at}))};}
@@ -112,7 +129,10 @@ export function createBrandBookService({db,now=()=>Date.now(),tokenBytes=()=>ran
   if(!row||row.scope!=='guidelines_read'||row.revoked_at||new Date(row.expires_at).getTime()<=now())throw fail('SHARE_NOT_FOUND','Share not found or expired.',404);
   return row;
  }
- async function sharedHTML(token){const row=await readShare(token),{brand,bio,assets}=row.snapshot,assetMap=Object.fromEntries(assets.map(asset=>[asset.id,`/api/brand-book/shared/${token}/assets/${asset.public_name}`]));return renderGuidelines({brand,bio,sources:assets.map(publicSource),locale:row.locale,assetMap,mode:'shared',items:row.items});}
+ async function sharedHTML(token){const row=await readShare(token),{brand,bio,assets,bundledFonts=[]}=row.snapshot,assetMap=Object.fromEntries(assets.map(asset=>[asset.id,`/api/brand-book/shared/${token}/assets/${asset.public_name}`]));
+  const known=new Set(recordedOpenFonts(bio));for(const font of bundledFonts){if(!known.has(font.family))continue;const bytes=await openFontBytes(font.family);if(hash(bytes.regular)!==font.regularHash||hash(bytes.bold)!==font.boldHash)throw fail('ASSET_CHANGED','An approved open font is unavailable.',410);Object.assign(assetMap,await openFontMap([font.family]));}
+  return renderGuidelines({brand,bio,sources:[...assets.map(publicSource),...bundledFonts.filter(font=>known.has(font.family)).map(font=>openFontSource(font.family))],locale:row.locale,assetMap,mode:'shared',items:row.items});}
+
  async function sharedAsset(token,name){const row=await readShare(token),asset=row.snapshot.assets.find(asset=>asset.public_name===name);if(!asset||publicSource(asset).previewOnly)throw fail('ASSET_NOT_FOUND','Asset not found.',404);const bytes=await bytesFor(asset);if(hash(bytes)!==asset.sha256)throw fail('ASSET_CHANGED','This approved asset is unavailable.',410);return {bytes,mime:MIME[asset.signals.ext.toLowerCase()]};}
  return {load,snapshot,packageExport,createShare,shares,revokeShare,readShare,sharedHTML,sharedAsset};
 }
