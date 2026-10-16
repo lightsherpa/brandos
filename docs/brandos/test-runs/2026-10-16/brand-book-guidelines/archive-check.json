@@ -1,0 +1,20 @@
+{
+  "website": {
+    "files": 22,
+    "assets": 10,
+    "bytes": 10477753,
+    "relativeAssetLinksVerified": true,
+    "openFontFiles": 4,
+    "commercialFontFiles": 0,
+    "manifestHashChecks": 10
+  },
+  "kit": {
+    "files": 21,
+    "assets": 10,
+    "bytes": 10422188,
+    "relativeAssetLinksVerified": false,
+    "openFontFiles": 4,
+    "commercialFontFiles": 0,
+    "manifestHashChecks": 10
+  }
+}

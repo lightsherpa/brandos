@@ -54,3 +54,11 @@ The exported Brand Book should follow this website's design and organization. It
 The reference export maps human selection labels to fixed Cake-me file paths. BrandOS currently renders a generic three-chapter view and has no matching Brand Book website/kit exporter. Adapting the reference requires a generic certified-data adapter, branded guideline renderer, authenticated asset packaging and export/version tests. These are application changes, not a CSS reskin or a link to the existing Cake-me site.
 
 Acceptance: compare Cake Me against the designated reference at desktop/mobile sizes; inspect another brand to rule out hardcoded Cake-me styling; exercise en/es/ar including RTL; open the packaged website with local assets; verify ZIP contents/rights and absence of tokens; preserve Certify role restrictions and certified-version integrity.
+
+## Implemented in BrandOS — 16 October 2026
+
+The subsequent implementation replaces the flagged reader with a full-canvas guideline destination, using the reference's branded sidebar, hero, chapter cards and visual chapters. `VITE_BRAND_BOOK_GUIDELINES=0` and `BRAND_BOOK_GUIDELINES=0` are the rollout defaults. The authenticated reader previews actual recorded commercial fonts; public sharing and packages exclude those font bytes unless explicit redistribution permission exists. Where excluded, the public/offline guide identifies the missing font and uses a fallback. Recorded Google-provider Lato and Inter are bundled with their original OFL notices for independent use without Google requests.
+
+The same standalone renderer powers authenticated preview, a complete website ZIP and public read-only sharing. Website exports contain the complete recorded text and selected assets; selected kits contain only chosen categories/assets. Links use immutable certified snapshots and asset hashes, expire, and can be revoked by the workspace owner. Shared page failures have human guidance. No reference CMS credentials, publishing backend or storage system was imported.
+
+Validation and known limits: `docs/brandos/test-runs/2026-10-16/brand-book-guidelines/REPORT.md`. No production deployment or production data changes were performed.

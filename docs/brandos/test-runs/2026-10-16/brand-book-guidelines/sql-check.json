@@ -1,0 +1,13 @@
+{
+  "assertions": 116,
+  "files": {
+    "brand_book_shares.sql": 15,
+    "cert_messages_rls.sql": 1,
+    "certify_review_progress.sql": 23,
+    "discovery_review_gate.sql": 14,
+    "platform_integrity.sql": 58,
+    "reference_intake.sql": 5
+  },
+  "stack": "supabase_db_CaastorOS",
+  "fixtures": "transactional rollback"
+}
