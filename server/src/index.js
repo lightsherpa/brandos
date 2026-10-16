@@ -1,3 +1,4 @@
+import {createDeliveryRoutes} from './routes/deliveries.js';
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -67,6 +68,7 @@ app.route("/api/brandolph", brandolph);
 app.route("/api/bios", bios);
 app.route("/api/brands", brands);
 app.route("/api/briefs", briefs);
+app.route("/api/deliveries", createDeliveryRoutes());
 app.route("/api/discovery", discovery);
 app.route("/api/discovery", discoverySession);      // /session/:brandId, /session/:brandId/attest
 app.route("/api/discovery", discoveryDelegation);   // /delegation, /delegation/:token

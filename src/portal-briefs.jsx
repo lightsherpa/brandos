@@ -1,5 +1,8 @@
+import { LiveDeliveryCanvas, SavedDeliveryCanvas } from './grouped-deliverables.jsx';
+import { canInspectDelivery } from '../shared/grouped-deliverables.js';
+import { deliveryCopy } from './locales/grouped-deliverables-copy.js';
 import { CrewCanvas } from "./crew-canvas.jsx";
-import { crewCanvasEnabled } from "./lib/crew-canvas.js";
+import { crewCanvasEnabled, requestedCrew } from "./lib/crew-canvas.js";
 import { outputStatus, statusLabel, expandOutput, coalesceTaskCards, newestRuns, requestHumanCraft } from "./lib/task-output.js";
 import React from "react";
 import { BriefWorkspaceSurface } from "./brief-workspace-surface.jsx";
@@ -277,7 +280,11 @@ function briefStatusStyle(flagged) {
     : { label: "approved", stripe: "var(--green-500)", bg: "var(--green-50, rgba(127,163,122,0.16))", fg: "var(--green-600)" };
 }
 
-function BriefsLibrary({ go }) {
+function BriefsLibrary({go}) {
+ const session=window.useSession?.();
+ return canInspectDelivery(session)?<InternalBriefsLibrary go={go}/>:<CustomerDeliveryLibrary go={go}/>;
+}
+function InternalBriefsLibrary({ go }) {
   const { t } = useLocale();
   const { briefs, cert, brand, loading, error, reload } = useLiveBriefs();
   const [query, setQuery]     = useBrState("");
@@ -1193,7 +1200,7 @@ const SCALE_MIN = 0.4, SCALE_MAX = 2;
 
 /* Reusable pan/zoom/drag canvas. Renders nodeData + edges; clicking a
    node (without dragging) fires onNodeClick(node). */
-function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = "calc(100vh - 56px)", controls = true, helper, exportName = "canvas", toolbarExtra }) {
+function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = "calc(100vh - 56px)", controls = true, helper, exportName = "canvas", toolbarExtra, initialFit = false }) {
   const { t } = useLocale();
   const [nodes, setNodes] = React.useState(() => nodeData.map(n => ({ ...n })));
   const [view, setView]   = React.useState({ x: 24, y: 28, scale: 1 });
@@ -1217,12 +1224,18 @@ function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = 
   const nodeRefs = React.useRef({});
   const drag     = React.useRef(null);
 
-  /* Measure node heights once so edge anchors land on the true centre. */
+  // Thumbnails and grouped previews can change height after loading.
   React.useEffect(() => {
-    const next = {};
-    Object.entries(nodeRefs.current).forEach(([id, el]) => { if (el) next[id] = el.offsetHeight; });
-    setSizes(next);
-  }, []);
+    const measure = () => {
+      const next = {};
+      Object.entries(nodeRefs.current).forEach(([id, el]) => { if (el) next[id] = el.offsetHeight; });
+      setSizes(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    Object.values(nodeRefs.current).filter(Boolean).forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [nodeData]);
 
   /* Native wheel listener (passive:false so we can preventDefault). */
   React.useEffect(() => {
@@ -1320,6 +1333,14 @@ function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = 
       y: (rect.height - h * scale) / 2 - minY * scale,
     });
   };
+
+  const fitted = React.useRef(false);
+  React.useEffect(() => {
+    if (initialFit && !fitted.current && Object.keys(sizes).length === nodes.length && nodes.length) {
+      fitted.current = true;
+      fitView();
+    }
+  }, [initialFit, sizes, nodes]);
 
   const exportLayout = () => {
     const data = JSON.stringify({ nodes, edges }, null, 2);
@@ -1671,171 +1692,6 @@ function BriefRunCanvas({ context, onClear, go }) {
     })();
   }, []);
 
-  /* Compact, fixed-height node renderer. Specialist cards never grow
-     beyond their reserved Y slot, so they can never stack/overlap.
-     Image specialists get a thumbnail preview inside the card once
-     the asset_url lands. The full output lives in the notepad drawer
-     (opened on click). */
-  const renderNode = (node) => {
-    if (node.kind === "deliverable-group") {
-      return (
-        <div style={{
-          width: "100%", height: node.h, boxSizing: "border-box",
-          border: "1.5px dashed var(--c-line)", borderRadius: 16,
-          background: "rgba(0,0,0,0.012)", pointerEvents: "none",
-        }}>
-          <div style={{
-            padding: "8px 14px", fontFamily: "var(--font-mono)", fontSize: 10,
-            letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--c-faint)",
-          }}>
-            {node.label} · {t("briefs.run.deliverableCount", { count: node.count })}
-          </div>
-        </div>
-      );
-    }
-
-    if (node.kind === "moodboard") {
-      return (
-        <div className="cv-node" style={{
-          background: "var(--c-card)", border: "1px solid var(--c-line)",
-          borderLeft: "3px solid var(--green-500)", borderRadius: 10, overflow: "hidden",
-          boxShadow: "var(--shadow-md)", width: "100%", boxSizing: "border-box",
-        }}>
-          <MoodBoardCard tiles={node.tiles || []} bioVisual={node.bioVisual || null} />
-        </div>
-      );
-    }
-
-    if (node.kind === "deliverable") {
-      const flagged = outputStatus(node.status) !== "approved";
-      const stateColor = flagged ? "var(--pink-500)" : "var(--green-500)";
-      return (
-        <div className="cv-node" style={{
-          background: "var(--c-card)", border: "1px solid var(--c-line)",
-          borderLeft: `3px solid ${stateColor}`, borderRadius: 10, overflow: "hidden",
-          boxShadow: "var(--shadow-md)", width: "100%", boxSizing: "border-box",
-          height: node.h || 172, display: "flex", flexDirection: "column",
-        }}>
-          {node.assetUrl && (
-            <div style={{ height: 120, backgroundImage: `url("${node.assetUrl}")`, backgroundSize: "cover", backgroundPosition: "center" }} />
-          )}
-          <div style={{ padding: "10px 12px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-              <span className="eyebrow" style={{ fontSize: 9, color: stateColor, letterSpacing: "0.04em" }}>
-                {(node.platform || t("briefs.run.generic")).toUpperCase()} · {flagged ? t("briefs.run.flagged") : t("briefs.run.ready")}
-              </span>
-              {node.humanCraft && <span style={{ fontSize: 8.5, fontWeight: 700, letterSpacing:"0.06em", color:"var(--purple-600, #6b46c1)" }}>{t("briefs.run.inHumanCraft")}</span>}
-              {node.qa?.voice_match != null && (
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--c-faint)" }}>{node.qa.voice_match}/100</span>
-              )}
-            </div>
-            {node.title && <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4, color: "var(--c-ink)" }}>{node.title}</div>}
-            <div style={{ fontSize: 12, lineHeight: 1.45, color: "var(--c-dim)", flex: 1, maxHeight: "none", overflow: "hidden", whiteSpace: "pre-wrap" }}>{node.body}</div>
-            {node.specialistName && (
-              <div style={{ marginTop: 8, fontSize: 9.5, color: "var(--c-faint)", fontFamily: "var(--font-mono)", letterSpacing: "0.03em" }}>
-                {t("briefs.run.byName", { name: node.specialistName })}
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    const isSpecialist = node.kind === "specialist";
-    const isImage = isSpecialist && node.assetUrl;
-    const state = node.state || node.kind;
-    const stateColor = {
-      bio:        "var(--yellow-500)",
-      brief:      "var(--neutral-900)",
-      queued:     "var(--neutral-300)",
-      running:    "var(--yellow-500)",
-      done:       "var(--green-500)",
-      flagged:    "var(--pink-500)",
-      failed:     "var(--pink-500)",
-    }[state] || "var(--neutral-300)";
-
-    /* Progress percentage during streaming — calibrated against the
-       spec's credit estimate (≈ 100 tokens / cr). Caps at 95 % until
-       the done event lands so the bar never finishes prematurely. */
-    let pct = 0;
-    if (isSpecialist) {
-      if (state === "done" || state === "flagged" || state === "failed") pct = 100;
-      else if (state === "running") {
-        const maxTokens = (node.cr || 8) * 100;
-        const got = node.tokenCount || 0;
-        pct = Math.min(95, Math.round((got / maxTokens) * 100));
-      }
-    }
-
-    const clickable = isSpecialist && (state === "done" || state === "flagged" || state === "running");
-
-    return (
-      <div className={"cv-node cv-node--" + state} style={{
-        background: "var(--c-card)",
-        border: "1px solid var(--c-line)",
-        borderLeft: `3px solid ${stateColor}`,
-        borderRadius: 10, padding: "12px 14px",
-        boxShadow: "var(--shadow-md)",
-        height: isSpecialist ? 116 : 104,                  /* fixed height — no stacking */
-        boxSizing: "border-box", overflow: "hidden",
-        animation: state === "running" ? "runPulse 1.6s ease-in-out infinite" : undefined,
-        cursor: clickable ? "pointer" : "default",
-      }}
-      onClick={(e) => { if (clickable) { e.stopPropagation(); setOpenId(node.specId); } }}>
-        <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: 4}}>
-          <div className="eyebrow" style={{fontSize: 9, color: stateColor}}>
-            {(node.eyebrow || node.kind).toUpperCase()}
-            {state === "running" && ` · ${t("briefs.run.statusStreaming")}`}
-            {state === "done"    && ` · ${t("briefs.run.statusDone")}`}
-            {state === "flagged" && ` · ${t("briefs.run.statusFlagged")}`}
-            {state === "failed"  && ` · ${t("briefs.run.statusFailed")}`}
-          </div>
-          {isSpecialist && state !== "queued" && (
-            <span style={{fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)"}}>{node.cr ?? "?"} cr</span>
-          )}
-        </div>
-        <div style={{fontSize: 13.5, fontWeight: 500, color:"var(--c-ink)", lineHeight: 1.3, marginBottom: 6, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>
-          {node.title}
-        </div>
-        {isSpecialist && (
-          <>
-            {/* Image thumbnail OR progress bar */}
-            {isImage ? (
-              <div style={{
-                height: 48, marginTop: 4, marginBottom: 6, borderRadius: 6, overflow:"hidden",
-                background:"var(--neutral-50)",
-                backgroundImage: `url("${node.assetUrl}")`,
-                backgroundSize:"cover", backgroundPosition:"center",
-              }} />
-            ) : (
-              <div style={{
-                height: 4, background:"var(--neutral-50)", borderRadius: 999,
-                marginTop: 6, marginBottom: 8, overflow:"hidden",
-              }}>
-                <div style={{
-                  height:"100%", width: pct + "%", borderRadius: 999,
-                  background: state === "flagged" || state === "failed" ? "var(--pink-500)" : stateColor,
-                  transition:"width 240ms ease",
-                }} />
-              </div>
-            )}
-            <div style={{display:"flex", justifyContent:"space-between", fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)", letterSpacing:"0.04em"}}>
-              <span>{node.sub}</span>
-              {clickable
-                ? <span style={{color:"var(--c-dim)"}}>{t("briefs.run.open")} ↗</span>
-                : <span>{state === "queued" ? `${node.cr || "?"} cr` : ""}</span>}
-            </div>
-          </>
-        )}
-        {!isSpecialist && node.sub && (
-          <div style={{fontFamily:"var(--font-mono)", fontSize: 10.5, color:"var(--c-faint)", letterSpacing:"0.04em", lineHeight: 1.45, marginTop: 4}}>
-            {node.sub.length > 70 ? node.sub.slice(0, 70) + "…" : node.sub}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const runAssembly = async () => {
     if (running || completed) return;
     setRunning(true); setErr(null);
@@ -1915,6 +1771,7 @@ function BriefRunCanvas({ context, onClear, go }) {
         tension:        context.tension || "",
         rawBrief:       context.rawBrief || "",
         refusals:       context.refusals || [],
+        deliveryPlan:   context.deliveryPlan,
       };
       const dspec = deliverableSpecForAgent(agent.id, context.deliveryPlan);
       const hasVisual = !!copyHasVisual.get(agent.id);
@@ -2067,136 +1924,7 @@ function BriefRunCanvas({ context, onClear, go }) {
     setOpenDeliverable((d) => (d && d.id === cardNode.id ? { ...d, humanCraft: true, polishNotes: notes } : d));
   };
 
-  return (
-    <>
-      <CanvasHeader
-        title={context.title || context.sharpenedBrief?.split(/(?<=[.!?])\s/)[0] || context.rawBrief?.slice(0, 90) || "Brief"}
-        tension={context.tension}
-        sharpenedBrief={context.sharpenedBrief}
-        refusals={context.refusals || []}
-        deptBreakdown={deptBreakdown}
-        totalCr={context.totalCr}
-        completed={completed}
-        running={running}
-        onFormats={window.formatPreviewEnabled && briefId ? () => go("formats/" + briefId) : null}
-      />
-      <BriefWorkspaceSurface
-        LegacyCanvas={InteractiveCanvas}
-        officeScope={context.brandId}
-        nodeData={nodes}
-        edges={edges}
-        renderNode={renderNode}
-        exportName="run-canvas"
-        onNodeClick={(node) => {
-          /* InteractiveCanvas uses setPointerCapture on the wrapper which
-             swallows any inner onClick — node clicks MUST come through here. */
-          if (node?.kind === "deliverable") { setOpenDeliverable(node); return; }
-          if (node?.kind === "brief") { setOpenBrief(true); return; }
-          if (!node || node.kind !== "specialist" || !node.specId) return;
-          const st = node.state;
-          if (st === "running" || st === "done" || st === "flagged") setOpenId(node.specId);
-        }}
-        helper={
-          running     ? t("briefs.run.helperRunning")
-          : completed ? t("briefs.run.helperComplete", { cr: context.totalCr })
-          : t("briefs.run.helperAssembled")
-        }
-        toolbarExtra={
-          <>
-            {err && <span style={{fontSize: 11, color:"var(--pink-500)", marginRight: 10}}>{err}</span>}
-            {completed && (
-              <>
-                {/* Run-complete state badge — visual confirmation of "done", separate from any action */}
-                <span style={{
-                  display:"inline-flex", alignItems:"center", gap: 6, height: 28, padding:"0 10px",
-                  borderRadius: 999, background:"var(--green-50, rgba(127,163,122,0.16))",
-                  color:"var(--green-600)", fontFamily:"var(--font-mono)", fontSize: 10.5,
-                  letterSpacing:"0.08em", textTransform:"uppercase", fontWeight: 600,
-                }}>
-                  <Icon name="check" size={11} /> {t("briefs.run.runComplete")}
-                </span>
-                {/* Actions — clearly buttons, not state */}
-                <a href="#/library" className="btn btn--primary btn--sm" style={{height: 28}}>
-                  {t("briefs.run.openLibrary")} <Icon name="arrow" size={12} />
-                </a>
-                <button className="btn btn--ghost btn--sm" onClick={() => { onClear(); go("home"); }} style={{height: 28}}>
-                  <Icon name="plus" size={12} /> {t("briefs.run.newBrief")}
-                </button>
-              </>
-            )}
-          </>
-        }
-      />
-
-      {/* Prominent floating RUN button — the moment of action. Sits
-          center-bottom above the canvas helper, impossible to miss. */}
-      {!completed && (
-        <button
-          onClick={runAssembly}
-          disabled={running}
-          style={{
-            position:"fixed",
-            bottom: 120, left:"50%", transform:"translateX(-50%)",
-            zIndex: 50,
-            height: 60, padding:"0 36px",
-            borderRadius: 999,
-            border:"none", cursor: running ? "default" : "pointer",
-            background: running ? "var(--neutral-900)" : "var(--yellow-500)",
-            color: running ? "#fff" : "var(--c-ink)",
-            fontFamily:"var(--font-sans)", fontWeight: 600, fontSize: 16, letterSpacing:"-0.005em",
-            boxShadow:"0 16px 36px rgba(0,0,0,0.18), 0 4px 10px rgba(0,0,0,0.08)",
-            display:"inline-flex", alignItems:"center", gap: 12,
-            transition: running ? "none" : "transform 140ms ease, box-shadow 140ms ease",
-          }}
-          onMouseEnter={(e) => { if (!running) { e.currentTarget.style.transform = "translateX(-50%) translateY(-2px)"; e.currentTarget.style.boxShadow = "0 22px 44px rgba(0,0,0,0.22), 0 6px 14px rgba(0,0,0,0.1)"; } }}
-          onMouseLeave={(e) => { if (!running) { e.currentTarget.style.transform = "translateX(-50%)"; e.currentTarget.style.boxShadow = "0 16px 36px rgba(0,0,0,0.18), 0 4px 10px rgba(0,0,0,0.08)"; } }}
-        >
-          {running ? (
-            <><BrandolphDot state="thinking" size={11} /> &nbsp;{t("briefs.run.runningCrew")}</>
-          ) : (
-            <><span style={{fontFamily:"Georgia, serif", fontStyle:"italic", fontSize: 17}}>{t("briefs.run.runWord")}</span> {t("briefs.run.theAssembly")} · {context.totalCr} cr <Icon name="arrow" size={16} /></>
-          )}
-        </button>
-      )}
-
-      {/* Notepad drawer — verify, edit, copy, save the specialist's output.
-          Edits persist via PATCH /api/outputs/:id into body.edited_text. */}
-      {opened && openedAgent && (
-        <SpecialistNotepad
-          agent={openedAgent}
-          node={opened}
-          cert={cert}
-          context={context}
-          briefId={briefId}
-          brandId={context.brandId}
-          onRerun={({done, text}) => {
-            setNodes(prev => prev.map(n => n.specId === openId ? {...n, outputText:text, done, assetUrl:done?.output?.asset_url || null, state:"flagged", status:"needs_review", sub:t("taskOutput.status.needs_review")} : n));
-            setEditedText(prev => ({...prev, [openId]:text}));
-          }}
-          outputId={opened.done?.outputId || null}
-          baselineText={opened.outputText || ""}
-          editedText={editedText[openId] ?? opened.outputText ?? ""}
-          onEdit={(text) => setEditedText((prev) => ({ ...prev, [openId]: text }))}
-          onSaved={(saved) => {
-            /* Update the node's outputText so subsequent diffs aren't dirty */
-            setNodes((prev) => prev.map((n) => n.id === "spec-" + opened.specId
-              ? { ...n, outputText: saved.body?.edited_text || saved.body?.text || n.outputText }
-              : n));
-          }}
-          onClose={() => setOpenId(null)}
-        />
-      )}
-      {openDeliverable && (
-        <DeliverableDrawer node={openDeliverable} onClose={() => setOpenDeliverable(null)} onSendToHuman={sendToHuman} />
-      )}
-      {openBrief && (
-        <BriefDrawer
-          brief={{ title: context.title, tension: context.tension, sharpenedBrief: context.sharpenedBrief, rawBrief: context.rawBrief, refusals: context.refusals, deliveryPlan: context.deliveryPlan }}
-          onClose={() => setOpenBrief(false)}
-        />
-      )}
-    </>
-  );
+  return <LiveDeliveryCanvas context={context} nodes={nodes} briefId={briefId} running={running} completed={completed} onRun={runAssembly} go={go} Canvas={InteractiveCanvas}/>;
 }
 
 /* Curated re-run alternatives. Text specialists get text models; image
@@ -2852,8 +2580,9 @@ function PlexCanvasPrototype({ go }) {
   );
 }
 
-function CanvasView({ go, prototype = false }) {
+function CanvasView({ go, prototype = false, briefId: linkedBriefId = null }) {
   const { t } = useLocale();
+  const session=window.useSession?.();
   /* Read context off sessionStorage. Two modes:
        mode:"run"  → assembled crew ready to run (from HomeCreate handoff)
        mode:"view" → existing brief opened from BriefsLibrary; loads runs/outputs from DB
@@ -2870,8 +2599,9 @@ function CanvasView({ go, prototype = false }) {
     setCtx(null);
   };
 
-  if (crewCanvasEnabled && ctx?.brandId && ctx.mode !== "view") return <CrewCanvas context={ctx} onClear={clearCtx} go={go} />;
-  if (prototype) return <PlexCanvasPrototype go={go} />;
+  if (linkedBriefId) return <SavedDeliveryCanvas briefId={linkedBriefId} go={go} Canvas={InteractiveCanvas}/>;
+  if (crewCanvasEnabled && requestedCrew(ctx) && ctx?.brandId && ctx.mode !== "view") return <CrewCanvas context={ctx} onClear={clearCtx} go={go} />;
+  if (prototype && canInspectDelivery(session)) return <PlexCanvasPrototype go={go} />;
   if (ctx?.mode === "view" && ctx.briefId) {
     return <BriefViewCanvas briefId={ctx.briefId} onClear={clearCtx} go={go} />;
   }
@@ -2884,342 +2614,8 @@ function CanvasView({ go, prototype = false }) {
 /* ── BriefViewCanvas — loads an existing brief's runs/outputs from DB
    and renders the same node graph as a completed assembly. Reuses the
    notepad drawer for verify/edit/copy. */
-function BriefViewCanvas({ briefId, onClear, go }) {
-  const { t } = useLocale();
-  const [state, setState] = useBrState({ loading: true, brief: null, runs: [], cert: null, error: null });
-  const [openId, setOpenId]       = useBrState(null);
-  const [openDeliverable, setOpenDeliverable] = useBrState(null);   /* clicked deliverable card → drawer */
-  const [openBrief, setOpenBrief] = useBrState(false);   /* clicked Brief node → brief drawer */
-  const [editedText, setEditedText] = useBrState({});
-  const [reloadKey, setReloadKey] = useBrState(0);
-
-  useBrEffect(() => {
-    if (uiFixtureEnabled) {
-      const fixture = FIXTURE_BRIEFS.find((item) => item.id === briefId);
-      if (!fixture) {
-        setState({ loading: false, brief: null, runs: [], cert: null, error: t("briefs.view.notFound") });
-        return undefined;
-      }
-      setState({
-        loading: false,
-        brief: {
-          id: fixture.id,
-          title: fixture.title,
-          payload: fixture.payload || { title: fixture.title },
-          mode: fixture.mode,
-          created_at: fixture.created_at,
-          brand_id: FIXTURE_BRAND_ID,
-        },
-        runs: (fixture.runs || []).map((run) => ({ ...run, bio_version: 3, outputs: run.outputs || [] })),
-        cert: null,
-        error: null,
-      });
-      return undefined;
-    }
-    (async () => {
-      try {
-        const { data: brief, error: bErr } = await supabase
-          .from("briefs").select("id, title, payload, mode, created_at, brand_id")
-          .eq("id", briefId).maybeSingle();
-        if (bErr || !brief) { setState({ loading: false, brief: null, runs: [], cert: null, error: bErr?.message || t("briefs.view.notFound") }); return; }
-
-        const { data: runs } = await supabase
-          .from("runs").select("id, specialist_id, bio_version, started_at, ended_at, status, outputs ( id, kind, body, status, workflow_status, internal_reviewed_by, internal_reviewed_at, client_reviewed_by, client_reviewed_at, rationale )")
-          .eq("brief_id", briefId).order("started_at", { ascending: false });
-
-        const { data: bio } = await supabase
-          .from("bios").select("certified_by, certified_at, version")
-          .eq("brand_id", brief.brand_id).eq("certified", true)
-          .order("version", { ascending: false }).limit(1).maybeSingle();
-        let cert = null;
-        if (bio?.certified_by) {
-          const { data: tm } = await supabase.from("team_members").select("first_name").eq("id", bio.certified_by).maybeSingle();
-          cert = { byName: tm?.first_name || t("briefs.misc.yourSteward"), at: bio.certified_at, version: bio.version };
-        }
-
-        setState({ loading: false, brief, runs: runs || [], cert, error: null });
-      } catch (e) {
-        setState({ loading: false, brief: null, runs: [], cert: null, error: e?.message || String(e) });
-      }
-    })();
-  }, [briefId, reloadKey]);
-
-  if (state.loading) {
-    return <div style={{padding: 60, textAlign:"center", color:"var(--c-faint)"}}>{t("briefs.view.loading")}</div>;
-  }
-  if (state.error || !state.brief) {
-    return (
-      <div style={{padding: 60, textAlign:"center"}}>
-        <p style={{color:"var(--c-dim)", marginBottom: 16}}>{state.error || t("briefs.view.notFoundDot")}</p>
-        <button className="btn btn--primary" onClick={() => { onClear(); go("briefs"); }}>{t("briefs.view.backToBriefs")}</button>
-      </div>
-    );
-  }
-
-  /* Group runs by specialist — a specialist can have MANY runs (e.g. a
-     per-slot image specialist runs once per card), so build ONE node per
-     specialist (no duplicate React keys) and collect all its outputs. */
-  const bySpec = new Map();
-  for (const r of newestRuns(state.runs)) {
-    const id = r.specialist_id;
-    if (!bySpec.has(id)) bySpec.set(id, { id, agent: window.CI_AGENTS.find((a) => a.id === id), runs: [], outputs: [], firstRun: r });
-    const e = bySpec.get(id);
-    e.runs.push(r);
-    (r.outputs || []).forEach((o) => e.outputs.push(o));
-  }
-  const specs = [...bySpec.values()].map((e) => {
-    const primary = e.outputs[0] || null;
-    const body = primary?.body || {};
-    const text = body.edited_text || body.text || (typeof primary?.body === "string" ? primary.body : "");
-    const taskItems = coalesceTaskCards(e.outputs).filter(card => card.taskId);
-    const status = e.firstRun.status === "failed" ? "failed" : taskItems.length ? (taskItems.some(card => card.status === "failed") ? "failed" : taskItems.every(card => card.status === "approved") ? "approved" : "needs_review") : outputStatus(primary?.status);
-    const passed = status === "approved";
-    return { ...e, output: primary, passed, status, text };
-  });
-
-  /* Saved image asset_urls across the brief, in order — paired one per card. */
-  const imageUrls = state.runs.flatMap((r) => (r.outputs || []).map((o) => o.body?.asset_url).filter(Boolean));
-  let imgIdx = 0;
-
-  const rowH = 140;
-  const specNodes = specs.map((s, i) => {
-    const assetUrl = s.output?.body?.asset_url || null;
-    const imgCount = s.outputs.filter((o) => o.body?.asset_url).length;
-    return {
-      id: "spec-" + s.id, specId: s.id,
-      x: 760, y: 40 + i * rowH, w: 340, kind: "specialist",
-      eyebrow: s.agent ? `${s.agent.code} · ${s.agent.dept}` : s.id,
-      title: s.agent?.name || s.id,
-      sub: `${statusLabel(s.status, t)}${s.output?.kind ? " · " + s.output.kind : ""}`,
-      status: s.status,
-      cr: s.agent?.cr || 0,
-      state: s.status === "failed" ? "failed" : s.passed ? "done" : "flagged",
-      outputText: s.text, assetUrl, tokenCount: 1000, qa: null,
-      done: { brand: { bioVersion: s.firstRun.bio_version }, output: assetUrl ? { asset_url: assetUrl } : null },
-    };
-  });
-
-  /* Reconstruct deliverable child cards from the stored {deliverables} output. */
-  const cardNodes = [];
-  const cardEdges = [];
-  specs.forEach((s) => {
-    const dOut = s.outputs.find((o) => o.body?.kind === "deliverables" && Array.isArray(o.body.deliverables));
-    const specNode = specNodes.find((n) => n.id === "spec-" + s.id);
-    if (!specNode) return;
-    const taskCards = coalesceTaskCards(s.outputs).filter(card => card.html);
-    if (taskCards.length) {
-      const {cardNodes: cards} = buildDeliverableCluster(specNode, taskCards.map(card => ({title:card.text || `${card.kind} ${card.itemIndex + 1}`,body:card.text,status:card.status,html:card.html,checks:card.checks})), specNode.y, taskCards[0].outputId);
-      cards.forEach((card,index) => Object.assign(card,{html:taskCards[index].html,checks:taskCards[index].checks,sourceOutputId:taskCards[index].outputId,slot:taskCards[index].itemIndex}));
-      cardNodes.push(...cards); cards.forEach(c => cardEdges.push({from:specNode.id,to:c.id,fromSide:"right",toSide:"left"}));
-      return;
-    }
-    if (!dOut) return;
-    const items = dOut.body.deliverables.map((d) => {
-      const craft = d.craft || null;
-      const delivered = craft && craft.status === "delivered" ? craft.delivered : null;
-      return {
-        title: d.title,
-        body: (delivered && delivered.body) || d.body,
-        assetUrl: (delivered && delivered.asset_url) || d.asset_url || d.assetUrl || imageUrls[imgIdx++] || null,
-        platform: d.platform, status: d.status, qa: d.qa,
-        humanCraft: !!craft && ["queued", "in_craft", "delivered"].includes(craft.status),
-        polishNotes: craft ? craft.notes : null,
-      };
-    });
-    const { cardNodes: cards } = buildDeliverableCluster(specNode, items, specNode.y, dOut.id);
-    cardNodes.push(...cards);
-    cards.forEach((c) => cardEdges.push({ from: specNode.id, to: c.id, fromSide: "right", toSide: "left" }));
-  });
-
-  const briefY = 40 + (Math.max(specs.length, 1) - 1) * rowH / 2;
-  const nodes = [
-    { id: "bio",   x: 40,  y: briefY, w: 260, kind: "bio",   eyebrow: "Brand Core",
-      title: "Brand Core", sub: state.cert ? t("briefs.view.certifiedByName", { name: state.cert.byName }) : t("briefs.view.certifiedCanon") },
-    { id: "brief", x: 360, y: briefY, w: 280, kind: "brief", eyebrow: "BRIEF",
-      title: briefTitle(state.brief),
-      sub: `${t("briefs.runsCount", { count: state.runs.length })} · ${shortDate(state.brief.created_at)}` },
-    ...specNodes,
-    ...cardNodes,
-  ];
-
-  const edges = [
-    { from: "bio", to: "brief", fromSide: "right", toSide: "left" },
-    ...specs.map((s) => ({ from: "brief", to: "spec-" + s.id, fromSide: "right", toSide: "left" })),
-    ...cardEdges,
-  ];
-
-  const renderNode = (node) => {
-    if (node.kind === "deliverable") {
-      const flagged = outputStatus(node.status) !== "approved";
-      const sc = flagged ? "var(--pink-500)" : "var(--green-500)";
-      return (
-        <div className="cv-node card" style={{ background:"var(--c-card)", overflow:"hidden", width:"100%", height: node.h || 172, boxSizing:"border-box", display:"flex", flexDirection:"column", cursor:"pointer" }}>
-          {node.assetUrl && <div style={{ height: 90, backgroundImage:`url("${node.assetUrl}")`, backgroundSize:"cover", backgroundPosition:"center" }} />}
-          <div style={{ padding:"10px 12px", flex:1, minHeight:0, display:"flex", flexDirection:"column" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: 4 }}>
-              <span className="eyebrow" style={{ fontSize: 12 }}>{node.platform || t("briefs.run.generic")} · {flagged ? t("briefs.run.flagged") : t("briefs.run.ready")}</span>
-              {node.humanCraft && <span style={{ fontSize: 8.5, fontWeight: 700, letterSpacing:"0.06em", color:"var(--purple-600, #6b46c1)" }}>{t("briefs.run.inHumanCraft")}</span>}
-            </div>
-            {node.title && <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4, color:"var(--c-ink)" }}>{node.title}</div>}
-            <div style={{ fontSize: 12, lineHeight: 1.45, color:"var(--c-dim)", flex:1, overflow:"hidden" }}>{node.body}</div>
-            {node.specialistName && <div style={{ marginTop: 8, fontSize: 9.5, color:"var(--c-faint)", fontFamily:"var(--font-mono)" }}>{t("briefs.run.byName", { name: node.specialistName })}</div>}
-          </div>
-        </div>
-      );
-    }
-    const isSpec = node.kind === "specialist";
-    const stColor = {
-      bio: "var(--yellow-500)", brief: "var(--neutral-900)",
-      done: "var(--green-500)", flagged: "var(--pink-500)",
-    }[node.state || node.kind] || "var(--neutral-300)";
-    return (
-      <div className={"cv-node card cv-node--" + (node.state || node.kind)} style={{
-        background:"var(--c-card)", padding:"12px 14px",
-        height: isSpec ? 116 : 104, boxSizing:"border-box", overflow:"hidden",
-        cursor: isSpec ? "pointer" : "default",
-      }}
-      onClick={(e) => { if (isSpec) { e.stopPropagation(); setOpenId(node.specId); } }}>
-        <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: 4}}>
-          <div className="eyebrow" style={{fontSize: 9, color: stColor}}>
-            {node.eyebrow || node.kind} · {node.state === "flagged" ? t("briefs.run.statusFlagged") : t("briefs.run.statusDone")}
-          </div>
-          {isSpec && <span style={{fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)"}}>{node.cr} cr</span>}
-        </div>
-        <div style={{fontSize: 13.5, fontWeight: 500, color:"var(--c-ink)", lineHeight: 1.3, marginBottom: 6, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap"}}>{node.title}</div>
-        {isSpec && (<>
-          {node.assetUrl ? (
-            <div style={{
-              height: 48, marginTop: 4, marginBottom: 6, borderRadius: 6, overflow:"hidden",
-              background:"var(--neutral-50)",
-              backgroundImage: `url("${node.assetUrl}")`,
-              backgroundSize:"cover", backgroundPosition:"center",
-            }} />
-          ) : (
-            <div style={{height: 4, background:"var(--neutral-50)", borderRadius: 999, marginTop: 6, marginBottom: 8, overflow:"hidden"}}>
-              <div style={{height:"100%", width:"100%", background: stColor, borderRadius:999}} />
-            </div>
-          )}
-          <div style={{display:"flex", justifyContent:"space-between", fontFamily:"var(--font-mono)", fontSize: 10, color:"var(--c-faint)", letterSpacing:"0.04em"}}>
-            <span>{node.sub}</span>
-            <span style={{color:"var(--c-dim)"}}>{t("briefs.run.open")} ↗</span>
-          </div>
-        </>)}
-        {!isSpec && node.sub && (
-          <div style={{fontFamily:"var(--font-mono)", fontSize: 10.5, color:"var(--c-faint)", letterSpacing:"0.04em", lineHeight: 1.45, marginTop: 4}}>
-            {node.sub.length > 70 ? node.sub.slice(0, 70) + "…" : node.sub}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const opened = openId && specs.find((s) => s.id === openId);
-
-  const viewDeptBreakdown = (() => {
-    const map = new Map();
-    for (const s of specs) {
-      const d = s?.agent?.dept || "Other";
-      map.set(d, (map.get(d) || 0) + 1);
-    }
-    return Array.from(map.entries());
-  })();
-  const anyFlagged = specs.some((s) => !s.passed);
-  const totalCr = specs.reduce((sum, s) => sum + (s.agent?.cr || 0), 0);
-
-  const sendToHuman = async (cardNode, notes) => {
-    await requestHumanCraft(apiFetch, { outputId: cardNode.sourceOutputId, slot: cardNode.slot, notes }, (credits) => {
-      if (window.CI_CREDITS) Object.assign(window.CI_CREDITS, credits);
-    });
-    setOpenDeliverable((d) => (d && d.id === cardNode.id ? { ...d, humanCraft: true, polishNotes: notes } : d));
-  };
-
-  return (
-    <>
-      <CanvasHeader
-        title={briefTitle(state.brief)}
-        tension={state.brief.payload?.tension}
-        sharpenedBrief={state.brief.payload?.sharpenedBrief}
-        refusals={state.brief.payload?.refusals || []}
-        deptBreakdown={viewDeptBreakdown}
-        totalCr={totalCr}
-        completed={specs.length > 0 && specs.every(s => s.firstRun.status !== "running")}
-        running={false}
-        onFormats={window.formatPreviewEnabled ? () => go("formats/" + briefId) : null}
-      />
-      <BriefWorkspaceSurface
-        LegacyCanvas={InteractiveCanvas}
-        officeScope={state.brief.brand_id}
-        nodeData={nodes}
-        edges={edges}
-        renderNode={renderNode}
-        exportName={"brief-" + briefId.slice(0, 8)}
-        onNodeClick={(node) => {
-          if (node?.kind === "deliverable") { setOpenDeliverable(node); return; }
-          if (node?.kind === "brief") { setOpenBrief(true); return; }
-          if (node?.kind === "specialist" && node.specId) setOpenId(node.specId);
-        }}
-        helper={t("briefs.view.helper", { runs: t("briefs.runsCount", { count: specs.length }) })}
-        toolbarExtra={
-          <>
-            <button className="btn btn--ghost btn--sm" onClick={() => { onClear(); go("briefs"); }} style={{height: 28}}>
-              {t("briefs.view.briefsBack")}
-            </button>
-            <a href="#/home" className="btn btn--primary btn--sm" style={{height: 28}}>
-              <Icon name="plus" size={12} /> {t("briefs.run.newBrief")}
-            </a>
-          </>
-        }
-      />
-      {opened && opened.agent && (
-        <SpecialistNotepad
-          agent={opened.agent}
-          node={{
-            outputText: opened.text,
-            assetUrl: opened.output?.body?.asset_url || null,
-            cr: opened.agent.cr,
-            qa: null,
-            done: {
-              brand: { bioVersion: opened.firstRun.bio_version },
-              output: opened.output?.body?.asset_url ? { asset_url: opened.output.body.asset_url } : null,
-            },
-            state: opened.passed ? "done" : "flagged",
-          }}
-          cert={state.cert}
-          context={{
-            rawBrief:       humanize(extractOriginalRequest(state.brief.payload?.request) || state.brief.payload?.request || state.brief.title || ""),
-            sharpenedBrief: humanize(state.brief.payload?.sharpenedBrief || ""),
-            composedBrief:  state.brief.payload?.request || "",
-          }}
-          briefId={state.brief.id}
-          brandId={state.brief.brand_id}
-          onRerun={() => { setEditedText({}); setReloadKey(value => value + 1); }}
-          outputId={opened.output?.id || null}
-          baselineText={opened.text || ""}
-          editedText={editedText[openId] ?? opened.text ?? ""}
-          onEdit={(text) => setEditedText((prev) => ({ ...prev, [openId]: text }))}
-          onSaved={(saved) => {
-            /* Re-fetch via mutating the spec entry in local state */
-            setState((s) => ({
-              ...s,
-              runs: s.runs.map((r) => r.id === opened.firstRun.id
-                ? { ...r, outputs: (r.outputs || []).map((o) => o.id === opened.output.id ? { ...o, body: saved.body } : o) }
-                : r),
-            }));
-          }}
-          onClose={() => setOpenId(null)}
-        />
-      )}
-      {openDeliverable && (
-        <DeliverableDrawer node={openDeliverable} onClose={() => setOpenDeliverable(null)} onSendToHuman={sendToHuman} />
-      )}
-      {openBrief && (
-        <BriefDrawer
-          brief={{ title: briefTitle(state.brief), tension: state.brief.payload?.tension, sharpenedBrief: state.brief.payload?.sharpenedBrief, rawBrief: humanize(extractOriginalRequest(state.brief.payload?.request) || state.brief.payload?.request || ""), refusals: state.brief.payload?.refusals }}
-          onClose={() => setOpenBrief(false)}
-        />
-      )}
-    </>
-  );
+function BriefViewCanvas({ briefId, go }) {
+  return <SavedDeliveryCanvas briefId={briefId} go={go} Canvas={InteractiveCanvas}/>;
 }
 
 /* Build a brief's logic graph: BIO → brief → specialist → output(s). */
@@ -3719,7 +3115,20 @@ function CanvasNode({ node, color, refCb, active, dim, dragging, index, onPointe
 /* LIBRARY — every development + upload, grouped by brief,            */
 /* filtered by output type, with per-output actions.                 */
 
-function Library({ go }) {
+function Library({go}) {
+ const session=window.useSession?.();
+ return canInspectDelivery(session)?<InternalLibrary go={go}/>:<CustomerDeliveryLibrary go={go}/>;
+}
+function CustomerDeliveryLibrary({go}) {
+ const {locale}=useLocale(),c=deliveryCopy(locale),brandId=window.useCurrentBrandId?.();
+ const [state,setState]=React.useState({loading:true,briefs:[],error:false});
+ React.useEffect(()=>{let active=true;setState({loading:true,briefs:[],error:false});if(!brandId){setState({loading:false,briefs:[],error:false});return;}apiFetch('/api/deliveries?brandId='+encodeURIComponent(brandId)).then(async response=>{if(!response.ok)throw Error();const body=await response.json();if(active)setState({loading:false,briefs:body.briefs||[],error:false});}).catch(()=>{if(active)setState({loading:false,briefs:[],error:true});});return()=>{active=false;};},[brandId]);
+ if(state.loading)return <p className="gd-page" role="status">{c.loading}</p>;
+ if(state.error)return <p className="gd-page" role="alert">{c.error}</p>;
+ return <section className="gd-page"><h1>{c.saved}</h1>{state.briefs.map(brief=><article className="card" style={{padding:20,marginBottom:16}} key={brief.id}><button className="btn btn--ghost" onClick={()=>go('canvas/'+brief.id)}>{brief.title}</button><p>{shortDate(brief.created_at)}</p></article>)}{!state.briefs.length&&<p>{c.empty}</p>}</section>;
+}
+
+function InternalLibrary({ go }) {
   const { t } = useLocale();
   /* Live Library — real outputs flattened from the briefs/runs join.
      Each item carries its brief context, the specialist, the BIO version,

@@ -1,3 +1,5 @@
+import {canInspectDelivery} from '../../../shared/grouped-deliverables.js';
+import {normalizePlan} from '../lib/delivery-plan.js';
 import { sanitizeOutput } from "../lib/output-quality.js";
 // ─────────────────────────────────────────────────────────────────────
 // P3 — first production specialist run + QA gate.
@@ -305,6 +307,7 @@ app.post("/stream", requireAuth, async (c) => {
             sharpenedBrief: briefMeta?.sharpenedBrief || "",
             tension:        briefMeta?.tension || "",
             refusals:       briefMeta?.refusals || [],
+            deliveryPlan:   normalizePlan(briefMeta?.deliveryPlan),
           },
           mode: "auto",
           status: "active",
@@ -767,6 +770,7 @@ app.post("/stream", requireAuth, async (c) => {
 /* GET /api/runs/:id — read a finished run (for the SPA to load output
    cards on brief detail pages later). */
 app.get("/:id", requireAuth, async (c) => {
+  if (!canInspectDelivery(c.get("auth"))) return c.json({error:"Open the grouped delivery instead"},403);
   const { workspaceId } = c.get("auth");
   const runId = c.req.param("id");
   const { data: run } = await supabaseAdmin
@@ -787,7 +791,7 @@ app.get("/:id", requireAuth, async (c) => {
     .select("workspace_id")
     .eq("id", run.brief.brand_id)
     .maybeSingle();
-  if (!brand || brand.workspace_id !== workspaceId) return c.json({ error: "Forbidden" }, 403);
+  if (!brand || !hasPermission(c.get("auth"), "output.read", brand.workspace_id)) return c.json({ error: "Forbidden" }, 403);
 
   const { data: outputs } = await supabaseAdmin
     .from("outputs")

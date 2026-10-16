@@ -1,3 +1,5 @@
+import {canInspectDelivery,combinedDeliveryStatus,deliveryDocument} from '../shared/grouped-deliverables.js';
+import {deliveryCopy} from './locales/grouped-deliverables-copy.js';
 import { useLocale } from "./lib/i18n.js";
 import { taskMetricsLabel, loadSavedTasks, statusLabel } from "./lib/task-output.js";
 import React from "react";
@@ -27,8 +29,10 @@ const css = {
   dim: { color: "var(--c-dim, #78716c)", fontSize: 12 },
 };
 
-function Status({ status }) {
-  return <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12 }}><span style={{ width: 8, height: 8, borderRadius: 999, background: STATUS_DOT[status] || "#a8a29e" }} />{STATUS_WORD[status] || status}</span>;
+function Status({ status, item }) {
+  const {locale}=useLocale(),c=deliveryCopy(locale);
+  const state=combinedDeliveryStatus({runs:[{status:status==='approved'?'completed':status}],parts:[{status,approved:status==='approved',qa:item?.qa,quarantined:item?.quality_gated&&!['ready','approved'].includes(item.status)}],complete:!!item?.html,finished:!['queued','running','writing','imaging','checking','fixing'].includes(status)});
+  return <span className={'gd-status gd-status--'+state}>{c[state]}</span>;
 }
 
 function Stepper({ stage, status }) {
@@ -94,6 +98,9 @@ function RuleForm({ check, onCancel, onSave }) {
 }
 
 function ItemCard({ type, item, taskId, onItem }) {
+  const {locale}=useLocale(),c=deliveryCopy(locale),actor=window.useSession?.(),inspect=canInspectDelivery(actor);
+  const download=()=>{if(!item.html||item.quality_gated&&!['ready','approved'].includes(item.status))return;const url=URL.createObjectURL(new Blob([deliveryDocument({type:type==='email_sequence'?'email':type,html:item.html,text:item.copy?.caption||'',subject:item.copy?.subject||''},{lang:locale})],{type:'text/html'}));const a=document.createElement('a');a.href=url;a.download=`${type}-${item.index+1}.html`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  const mainAction=<button style={css.primary} disabled={!item.html||item.quality_gated&&!['ready','approved'].includes(item.status)} onClick={download}>{c.download}</button>;
   const [rule, setRule] = useState(null);
   const [saved, setSaved] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -120,13 +127,14 @@ function ItemCard({ type, item, taskId, onItem }) {
     onItem(j.item, j.metrics);
   };
   return <article ref={box} style={css.card}>
+    <div style={{padding:14,display:"flex",justifyContent:"flex-end"}}>{mainAction}</div>
     {type === "social_post"
       ? (showBefore && item.before?.image_url ? <img alt="" src={item.before.image_url} style={{ width: "100%", display: "block" }} /> : <Preview type={type} html={item.html} scale={scale} />)
       : <div style={{ padding: "10px 14px", borderBottom: "1px solid #e7e5e4", fontSize: 13 }}><div><strong>{copy?.subject}</strong></div><div style={css.dim}>{copy?.preheader}</div></div>}
     {type === "email_sequence" && !showBefore && <Preview type={type} html={item.html} />}
     <div style={{ padding: "10px 14px", display: "grid", gap: 6 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-        <Status status={busy ? "fixing" : item.status} />
+        <Status status={busy ? "fixing" : item.status} item={item} />
         <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
           {item.rule_applied?.some((r) => r.applied) && <span style={{ fontSize: 11, border: "1px solid #15803d", color: "#15803d", borderRadius: 999, padding: "2px 8px" }}>Rule applied</span>}
           {item.before && <button style={css.secondary} onClick={() => setShowBefore(!showBefore)}>{showBefore ? "Show after" : "Show before"}</button>}
@@ -135,15 +143,16 @@ function ItemCard({ type, item, taskId, onItem }) {
       {type === "social_post" && copy && <p style={{ margin: 0, fontSize: 13, whiteSpace: "pre-wrap" }}>{copy.caption}<br /><span style={css.dim}>{(copy.hashtags || []).join(" ")}</span></p>}
       {item.before && showBefore && <div style={{ fontSize: 12, color: "#b91c1c" }}>Before: {item.before.failed.map((f) => `${f.id}: ${f.reason}`).join(" · ")}</div>}
       {item.image && <span style={css.dim}>{item.image.reference_count || 0} Brand Core refs · {item.image.ocr?.pass ? "no text detected" : item.image.ocr?.reason || ""}</span>}
-      <span style={css.dim}>Written by {TYPES[type].writer} (skills: {TYPES[type].skills}) · reviewed by {TYPES[type].reviewer}</span>
+      {inspect&&<details><summary>{c.made}</summary><p>{TYPES[type].writer} · {TYPES[type].reviewer}</p></details>}
     </div>
-    <CheckPanel checks={item.checks} review={item.review} onSaveRule={item.status === "ready" || item.status === "flagged" ? setRule : null} />
+    {inspect&&<CheckPanel checks={item.checks} review={item.review} onSaveRule={item.status === "ready" || item.status === "flagged" ? setRule : null} />}
     {rule && <RuleForm check={rule} onCancel={() => setRule(null)} onSave={save} />}
     {saved && <div style={{ padding: "10px 14px", borderTop: "1px solid #e7e5e4", fontSize: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
       <span><span style={{ color: "#15803d" }}>●</span> Saved to Brand Core: {saved.kind === "banned_word" ? `never use “${saved.value}”` : saved.value}</span>
       <button style={css.primary} disabled={busy || rerunsLeft <= 0} onClick={rerun}>{busy ? "Rewriting…" : rerunsLeft <= 0 ? "Re-run limit reached" : `Re-run this copy (${rerunsLeft} left)`}</button>
     </div>}
     {err && <div style={{ padding: "6px 14px", fontSize: 12, color: "#b91c1c" }}>{err}</div>}
+    <div style={{padding:14,display:"flex",justifyContent:"flex-end"}}>{mainAction}</div>
   </article>;
 }
 
@@ -242,9 +251,9 @@ export function TaskPipelineView({ go }) {
     {task && <section style={{ marginTop: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
         <h2 style={{ fontFamily: "'Instrument Serif', serif", fontWeight: 400, fontSize: 24, margin: 0 }}>{TYPES[task.type]?.label}</h2>
-        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t, task.credits) : task.status === "failed" ? task.error : ""}</span>}
+        <span style={css.dim}>{running ? (remaining ? `About ${remaining}s left · you can leave this page, the task keeps running` : "Almost there…") : metrics ? taskMetricsLabel(metrics, t, task.credits) : task.status === "failed" ? task.error : ""}</span>
       </div>
-      <Stepper stage={task.stage} status={task.status} />
+      <p><Status status={task.status} item={{html:task.items?.every(item=>item.html)?"ready":""}} /></p>
       {!running && <p style={css.dim}>{task.status === "approved" ? statusLabel("approved", t) : task.status === "failed" ? t("taskOutput.generationFailed") : t("taskOutput.needsHumanReview")} · <button style={css.secondary} onClick={() => go("library")}>{t("taskOutput.openLibrary")}</button></p>}
       {(task.notices || []).map((n, i) => <div key={i} style={{ fontSize: 12, color: "#b45309", marginBottom: 4 }}>● {n}</div>)}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginTop: 12 }}>

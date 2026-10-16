@@ -45,12 +45,11 @@ test('default flag is off without a build-time definition', async () => {
   const {agencyOfficeEnabled} = await import('./lib/agency-office-flag.js');
   assert.equal(agencyOfficeEnabled, false);
 });
-test('live and saved views use the guarded surface; dev prototype stays intact', async () => {
+test('live and saved delivery views use grouped cards; dev prototype stays intact', async () => {
   const source = await readFile(new URL('./portal-briefs.jsx', import.meta.url), 'utf8');
-  assert.equal((source.match(/<BriefWorkspaceSurface\n/g) || []).length, 2);
-  assert.match(source, /officeScope=\{context\.brandId\}/);
-  assert.match(source, /officeScope=\{state\.brief\.brand_id\}/);
-  assert.match(source, /if \(prototype\) return <PlexCanvasPrototype go=\{go\} \/>;/);
+  assert.match(source, /return <LiveDeliveryCanvas/);
+  assert.match(source, /return <SavedDeliveryCanvas/);
+  assert.match(source, /if \(prototype && canInspectDelivery\(session\)\) return <PlexCanvasPrototype go=\{go\} \/>;/);
   assert.match(source, /taskOutput\.savedBriefGuidance/);
   assert.doesNotMatch(source, /OfficePreview/);
 });
