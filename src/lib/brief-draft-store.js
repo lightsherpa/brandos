@@ -146,6 +146,17 @@ export function createBriefDraftStore({ userId, brandId, request, storage, uuid 
     if (dirty) void flush();
     return true;
   }
+  async function discard(row = state) {
+    if (!await flush()) return false;
+    if (row.id === state.id) row = state;
+    try {
+      await json(`/api/briefs/drafts/${row.id}`, {method:'DELETE',body:JSON.stringify({brandId,ownerUserId:userId,revision:row.revision})});
+      for (const entry of localEntries().filter(entry=>entry.id===row.id)) storage.removeItem(entry.recoveryKey);
+      emit({drafts:state.drafts.filter(entry=>entry.id!==row.id)});
+      if (state.id===row.id) { removeRecovery(); adopt(null); }
+      return true;
+    } catch(e) { emit({status:'error',error:e.message}); return false; }
+  }
   async function saveCopy() {
     if (flight) await flight;
     // A conflict can be resolved without overwriting either version.
@@ -156,7 +167,7 @@ export function createBriefDraftStore({ userId, brandId, request, storage, uuid 
   return {
     getSnapshot: () => state,
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
-    load, update, flush, select, saveCopy,
+    load, update, flush, select, saveCopy, discard,
     dispose() { disposed = true; loadSequence++; clearTimeout(timer); void flush(); },
   };
 }

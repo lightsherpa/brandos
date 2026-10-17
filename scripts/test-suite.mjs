@@ -12,7 +12,7 @@ async function collect(directory) {
   return results.flat();
 }
 const unitOnly=process.argv.includes('--unit');
-const databaseTests=new Set(['certifier-durable-db.test.mjs','reference-intake-db.test.mjs','migration-replay.test.mjs','output-status-db.test.mjs']);
+const databaseTests=new Set(['brief-output-examples-db.test.mjs','certifier-durable-db.test.mjs','reference-intake-db.test.mjs','migration-replay.test.mjs','output-status-db.test.mjs']);
 const files = (await Promise.all(['src','server/src','scripts'].map(collect))).flat().filter(path=>!unitOnly||!databaseTests.has(path.split('/').at(-1))).sort();
 console.log(`Running ${files.length} test files${unitOnly?' (unit and mocked routes)':' including database regressions in supabase_db_CaastorOS'}.`);
 const child = spawn(process.execPath, ['--experimental-test-module-mocks','--test',...files], {

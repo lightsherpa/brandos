@@ -1,5 +1,6 @@
 // Personal composer recovery records, separate from production brief sharing.
 // Dependencies are injectable so route tests exercise the real HTTP contract.
+import {discardBriefReferences} from "../lib/brief-references.js";
 import { Hono } from "hono";
 import { hasPermission } from "../lib/permissions.js";
 
@@ -53,6 +54,21 @@ export function createBriefDraftRoutes({ db, authenticate }) {
     if (result.error?.code === "23505" || (!result.error && !result.data)) return c.json({ error: "Draft changed. Your local copy is preserved.", code: "DRAFT_CONFLICT" }, 409);
     if (result.error) return c.json({ error: "Draft could not be saved" }, 503);
     return c.json({ draft: result.data });
+  });
+  app.delete('/:id', async c=>{
+    const id=c.req.param('id'),body=await c.req.json().catch(()=>({}));
+    if(!isUuid(id)||!isRevision(body.revision))return c.json({error:'Invalid draft revision'},400);
+    const s=await scope(c,body.brandId,body.ownerUserId,'brief.write');if(s instanceof Response)return s;
+    const {data:current,error}=await scoped(db.from('brief_drafts').select('*').eq('id',id),s).maybeSingle();
+    if(error)return c.json({error:'Draft unavailable'},503);
+    if(!current)return c.json({ok:true});
+    if(current.revision!==body.revision)return c.json({error:'Draft changed; reload before discarding',code:'DRAFT_CONFLICT'},409);
+    try{await discardBriefReferences({db,brandId:s.brand_id,userId:s.owner_user_id,draftId:id});}catch(e){return c.json({error:e.message},e.status||503);}
+    const {error:detachError}=await db.from('brief_references').update({draft_id:null}).eq('draft_id',id).eq('brand_id',s.brand_id).eq('owner_id',s.owner_user_id).not('brief_id','is',null);
+    if(detachError)return c.json({error:'Could not retain saved brief references'},503);
+    const result=await scoped(db.from('brief_drafts').delete().eq('id',id).eq('revision',body.revision),s).select('id').maybeSingle();
+    if(result.error||!result.data)return c.json({error:'Could not discard draft; retry'},409);
+    return c.json({ok:true});
   });
   return app;
 }

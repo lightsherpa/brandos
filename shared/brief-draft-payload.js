@@ -11,6 +11,7 @@ export function isDraftPayload(p, enforceLimits = true) {
     || !["flow", "words", "visual", "polish"].includes(p.mode)
     || !isObject(p.answers) || !Object.entries(p.answers).every(([k, v]) => /^\d{1,3}$/.test(k) && typeof v === "string" && (!enforceLimits || v.length <= 10000))
     || !Number.isInteger(p.qStep) || p.qStep < 0 || p.qStep > 1000) return false;
+  if(p.references!==undefined&&(!Array.isArray(p.references)||p.references.length>3||!p.references.every(r=>isObject(r)&&isUuid(r.id)&&typeof r.name==='string'&&r.name.length<=160)))return false;
   const sharp = p.sharpData;
   if (sharp !== null && (!isObject(sharp)
     || ![sharp.title, sharp.sharpenedBrief, sharp.tension].every(optionalString)

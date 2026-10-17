@@ -13,7 +13,7 @@ function publicAddress(address) {
  return !(a===0||a===10||a===127||a>=224||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&[0,168].includes(b))||(a===100&&b>=64&&b<=127)||(a===198&&[18,19,51].includes(b))||(a===203&&b===0));
 }
 function storageUrl(u, origin) {
- try {const base=new URL(origin);return u.origin===base.origin && /^\/storage\/v1\/object\/(?:sign|public)\/bio-sources\//.test(u.pathname) && !/%(?:2e|2f|5c)/i.test(u.pathname) && !u.pathname.includes('\\');}catch{return false;}
+ try {const base=new URL(origin);return u.origin===base.origin && /^\/storage\/v1\/object\/(?:sign|public)\/(?:bio-sources|brief-references)\//.test(u.pathname) && !/%(?:2e|2f|5c)/i.test(u.pathname) && !u.pathname.includes('\\');}catch{return false;}
 }
 export function isAllowedAssetUrl(value,{storageOrigin=process.env.SUPABASE_URL}={}) {
  try {const u=new URL(value);if(u.username||u.password||u.hash)return false;

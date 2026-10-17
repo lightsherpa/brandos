@@ -35,7 +35,7 @@ test("specialist execution requires a certified BIO and atomic persistence", () 
   assert.match(source, /rpc\("finalize_run_atomic"/);
   assert.match(source, /failRunAndReleaseCredits\(/);
   assert.doesNotMatch(source, /requireCertified:\s*false/);
-  assert.match(source, /select\("id,brand_id,brief_lang,output_locales,brand:brands\(id,workspace_id\)"\)/);
+  assert.match(source, /select\("id,brand_id,payload,brief_lang,output_locales,brand:brands\(id,workspace_id\)"\)/);
   assert.match(source, /hasPermission\(auth, "brief\.run", workspaceId\)/);
   assert.match(source, /BRAND_SCOPE_MISMATCH/);
 });

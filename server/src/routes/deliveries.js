@@ -1,3 +1,4 @@
+import {canAddBrandExample,saveBrandOutputExample} from '../lib/brand-output-examples.js';
 import {deliveryFilename,deliveryArchiveName,attachmentHeader} from '../../../shared/delivery-filenames.js';
 import {canEnterCertify} from '../lib/certify-access.js';
 import {Hono} from 'hono';
@@ -57,7 +58,7 @@ export function createDeliveryRoutes({db=supabaseAdmin,auth=requireAuth,human=re
    const outputs=runs.flatMap(r=>r.outputs||[]).filter(o=>g.outputIds.includes(o.id));
    const approvalAction=approvalFor(actor,outputs,brief.brand.workspace_id);
    const {outputIds,production,...piece}=g;
-   return {...piece,canDownload:available(g),canApprove:available(g)&&!!approvalAction&&!sharedReviewOutput(g,groups),...(inspect?{production}: {})};
+   return {...piece,canAddToBrandCore:g.status==='delivered'&&g.complete&&canAddBrandExample(actor,brief.brand.workspace_id),canDownload:available(g),canApprove:available(g)&&!!approvalAction&&!sharedReviewOutput(g,groups),...(inspect?{production}: {})};
   });
   return c.json({brief:{id:brief.id,title:brief.title,brandId:brief.brand_id},deliverables,canInspect:inspect,sharePath:`#/canvas/${brief.id}`});
  }));
@@ -71,6 +72,12 @@ export function createDeliveryRoutes({db=supabaseAdmin,auth=requireAuth,human=re
   if(!transition)return c.json({error:'Approval is not available at this review stage'},403);
   for(const output of outputs.filter(o=>o.workflow_status===transition.from)){const response=await approveOutput(output.id,transition.action,c.req.header('Authorization'));if(!response.ok)return c.json({error:'Approval did not finish. Reload to see the current review state.'},response.status);}
   return c.json({approved:true});
+ }));
+ app.post('/:briefId/:deliveryId/brand-core',human,wrap(async c=>{
+  const {actor,brief,groups}=await load(c);
+  if(!canAddBrandExample(actor,brief.brand.workspace_id))return c.json({error:'Brand Core edit permission required'},403);
+  const group=groups.find(g=>g.id===c.req.param('deliveryId'));if(!group)return c.json({error:'Deliverable not found'},404);
+  const example=await saveBrandOutputExample({db,actor,brief,group});return c.json({example:{id:example.id,additionStatus:example.addition_status}});
  }));
  app.get('/:briefId/download',wrap(async c=>{
   const {brief,groups}=await load(c),selected=c.req.query('delivery'),pieces=groups.filter(g=>!selected||g.id===selected);
