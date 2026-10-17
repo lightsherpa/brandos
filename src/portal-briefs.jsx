@@ -1,3 +1,4 @@
+import {BriefReferenceGallery} from './brief-brand-examples.jsx';
 import {DeliveryBoard, LiveDeliveryCanvas, SavedDeliveryCanvas} from './grouped-deliverables.jsx';
 import {groupDeliverables, deliveryTypeForAgent, canonicalDeliveryType} from '../shared/grouped-deliverables.js';
 import {deliveryCopy} from './locales/grouped-deliverables-copy.js';
@@ -1961,6 +1962,7 @@ function BriefRunCanvas({ context, onClear, go }) {
         rawBrief:       context.rawBrief || "",
         refusals:       context.refusals || [],
         deliveryPlan:   context.deliveryPlan,
+        referenceIds: context.referenceIds||[],
       };
       const dspec = deliverableSpecForAgent(agent.id, context.deliveryPlan);
       const hasVisual = !!copyHasVisual.get(agent.id);
@@ -2227,7 +2229,7 @@ function BriefRunCanvas({ context, onClear, go }) {
       )}
       {openBrief && (
         <BriefDrawer
-          brief={{ title: context.title, tension: context.tension, sharpenedBrief: context.sharpenedBrief, rawBrief: context.rawBrief, refusals: context.refusals, deliveryPlan: context.deliveryPlan }}
+          brief={{ id:briefId, title: context.title, tension: context.tension, sharpenedBrief: context.sharpenedBrief, rawBrief: context.rawBrief, refusals: context.refusals, deliveryPlan: context.deliveryPlan }}
           onClose={() => setOpenBrief(false)}
         />
       )}
@@ -2277,6 +2279,7 @@ function BriefDrawer({ brief, onClose }) {
           <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--c-ink)" }}>{brief.sharpenedBrief}</p>
         </div>
       )}
+      <BriefReferenceGallery briefId={brief.id}/>
       {brief.rawBrief && (
         <div style={{ marginBottom: 18 }}>
           <div className="eyebrow" style={{ marginBottom: 6 }}>{t("briefs.briefDrawer.yourRequest")}</div>
@@ -3255,7 +3258,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
       )}
       {openBrief && (
         <BriefDrawer
-          brief={{ title: briefTitle(state.brief), tension: state.brief.payload?.tension, sharpenedBrief: state.brief.payload?.sharpenedBrief, rawBrief: humanize(extractOriginalRequest(state.brief.payload?.request) || state.brief.payload?.request || ""), refusals: state.brief.payload?.refusals }}
+          brief={{ id:briefId, title: briefTitle(state.brief), tension: state.brief.payload?.tension, sharpenedBrief: state.brief.payload?.sharpenedBrief, rawBrief: humanize(extractOriginalRequest(state.brief.payload?.request) || state.brief.payload?.request || ""), refusals: state.brief.payload?.refusals }}
           onClose={() => setOpenBrief(false)}
         />
       )}

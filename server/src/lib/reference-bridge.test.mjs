@@ -24,3 +24,10 @@ test('provider adapter refuses invalid refs without a queue call or echoing secr
  const {generate}=await import('./models/fal-image.js');const old=process.env.FAL_API_KEY;process.env.FAL_API_KEY='test';let calls=0;const original=globalThis.fetch;globalThis.fetch=async()=>{calls++;throw new Error('unexpected queue');};
  try {const events=[];for await(const e of generate({route:'vendor/fal/gpt-image-2.5',prompt:'subject',referenceImageUrls:['http://169.254.169.254/token=secret']}))events.push(e);assert.equal(calls,0);assert.equal(events.at(-1).type,'error');assert.ok(!JSON.stringify(events).includes('secret'));}finally{globalThis.fetch=original;if(old===undefined)delete process.env.FAL_API_KEY;else process.env.FAL_API_KEY=old;}
 });
+
+test('brief-only signed photos use the configured Storage origin, not arbitrary loopback buckets',()=>{
+ const storageOrigin='http://127.0.0.1:54321';
+ assert.equal(isAllowedAssetUrl(`${storageOrigin}/storage/v1/object/sign/brief-references/a.png`,{storageOrigin}),true);
+ assert.equal(isAllowedAssetUrl(`${storageOrigin}/storage/v1/object/sign/other/a.png`,{storageOrigin}),false);
+ assert.equal(isAllowedAssetUrl('http://127.0.0.1:9999/storage/v1/object/sign/brief-references/a.png',{storageOrigin}),false);
+});

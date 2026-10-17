@@ -26,6 +26,7 @@ export function reconstructTasks(rows, authorized) {
       created_by: meta.created_by ?? null, run_id: row.run_id, credits: meta.credits ?? null,
       brand_core: meta.brand_core ?? { version: row.run?.bio_version ?? null },
       generation_brand_core: meta.generation_brand_core ?? null,
+      briefId:meta.briefId||row.brief_id,
       provenance: meta.provenance ?? { bioVersion: row.run?.bio_version ?? null, recovered: true },
       items: body.items.map(item => reviewedItem(row,item)), result: { spec: body.spec, metrics: recoveredMetrics(meta.metrics, row) },
       notices: meta.notices ?? [], error: null, recovered: true, reruns: [], rerun_counts: {},
@@ -52,7 +53,7 @@ export async function recoverTasks(db, authorized, brandId = null) {
   // Paginate so older completed task IDs are recoverable too. Never silently
   // return a truncated history or treat a DB failure as an absent task.
   for (let offset = 0;; offset += 500) {
-    let q = db.from('outputs').select('id,kind,status,workflow_status,internal_reviewed_by,internal_reviewed_at,client_reviewed_by,client_reviewed_at,body,created_at,run_id,run:runs(bio_version,started_at,ended_at,cost_usd,latency_ms),brief:briefs!inner(brand_id,payload,brand:brands!inner(workspace_id))').in('kind',['task','task_rerun']).order('created_at',{ascending:true}).order('id',{ascending:true}).range(offset,offset+499);
+    let q = db.from('outputs').select('id,brief_id,kind,status,workflow_status,internal_reviewed_by,internal_reviewed_at,client_reviewed_by,client_reviewed_at,body,created_at,run_id,run:runs(bio_version,started_at,ended_at,cost_usd,latency_ms),brief:briefs!inner(brand_id,payload,brand:brands!inner(workspace_id))').in('kind',['task','task_rerun']).order('created_at',{ascending:true}).order('id',{ascending:true}).range(offset,offset+499);
     if (brandId) q = q.eq('brief.brand_id',brandId);
     const { data, error } = await q;
     if (error) throw Object.assign(new Error('Task recovery unavailable'), {status:503,code:'TASK_RECOVERY_UNAVAILABLE'});

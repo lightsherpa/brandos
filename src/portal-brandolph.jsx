@@ -1,3 +1,4 @@
+import {BriefPhotoReferences} from './brief-brand-examples.jsx';
 import React from "react";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
@@ -254,6 +255,7 @@ function HomeCreate({ tweaks, go }) {
   const stats = useHomeStats();
   const activeBrandId = window.useCurrentBrandId();
   const draft = useBriefDrafts(activeBrandId);
+  const [referenceBusy,setReferenceBusy]=useBState(false);
   const { input, mode, answers, qStep } = draft.payload;
   const setInput = (value) => {
     draft.store.update((payload) => editBriefInput(payload, value));
@@ -341,7 +343,7 @@ function HomeCreate({ tweaks, go }) {
   ];
 
   const handleStart = async () => {
-    if (!input.trim() || sharp.loading || !draft.ready || startingRef.current === draft.store) return;
+    if (referenceBusy || !input.trim() || sharp.loading || !draft.ready || startingRef.current === draft.store) return;
     if (!activeBrandId) {
       setSharp({ loading:false, data:null, error: t("brandolph.selectBrand") + "." });
       return;
@@ -380,6 +382,7 @@ function HomeCreate({ tweaks, go }) {
   const handleKeyDown = (e) => handleComposerKeyDown(e, handleStart);
 
   const handleProceed = async () => {
+    if(referenceBusy)return;
     const store = draft.store;
     const approvedPayload = draft.payload;
     if (!await store.flush() || currentDraftStore.current !== store || store.getSnapshot().payload !== approvedPayload) return;
@@ -397,6 +400,7 @@ function HomeCreate({ tweaks, go }) {
       taskType: normalizedTaskType,
       requestedTaskType: normalizedTaskType,
       sourceDraftId: store.getSnapshot().id,
+      referenceIds:(draft.payload.references||[]).map(r=>r.id),
       rawBrief:      input.trim(),
       composedBrief: composeBriefText(),
       title:         sharp.data?.title || "",
@@ -603,6 +607,7 @@ function HomeCreate({ tweaks, go }) {
                   color:"var(--c-ink)", background:"transparent", padding: 0,
                 }}
               />
+              <BriefPhotoReferences key={`${activeBrandId}:${draft.id||'new'}`} onBusyChange={setReferenceBusy} brandId={activeBrandId} references={draft.payload.references||[]} disabled={!draft.ready||sharp.loading} onChange={references=>draft.store.update({references})}/>
               <div style={{
                 marginTop: 12, paddingTop: 12,
                 borderTop:"1px dashed var(--c-line)",
@@ -636,7 +641,7 @@ function HomeCreate({ tweaks, go }) {
                     <span style={{margin:"0 4px"}}>+</span>
                     <kbd style={{background:"var(--c-bg)", padding:"2px 6px", borderRadius: 4, border:"1px solid var(--c-line)"}}>↵</kbd>
                   </span>
-                  <button className="btn btn--primary" disabled={!input.trim() || !draft.ready || sharp.loading} onClick={handleStart}>
+                  <button className="btn btn--primary" disabled={referenceBusy || !input.trim() || !draft.ready || sharp.loading} onClick={handleStart}>
                     {isActive ? t("brandolph.reBrief") : t("brandolph.start")} <Icon name="arrow" size={14} />
                   </button>
                 </div>
@@ -795,7 +800,7 @@ function HomeCreate({ tweaks, go }) {
 
                       <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop: 12, borderTop:"1px dashed var(--c-line)"}}>
                         <button className="btn btn--link" style={{fontSize: 12}} onClick={handleReset}>← {t("brandolph.reBrief")}</button>
-                        <button className="btn btn--primary" disabled={!briefBrandId} onClick={handleProceed}>
+                        <button className="btn btn--primary" disabled={referenceBusy||!briefBrandId} onClick={handleProceed}>
                           {t("brandolph.proceedAssembly")} <Icon name="arrow" size={14} />
                         </button>
                       </div>

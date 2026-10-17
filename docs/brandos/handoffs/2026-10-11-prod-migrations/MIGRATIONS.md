@@ -1,6 +1,6 @@
 # Production migrations on dev, not in main's applied set
 
-Do not apply this list from the handoff. Nothing here has been run against a database. `main` was not modified.
+Do not apply this list from the handoff. This handoff does not authorize a production apply; local test applies are noted per entry. `main` was not modified.
 
 Main's applied set is the migration files on `origin/main` at the time of this note. Dev has those files plus the ones below. Apply them in this order, after main's chain, one file at a time. Stop on the first error.
 
@@ -435,4 +435,25 @@ select has_column_privilege('authenticated', 'public.runs', 'model_used', 'selec
        has_column_privilege('authenticated', 'public.runs', 'status', 'select') as status_readable;          -- true
 select count(*) from public.outputs
  where body::text ~ '\\?"(model|provider_endpoint|fallback_from|attempts|[a-z_]*_usd)\\?":';         -- 0
+```
+
+## 23. `20261017191634_brief_outputs_to_brand_core.sql`
+
+**HOLD: local/dev only until Oscar approves the prod apply.**
+
+Adds service-only `brief_references`, private `brief-references` Storage, and service-only `brand_output_examples`. Uploads are brief-only, never `bio_sources`. Accepted outputs are linked without re-uploading their stored asset; the output snapshot and lineage are kept as a pending addition. Promotion atomically appends an uncertified candidate BIO containing the approved example ID. No certified BIO is edited, no reference is promoted, and no public storage policy is added. Applied only to the local Docker database for verification.
+
+Verify (read-only):
+
+```sql
+select relname,relrowsecurity from pg_class where oid in ('public.brief_references'::regclass,'public.brand_output_examples'::regclass);
+select has_table_privilege('authenticated','public.brief_references','insert') as direct_reference_write,
+       has_table_privilege('authenticated','public.brand_output_examples','insert') as direct_example_write; -- both false
+select id,public,file_size_limit from storage.buckets where id='brief-references'; -- private, 5242880
+```
+
+Only after explicit production approval, the operator may apply this transaction (not executed by this task):
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261017191634_brief_outputs_to_brand_core.sql -c "insert into supabase_migrations.schema_migrations (version,name) values ('20261017191634','brief_outputs_to_brand_core') on conflict do nothing" -c 'commit'
 ```

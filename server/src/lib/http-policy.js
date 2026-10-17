@@ -110,7 +110,7 @@ export function classifyRequest(method, path) {
   // Foundation files (references, logos, fonts) share sources/upload.
   // Evidence and avatar are the other multipart intakes. Anything else
   // under /api/bios stays on the tighter classes below.
-  if (m === "POST" && (p === "/api/me/avatar" || /^\/api\/bios\/[^/]+\/(?:evidence|sources\/upload)$/.test(p))) return "upload";
+  if (m === "POST" && (p === "/api/me/avatar" || p === "/api/briefs/references" || /^\/api\/bios\/[^/]+\/(?:evidence|sources\/upload)$/.test(p))) return "upload";
 
   // Cost surface. Checked before the generation prefix so these writes do not
   // inherit the loose 120/min generation ceiling. Audited 2026-10-10: every

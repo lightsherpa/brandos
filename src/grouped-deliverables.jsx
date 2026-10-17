@@ -1,3 +1,4 @@
+import {AddToBrandCore} from './brief-brand-examples.jsx';
 import {CanvasNavigation} from './canvas-navigation.jsx';
 import {deliveryArchiveName} from '../shared/delivery-filenames.js';
 import {canEnterCertify} from './lib/certify-routing.js';
@@ -64,7 +65,7 @@ export function DeliveryBoard({brief={},deliverables=[],canInspect=false,onRun,r
    {active.html?<iframe title={c.preview} sandbox="" referrerPolicy="no-referrer" srcDoc={active.html}/>:active.type==='email'?<iframe title={c.preview} sandbox="" referrerPolicy="no-referrer" srcDoc={deliveryDocument(active,{title:name(active),lang:locale})}/>:<div className="gd-piece">{!active.assetUrl&&['social_post','hero_kv'].includes(active.type)&&<p className="gd-missing">{c.missingImage}</p>}{active.assetUrl&&<img src={active.assetUrl} alt={name(active)} referrerPolicy="no-referrer"/>}{active.text?<p>{active.text}</p>:<p>{c.unavailable}</p>}</div>}
    {onOpenArtifact&&(!canOpenArtifact||canOpenArtifact(active))&&<button className="btn btn--ghost" onClick={()=>{setOpened(null);onOpenArtifact(active);}}>{c.reviewPiece}</button>}
    {canInspect&&(active.production||productionTools)&&<details className="gd-production"><summary>{c.made}</summary><ul>{(active.production||[]).map((p,i)=><li key={i}><span>{p.agentId}</span> · <span>{p.part||c.source}</span> · <span>{p.status}</span></li>)}</ul>{productionTools?.(()=>setOpened(null),active)}</details>}
-   <footer>{action(active)}</footer></>}
+   <AddToBrandCore briefId={brief.id} piece={active} fetcher={fetcher}/><footer>{action(active)}</footer></>}
   </section></div>;})}
  </section>;
 }

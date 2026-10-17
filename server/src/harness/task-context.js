@@ -1,3 +1,4 @@
+import {loadBriefReferences} from '../lib/brief-references.js';
 // Loads everything a task needs, Layer 1 first (CREWS §0.1): certified Brand
 // Core (production gate), up to 3 reference images (canonical first, then
 // inspiration; S1), saved rules (Beat 5) and the inlined skill prompts.
@@ -19,7 +20,7 @@ export async function loadSkillPayloads(ids) {
   return Object.fromEntries((data || []).map((row) => [row.specialist_id, row.payload]));
 }
 
-export async function loadTaskContext({ workspaceId, brandId, type, heroes = false, copyOnly = false, bioVersion }) {
+export async function loadTaskContext({ workspaceId, brandId, type, heroes = false, copyOnly = false, bioVersion,referenceIds=[],userId,briefId }) {
   const needsImages = !copyOnly && (type === "social_post" || (type === "email_sequence" && heroes));
   const { brand, bio, refusals } = needsImages
     ? await loadBioForImage({ workspaceId, brandId, bioVersion })
@@ -27,8 +28,9 @@ export async function loadTaskContext({ workspaceId, brandId, type, heroes = fal
   const pinned = bio?.visual?.references || [];
   const assets = await loadVisualAssets(brand.id, { sourceIds: activeReferenceIds(pinned) });
   if (needsImages) assertReferenceResolution(assets.references, pinned);
-  const references = pickReferences(assets.references, pinned);
-  const provenance = { bioId: bio.id, bioVersion: bio.version, sourceIds: references.map(r => r.id) };
+  const briefReferences=await loadBriefReferences({ids:referenceIds,brandId:brand.id,userId,briefId});
+  const references = [...briefReferences,...pickReferences(assets.references, pinned)].slice(0,3);
+  const provenance = { bioId: bio.id, bioVersion: bio.version, sourceIds: references.filter(r=>r.scope!=='brief').map(r => r.id), briefReferenceIds:briefReferences.map(r=>r.id) };
   const rules = await loadRules(brand.id);
   let layer1 = { ...applyRules(buildLayer1({ brand, bio, refusals, references }), rules), provenance };
   if (["1","true"].includes(process.env.CREW_CANVAS)) layer1 = await hydrateGoogleFontAssets(layer1);

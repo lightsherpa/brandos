@@ -1,3 +1,4 @@
+import {loadBriefReferences,bindBriefReferences,referenceIds} from '../lib/brief-references.js';
 import {canEnterCertify} from '../lib/certify-access.js';
 import {normalizePlan} from '../lib/delivery-plan.js';
 import { sanitizeOutput } from "../lib/output-quality.js";
@@ -88,7 +89,7 @@ app.post("/stream", requireAuth, async (c) => {
 
   if (existingBriefId) {
     const { data, error: briefScopeError } = await supabaseAdmin
-      .from("briefs").select("id,brand_id,brief_lang,output_locales,brand:brands(id,workspace_id)").eq("id", existingBriefId).maybeSingle();
+      .from("briefs").select("id,brand_id,payload,brief_lang,output_locales,brand:brands(id,workspace_id)").eq("id", existingBriefId).maybeSingle();
     if (briefScopeError) return c.json({ error: briefScopeError.message }, 400);
     pinnedBrief = data;
     if (!pinnedBrief?.brand) return c.json({ error: "Brief not found" }, 404);
@@ -109,6 +110,10 @@ app.post("/stream", requireAuth, async (c) => {
   if (auth.scope === "platform" && !brandId) {
     return c.json({ error: "Internal users must select an assigned brand" }, 400);
   }
+
+  let briefReferenceIds,briefReferences;
+  try{briefReferenceIds=referenceIds(existingBriefId?pinnedBrief.payload?.referenceIds:body.referenceIds||briefMeta?.referenceIds);briefReferences=await loadBriefReferences({ids:briefReferenceIds,brandId,userId,briefId:existingBriefId});}
+  catch(error){return c.json({error:error.message},error.status||503);}
 
   /* Re-run / revise — caller can override which model handles this
      run (curated per-spec dropdown in the SPA), and/or append revision
@@ -257,12 +262,13 @@ app.post("/stream", requireAuth, async (c) => {
         (await loadVisualAssets(brandBio.brand.id, { sourceIds:certifiedReferenceRows.map((reference) => reference?.sourceId) })).references,
         certifiedReferenceRows,
       );
-      generationReferences = selectGenerationReferences(pinnedReferences);
+      generationReferences = [...briefReferences,...selectGenerationReferences(pinnedReferences)].slice(0,3);
       generationReference = generationReferences[0] || null;
     } catch {
       /* Reference conditioning is additive. A source-signing failure must not
          block a run that can still honor the textual BIO visual system. */
-      generationReference = null;
+      generationReferences = [...briefReferences];
+      generationReference = briefReferences[0] || null;
     }
   }
   const resolvedImageRequest = isImage ? resolveImageRequest({ route, referenceImageUrls:generationReferences.map((r) => r.url) }) : null;
@@ -308,6 +314,7 @@ app.post("/stream", requireAuth, async (c) => {
             tension:        briefMeta?.tension || "",
             refusals:       briefMeta?.refusals || [],
             deliveryPlan:   normalizePlan(briefMeta?.deliveryPlan),
+            referenceIds: briefReferenceIds,
           },
           mode: "auto",
           status: "active",
@@ -321,6 +328,8 @@ app.post("/stream", requireAuth, async (c) => {
       }
       briefId = briefRow.id;
     }
+
+    if(!existingBriefId&&briefReferenceIds.length){try{await bindBriefReferences({ids:briefReferenceIds,brandId,userId,briefId});}catch(error){await stream.writeSSE({event:'error',data:JSON.stringify({message:error.message})});return;}}
 
     /* 2. Runs row — pins spec_version + bio_version for reproducibility. */
     const { data: runRow, error: runErr } = await supabaseAdmin

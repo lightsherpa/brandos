@@ -1,3 +1,4 @@
+import {createBriefReferenceRoutes} from './brief-references.js';
 // POST /api/briefs/sharpen — fires a02 The Sharpener.
 // Body: { briefText, brandId? }
 // Returns: { tension, sharpenedBrief, questions, proposedSpecialists, refusals, usage }
@@ -20,6 +21,7 @@ import { createBriefDraftRoutes } from "./brief-drafts.js";
 import formatPreview from "./format-preview.js";
 
 const app = new Hono();
+app.route("/",createBriefReferenceRoutes());
 app.route("/drafts", createBriefDraftRoutes({ db: supabaseAdmin, authenticate: requireAuth }));
 app.route("/", formatPreview);
 

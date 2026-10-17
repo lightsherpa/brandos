@@ -1,3 +1,4 @@
+import {BrandOutputExamples} from './brief-brand-examples.jsx';
 import {certifyUxEnabled} from './certify/ux-flags.js';
 import {ReviewGateNotice} from "./discovery-review-gate.jsx";
 import {FoundationStrip} from "./brand-foundation.jsx";
@@ -1619,6 +1620,7 @@ function BioViewer({ go, bioScore = 91 }) {
         await live.refresh();
       }}/>}
 
+      {live.brandId && <BrandOutputExamples brandId={live.brandId} go={go}/>}
       {live.brandId && <ClientQuestions brandId={live.brandId} />}
 
       {/* Live cert chip — pulls real DB state, polls every 5s */}

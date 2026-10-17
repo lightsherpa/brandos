@@ -1,3 +1,4 @@
+import {bindBriefReferences,referenceIds} from '../lib/brief-references.js';
 // Task pipeline API (feat/task-pipeline). One task = one deliverable card.
 //   POST /api/tasks                         { brandId, type, brief, count?, heroes? } → { id, eta_s }
 //   GET  /api/tasks?brandId=                recent tasks (resume after leaving the page)
@@ -76,9 +77,10 @@ app.post("/", requireAuth, async (c) => {
   const scoped = await scopeBrand(c, brandId);
   if (scoped.error) return scoped.error;
   const workspaceId = scoped.brand.workspace_id;
+  let refs;try{refs=referenceIds(body.referenceIds);}catch(e){return c.json({error:e.message},400);}
   const credits = taskCredits({ type, heroes: !!heroes });
   let ctx;
-  try { ctx = await loadTaskContext({ workspaceId, brandId, type, heroes: !!heroes }); }
+  try { ctx = await loadTaskContext({ workspaceId, brandId, type, heroes: !!heroes,referenceIds:refs,userId:scoped.auth.userId }); }
   catch (e) { return c.json({ error: e.message, code: e.code || "BRAND_CORE_UNAVAILABLE", ...(e.code === "FOUNDATION_INCOMPLETE" ? {state:"foundation_incomplete",credits:0,missing:e.missing || []}: {}) }, e.status || 409); }
   const pre = await preflight({ workspaceId, credits });
   if (!pre.ok) return creditErrorResponse(c, pre.check);
@@ -88,7 +90,7 @@ app.post("/", requireAuth, async (c) => {
   const id = crypto.randomUUID();
   const eta = type === "email_sequence" && heroes ? ETA_SECONDS.email_sequence_heroes : ETA_SECONDS[type];
   const job = {
-    id, type, brandId, workspaceId: scoped.brand.workspace_id, brief: brief.trim(), heroes: !!heroes,
+    id, type, brandId, briefId:run.briefId, workspaceId: scoped.brand.workspace_id, brief: brief.trim(), heroes: !!heroes,
     status: "running", stage: "Planning", eta_s: eta, run_id: run.runId, credits, created_at: new Date().toISOString(), created_by: scoped.auth.userId || null,
     brand_core: { version: ctx.bio?.version ?? null, foundation_missing: ctx.layer1.foundation_missing, references: ctx.layer1.references.length, rules: ctx.layer1.rules.length },
     provenance: ctx.provenance || { bioId: ctx.bio?.id ?? null, bioVersion: ctx.bio?.version ?? null },
@@ -101,11 +103,11 @@ app.post("/", requireAuth, async (c) => {
     else if (ev.type === "notice") job.notices.push(ev.message);
   };
   settle({ workspaceId, brandId, userId: job.created_by, run,
-    work: () => runTask({ type, brief: job.brief, layer1: ctx.layer1, count, heroes, skillsPayloads: ctx.skillsPayloads, onEvent }),
+    work: async () => {await bindBriefReferences({ids:refs,brandId,userId:job.created_by,briefId:run.briefId});return runTask({ type, brief: job.brief, layer1: ctx.layer1, count, heroes, skillsPayloads: ctx.skillsPayloads, onEvent });},
     toOutput: (res) => taskOutput(job, res) })
     .then((res) => { job.result = { spec: res.spec, metrics: res.metrics }; job.items = res.items; job.status = res.status; job.stage = res.status === "ready" ? "Ready" : "Flagged"; job.finished_at = new Date().toISOString(); })
     .catch((e) => { job.status = "failed"; job.error = e.message; job.finished_at = new Date().toISOString(); console.error(`[task-pipeline] ${id} failed: ${e.message}`); });
-  return c.json({ id, eta_s: eta, stage: job.stage }, 202);
+  return c.json({ id, briefId:run.briefId, eta_s: eta, stage: job.stage }, 202);
 });
 
 app.get("/", requireAuth, async (c) => {
@@ -128,7 +130,7 @@ export function taskOutput(job, res) {
     // outputs.body is browser-readable under RLS, so persist the client-safe shape.
     body: JSON.stringify(redactForClient({ task_id: job.id, type: job.type, spec: res.spec, items: (res.items || []).map(clientItem),
       snapshot: { brief: job.brief, heroes: job.heroes, created_at: job.created_at, finished_at: new Date().toISOString(), created_by: job.created_by,
-        credits: job.credits, brand_core: job.brand_core, generation_brand_core: res.brand_core ?? null, provenance: job.provenance, notices: job.notices, metrics: publicMetrics(res.metrics) } })),
+        credits: job.credits, brand_core: job.brand_core, generation_brand_core: res.brand_core ?? null, provenance: job.provenance, briefId:job.briefId, notices: job.notices, metrics: publicMetrics(res.metrics) } })),
     asset_url: res.items?.find((it) => it?.asset_url)?.asset_url || null,
     qa_passed: ready, qa_evidence: { items: (res.items || []).map((it) => ({ index: it?.index, status: it?.status, checks: it?.checks })) },
     rationale: ready ? null : "One or more items need review",
@@ -228,7 +230,7 @@ export async function executeRerun({ job, index, body = {}, userId = null }, dep
     const credits = taskCredits({ type: job.type, rerun: true });
     const pre = await deps.preflight({ workspaceId: job.workspaceId, credits });
     if (!pre.ok) { rollback(); return { credit: pre.check }; }
-    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, copyOnly: !(body.componentEdit && body.component === "image"), heroes: job.heroes, bioVersion: job.provenance?.bioVersion ?? job.brand_core?.version });
+    ctx = await deps.loadTaskContext({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, copyOnly: !(body.componentEdit && body.component === "image"), heroes: job.heroes, bioVersion: job.provenance?.bioVersion ?? job.brand_core?.version,referenceIds:job.provenance?.briefReferenceIds||[],briefId:job.briefId,userId:job.created_by });
     run = await deps.openRun({ workspaceId: job.workspaceId, brandId: job.brandId, type: job.type, brief: job.brief, bioVersion: ctx.bio?.version, credits, kind: "rerun", parentTaskId: job.id, itemIndex: index });
   } catch (e) {
     rollback();

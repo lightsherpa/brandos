@@ -1,3 +1,4 @@
+import {createBrandExampleRoutes} from './brand-output-examples.js';
 import { requireHumanActor } from "../middleware/human-actor.js";
 import {reconcileDiscoveryReview,reconcileLatestDiscoveryReview} from '../lib/discovery-review.js';
 import {foundationStatus,foundationError} from "../lib/brand-foundation.js";
@@ -22,6 +23,7 @@ import { prepareClientBioEditPayload } from "../lib/bio-evidence.js";
 
 import { validateReferenceConfirmation } from "../lib/reference-intake.js";
 const app = new Hono();
+app.route("/",createBrandExampleRoutes());
 
 // Uploads remain untrusted until the owner deliberately confirms this batch.
 app.post("/:brandId/references/confirm", requireAuth, requireHumanActor, async c => {
@@ -344,6 +346,7 @@ app.patch("/:brandId", requireAuth, async (c) => {
   const foundationAssetError = await validateFoundationAssets(brandId, body.payload.visual || {}, previousBio?.payload?.visual || {}, { allowUnconfirmedLogos: logoUnchanged });
   if (foundationAssetError) return c.json({error:foundationAssetError,code:"FOUNDATION_ASSET"},400);
   const cleanPayload = prepareClientBioEditPayload(body.payload, previousBio?.payload || {});
+  if(previousBio?.payload?.approved_output_examples)cleanPayload.approved_output_examples=previousBio.payload.approved_output_examples;else delete cleanPayload.approved_output_examples;
   // Rights lineage survives every later edit; clients cannot remove the CD gate.
   delete cleanPayload.reference_intake;
   if(previousBio?.payload?.reference_intake) cleanPayload.reference_intake=previousBio.payload.reference_intake;
