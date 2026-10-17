@@ -66,6 +66,9 @@ export const PERIMETER_CLASSES = {
   // whole specialist crew at once, so it cannot share the orchestration ceiling.
   paidRun: { windowMs: 10 * MINUTE, ipMax: 48, userMax: 30, globalMax: 100, bodyBytes: 1 * MB },
 
+  // Delivery exports and their reads/actions have an independent low ceiling.
+  delivery: { windowMs: MINUTE, ipMax: 10, userMax: 10, bodyBytes: 1 * MB },
+
   // Everything else under /api — reads, polling, settings, billing UI calls.
   api: { windowMs: MINUTE, ipMax: 600, userMax: 300, bodyBytes: 1 * MB },
 
@@ -123,6 +126,7 @@ export function classifyRequest(method, path) {
     return "generation";
   }
 
+  if (p === "/api/deliveries" || p.startsWith("/api/deliveries/")) return "delivery";
   return "api";
 }
 

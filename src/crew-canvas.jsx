@@ -1,3 +1,5 @@
+import {canEnterCertify} from './lib/certify-routing.js';
+import {deliveryCopy} from './locales/grouped-deliverables-copy.js';
 import React from 'react';
 import { useLocale } from './lib/i18n.js';
 import { apiFetch } from './lib/supabase-browser.js';
@@ -28,7 +30,7 @@ function Artifact({item,type,onSelect,onComponentSelect,selected,copy}) {
 }
 
 export function CrewCanvas({context,onClear,go}) {
- const {locale}=useLocale(),c=crewCopy(locale);
+ const {locale}=useLocale(),c=crewCopy(locale),dc=deliveryCopy(locale),actor=window.useSession?.(),inspect=actor?.scope==='platform'||canEnterCertify(actor);
  const [type,setType]=React.useState(requestedCrew(context)||'social_post');
  const [heroes,setHeroes]=React.useState(true),[task,setTask]=React.useState(null),[busy,setBusy]=React.useState(false),[error,setError]=React.useState(''),[notice,setNotice]=React.useState('');
  const [selected,setSelected]=React.useState(null),[component,setComponent]=React.useState(null),[value,setValue]=React.useState(''),[feedback,setFeedback]=React.useState('');
@@ -51,7 +53,7 @@ export function CrewCanvas({context,onClear,go}) {
   <div className="crew-layout"><main className="crew-main">
    <details className="crew-brief"><summary>{c.brief}</summary><p>{context.composedBrief||context.sharpenedBrief||context.rawBrief}</p></details>
    {!task&&<section className="crew-setup"><h2>{c.choose}</h2><div className="crew-types">{['social_post','email_sequence'].map(id=><button className={type===id?'active':''} key={id} onClick={()=>setType(id)}>{id==='social_post'?'▧':'✉'} {c[id]}</button>)}</div><div className="crew-controls"><label>{c.count} <select value={count} onChange={e=>setCount(Number(e.target.value))}>{[1,2,3].map(n=><option key={n}>{n}</option>)}</select></label>{type==='email_sequence'&&<label><input type="checkbox" checked={heroes} onChange={e=>setHeroes(e.target.checked)}/>{c.heroes}</label>}<button className="btn btn--primary" disabled={busy||enabled!==true} onClick={run}>{busy?c.running:c.run}</button></div>{enabled===false&&<p role="alert">{c.unavailable}</p>}</section>}
-   <section className="crew-production" aria-label={c.progress}><div className="crew-production__title"><h2>{c.crew}</h2><span>{running?c.running:deliverables.length?c.ready:''}</span></div><ol>{roles.map((role,i)=><li key={role}><span>{i+1}</span>{c[role]}</li>)}</ol></section>
+   {inspect&&<details className="gd-production"><summary>{dc.made}</summary><section className="crew-production" aria-label={c.progress}><div className="crew-production__title"><h2>{c.crew}</h2><span>{running?c.running:deliverables.length?c.ready:''}</span></div><ol>{roles.map((role,i)=><li key={role}><span>{i+1}</span>{c[role]}</li>)}</ol></section></details>}
    {running&&<div role="status" className="crew-wait">{task.stage==='Fixing'?c.redo:c.checking}</div>}
    {!!(error||notice)&&<div role={error?'alert':'status'} className="crew-notice">{error||notice}{error&&!task&&<button className="btn btn--ghost btn--sm" onClick={run}>{c.retry}</button>}</div>}
    {!deliverables.length&&<div className="crew-empty"><span aria-hidden="true">✦</span><p>{task?.status==='failed'||task?.status==='flagged'?c.failed:c.waiting}</p><small>{c.safe}</small>{task&&['flagged','failed'].includes(task.status)&&<button className="btn btn--primary" disabled={busy} onClick={(task.items||[]).some(it=>it.can_retry_render)?retryRender:run}>{(task.items||[]).some(it=>it.can_retry_render)?c.renderRetry:c.retry}</button>}</div>}

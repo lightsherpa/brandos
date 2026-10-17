@@ -1,3 +1,7 @@
+import {DeliveryBoard, LiveDeliveryCanvas, SavedDeliveryCanvas} from './grouped-deliverables.jsx';
+import {groupDeliverables, deliveryTypeForAgent, canonicalDeliveryType} from '../shared/grouped-deliverables.js';
+import {deliveryCopy} from './locales/grouped-deliverables-copy.js';
+import {canEnterCertify} from './lib/certify-routing.js';
 import { CrewCanvas } from "./crew-canvas.jsx";
 import { crewCanvasEnabled } from "./lib/crew-canvas.js";
 import { outputStatus, statusLabel, expandOutput, coalesceTaskCards, newestRuns, requestHumanCraft } from "./lib/task-output.js";
@@ -173,6 +177,33 @@ function shorten(s, max = 72) {
   return chosen.length > max ? chosen.slice(0, max - 1).trim() + "…" : chosen;
 }
 /* Briefs library + Brief detail + Specialists directory + Canvas. */
+
+
+function useInternalDeliveryAccess() {
+  const actor = window.useSession?.();
+  return actor?.scope === 'platform' || canEnterCertify(actor);
+}
+function groupedNodeType(node,nodes) {
+  const source=node.parentId?nodes.find(n=>n.id===node.parentId)||node:node;
+  return canonicalDeliveryType(source.done?.output?.type||source.done?.outputType||deliveryTypeForAgent(source.specId));
+}
+function groupedArtifactNode(piece,nodes,locale='en') {
+  const source=nodes.find(n=>n.kind==='deliverable'&&n.slot===piece.index&&groupedNodeType(n,nodes)===piece.type);
+  const candidates=nodes.filter(n=>n.kind==='specialist'&&groupedNodeType(n,nodes)===piece.type&&n.done?.outputId);
+  const spec=candidates.find(n=>['body','caption','slides'].includes(n.done?.output?.part||n.done?.part))||candidates[0];
+  if(!source&&!spec)return null;
+  return {...source,id:source?.id||piece.id,kind:'deliverable',title:deliveryCopy(locale)[piece.type]||piece.type,body:piece.text,assetUrl:piece.assetUrl,status:piece.status==='delivered'?'approved':'needs_review',sourceOutputId:source?.sourceOutputId||spec?.done.outputId,slot:piece.index};
+}
+function ProductionTools({piece,nodes,renderNode,onSpecialist,onDeliverable}) {
+  const {t}=useLocale();
+  if(!useInternalDeliveryAccess())return null;
+  const belongs=node=>piece.production?.some(p=>p.agentId===node.specId)||groupedNodeType(node,nodes)===piece.type;
+  return <div className="gd-production-tools">
+    {nodes.filter(n=>n.kind==='specialist'&&belongs(n)).map(n=><button className="btn btn--ghost" key={n.id} onClick={()=>onSpecialist(n.specId)}>{t('briefs.run.open')} · {n.title}</button>)}
+    {nodes.filter(n=>n.kind==='deliverable'&&belongs(n)).map(n=><button className="btn btn--ghost" key={n.id} onClick={()=>onDeliverable(n)}>{t('briefs.notepad.output')} · {n.slot+1}</button>)}
+    {nodes.filter(n=>n.kind==='moodboard').map(n=><div key={n.id}>{renderNode(n)}</div>)}
+  </div>;
+}
 
 /* ─── Specialist run streaming ────────────────────────────────────
    Parses SSE from POST /api/runs/stream. The endpoint is the P3 kernel
@@ -1193,7 +1224,7 @@ const SCALE_MIN = 0.4, SCALE_MAX = 2;
 
 /* Reusable pan/zoom/drag canvas. Renders nodeData + edges; clicking a
    node (without dragging) fires onNodeClick(node). */
-function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = "calc(100vh - 56px)", controls = true, helper, exportName = "canvas", toolbarExtra }) {
+function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = "calc(100vh - 56px)", controls = true, helper, exportName = "canvas", toolbarExtra, initialFit = false }) {
   const { t } = useLocale();
   const [nodes, setNodes] = React.useState(() => nodeData.map(n => ({ ...n })));
   const [view, setView]   = React.useState({ x: 24, y: 28, scale: 1 });
@@ -1217,12 +1248,18 @@ function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = 
   const nodeRefs = React.useRef({});
   const drag     = React.useRef(null);
 
-  /* Measure node heights once so edge anchors land on the true centre. */
+  // Thumbnails and grouped previews can change height after loading.
   React.useEffect(() => {
-    const next = {};
-    Object.entries(nodeRefs.current).forEach(([id, el]) => { if (el) next[id] = el.offsetHeight; });
-    setSizes(next);
-  }, []);
+    const measure = () => {
+      const next = {};
+      Object.entries(nodeRefs.current).forEach(([id, el]) => { if (el) next[id] = el.offsetHeight; });
+      setSizes(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    Object.values(nodeRefs.current).filter(Boolean).forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [nodeData]);
 
   /* Native wheel listener (passive:false so we can preventDefault). */
   React.useEffect(() => {
@@ -1320,6 +1357,14 @@ function InteractiveCanvas({ nodeData, edges, onNodeClick, renderNode, height = 
       y: (rect.height - h * scale) / 2 - minY * scale,
     });
   };
+
+  const fitted = React.useRef(false);
+  React.useEffect(() => {
+    if (initialFit && !fitted.current && Object.keys(sizes).length === nodes.length && nodes.length) {
+      fitted.current = true;
+      fitView();
+    }
+  }, [initialFit, sizes, nodes]);
 
   const exportLayout = () => {
     const data = JSON.stringify({ nodes, edges }, null, 2);
@@ -1635,7 +1680,7 @@ function MoodBoardCard({ tiles = [], bioVisual = null }) {
 }
 
 function BriefRunCanvas({ context, onClear, go }) {
-  const { t } = useLocale();
+  const { t,locale } = useLocale();
   const [nodes, setNodes]         = useBrState(() => buildInitialRunNodes(context));
   const [edges, setEdges]         = useBrState(() => buildInitialRunEdges(context));
   const [running, setRunning]     = useBrState(false);
@@ -1915,6 +1960,7 @@ function BriefRunCanvas({ context, onClear, go }) {
         tension:        context.tension || "",
         rawBrief:       context.rawBrief || "",
         refusals:       context.refusals || [],
+        deliveryPlan:   context.deliveryPlan,
       };
       const dspec = deliverableSpecForAgent(agent.id, context.deliveryPlan);
       const hasVisual = !!copyHasVisual.get(agent.id);
@@ -2080,25 +2126,15 @@ function BriefRunCanvas({ context, onClear, go }) {
         running={running}
         onFormats={window.formatPreviewEnabled && briefId ? () => go("formats/" + briefId) : null}
       />
-      <BriefWorkspaceSurface
-        LegacyCanvas={InteractiveCanvas}
-        officeScope={context.brandId}
-        nodeData={nodes}
-        edges={edges}
-        renderNode={renderNode}
+      <LiveDeliveryCanvas context={context} nodes={nodes} briefId={briefId} running={running} completed={completed} onRun={runAssembly} go={go} Canvas={InteractiveCanvas} embedded
+        onOpenSource={(id)=>id==='brief'?setOpenBrief(true):go('bio')}
+        productionTools={(close,piece)=><ProductionTools piece={piece} nodes={nodes} renderNode={renderNode} onSpecialist={id=>{close();setOpenId(id);}} onDeliverable={node=>{close();setOpenDeliverable(node);}}/>}
+        canOpenArtifact={piece=>!!groupedArtifactNode(piece,nodes,locale)}
+        onOpenArtifact={piece=>{const node=groupedArtifactNode(piece,nodes,locale);if(node)setOpenDeliverable(node);}}
         exportName="run-canvas"
-        onNodeClick={(node) => {
-          /* InteractiveCanvas uses setPointerCapture on the wrapper which
-             swallows any inner onClick — node clicks MUST come through here. */
-          if (node?.kind === "deliverable") { setOpenDeliverable(node); return; }
-          if (node?.kind === "brief") { setOpenBrief(true); return; }
-          if (!node || node.kind !== "specialist" || !node.specId) return;
-          const st = node.state;
-          if (st === "running" || st === "done" || st === "flagged") setOpenId(node.specId);
-        }}
         helper={
-          running     ? t("briefs.run.helperRunning")
-          : completed ? t("briefs.run.helperComplete", { cr: context.totalCr })
+          running     ? deliveryCopy(locale).working
+          : completed ? deliveryCopy(locale).canvasHelper
           : t("briefs.run.helperAssembled")
         }
         toolbarExtra={
@@ -2273,6 +2309,7 @@ function BriefDrawer({ brief, onClose }) {
    Copy / Export. Opened by clicking a deliverable card on the canvas. */
 const HUMAN_POLISH_CR = 40;   /* credits to contract a human to polish one deliverable */
 function DeliverableDrawer({ node, onClose, onSendToHuman }) {
+  const internal = useInternalDeliveryAccess();
   const { t } = useLocale();
   const [copied, setCopied] = useBrState(false);
   const flagged = outputStatus(node.status) !== "approved";
@@ -2287,7 +2324,7 @@ function DeliverableDrawer({ node, onClose, onSendToHuman }) {
   };
   const exportOne = () => {
     if (node.html) { const url = URL.createObjectURL(new Blob([node.html], {type:"text/html"})); const a = document.createElement("a"); a.href=url; a.download="deliverable.html"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); return; }
-    const data = JSON.stringify({ title: node.title, body: node.body, platform: node.platform, status: node.status, by: node.specialistName }, null, 2);
+    const data = JSON.stringify({ title: node.title, body: node.body, platform: node.platform, status: node.status, by: internal ? node.specialistName : undefined }, null, 2);
     const url = URL.createObjectURL(new Blob([data], { type: "application/json" }));
     const a = document.createElement("a");
     a.href = url; a.download = (node.title || "deliverable").replace(/\s+/g, "-").toLowerCase() + ".json"; a.click();
@@ -2298,7 +2335,7 @@ function DeliverableDrawer({ node, onClose, onSendToHuman }) {
       open={true}
       onClose={onClose}
       title={node.title}
-      eyebrow={`${(node.platform || t("briefs.run.generic")).toUpperCase()} · ${flagged ? t("briefs.run.flagged") : t("briefs.run.ready")}${node.qa?.voice_match != null ? ` · ${node.qa.voice_match}/100` : ""}${node.specialistName ? ` · ${t("briefs.run.byName", { name: node.specialistName })}` : ""}`}
+      eyebrow={`${(node.platform || t("briefs.run.generic")).toUpperCase()} · ${flagged ? t("briefs.run.flagged") : t("briefs.run.ready")}${node.qa?.voice_match != null ? ` · ${node.qa.voice_match}/100` : ""}${internal && node.specialistName ? ` · ${t("briefs.run.byName", { name: node.specialistName })}` : ""}`}
       width={560}
       footer={
         inCraft ? (
@@ -2852,7 +2889,8 @@ function PlexCanvasPrototype({ go }) {
   );
 }
 
-function CanvasView({ go, prototype = false }) {
+function CanvasView({ go, prototype = false, briefId: linkedBriefId = null }) {
+  const internal = useInternalDeliveryAccess();
   const { t } = useLocale();
   /* Read context off sessionStorage. Two modes:
        mode:"run"  → assembled crew ready to run (from HomeCreate handoff)
@@ -2870,8 +2908,9 @@ function CanvasView({ go, prototype = false }) {
     setCtx(null);
   };
 
-  if (crewCanvasEnabled && ctx?.brandId && ctx.mode !== "view") return <CrewCanvas context={ctx} onClear={clearCtx} go={go} />;
-  if (prototype) return <PlexCanvasPrototype go={go} />;
+  if (linkedBriefId) return <BriefViewCanvas briefId={linkedBriefId} onClear={clearCtx} go={go}/>;
+  if (crewCanvasEnabled && requestedCrew(ctx) && ctx?.brandId && ctx.mode !== "view") return <CrewCanvas context={ctx} onClear={clearCtx} go={go} />;
+  if (prototype && internal) return <PlexCanvasPrototype go={go} />;
   if (ctx?.mode === "view" && ctx.briefId) {
     return <BriefViewCanvas briefId={ctx.briefId} onClear={clearCtx} go={go} />;
   }
@@ -2885,7 +2924,8 @@ function CanvasView({ go, prototype = false }) {
    and renders the same node graph as a completed assembly. Reuses the
    notepad drawer for verify/edit/copy. */
 function BriefViewCanvas({ briefId, onClear, go }) {
-  const { t } = useLocale();
+  const internal = useInternalDeliveryAccess();
+  const { t,locale } = useLocale();
   const [state, setState] = useBrState({ loading: true, brief: null, runs: [], cert: null, error: null });
   const [openId, setOpenId]       = useBrState(null);
   const [openDeliverable, setOpenDeliverable] = useBrState(null);   /* clicked deliverable card → drawer */
@@ -2995,7 +3035,7 @@ function BriefViewCanvas({ briefId, onClear, go }) {
       cr: s.agent?.cr || 0,
       state: s.status === "failed" ? "failed" : s.passed ? "done" : "flagged",
       outputText: s.text, assetUrl, tokenCount: 1000, qa: null,
-      done: { brand: { bioVersion: s.firstRun.bio_version }, output: assetUrl ? { asset_url: assetUrl } : null },
+      done: { outputId:s.output?.id, outputType:s.output?.body?.type, part:s.output?.body?.part, brand: { bioVersion: s.firstRun.bio_version }, output: assetUrl ? { asset_url: assetUrl } : null },
     };
   });
 
@@ -3133,6 +3173,13 @@ function BriefViewCanvas({ briefId, onClear, go }) {
     setOpenDeliverable((d) => (d && d.id === cardNode.id ? { ...d, humanCraft: true, polishNotes: notes } : d));
   };
 
+  const DeliveryCanvas = uiFixtureEnabled ? DeliveryBoard : SavedDeliveryCanvas;
+  const fixtureCanvasProps = uiFixtureEnabled ? {
+    brief:{id:state.brief.id,title:briefTitle(state.brief)},
+    deliverables:groupDeliverables({runs:state.runs,plan:state.brief.payload?.deliveryPlan,finished:true,internal}),
+    canInspect:internal,
+  } : {};
+
   return (
     <>
       <CanvasHeader
@@ -3146,19 +3193,13 @@ function BriefViewCanvas({ briefId, onClear, go }) {
         running={false}
         onFormats={window.formatPreviewEnabled ? () => go("formats/" + briefId) : null}
       />
-      <BriefWorkspaceSurface
-        LegacyCanvas={InteractiveCanvas}
-        officeScope={state.brief.brand_id}
-        nodeData={nodes}
-        edges={edges}
-        renderNode={renderNode}
+      <DeliveryCanvas {...fixtureCanvasProps} briefId={briefId} go={go} Canvas={InteractiveCanvas} embedded
+        onOpenSource={id=>id==='brief'?setOpenBrief(true):go('bio')}
+        productionTools={(close,piece)=><ProductionTools piece={piece} nodes={[...specNodes,...cardNodes]} renderNode={renderNode} onSpecialist={id=>{close();setOpenId(id);}} onDeliverable={node=>{close();setOpenDeliverable(node);}}/>}
+        canOpenArtifact={piece=>!!groupedArtifactNode(piece,[...specNodes,...cardNodes],locale)}
+        onOpenArtifact={piece=>{const node=groupedArtifactNode(piece,[...specNodes,...cardNodes],locale);if(node)setOpenDeliverable(node);}}
         exportName={"brief-" + briefId.slice(0, 8)}
-        onNodeClick={(node) => {
-          if (node?.kind === "deliverable") { setOpenDeliverable(node); return; }
-          if (node?.kind === "brief") { setOpenBrief(true); return; }
-          if (node?.kind === "specialist" && node.specId) setOpenId(node.specId);
-        }}
-        helper={t("briefs.view.helper", { runs: t("briefs.runsCount", { count: specs.length }) })}
+        helper={deliveryCopy(locale).canvasHelper}
         toolbarExtra={
           <>
             <button className="btn btn--ghost btn--sm" onClick={() => { onClear(); go("briefs"); }} style={{height: 28}}>
@@ -4096,6 +4137,7 @@ function LibraryAssetCard({ o, onSelect }) {
 
 /* ── LEVEL 3 · forefront viewer — large asset + 4-action bar ─────────── */
 function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
+  const internal = useInternalDeliveryAccess();
   const { t } = useLocale();
   const [confirmDel, setConfirmDel] = useBrState(false);
   const passed  = o.status === "approved";
@@ -4211,7 +4253,7 @@ function LibraryViewer({ o, cert, go, flash, onClose, onDelete }) {
                 ? <> · {t("briefs.notepad.certifiedBy")} <span style={{color:"var(--green-600)"}}>{cert.byName}</span></>
                 : <> · <span style={{color:"var(--yellow-700)"}}>{t("briefs.try.uncertified")}</span></>}
             </span>
-            <span>{agent?.cr ?? "?"} cr</span>
+            {internal && <span>{agent?.cr ?? "?"} cr</span>}
           </div>
         </div>
 
