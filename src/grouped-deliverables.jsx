@@ -1,3 +1,4 @@
+import {CanvasNavigation} from './canvas-navigation.jsx';
 import {deliveryArchiveName} from '../shared/delivery-filenames.js';
 import {canEnterCertify} from './lib/certify-routing.js';
 import React from 'react';
@@ -13,11 +14,15 @@ export function runsFromCanvas(nodes=[]) {
   outputs:n.done?.output||(!['running','queued'].includes(n.state)&&(n.outputText||n.assetUrl))?[{id:n.done?.outputId,kind:n.done?.output?.kind||'copy',status:n.done?.output?.status||'needs_review',body:n.done?.output||{text:n.outputText,asset_url:n.assetUrl}}]:[]}));
 }
 export function DeliveryBoard({brief={},deliverables=[],canInspect=false,onRun,running=false,finished=false,onRefresh,go,Canvas,fetcher=apiFetch,embedded=false,productionTools,onOpenArtifact,canOpenArtifact,onOpenSource,helper,toolbarExtra,exportName}) {
- const {locale}=useLocale(),c=deliveryCopy(locale),[opened,setOpened]=React.useState(null),[busy,setBusy]=React.useState(false),[notice,setNotice]=React.useState(''),[error,setError]=React.useState('');
- const [expanded,setExpanded]=React.useState(false);
+ const {locale}=useLocale(),c=deliveryCopy(locale),[opened,updateOpened]=React.useState(null),[busy,setBusy]=React.useState(false),[notice,setNotice]=React.useState(''),[error,setError]=React.useState('');
+ const [expandedPanels,setExpandedPanels]=React.useState({});
+ const [visited,setVisited]=React.useState([]);
+ const backdropPress=React.useRef(false),panelRefs=React.useRef({}),scrollPositions=React.useRef({});
+ const setOpened=id=>{if(opened&&panelRefs.current[opened])scrollPositions.current[opened]=panelRefs.current[opened].scrollTop;backdropPress.current=false;if(id)setVisited(previous=>previous.includes(id)?previous:[...previous,id]);updateOpened(id);};
+ const openBrief=()=>{setOpened(null);if(onOpenSource)onOpenSource('brief');else setOpened('brief');};
  const closeRef=React.useRef(null),originRef=React.useRef(null);
  const active=deliverables.find(p=>p.id===opened);
- React.useEffect(()=>{setExpanded(false);if(opened)closeRef.current?.focus();else originRef.current?.focus();},[opened]);
+ React.useEffect(()=>{if(opened){if(panelRefs.current[opened])panelRefs.current[opened].scrollTop=scrollPositions.current[opened]||0;closeRef.current?.focus({preventScroll:true});}else originRef.current?.focus({preventScroll:true});},[opened]);
  const name=p=>`${c[p.type]||c.legacy}${deliverables.filter(d=>d.type===p.type).length>1?` ${p.index+1}`:''}`;
  async function download(piece){setBusy(true);setError('');try{
   if(!brief.id)throw Error();
@@ -46,12 +51,13 @@ export function DeliveryBoard({brief={},deliverables=[],canInspect=false,onRun,r
  </article>;
  return <section className="gd-page" dir={locale==='ar'?'rtl':'ltr'}>
   {!embedded&&<header className="gd-heading"><div><p className="eyebrow">{c.canvas}</p><h1>{brief.title||c.brief}</h1><p>{c.intro}</p></div>{go&&<button className="btn btn--ghost" onClick={()=>go('briefs')}>{c.back}</button>}</header>}
+  <CanvasNavigation briefName={brief.title} onCanvas={()=>setOpened(null)} onBrief={openBrief}/>
   {!opened&&(error||notice)&&<p role={error?'alert':'status'}>{error||notice}</p>}
   <div className="gd-canvas">{Canvas&&<Canvas nodeData={graph.nodes} edges={graph.edges} renderNode={renderNode} onNodeClick={node=>{if(node.piece)openPiece(node.piece);else if(node.id==='delivery')document.getElementById('gd-delivery')?.scrollIntoView({behavior:'smooth'});else if(onOpenSource)onOpenSource(node.id);else setOpened(node.id);}} helper={helper} toolbarExtra={toolbarExtra} initialFit height="max(500px, calc(100vh - 215px))" exportName={exportName||brief.id||'deliverables'} />}</div>
   {!deliverables.length&&<p role="status">{c.empty}</p>}
   {onRun&&!finished&&!embedded&&<button className="btn btn--primary" disabled={running} onClick={onRun}>{running?c.working:c.start}</button>}
   <section id="gd-delivery" className="gd-delivery"><div><p className="eyebrow">{c.delivery}</p><h2>{c.finished}</h2></div><ul>{deliverables.filter(ready).map(piece=><li key={piece.id}><span>{name(piece)}</span><span className={`gd-status gd-status--${piece.status}`}>{c[piece.status]}</span></li>)}</ul>{!deliverables.some(ready)&&<p>{c.empty}</p>}{!allReady&&<p>{c.deliveryPending}</p>}<div className="gd-actions"><button className="btn btn--primary" disabled={!allReady||busy||!brief.id} onClick={()=>download()}>{c.downloadAll}</button><button className="btn btn--ghost" disabled={!brief.id} onClick={share}>{c.share}</button></div></section>
-  {(active||source)&&<div className="gd-overlay" onKeyDown={event=>{if(event.key==='Escape')setOpened(null);if(event.key==='Tab'){const buttons=[...event.currentTarget.querySelectorAll('button:not(:disabled),summary,a[href]')];const first=buttons[0],last=buttons.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}}}><section className={`gd-detail${expanded?' gd-detail--expanded':''}`} role="dialog" aria-modal="true" aria-labelledby="gd-detail-title"><header><div>{active&&<p className={`gd-status gd-status--${active.status}`}>{c[active.status]}</p>}<h2 id="gd-detail-title">{active?name(active):opened==='bio'?'Brand Core':c.brief}</h2></div><div className="gd-actions">{active&&action(active)}{active&&<button className="btn btn--ghost" onClick={()=>setExpanded(v=>!v)}>{expanded?c.restore:c.expand}</button>}<button ref={closeRef} className="btn btn--ghost" onClick={()=>setOpened(null)}>{c.close}</button></div></header>
+  {visited.map(panelId=>{const active=deliverables.find(piece=>piece.id===panelId),source=panelId==='bio'||panelId==='brief',expanded=!!expandedPanels[panelId];const setExpanded=change=>setExpandedPanels(previous=>({...previous,[panelId]:change(!!previous[panelId])}));if(!active&&!source)return null;return <div key={panelId} className="gd-overlay" hidden={opened!==panelId} onPointerDown={event=>{backdropPress.current=event.target===event.currentTarget;}} onClick={event=>{const outside=backdropPress.current;backdropPress.current=false;if(outside&&event.target===event.currentTarget)setOpened(null);}} onKeyDown={event=>{if(event.key==='Escape')setOpened(null);if(event.key==='Tab'){const buttons=[...event.currentTarget.querySelectorAll('button:not(:disabled),summary,a[href]')];const first=buttons[0],last=buttons.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}}}><section ref={element=>{panelRefs.current[panelId]=element;}} className={`gd-detail${expanded?' gd-detail--expanded':''}`} role="dialog" aria-modal="true" aria-labelledby={`gd-detail-title-${panelId}`} tabIndex={-1}><CanvasNavigation briefName={brief.title} deliverableName={active?name(active):c.brief} onCanvas={()=>setOpened(null)} onBrief={openBrief}/><header><div>{active&&<p className={`gd-status gd-status--${active.status}`}>{c[active.status]}</p>}<h2 id={`gd-detail-title-${panelId}`}>{active?name(active):opened==='bio'?'Brand Core':c.brief}</h2></div><div className="gd-actions">{active&&action(active)}{active&&<button className="btn btn--ghost" onClick={()=>setExpanded(v=>!v)}>{expanded?c.restore:c.expand}</button>}<button ref={opened===panelId?closeRef:null} className="btn btn--ghost" onClick={()=>setOpened(null)}>{c.close}</button></div></header>
    {(error||notice)&&<p role={error?'alert':'status'}>{error||notice}</p>}
    {source?<div className="gd-piece"><h3>{opened==='brief'?brief.title:'Brand Core'}</h3><p>{opened==='brief'?c.briefContext:c.foundation}</p></div>:<>
    {!ready(active)&&<p className="gd-warning" role="status">{c.incomplete}</p>}
@@ -59,7 +65,7 @@ export function DeliveryBoard({brief={},deliverables=[],canInspect=false,onRun,r
    {onOpenArtifact&&(!canOpenArtifact||canOpenArtifact(active))&&<button className="btn btn--ghost" onClick={()=>{setOpened(null);onOpenArtifact(active);}}>{c.reviewPiece}</button>}
    {canInspect&&(active.production||productionTools)&&<details className="gd-production"><summary>{c.made}</summary><ul>{(active.production||[]).map((p,i)=><li key={i}><span>{p.agentId}</span> · <span>{p.part||c.source}</span> · <span>{p.status}</span></li>)}</ul>{productionTools?.(()=>setOpened(null),active)}</details>}
    <footer>{action(active)}</footer></>}
-  </section></div>}
+  </section></div>;})}
  </section>;
 }
 export function SavedDeliveryCanvas({briefId,go,Canvas,fetcher=apiFetch,...surfaceProps}) {

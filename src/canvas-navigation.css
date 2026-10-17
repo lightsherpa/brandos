@@ -1,0 +1,63 @@
+/* Canvas-only shell: the saved preference never changes content width. */
+html body .app[data-canvas-navigation] { min-width:0; padding-inline-start:64px; padding-bottom:0; }
+html body .app[data-canvas-navigation] .app-dock { top:0; bottom:0; inset-inline-start:0; width:64px; padding:8px; box-sizing:border-box; border-radius:0; overflow:visible; flex-direction:column; height:auto; }
+html body .app[data-canvas-navigation] .app-dock__logo { height:40px; padding:8px 0; justify-content:center; overflow:hidden; flex-shrink:0; }
+html body .app[data-canvas-navigation] .app-dock__logo>span:last-child { font-size:0!important; }
+html body .app[data-canvas-navigation] .app-dock__logo>span:last-child::after { content:'B'; font-size:21px; }
+html body .app[data-canvas-navigation] .app-dock__back { display:none; }
+html body .app[data-canvas-navigation] .app-dock__section { height:12px; padding:0; font-size:0; flex-shrink:0; }
+html body .app[data-canvas-navigation] .app-dock__item { min-height:44px; flex-shrink:0; padding:10px; gap:16px; white-space:nowrap; }
+html body .app[data-canvas-navigation] .app-dock__item>span:last-child,html body .app[data-canvas-navigation] .canvas-menu-label { display:none; }
+html body .app[data-canvas-navigation] .ws-switcher__name,html body .app[data-canvas-navigation] .ws-switcher__chev { display:none; }
+html body .app[data-canvas-navigation] .ws-switcher__trigger { padding:8px; min-height:44px; }
+html body .app[data-canvas-navigation] .app-dock[data-pinned="true"] .ws-switcher__name,html body .app[data-canvas-navigation] .app-dock:focus-within .ws-switcher__name { display:inline; }
+html body .app[data-canvas-navigation] .canvas-menu-pin { justify-content:flex-start; gap:16px; min-height:44px; padding:10px; white-space:nowrap; overflow:hidden; }
+html body .app[data-canvas-navigation] .canvas-menu-toggle { display:none; }
+html body .app[data-canvas-navigation] .app-dock[data-pinned="true"],html body .app[data-canvas-navigation] .app-dock:focus-within { width:240px; }
+html body .app[data-canvas-navigation] .app-dock[data-pinned="true"] .app-dock__item>span:last-child,html body .app[data-canvas-navigation] .app-dock:focus-within .app-dock__item>span:last-child,html body .app[data-canvas-navigation] .app-dock[data-pinned="true"] .canvas-menu-label,html body .app[data-canvas-navigation] .app-dock:focus-within .canvas-menu-label { display:inline; }
+@media(hover:hover) {
+ html body .app[data-canvas-navigation] .app-dock:hover { width:240px; }
+ html body .app[data-canvas-navigation] .app-dock:hover .ws-switcher__name { display:inline; }
+ html body .app[data-canvas-navigation] .app-dock:hover .app-dock__item>span:last-child,html body .app[data-canvas-navigation] .app-dock:hover .canvas-menu-label { display:inline; }
+}
+.canvas-path { display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:5; padding:8px 0; background:var(--c-card,#fff); border-bottom:1px solid var(--c-line); min-width:0; }
+.canvas-path__back { flex-shrink:0; }
+.canvas-path ol { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none; min-width:0; }
+.canvas-path li { display:flex; align-items:center; gap:8px; min-width:0; max-width:100%; }
+.canvas-path li>span { color:var(--c-dim); }
+.canvas-path li button { font:inherit; font-size:12px; color:var(--c-ink); border:0; background:none; padding:8px 4px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:32ch; }
+.canvas-path li button:hover { text-decoration:underline; }
+.canvas-path [aria-current] { font-weight:600; }
+.gd-overlay[hidden] { display:none; }
+.gd-detail>.canvas-path { margin-bottom:16px; }
+.gd-detail:focus { outline:none; }
+@media(max-width:767px) {
+ html body .app[data-canvas-navigation] { padding-inline-start:0; padding-top:56px; }
+ html body .app[data-canvas-navigation] .app-dock,html body .app[data-canvas-navigation] .app-dock[data-pinned="true"],html body .app[data-canvas-navigation] .app-dock:focus-within { width:100%; height:56px; bottom:auto; display:flex; flex-direction:row; align-items:center; justify-content:space-between; overflow:visible; padding:0 16px; }
+ html body .app[data-canvas-navigation] .app-dock .app-dock__logo { width:auto; }
+ html body .app[data-canvas-navigation] .canvas-menu-pin { display:none; }
+ html body .app[data-canvas-navigation] .canvas-menu-toggle { display:inline-flex; order:3; }
+ html body .app[data-canvas-navigation] .ws-switcher { order:2; }
+ html body .app[data-canvas-navigation] .app-dock__logo { order:1; }
+ html body .app[data-canvas-navigation] .app-dock__items { display:none; }
+ html body .app[data-canvas-navigation] .app-dock[data-menu-open="true"] .app-dock__items { display:flex; position:absolute; top:56px; inset-inline:0; padding:8px 16px; max-height:calc(100dvh - 56px); overflow:auto; background:var(--c-card,#fff); box-shadow:var(--shadow-lg); }
+ html body .app[data-canvas-navigation] .app-dock .app-dock__item>span:last-child { display:inline; }
+ html body .app[data-canvas-navigation] .app-dock__section { height:auto; padding:8px; font-size:12px; }
+ .canvas-path { flex-wrap:wrap; gap:0; }
+ .canvas-path ol { flex-basis:100%; }
+ .gd-overlay { top:56px; }
+ .gd-detail { width:100%; padding:16px; }
+}
+/* Override the legacy bottom-dock breakpoint only inside the Canvas. */
+html body .app[data-canvas-navigation] .app-dock__logo { display:flex; }
+html body .app[data-canvas-navigation] .ws-switcher { display:block; }
+html body .app[data-canvas-navigation] .app-dock__section { display:block; }
+html body .app[data-canvas-navigation] .app-dock__item { flex:0 0 auto; flex-direction:row; justify-content:flex-start; height:44px; }
+html body .app[data-canvas-navigation] .app-dock__items { flex-direction:column; }
+/* A transformed route wrapper would anchor fixed detail panels to page scroll. */
+html body .app[data-canvas-navigation] .route-view { animation:none; }
+@media(max-width:767px) {
+ html body .app[data-canvas-navigation] .topbar { height:auto; min-height:56px; flex-wrap:wrap; padding:8px 16px; gap:8px; }
+ html body .app[data-canvas-navigation] .topbar__actions { flex-wrap:wrap; max-width:100%; }
+ html body .app[data-canvas-navigation] .ws-switcher { min-width:0; max-width:calc(100% - 120px); }
+}

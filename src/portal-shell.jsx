@@ -1,3 +1,5 @@
+import {canvasNavigationCopy,readCanvasPin,writeCanvasPin} from './canvas-navigation.jsx';
+import './canvas-navigation.css';
 import {reviewDeskCopy,reviewDeskEnabled} from './lib/review-desk-copy.js';
 import {certifyUxEnabled} from './certify/ux-flags.js';
 import {brandCoreNavTarget,resolveCertifyRoute,canEnterCertify} from './lib/certify-routing.js';
@@ -275,7 +277,7 @@ function WorkspaceSwitcher() {
     <div className="ws-switcher" ref={rootRef}>
       <button className={"ws-switcher__trigger" + (open ? " ws-switcher__trigger--open" : "")}
         onClick={() => setOpen((o) => !o)}
-        aria-haspopup="listbox" aria-expanded={open}>
+        aria-haspopup="listbox" aria-label={current.name || t("ws.workspace")} aria-expanded={open}>
         <span className="ws-switcher__chip" aria-hidden="true">{initial}</span>
         <span className="ws-switcher__name">{current.name || t("ws.workspace")}</span>
         <span className="ws-switcher__chev" aria-hidden="true"><Icon name="chev" size={12} /></span>
@@ -676,8 +678,16 @@ export function useTasksEnabled() {
 /* App-wide menu — a persistent, always-open sidebar with a prominent
    brand logo at the top. No collapse. */
 function AppDock({ portal, currentRoute, onNav }) {
-  const { t } = useLocale();
+  const { t,locale } = useLocale();
+  const navCopy=canvasNavigationCopy(locale),canvas=currentRoute==='canvas';
   const session = useSession();
+  const userId=session?.userId||session?.id||session?.user?.id;
+  const [pin,setPin]=React.useState({userId:null,value:false});
+  const [mobileOpen,setMobileOpen]=React.useState(false);
+  React.useEffect(()=>{let value=false;try{value=readCanvasPin(window.localStorage,userId);}catch{}setPin({userId,value});},[userId]);
+  React.useEffect(()=>setMobileOpen(false),[currentRoute]);
+  const pinned=pin.userId===userId&&pin.value;
+  const togglePin=()=>{const value=!pinned;setPin({userId,value});try{writeCanvasPin(window.localStorage,userId,value);}catch{}};
   /* Admins see the client nav + the admin extras. Team users see their
      own nav unchanged. This keeps the admin's everyday surfaces intact
      and just adds operator tooling at the bottom of the dock. */
@@ -708,7 +718,7 @@ function AppDock({ portal, currentRoute, onNav }) {
   const isHome = currentRoute === homeRoute;
   const goHome = () => onNav(homeRoute);
   return (
-    <nav className="app-dock" aria-label={t("a11y.navigation")}>
+    <nav className="app-dock" data-canvas-dock={canvas||undefined} data-pinned={pinned} data-menu-open={mobileOpen} aria-label={t("a11y.navigation")}>
       <button
         className={"app-dock__logo" + (isHome ? "" : " app-dock__logo--linked")}
         onClick={isHome ? undefined : goHome}
@@ -721,14 +731,15 @@ function AppDock({ portal, currentRoute, onNav }) {
         )}
         <span style={{fontFamily:"'Instrument Sans', system-ui, sans-serif", fontSize: 21, fontWeight: 600, letterSpacing: "-0.04em"}}>BrandOS</span>
       </button>
+      {canvas&&<><button className="canvas-menu-pin btn btn--ghost" onClick={togglePin} aria-pressed={pinned} aria-label={pinned?navCopy.unpin:navCopy.pin} title={pinned?navCopy.unpin:navCopy.pin}><span aria-hidden="true">{pinned?'◆':'◇'}</span><span className="canvas-menu-label">{pinned?navCopy.unpin:navCopy.pin}</span></button><button className="canvas-menu-toggle btn btn--ghost" aria-expanded={mobileOpen} aria-controls="canvas-dock-items" onClick={()=>setMobileOpen(value=>!value)}>{navCopy.menu}</button></>}
       {portal !== "team" && <WorkspaceSwitcher />}
-      <div className="app-dock__items">
+      <div className="app-dock__items" id={canvas?"canvas-dock-items":undefined}>
         {routes.map((r, i) => (
           <React.Fragment key={r.id}>
             {(i === 0 || r.sectionKey !== routes[i - 1].sectionKey) && r.sectionKey && (
               <div className="app-dock__section">{t(r.sectionKey)}</div>
             )}
-            <button className={"app-dock__item" + (["settings", "admin-account", "team-account"].includes(r.id) ? " app-dock__item--account" : "") + (isActive(r.id) ? " app-dock__item--active" : "")} onClick={() => onNav(r.id === "bio" ? brandCoreNavTarget(session) : r.id)}>
+            <button className={"app-dock__item" + (["settings", "admin-account", "team-account"].includes(r.id) ? " app-dock__item--account" : "") + (isActive(r.id) ? " app-dock__item--active" : "")} aria-label={r.id === "team-review" && reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : t(r.labelKey)} title={t(r.labelKey)} onClick={() => {setMobileOpen(false);onNav(r.id === "bio" ? brandCoreNavTarget(session) : r.id);}}>
               <span className="app-dock__icon"><Icon name={r.icon} size={18} /></span>
               <span>{r.id === "team-review" && reviewDeskEnabled() ? reviewDeskCopy(getLocale()).title : t(r.labelKey)}</span>
             </button>
@@ -838,7 +849,7 @@ function App() {
   };
 
   return (
-    <div className="app" data-screen-label={portal === "client" ? "Client portal" : "Team portal"}>
+    <div className="app" data-canvas-navigation={route.id==="canvas"||undefined} data-screen-label={portal === "client" ? "Client portal" : "Team portal"}>
       <WorkspaceLogo shellMode={shellMode} />
       <AppDock portal={portal} currentRoute={route.id} onNav={go} />
       <div style={{display:"flex", flexDirection:"column", minWidth:0}}>
