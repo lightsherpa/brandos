@@ -437,11 +437,13 @@ select count(*) from public.outputs
  where body::text ~ '\\?"(model|provider_endpoint|fallback_from|attempts|[a-z_]*_usd)\\?":';         -- 0
 ```
 
-## 23. `20261017191634_brief_outputs_to_brand_core.sql`
+Entry #23 belongs to PR #29.
+
+## 24. `20261017191634_brief_outputs_to_brand_core.sql`
 
 **HOLD: local/dev only until Oscar approves the prod apply.**
 
-Adds service-only `brief_references`, private `brief-references` Storage, and service-only `brand_output_examples`. Uploads are brief-only, never `bio_sources`. Accepted outputs are linked without re-uploading their stored asset; the output snapshot and lineage are kept as a pending addition. Promotion atomically appends an uncertified candidate BIO containing the approved example ID. No certified BIO is edited, no reference is promoted, and no public storage policy is added. Applied only to the local Docker database for verification.
+Adds service-only `brief_references`, private `brief-references` Storage, and service-only `brand_output_examples`. Uploads are brief-only, never `bio_sources`. Accepted outputs are linked without re-uploading their stored asset; the output snapshot and lineage are kept as a pending addition. Promotion atomically appends an uncertified candidate BIO containing the approved example ID. No certified BIO is edited, no reference is promoted, and no public storage policy is added. Applied only to the local Docker database for verification. Replay-safe table/index/column/policy/RPC definitions; draft linkage, SHA-256 dedupe and retryable cleanup claims keep discarded unbound uploads out of Storage. Production-bound references are retained.
 
 Verify (read-only):
 

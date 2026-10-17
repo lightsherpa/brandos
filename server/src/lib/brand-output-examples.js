@@ -1,5 +1,5 @@
 import {hasPermission} from './permissions.js';
-export const canAddBrandExample=(actor,workspaceId)=>hasPermission(actor,'bio.propose',workspaceId);
+export const canAddBrandExample=(actor,workspaceId)=>hasPermission(actor,'brand.manage',workspaceId);
 export function approvedExampleSnapshot(group) {
  if(!group?.complete||group.status!=='delivered'||!group.outputIds?.length)throw Object.assign(Error('Accept the finished deliverable before adding it to Brand Core'),{status:409});
  const {type,index,html,assetUrl}=group;

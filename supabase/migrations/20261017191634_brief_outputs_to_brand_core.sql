@@ -1,6 +1,6 @@
 -- HOLD: local/dev only until Oscar approves the prod apply.
 -- Brief-only images never enter bio_sources or a certified bios payload.
-create table public.brief_references (
+create table if not exists public.brief_references (
  id uuid primary key default gen_random_uuid(),
  brand_id uuid not null references public.brands(id) on delete cascade,
  owner_id uuid not null references public.users(id),
@@ -9,10 +9,16 @@ create table public.brief_references (
  name text not null,
  created_at timestamptz not null default now()
 );
-create index brief_references_owner_idx on public.brief_references(owner_id);
-create index brief_references_brief_idx on public.brief_references(brief_id);
-create index brief_references_brand_owner_idx on public.brief_references(brand_id,owner_id);
-create table public.brand_output_examples (
+create index if not exists brief_references_owner_idx on public.brief_references(owner_id);
+create index if not exists brief_references_brief_idx on public.brief_references(brief_id);
+create index if not exists brief_references_brand_owner_idx on public.brief_references(brand_id,owner_id);
+-- Discard explicitly detaches bound references. RESTRICT blocks a late upload
+-- from becoming an orphan while its draft is being discarded.
+alter table public.brief_references add column if not exists draft_id uuid references public.brief_drafts(id) on delete restrict;
+alter table public.brief_references add column if not exists sha256 text;
+alter table public.brief_references add column if not exists cleanup_pending boolean not null default false;
+create unique index if not exists brief_references_draft_hash_idx on public.brief_references(draft_id,owner_id,brand_id,sha256) where brief_id is null;
+create table if not exists public.brand_output_examples (
  id uuid primary key default gen_random_uuid(),
  brand_id uuid not null references public.brands(id) on delete cascade,
  brief_id uuid not null references public.briefs(id) on delete restrict,
@@ -25,9 +31,9 @@ create table public.brand_output_examples (
  created_at timestamptz not null default now(),
  unique(brand_id,brief_id,deliverable_key)
 );
-create index brand_output_examples_brand_idx on public.brand_output_examples(brand_id,created_at desc);
-create index brand_output_examples_brief_idx on public.brand_output_examples(brief_id);
-create index brand_output_examples_creator_idx on public.brand_output_examples(created_by);
+create index if not exists brand_output_examples_brand_idx on public.brand_output_examples(brand_id,created_at desc);
+create index if not exists brand_output_examples_brief_idx on public.brand_output_examples(brief_id);
+create index if not exists brand_output_examples_creator_idx on public.brand_output_examples(created_by);
 alter table public.brief_references enable row level security;
 alter table public.brand_output_examples enable row level security;
 revoke all on public.brief_references,public.brand_output_examples from public,anon,authenticated;
@@ -36,14 +42,15 @@ insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
  values('brief-references','brief-references',false,5242880,array['image/png','image/jpeg','image/webp'])
  on conflict(id) do nothing;
 -- Even permissive legacy bucket policies cannot expose these brief-only files.
+drop policy if exists brief_references_service_only on storage.objects;
 create policy brief_references_service_only on storage.objects as restrictive for all to anon,authenticated using(bucket_id<>'brief-references') with check(bucket_id<>'brief-references');
 notify pgrst,'reload schema';
 
 -- Register the example and append its reviewable Brand Core candidate atomically.
 -- The existing certified row and its reference list are never mutated.
-alter table public.brand_output_examples add column candidate_bio_id uuid references public.bios(id) on delete restrict;
-create index brand_output_examples_candidate_idx on public.brand_output_examples(candidate_bio_id);
-create function public.propose_brand_output_example(p_brand_id uuid,p_brief_id uuid,p_delivery_key text,p_output_ids uuid[],p_snapshot jsonb,p_user_id uuid)
+alter table public.brand_output_examples add column if not exists candidate_bio_id uuid references public.bios(id) on delete restrict;
+create index if not exists brand_output_examples_candidate_idx on public.brand_output_examples(candidate_bio_id);
+create or replace function public.propose_brand_output_example(p_brand_id uuid,p_brief_id uuid,p_delivery_key text,p_output_ids uuid[],p_snapshot jsonb,p_user_id uuid)
 returns public.brand_output_examples language plpgsql security definer set search_path=public as $$
 declare v_example public.brand_output_examples; v_bio public.bios; v_candidate public.bios; v_ids jsonb; v_refs uuid[];
 begin

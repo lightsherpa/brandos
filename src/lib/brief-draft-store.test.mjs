@@ -99,3 +99,13 @@ test('oversized local draft remains recoverable and editable after server reject
  assert.equal(await store.flush(),true,'correcting rejected content should allow the next save');
  store.dispose();
 });
+
+test('discard clears server draft and local recovery only after the server confirms photo cleanup',async()=>{
+ let deletes=0,fail=true;
+ const f=fixture([],request=>async(path,init)=>{
+  if(init?.method==='DELETE'){deletes++;return fail?Response.json({error:'Photo cleanup failed'},{status:503}):Response.json({ok:true});}
+  return request(path,init);
+ });await f.store.load();f.store.update({input:'Discard me'});await f.store.flush();const id=f.store.getSnapshot().id;
+ assert.equal(await f.store.discard(),false);assert.equal(f.store.getSnapshot().id,id);assert.match(f.store.getSnapshot().error,/cleanup/);
+ fail=false;assert.equal(await f.store.discard(),true);assert.equal(f.store.getSnapshot().id,null);assert.equal(f.store.getSnapshot().payload.input,'');assert.equal(f.store.getSnapshot().drafts.some(row=>row.id===id),false);assert.equal(f.map.size,0);assert.equal(deletes,2);f.store.dispose();
+});

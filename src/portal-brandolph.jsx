@@ -1,4 +1,4 @@
-import {BriefPhotoReferences} from './brief-brand-examples.jsx';
+import {BriefPhotoReferences,briefExampleCopy} from './brief-brand-examples.jsx';
 import React from "react";
 import { useLocale } from "./lib/i18n.js";
 import { apiFetch, supabase } from "./lib/supabase-browser.js";
@@ -249,7 +249,7 @@ function HomeDashboard({ go, stats }) {
 }
 
 function HomeCreate({ tweaks, go }) {
-  const { t } = useLocale();
+  const { t,locale } = useLocale();
   /* Fetched once here and handed to HomeDashboard — the crew-cost line below
      needs the same live balance, and two hooks would mean two round-trips. */
   const stats = useHomeStats();
@@ -607,7 +607,7 @@ function HomeCreate({ tweaks, go }) {
                   color:"var(--c-ink)", background:"transparent", padding: 0,
                 }}
               />
-              <BriefPhotoReferences key={`${activeBrandId}:${draft.id||'new'}`} onBusyChange={setReferenceBusy} brandId={activeBrandId} references={draft.payload.references||[]} disabled={!draft.ready||sharp.loading} onChange={references=>draft.store.update({references})}/>
+              <BriefPhotoReferences key={activeBrandId} draftId={draft.id} onBusyChange={setReferenceBusy} prepareUpload={async()=>{const store=draft.store;store.update({});if(!await store.flush())throw Error('Draft save failed');return store.getSnapshot().id;}} brandId={activeBrandId} references={draft.payload.references||[]} disabled={!draft.ready||sharp.loading} onChange={references=>draft.store.update({references})}/>
               <div style={{
                 marginTop: 12, paddingTop: 12,
                 borderTop:"1px dashed var(--c-line)",
@@ -653,18 +653,19 @@ function HomeCreate({ tweaks, go }) {
               {(draft.drafts.length > 0 || draft.id) && <details style={{ flex: 1, minWidth: 0 }}>
                 <summary style={{ cursor: "pointer", width: "fit-content", padding: "8px 0" }}>{t("drafts.label")} ({draft.drafts.length})</summary>
                 <div style={{ padding: "4px 0 8px" }}>
-                  <button className="btn btn--link" disabled={!draft.ready || sharp.loading} onClick={async (event) => {
+                  <button className="btn btn--link" disabled={!draft.ready || sharp.loading || referenceBusy} onClick={async (event) => {
                     const disclosure = event.currentTarget.closest("details");
                     if (await handleReset()) disclosure.open = false;
                   }} style={{ fontSize: 12 }}>{t("drafts.new")}</button>
                   <ul style={{ listStyle: "none", padding: 0, margin: "4px 0 0", maxHeight: 220, overflowY: "auto" }}>
                     {draft.drafts.map((row) => <li key={row.recoveryKey || row.id} style={{ borderTop: "1px solid var(--c-line)", padding: "4px 0" }}>
-                      <button className="btn btn--link" disabled={sharp.loading} onClick={async (event) => {
+                      <button className="btn btn--link" disabled={sharp.loading||referenceBusy} onClick={async (event) => {
                         const disclosure = event.currentTarget.closest("details");
                         if (await resumeDraft(row)) disclosure.open = false;
                       }} style={{ maxWidth: "100%", whiteSpace: "normal", textAlign: "start", fontSize: 12 }}>
                         {row.payload.input.slice(0, 100) || t("drafts.untitled")}{row.recoveryKey ? ` · ${t("drafts.unsaved")}` : ""}
                       </button>
+                      <button className="btn btn--link" disabled={sharp.loading||referenceBusy} onClick={async()=>{const current=row.id===draft.id;if(await draft.store.discard(row)&&current){setPhase('idle');setSharpStatus({loading:false,error:null});setBriefBrandId(null);}}}>{briefExampleCopy(locale).discard}</button>
                     </li>)}
                   </ul>
                 </div>
