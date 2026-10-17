@@ -60,3 +60,10 @@ test("non-string input is coerced rather than thrown on", () => {
   assert.equal(redactLogLine(undefined), "");
   assert.equal(redactLogLine(42), "42");
 });
+test('Brand Book capability tokens are redacted from HTML and asset request logs',()=>{
+ const token='A'.repeat(43);
+ for(const line of [`GET /api/brand-book/shared/${token}`,`GET /brand-book/shared/${token}/assets/asset-001.png 200`,`share: https://brand.test/api/brand-book/shared/${token}?locale=es`,`GET /api/brand-book/shared/%41${token.slice(1)}/assets/asset-001.png`]){
+  const redacted=redactLogLine(line);assert.ok(!redacted.includes(token));assert.match(redacted,/brand-book\/shared\/\[redacted\]/);
+ }
+ assert.equal(redactLogLine('GET /api/brand-book/shared'), 'GET /api/brand-book/shared');
+});

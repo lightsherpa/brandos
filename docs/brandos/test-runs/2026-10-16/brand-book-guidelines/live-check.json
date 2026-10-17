@@ -1,0 +1,14 @@
+{
+  "brand": "Separate local Cake Me v3 validation copy",
+  "results": [
+    "cd: certified edition 3, permission correct",
+    "owner: certified edition 3, permission correct",
+    "CD cannot create public shares",
+    "website: real ZIP 10477753 bytes",
+    "kit: real ZIP 10422188 bytes",
+    "Anonymous share: version 3, 6 live approved images, no auth/private storage URLs",
+    "Owner UI created share on configured local API origin; public guide loaded without app auth; UI revoke denied subsequent public read.",
+    "Cleanup: all local test capability links revoked; HTML and private assets return 404 after revoke."
+  ],
+  "sharePendingRevoke": false
+}

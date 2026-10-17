@@ -436,3 +436,21 @@ select has_column_privilege('authenticated', 'public.runs', 'model_used', 'selec
 select count(*) from public.outputs
  where body::text ~ '\\?"(model|provider_endpoint|fallback_from|attempts|[a-z_]*_usd)\\?":';         -- 0
 ```
+
+## 23. `20261016030000_brand_book_shares.sql` (feat/brand-book-export)
+
+**HOLD: local/dev only until Oscar approves the prod apply.**
+
+Version `20261016030000` follows dev’s `20261016020000_client_safe_runs_outputs.sql`; the former Brand Book timestamp collided with that migration.
+
+Safe before the merge with BRAND_BOOK_GUIDELINES off. Adds service-only, owner-created, expiring and revocable capability links bound to one certified Brand Core snapshot. Snapshot and edition are immutable; only revocation changes. No anon/authenticated table grants. No production application is authorized by this handoff. Applied and verified only on the existing CaastorOS local stack.
+
+```
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -c 'begin' -f supabase/migrations/20261016030000_brand_book_shares.sql -c "insert into supabase_migrations.schema_migrations (version, name) values ('20261016030000', 'brand_book_shares') on conflict do nothing" -c 'commit'
+```
+
+```sql
+select relname, relrowsecurity from pg_class where oid = 'public.brand_book_shares'::regclass;
+```
+
+Regression: `supabase/tests/brand_book_shares.sql` verifies RLS/grants, certified owner-only creation, immutable snapshots and revocation with rollback fixtures.

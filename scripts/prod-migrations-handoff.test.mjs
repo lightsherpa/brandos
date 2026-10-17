@@ -66,6 +66,7 @@ test("the production handoff lists every dev migration missing from main, in ord
   assert.match(sectionOf("20261010040000_discovery_run_progress.sql"), /Run the verify query first and skip if a row comes back/);
   assert.match(sectionOf("20260910000000_brief_drafts.sql"), /where to_regclass\('public\.brief_drafts'\) is not null/);
   assert.match(sectionOf("20261010040000_discovery_run_progress.sql"), /where to_regclass\('public\.discovery_runs'\) is not null/);
+  assert.match(sectionOf("20261016030000_brand_book_shares.sql"), /HOLD: local\/dev only until Oscar approves the prod apply\./);
   assert.deepEqual(pending, [
     "20260815005000_platform_integrity.sql",
     "20260901000000_delegation_token_hash.sql",
@@ -88,5 +89,6 @@ test("the production handoff lists every dev migration missing from main, in ord
     "20261016000000_brand_core_input_tags.sql",
     "20261016010000_certify_review_progress.sql",
     "20261016020000_client_safe_runs_outputs.sql",
+    "20261016030000_brand_book_shares.sql",
   ]);
 });

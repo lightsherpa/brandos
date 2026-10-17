@@ -1,3 +1,5 @@
+import {guidelinesCopy} from './locales/brand-book-guidelines-copy.js';
+import {BrandBookGuidelines,brandBookGuidelinesEnabled} from './brand-book-guidelines.jsx';
 import React from 'react';
 import {useLocale} from './lib/i18n.js';
 import {useLiveBio,BioReviewSection} from './portal-discovery.jsx';
@@ -21,6 +23,7 @@ export function BrandBook({go,param}){
  },[replayName]);
  const bio=replayName?replay?.bio:live.bio,payload=bio?.payload||{},brandName=replayName?replay?.brandName:live.brandName;
  const certified=bio&&!productionBlocker(bio),by=replayName?replay?.certifier:live.cert?.byName;
+ if(brandBookGuidelinesEnabled()&&!replayName){if(live.error&&!live.loading)return <section className="brand-book" role="alert"><p>{guidelinesCopy(locale).unavailable}</p><button className="btn btn--primary" onClick={live.refresh}>{guidelinesCopy(locale).retry}</button></section>;return <BrandBookGuidelines key={live.brandId||'pending'} brandId={live.brandId} go={go}/>;}
  if(error)return <div className="brand-book"><p role="alert">{error}</p></div>;
  if(!bio)return <div className="brand-book"><h1>{t('brandBook.title')}</h1><p>{live.loading||replayName?t('brandBook.loading'):t('brandBook.noBio')}</p>{!replayName&&<button className="btn btn--primary" onClick={()=>go('discovery')}>{t('brandBook.startDiscovery')}</button>}</div>;
  if(brandBookV2Enabled())return <BrandBookV2 {...{bio,payload,brandName,certified,go,locale}} brandId={live.brandId} replay={!!replayName}/>;
